@@ -360,7 +360,7 @@ def vectorpart_is_combined_with_nonleaf_node(p):
 		# 	return vectorstructure_part_size(vectorstructure[p]) <= (64-1-nr_bits_address_internal())
 		return vectorstructure_part_size(vectorstructure[p]) <= nr_bits_address_internal()
 	elif vectorsize > 62:
-		return vectorstructure_part_size(vectorstructure[p]) <= 31
+		return vectorstructure_part_size(vectorstructure[p]) < 31
 	else:
 		return False
 
@@ -956,7 +956,7 @@ def cudastore_initial_vector():
 		current = Open.pop(0)
 		children = vectortree[current]
 		if is_vectorpart(current):
-			# set p_cpointers to NEW LEAF value (highest two bits set to 01)
+			# set p_cpointers to NEW LEAF value
 			p_cpointers = "CACHE_POINTERS_NEW_LEAF"
 			part_id = vectorpart_id(current)
 			p = vectorparts[part_id]
@@ -984,11 +984,12 @@ def cudastore_initial_vector():
 		else:
 			nodes[0] |= 0xC000000000000000
 	else:
-		# mark root node as such
-		nodes_cachepointers[0] = (nodes_cachepointers[0] & 0x3FFFFFFF) | 0x40000000;
-		# if compact_hash_table:
-		# 	nodes[0] = (nodes[0] | 0x8000000000000000)
+		if compact_hash_table:
+			# mark the root node as being root. No need to mark it as new. This will be done in
+			# FINDORPUT_SINGLE for the compressed version of the node.
+			nodes[0] = (nodes[0] & 0x3FFFFFFFFFFFFFFF) | 0x4000000000000000;
 		if not compact_hash_table:
+			# mark the root node as being root and being new.
 			nodes[0] = (nodes[0] | 0xC000000000000000)
 	# construct code
 	output = "\tif (GLOBAL_THREAD_ID < " + str(nrnodes) + ") {\n"
@@ -1364,7 +1365,9 @@ def cudastore_new_vector(s,indent,o,D, sender_o='', sender_sm='', lossy=False):
 				nav.append((current,False))
 				added.add(current)
 			while True:
-				parent = vectortree_T[current]
+				parent = vectortree_T.get(current)
+				if parent == None:
+					break
 				navcounters[parent] -= 1
 				if navcounters[parent] == 0:
 					current = parent

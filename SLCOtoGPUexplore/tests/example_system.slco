@@ -1,9 +1,8 @@
 model Test {
-  actions a
   classes
   P {
     variables
-			Integer x y z q
+			Byte x
 
     state machines
     REC1 {
@@ -12,7 +11,7 @@ model Test {
 
       transitions
       R0 -> R1 {
-        y := 3
+        x := 1
       }
     }
   }
