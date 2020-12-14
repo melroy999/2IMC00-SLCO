@@ -207,16 +207,16 @@ inline __host__ __device__ shared_indextype fast_modulo(shared_indextype x, shar
 
 // *** START BIT OPERATIONS ***
 
+// Bit right shift function.
+inline __host__ __device__ uint64_t rshft(const uint64_t x, uint8_t i) {
+	return (x >> i);
+}
+
 {% if compact_hash_table %}
 // Bit left shift function for {{nr_bits_address_internal*2}} bits.
 inline __host__ __device__ uint64_t lshft_{{nr_bits_address_internal*2}}(const uint64_t x, uint8_t i) {
 	uint64_t y = (x << i);
 	return y & {{((nr_bits_address_internal*2)|pow2-1)|hexa}};
-}
-
-// Bit right shift function.
-inline __host__ __device__ uint64_t rshft(const uint64_t x, uint8_t i) {
-	return (x >> i);
 }
 
 // Multiplication modulo 2^{{nr_bits_address_internal*2}}.
@@ -1014,7 +1014,7 @@ inline void host_get_{{x|replace("[","_")|replace("]","")|replace("'","_")}}({{t
 // GPU data update functions. Update particular state info in the given state vector part(s).
 // Precondition: the given part indeed needs to contain the indicated fragment (left or right in case the info is split over two parts) of the updated info.
 {% for s in vectorelem_in_structure_map.keys() %}
-{% if (s.split("["))[0] not in arraynames %}
+{% if ((s.split("["))[0] not in arraynames) or s|is_write_constant_indexed %}
 {% set size = vectorelem_in_structure_map[s][0] %}
 inline __device__ void set_left_{{s|replace("[","_")|replace("]","")|replace("'","_")}}(nodetype *part, {% if size == 1 %}elem_booltype{% elif size < 32 %}elem_chartype{% else %}elem_inttype{% endif %} x) {
 	nodetype t1 = (nodetype) x{% if vectorelem_in_structure_map[s]|length > 2 %} >> {{vectorelem_in_structure_map[s][2][2]}}{% endif %};
@@ -1064,6 +1064,7 @@ inline __device__ bool is_left_vectorpart_for_array_element_{{dynamic_write_arra
 
 {% endfor %}
 {% for x in arraynames.keys() %}
+{% if x|is_write_dynamic_indexed %}
 {% set t = arraynames[x][0] %}
 {% set size = arraynames[x][1] %}
 // Left data update function for array {{x}}.
@@ -1102,6 +1103,7 @@ inline __device__ void set_right_{{x|replace("'","_")}}(nodetype *part, array_in
 	}
 }
 
+{% endif %}
 {% endfor %}
 {% for c in model.channels|select("is_async") %}
 {% if loop.first %}
@@ -1320,7 +1322,7 @@ inline __device__ uint64_t {% if compact_hash_table %}U{% endif %}HASH_INIT(node
 	return node1;
 }
 
-inline __device__ {% if compact_hash_table %}nodetype U{% else %}indextype{% endif %}HASH(uint8_t id, uint64_t node) {
+inline __device__ {% if compact_hash_table %}nodetype U{% else %}indextype {% endif %}HASH(uint8_t id, uint64_t node) {
 	uint64_t node1 = node;
 	switch (id) {
 		case 0:
@@ -3340,7 +3342,7 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q{% if compact_
 		{% endif %}
 			// Retrieve state vector.
 			nodetype {% if vectorsize > 62 %}root{% else %}part0{% endif %} = HT_RETRIEVE(q{% if compact_hash_table %}, q_i{% endif %}, i{% if compact_hash_table %}, true{% endif %});
-			printf("retrieved node: %lu\n", root);
+			printf("retrieved node: %{% if vectorsize > 30 %}l{% endif %}u\n", {% if vectorsize > 62 %}root{% else %}part0{% endif %});
 			{% if vectorsize > 62 %}
 			{% for i in range(0,vectorstructure|length) %}
 			nodetype part{{i}} = host_direct_get_vectorpart_{{i}}(q{% if compact_hash_table %}, q_i{% endif %}, root{% if vectorsize > 62 %}, stream, print_pointers{% else %}, false{% endif %});

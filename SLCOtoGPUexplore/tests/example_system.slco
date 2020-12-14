@@ -2,16 +2,17 @@ model Test {
   classes
   P {
     variables
-			Byte x
+			Boolean[10] x
 
     state machines
     REC1 {
-      
+      variables
+        Byte i
       initial R0 states R1
 
       transitions
       R0 -> R1 {
-        x := 1
+        [i := 2; x[i] := false]
       }
     }
   }

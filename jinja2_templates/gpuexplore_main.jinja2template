@@ -104,10 +104,11 @@ __global__ void count_states(compressed_nodetype *d_q, uint64_t *result) {
 	}
 }
 
+{% if vectorsize > 62 %}
 /**
  * CUDA kernel function to prepare the cache for a new successor generation iteration.
  */
- inline __device__ void PREPARE_CACHE() {
+inline __device__ void PREPARE_CACHE() {
 	// Traverse the new state vector trees, and reconstruct the nodes, i.e., put the cache pointers back in place and reconstruct the non-leaf nodes
 	// by inspecting their children.
 	shared_inttype pointers;
@@ -228,8 +229,9 @@ __global__ void count_states(compressed_nodetype *d_q, uint64_t *result) {
 			shared[CACHEOFFSET+(i*3)+2] = EMPTYVECT32;
 		}
 	}
- }
+}
 
+{% endif %}
 __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i{% endif %}, uint8_t *d_contBFS, uint8_t *d_property_violation, volatile uint8_t *d_newstate_flags, shared_inttype *d_worktiles, const uint8_t scan) {
 	uint32_t i;
 	shared_inttype l;

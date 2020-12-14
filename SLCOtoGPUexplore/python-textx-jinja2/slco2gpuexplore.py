@@ -3020,6 +3020,43 @@ def get_constant_indices(v, vname, t, o):
 		counter += 1
 	return D
 
+def is_write_constant_indexed(vname):
+	"""Returns whether or not to given array element (identified by string name) is at least once written to in the model by referring to the index statically (i.e., with a constant)."""
+	global model
+
+	# if vname does not refer to an array element, return False
+	if len((vname.split("["))) == 1:
+		return False
+	for o in model.objects:
+		for sm in o.type.statemachines:
+			for t in sm.transitions:
+				for st in t.statements:
+					O = statement_write_varrefs(st, o)
+					for (v1,i) in O:
+						if scopename(v1,i,o) == vname:
+							return True
+	return False
+
+def is_write_dynamic_indexed(vname):
+	"""Returns whether or not to given array (identified by string name) is at least once written to in the model by referring to the index dynamically (i.e., with an expression)."""
+	global model, arraynames
+
+	# if vname does not refer to an array, return False
+	if vname not in arraynames.keys():
+		return False
+	for o in model.objects:
+		for sm in o.type.statemachines:
+			for t in sm.transitions:
+				for st in t.statements:
+					O = statement_write_varrefs(st, o)
+					for (v1,i) in O:
+						if scopename(v1,None,o) == vname:
+							if i != None:
+								i_str = getinstruction(i, o, {})
+								if not RepresentsInt(i_str):
+									return True
+	return False
+
 def get_array_range_in_vectorpart(v, vname, pid):
 	"""Return, for the given array with the given name and vectorpart pid, the range of the former's elements that are (partially) stored in part pid"""
 	global vectorstructure
@@ -3703,25 +3740,25 @@ def preprocess():
 					W = statement_write_varrefs(st, o)
 					# search for dynamic accesses
 					for (v,i) in W:
-						if i != None and not isinstance(i, str):
-							i_str = getinstruction(i,o,{})
-							if not RepresentsInt(i_str):
-								vname = o.name + "'"
-								if v.parent.__class__.__name__ == "StateMachine":
-									vname += sm.name + "'"
-								vname += v.name
-								arrays.add((v,vname))
-	for (v,vname) in arrays:
-		size = v.type.size
-		# lower bound
-		PIDs = vectorelem_in_structure_map[vname + "[0]"]
-		lower = PIDs[1][0]
-		# upper bound
-		PIDs = vectorelem_in_structure_map[vname + "[" + str(size-1) + "]"]
-		upper = PIDs[1][0]
-		if len(PIDs) > 2:
-			upper = PIDs[2][0]
-		dynamic_write_arrays[v] = (vname,lower,upper)
+						if i != None:
+							vname = o.name + "'"
+							if v.parent.__class__.__name__ == "StateMachine":
+								vname += sm.name + "'"
+							vname += v.name
+							arrays.add((v,vname))
+							if not isinstance(i, str):
+								i_str = getinstruction(i,o,{})
+								if not RepresentsInt(i_str):
+									size = v.type.size
+									# lower bound
+									PIDs = vectorelem_in_structure_map[vname + "[0]"]
+									lower = PIDs[1][0]
+									# upper bound
+									PIDs = vectorelem_in_structure_map[vname + "[" + str(size-1) + "]"]
+									upper = PIDs[1][0]
+									if len(PIDs) > 2:
+										upper = PIDs[2][0]
+									dynamic_write_arrays[v] = (vname,lower,upper)
 	# construct dictionary for array placement in vectorparts
 	array_in_structure_map = {}
 	for (v,vname) in arrays:
@@ -3911,6 +3948,8 @@ def translate():
 	jinja_env.filters['map_variables_on_buffer'] = map_variables_on_buffer
 	jinja_env.filters['is_state'] = is_state
 	jinja_env.filters['has_dynamic_indexing'] = has_dynamic_indexing
+	jinja_env.filters['is_write_constant_indexed'] = is_write_constant_indexed
+	jinja_env.filters['is_write_dynamic_indexed'] = is_write_dynamic_indexed
 	jinja_env.filters['get_array_range_in_vectorpart'] = get_array_range_in_vectorpart
 	jinja_env.filters['next_buffer_element'] = next_buffer_element
 	jinja_env.filters['difference'] = difference
