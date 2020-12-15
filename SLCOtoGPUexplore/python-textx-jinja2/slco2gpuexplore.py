@@ -616,9 +616,9 @@ def vectorstructure_to_string(D):
 			vs += ",\n// "
 		else:
 			tfirst = False
-		if nr_of_parts == 1 or not compact_hash_table:
+		if nr_of_parts == 1 or ((not compact_hash_table) and vectorstructure_part_size(t) > (64-2-nr_bits_address_root())):
 			vs += "[ two bits reserved, "
-		elif nr_of_parts > 1 and ((not compact_hash_table) and vectorstructure_part_size(t) > (64-2-nr_bits_address_root()) or (compact_hash_table and vectorstructure_part_size(t) > nr_bits_address_internal())):
+		elif nr_of_parts > 1 and (compact_hash_table and vectorstructure_part_size(t) > nr_bits_address_internal()):
 			vs += "[ "
 		else:
 			vs += "Combined with a non-leaf vector tree node: [ "
@@ -1715,8 +1715,8 @@ def cudafetchdata(s, indent, o, D, unguarded, resetfetched):
 									for k in range(0,size):
 										output += "&idx_" + str(k+D[s.params[j-1].var][2]) + ", "
 									for k in range(0,size):
-										output += "&buf" + str(gettypesize(s.params[j-1].var.type)) + "_" + str(D[s.params[j-1].var][1]+k) + ", (array_indextype) "
-									output += getinstruction(s.params[j-1].index,o,D) + ", buf" + str(gettypesize(s.params[j-1].var.type)) + "_" + str(D[s.params[j-1].var][1]+size-1) + ");\n" + indentspace
+										output += "&buf" + str(gettypesize(s.params[j-1].var.type)) + "_" + str(D[s.params[j-1].var][1]+k) + ", "
+									output += "(array_indextype) " + getinstruction(s.params[j-1].index,o,D) + ", buf" + str(gettypesize(s.params[j-1].var.type)) + "_" + str(D[s.params[j-1].var][1]+size-1) + ");\n" + indentspace
 									output += "}\n" + indentspace
 							first = False
 			vpfirst = False
@@ -1724,6 +1724,7 @@ def cudafetchdata(s, indent, o, D, unguarded, resetfetched):
 		for (v,j) in transition_sorted_dynamic_read_varrefs(t,o,unguarded):
 			if first:
 				output += "// Fetch values of variables involving dynamic array indexing.\n" + indentspace
+			print(D)
 			output += "// Check for presence of index in buffer indices.\n" + indentspace
 			size = allocs[(o,v)]
 			output += "if (!A_IEX_" + str(size) + "("
@@ -1736,8 +1737,8 @@ def cudafetchdata(s, indent, o, D, unguarded, resetfetched):
 			for i in range(0,size):
 				output += "&idx_" + str(i+D[v][2]) + ", "
 			for i in range(0,size):
-				output += "&buf" + str(gettypesize(v.type)) + "_" + str(D[v][1]+i) + ", (array_indextype) "
-			output += getinstruction(j,o,D) + ", buf" + str(gettypesize(v.type)) + "_" + str(D[v][1]+size-1) + ");\n" + indentspace
+				output += "&buf" + str(gettypesize(v.type)) + "_" + str(D[v][1]+i) + ", "
+			output += "(array_indextype) " + getinstruction(j,o,D) + ", buf" + str(gettypesize(v.type)) + "_" + str(D[v][1]+size-1) + ");\n" + indentspace
 			output += "}\n" + indentspace
 			first = False
 	return output
@@ -1964,29 +1965,34 @@ def transition_sorted_dynamic_read_varrefs(t, o, only_unguarded):
 	return L
 
 def statement_varrefs(s, o, sm):
+	return statement_varrefs(s, o, sm, 0)
+
+def statement_varrefs(s, o, sm, subid):
 	"""Return a set of variable refs appearing in statement s. o is the object owning s, and sm is the state machine owning s."""
+	"""A variable ref is a triple (v, i, subid), with v an Object, i additional info (such as an array index), and subid a number.
+	subid is in particular needed to distinguish the same dynamic array accesses in separate substatements of a Composite statement."""
 	global connected_channel, signalsize, actions, syncactions, alphabet, smnames, smname_to_object, scopename
 	R = set([])
 	if s.__class__.__name__ == "Assignment":
-		R.add((s.left.var, s.left.index))
+		R.add((s.left.var, s.left.index, subid))
 		if s.left.index != None:
-			R |= statement_varrefs(s.left.index, o, sm)
-		R |= statement_varrefs(s.right, o, sm)
+			R |= statement_varrefs(s.left.index, o, sm, subid)
+		R |= statement_varrefs(s.right, o, sm, subid)
 	elif s.__class__.__name__ == "Composite":
 		if s.guard != None:
-			R |= statement_varrefs(s.guard, o, sm)
+			R |= statement_varrefs(s.guard, o, sm, subid)
 		for i in range(0,len(s.assignments)):
-			R |= statement_varrefs(s.assignments[i], o, sm)
+			R |= statement_varrefs(s.assignments[i], o, sm, subid+i)
 	elif s.__class__.__name__ == "SendSignal":
 		c = connected_channel[(o, s.target)]
 		if c.synctype == 'async':
 			# add channel with index '_size' to represent 'size' variable
-			R.add((c, "_size"))
+			R.add((c, "_size", subid))
 			# add channel with integer indices to represent items of a Message
 			if signalsize[c] > 0:
-				R.add((c, 0))
+				R.add((c, 0, subid))
 			for i in range(1,len(c.type)+1):
-				R.add((c, i))
+				R.add((c, i, subid))
 		#else:
 			# for i in range(0,len(c.type)):
 			# 	R.add((c, i))
@@ -1996,15 +2002,15 @@ def statement_varrefs(s, o, sm):
 			# for (o2,sm2) in get_syncrec_sms(o, c, s.signal):
 			# 	R.add((c, scopename(sm2,None,o2)))
 		for p in s.params:
-			R |= statement_varrefs(p, o, sm)
+			R |= statement_varrefs(p, o, sm, subid)
 	elif s.__class__.__name__ == "ReceiveSignal":
 		c = connected_channel[(o, s.target)]
 		if c.synctype == 'async':
 			# add channel with index "_size" to represent 'size' variable
-			R.add((c, "_size"))
+			R.add((c, "_size", subid))
 			# # add channel with integer indices to represent items of a Message
 			if signalsize[c] > 0:
-				R.add((c, 0))
+				R.add((c, 0, subid))
 			# for i in range(1,len(c.type)+1):
 			# 	R.add((c, "[" + str(i) + "][0]"))
 			# Messagerefs = set([])
@@ -2018,20 +2024,20 @@ def statement_varrefs(s, o, sm):
 			# 		R.add((v,j))
 		else:
 			# add (Channel, (Object,Statemachine)) pair to represent current state variable
-			R.add((c,(o,sm)))
+			R.add((c,(o,sm), subid))
 		for p in s.params:
-			R.add((p.var, p.index))
+			R.add((p.var, p.index, subid))
 			if p.index != None:
-				R |= statement_varrefs(p.index, o, sm)
-		R |= statement_varrefs(s.guard, o, sm)
+				R |= statement_varrefs(p.index, o, sm, subid)
+		R |= statement_varrefs(s.guard, o, sm, subid)
 		# else:
 		# 	for p in s.params:
 		# 		R |= statement_varrefs(p, sm)
 		# 	R |= statement_varrefs(s.guard, sm)
 	elif s.__class__.__name__ == "Expression" or s.__class__.__name__ == "ExprPrec4" or s.__class__.__name__ == "ExprPrec3" or s.__class__.__name__ == "ExprPrec2" or s.__class__.__name__ == "ExprPrec1":
-		R |= statement_varrefs(s.left, o, sm)
+		R |= statement_varrefs(s.left, o, sm, subid)
 		if s.op != '':
-			R |= statement_varrefs(s.right, o, sm)
+			R |= statement_varrefs(s.right, o, sm, subid)
 	elif s.__class__.__name__ == "Primary":
 		if s.ref != None:
 			if s.ref.ref in actions:
@@ -2044,21 +2050,21 @@ def statement_varrefs(s, o, sm):
 						if o == o2 and sm != sm2:
 								if s.ref.ref in alphabet[sm2]:
 									# add two variables: src to store the current state of sm2, tgt to store target state of a transition
-									R.add((sm2,"src"))
-									R.add((sm2,"tgt"))
+									R.add((sm2,"src", subid))
+									R.add((sm2,"tgt", subid))
 			if s.ref.index != None:
-				R |= statement_varrefs(s.ref.index, o, sm)
+				R |= statement_varrefs(s.ref.index, o, sm, subid)
 			# obtain suitable object matching name s.ref.ref
 			for v1 in sm_variables(sm):
 				if v1.name == s.ref.ref:
-					R.add((v1, s.ref.index))
+					R.add((v1, s.ref.index, subid))
 					break
 		if s.body != None:
-			R |= statement_varrefs(s.body, o, sm)
+			R |= statement_varrefs(s.body, o, sm, subid)
 	elif s.__class__.__name__ == "VariableRef":
 		if s.index != None:
-			R |= statement_varrefs(s.index, o, sm)
-		R.add((s.var, s.index))
+			R |= statement_varrefs(s.index, o, sm, subid)
+		R.add((s.var, s.index, subid))
 	return R
 
 def statement_write_varrefs(s, o):
@@ -2458,6 +2464,7 @@ def map_variables_on_buffer(t, o, buffer_allocs, prevM={}):
 	s = t.statements[0]
 
 	allocs = get_buffer_arrayindex_allocs(t, o)
+	print(allocs)
 
 	# counters
 	current_32 = 0
@@ -2549,6 +2556,7 @@ def map_variables_on_buffer(t, o, buffer_allocs, prevM={}):
 			access_counters[v] = 2
 		else:
 			access_counters[v] = 1
+	print(access_counters)
 	
 	# iterate over elements in descending order w.r.t. nr of items (arrays have multiple items)
 	for (v, ac) in sorted(access_counters.items(), key=(lambda x: x[1]), reverse=True):
@@ -3775,7 +3783,6 @@ def preprocess():
 		old_PIDs = PIDs
 		for i in range(1,size):
 			PIDs = vectorelem_in_structure_map[vname + "[" + str(i) + "]"]
-			old_PIDs = PIDs
 			if current_vp != PIDs[1][0]:
 				# tuple is ready for storage
 				tmp[1] = i-1
@@ -3784,6 +3791,7 @@ def preprocess():
 					tmp[4] = old_PIDs[2][1]
 				L.append(tuple(tmp))
 				tmp = [i,0,PIDs[1][1],0,0]
+			old_PIDs = PIDs
 		# store final tuple
 		tmp[1] = size-1
 		if len(PIDs) > 2:
@@ -3791,6 +3799,8 @@ def preprocess():
 			tmp[4] = PIDs[2][1]
 		L.append(tuple(tmp))
 		array_in_structure_map[vname] = L
+	print(vectorelem_in_structure_map)
+	print(array_in_structure_map)
 	# construct async_channel_vectorpart_buffer_range: for all (asynchronous channel, vectorpart) pairs, provide the range of buffer elements of that channel stored in that vectorpart of a vector.
 	async_channel_vectorpart_buffer_range = {}
 	for c in model.channels:

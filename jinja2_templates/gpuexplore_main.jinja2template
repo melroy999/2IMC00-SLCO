@@ -19,9 +19,6 @@
        __typeof__ (b) _b = (b); \
      _a > _b ? _a : _b; })
 
-// GPU constants
-__constant__ uint32_t d_kernel_iters;
-
 // test macros
 #define PRINTTHREADID()						{printf("Hello thread %d\n", (blockIdx.x*blockDim.x)+threadIdx.x);}
 #define PRINTTHREAD(j, i)					{printf("%d: Seen by thread %d: %d\n", (j), (blockIdx.x*blockDim.x)+threadIdx.x, (i));}
@@ -618,14 +615,14 @@ int main(int argc, char** argv) {
 				{% if compact_hash_table %}
 				cudaMemcpy(q_i_test, d_q_i, internal_hash_table_size * sizeof(nodetype), cudaMemcpyDeviceToHost);
 				{% endif %}
-				print_content_hash_table(stdout, q_test{% if compact_hash_table %}, q_i_test{% endif %}, hash_table_size{% if compact_hash_table %}, internal_hash_table_size, false{% endif %});
+				print_content_hash_table(stdout, q_test{% if compact_hash_table %}, q_i_test{% endif %}, hash_table_size{% if compact_hash_table %}, internal_hash_table_size{% endif %}{% if vectorsize > 62 %}, false{% endif %});
 			}
 			else if (verbosity == 4) {
 				cudaMemcpy(q_test, d_q, hash_table_size * sizeof(compressed_nodetype), cudaMemcpyDeviceToHost);
 				{% if compact_hash_table %}
 				cudaMemcpy(q_i_test, d_q_i, internal_hash_table_size * sizeof(nodetype), cudaMemcpyDeviceToHost);
 				{% endif %}
-				print_content_hash_table(stdout, q_test{% if compact_hash_table %}, q_i_test{% endif %}, hash_table_size{% if compact_hash_table %}, internal_hash_table_size, true{% endif %});
+				print_content_hash_table(stdout, q_test{% if compact_hash_table %}, q_i_test{% endif %}, hash_table_size{% if compact_hash_table %}, internal_hash_table_size{% endif %}{% if vectorsize > 62 %}, true{% endif %});
 			}
 		}
 		scan = 1;

@@ -77,7 +77,9 @@ using namespace cooperative_groups;
 {% endif %}
 
 // GPU constants.
+// GPU constants
 static const int WARP_SIZE = 32;
+__constant__ uint32_t d_kernel_iters;
 __constant__ shared_inttype d_shared_cache_size;
 {% if compact_hash_table %}
 __constant__ uint64_t d_hash_table_size;
@@ -677,7 +679,12 @@ inline __host__ nodetype host_direct_sv_step(compressed_nodetype *q{% if compact
 	{% if vectorsize > 62 %}
 	if (print_pointers) {
 		fprintf(stream, "Navigating node with value %lu.\n", node);
-		fprintf(stream, "Navigating from node to " + (goright ? "right" : "left") + " child located at %lu.\n", index);
+		if (goright) {
+			fprintf(stream, "Navigating from node to right child located at %lu.\n", (long unsigned int) index);
+		}
+		else {
+			fprintf(stream, "Navigating from node to left child located at %lu.\n", (long unsigned int) index);
+		}
 	}
 	{% endif %}
 	return q[index];
@@ -909,14 +916,23 @@ inline __device__ void get_{{vname|replace("[","_")|replace("]","")|replace("'",
 			{% else %}
 			*b = (*b) << {{array_in_structure_map[vname][i][3]}};
 			{% endif %}
+			{% if (t|gettypesize) < 16 %}
+			uint16_t t3;
+			{% else %}
+			{{t|cudatype(True)}} t3;
+			{% endif %}
 			asm("{\n\t"
 				" .reg .u{% if vectorsize < 31 %}32{% else %}64{% endif %} t1;\n\t"
 				" bfe.u{% if vectorsize < 31 %}32{% else %}64{% endif %} t1, %1, {{array_in_structure_map[vname][i][2]}}, {{array_in_structure_map[vname][i][3]}};\n\t"
 				" cvt.u{% if (t|gettypesize) < 32 %}16{% else %}32{% endif %}.u{% if vectorsize < 31 %}32{% else %}64{% endif %} %0, t1;\n\t"
-	    		"}" : "={% if (t|gettypesize) < 16 %}h"(t2){% else %}r"(*b){% endif %} : "{% if vectorsize <= 30 %}r{% else %}l{% endif %}"(part));
+	    		"}" : "={% if (t|gettypesize) < 16 %}h"(t3){% else %}r"(*b){% endif %} : "{% if vectorsize <= 30 %}r{% else %}l{% endif %}"(part));
+	    	{% if (t|gettypesize) < 16 %}
+	    	t2 = t2 | t3;
+	    	{% else %}
+	    	*b = (*b) | t3;
+	    	{% endif %}
 		}
 		{% endif %}
-
 		{% if size < 16 %}
 		*b = ({{t|cudatype(True)}}) t2;
 		{% endif %}
@@ -1001,6 +1017,7 @@ inline void host_get_{{x|replace("[","_")|replace("]","")|replace("'","_")}}({{t
 			// Right shift to isolate requested data.
 			t2 = t2 >> {{array_in_structure_map[x][i][4]}};
 			// Move to integrate with first part.
+			t1 = t1 & {{(((t|gettypesize) - array_in_structure_map[x][i][3])|pow2-1)|hexa}};
 			t1 = t1 << {{array_in_structure_map[x][i][3]}};
 			t1 = t1 | t2;
 		}

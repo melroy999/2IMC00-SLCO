@@ -191,15 +191,15 @@ def getlabel_colored(s):
 			result += "[" + getlabel(s.left.index) + "]"
 		result += " := " + getlabel(s.right)
 	elif s.__class__.__name__ == "Composite":
-		result += "["
+		result += "[ "
 		if s.guard != None:
 			result += getlabel(s.guard)
-			result += ";"
+			result += "; "
 		for i in range(0,len(s.assignments)):
-			result += " " + getlabel(s.assignments[i])
+			result += getlabel(s.assignments[i])
 			if i < len(s.assignments)-1:
-				result += ";"
-		result += "]"
+				result += "; "
+		result += " ]"
 	elif s.__class__.__name__ == "Delay":
 		result += "<b>after </b>" + str(s.length) + "<b> ms</b>"
 	elif s.__class__.__name__ == "SendSignal":
@@ -257,15 +257,15 @@ def getlabel(s):
 			result += "[" + getlabel(s.left.index) + "]"
 		result += " := " + getlabel(s.right)
 	elif s.__class__.__name__ == "Composite":
-		result += "["
+		result += "[ "
 		if s.guard != None:
 			result += getlabel(s.guard)
-			result += ";"
+			result += "; "
 		for i in range(0,len(s.assignments)):
-			result += " " + getlabel(s.assignments[i])
+			result += getlabel(s.assignments[i])
 			if i < len(s.assignments)-1:
-				result += ";"
-		result += "]"
+				result += "; "
+		result += " ]"
 	elif s.__class__.__name__ == "Delay":
 		result += "after " + str(s.length) + " ms"
 	elif s.__class__.__name__ == "SendSignal":
