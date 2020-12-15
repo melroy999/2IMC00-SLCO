@@ -1981,7 +1981,7 @@ def statement_varrefs(s, o, sm, subid):
 	global connected_channel, signalsize, actions, syncactions, alphabet, smnames, smname_to_object, scopename
 	R = set([])
 	if s.__class__.__name__ == "Assignment":
-		if is_dynamic_address(s.left.index, o)
+		if is_dynamic_address(s.left.index, o):
 			# we store this access with the subid identifier, since syntactically equivalent dynamic array accesses in different
 			# substatements of a Composite should be treated as different accesses.
 			R.add((s.left.var, s.left.index, subid))
