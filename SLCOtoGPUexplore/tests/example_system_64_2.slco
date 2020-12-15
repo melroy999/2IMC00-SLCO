@@ -1,0 +1,19 @@
+model Test {
+  classes
+  P {
+    variables
+			Integer x
+
+    state machines
+    REC1 {
+      
+      initial R0 states R1
+
+      transitions
+      R0 -> R1 {
+        [x = 2; x := 1]
+      }
+    }
+  }
+  objects p: P()
+}
