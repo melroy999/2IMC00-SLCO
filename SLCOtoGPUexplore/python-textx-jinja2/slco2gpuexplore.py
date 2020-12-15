@@ -1624,7 +1624,7 @@ def cudafetchdata(s, indent, o, D, unguarded, resetfetched):
 		allocs = get_buffer_arrayindex_allocs(t, o)
 		if unguarded:
 			first = True
-			for v in get_vars(statement_varrefs(st,o,sm)):
+			for v in get_vars(statement_varrefs(st,o,sm,0)):
 				if has_dynamic_indexing(v, v.name, t, o):
 					if first:
 						output += "// Reset storage of array indices.\n" + indentspace
@@ -1971,9 +1971,6 @@ def is_dynamic_address(i, o):
 	i_str = getinstruction(i, o, {})
 	return not RepresentsInt(i_str)
 
-def statement_varrefs(s, o, sm):
-	return statement_varrefs(s, o, sm, 0)
-
 def statement_varrefs(s, o, sm, subid):
 	"""Return a set of variable refs appearing in statement s. o is the object owning s, and sm is the state machine owning s."""
 	"""A variable ref is a triple (v, i, subid), with v an Object, i additional info (such as an array index), and subid a number.
@@ -2256,7 +2253,7 @@ def get_buffer_allocs(T):
 		O = set([])
 		for st in t.statements:
 			# O is set of variable refs occurring in block of t
-			O |= statement_varrefs(st, o2, sm2)
+			O |= statement_varrefs(st, o2, sm2, 0)
 		nr_32 = 0
 		nr_8 = 0
 		nr_bool = 0
@@ -2454,7 +2451,7 @@ def get_buffer_arrayindex_allocs(t, o):
 	dynamic_access_seen = set([])
 	O = set([])
 	for st in t.statements:
-		O |= statement_varrefs(st, o, sm)
+		O |= statement_varrefs(st, o, sm, 0)
 	for (v,i,subid) in O:
 		# is v an array?
 		if v.__class__.__name__ != "Channel" and v.__class__.__name__ != "StateMachine": 
@@ -2558,7 +2555,7 @@ def map_variables_on_buffer(t, o, buffer_allocs, prevM={}):
 			prevM_offset_idx = 0
 	O = set([])
 	for st in t.statements:
-		O |= statement_varrefs(st, o, sm)
+		O |= statement_varrefs(st, o, sm, 0)
 	M = {}
 	access_counters = {}
 	Vseen = set([])
@@ -2693,7 +2690,7 @@ def get_all_relevant_vectorparts_for_state(s, o):
 	for t in outgoingtrans(s,s.parent.transitions):
 		if must_be_processed_by(t, smid, o):
 			for st in t.statements:
-				O = statement_varrefs(st, o, sm)
+				O = statement_varrefs(st, o, sm, 0)
 				for (v,i,subid) in O:
 					if v.__class__.__name__ == "Channel":
 						if v.synctype == 'async':
@@ -3015,7 +3012,7 @@ def has_dynamic_indexing(v, vname, t, o):
 		sm = t.parent
 		O = set([])
 		for st in t.statements:
-			O |= statement_varrefs(st, o, sm)
+			O |= statement_varrefs(st, o, sm, 0)
 		for (v1,i,subid) in O:
 			if v1.name == vname:
 				if i != None:
@@ -3031,7 +3028,7 @@ def get_constant_indices(v, vname, t, o):
 		sm = t.parent
 		O = set([])
 		for st in t.statements:
-			O |= statement_varrefs(st, o, sm)
+			O |= statement_varrefs(st, o, sm, 0)
 		for (v1,i,subid) in O:
 			if v1.name == vname:
 				if i != None:
