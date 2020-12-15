@@ -2205,7 +2205,7 @@ def statement_read_varrefs(s, o, sm, only_unguarded):
 def get_vars(L):
 	"""Given a list of variable refs, return the corresponding set of vars"""
 	S = set([])
-	for (v,j) in L:
+	for (v,j,subid) in L:
 		S.add(v)
 	return S
 
