@@ -1,0 +1,29 @@
+model Test {
+  actions a
+  classes
+  P {
+    variables
+			Byte x
+
+    state machines
+    REC1 {
+      
+      initial R0 states R1
+
+      transitions
+      R0 -> R1 {
+        a
+      }
+    }
+
+    REC2 {
+      initial Q0 states Q1
+
+      transitions
+      Q0 -> Q1 {
+        a
+      }    
+    }
+  }
+  objects p: P()
+}

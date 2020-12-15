@@ -1,0 +1,22 @@
+model Test {
+  classes
+  P {
+    variables
+			Integer x y
+
+    state machines
+    REC1 {
+      
+      initial R0 states R1 R2
+
+      transitions
+      R0 -> R1 {
+        x := 1
+      }
+      R1 -> R2 {
+        y := 2
+      }
+    }
+  }
+  objects p: P()
+}
