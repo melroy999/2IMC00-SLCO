@@ -1964,6 +1964,13 @@ def transition_sorted_dynamic_read_varrefs(t, o, only_unguarded):
 		R = set([])
 	return L
 
+def is_dynamic_address(i, o):
+	"""Return whether the given expression represents dynamic addressing, if used as an index for an array access."""
+	if i == None:
+		return False
+	i_str = getinstruction(i, o, {})
+	return not RepresentsInt(i_str)
+
 def statement_varrefs(s, o, sm):
 	return statement_varrefs(s, o, sm, 0)
 
@@ -1974,7 +1981,12 @@ def statement_varrefs(s, o, sm, subid):
 	global connected_channel, signalsize, actions, syncactions, alphabet, smnames, smname_to_object, scopename
 	R = set([])
 	if s.__class__.__name__ == "Assignment":
-		R.add((s.left.var, s.left.index, subid))
+		if is_dynamic_address(s.left.index, o)
+			# we store this access with the subid identifier, since syntactically equivalent dynamic array accesses in different
+			# substatements of a Composite should be treated as different accesses.
+			R.add((s.left.var, s.left.index, subid))
+		else:
+			R.add((s.left.var, s.left.index, 0))
 		if s.left.index != None:
 			R |= statement_varrefs(s.left.index, o, sm, subid)
 		R |= statement_varrefs(s.right, o, sm, subid)
@@ -1987,12 +1999,12 @@ def statement_varrefs(s, o, sm, subid):
 		c = connected_channel[(o, s.target)]
 		if c.synctype == 'async':
 			# add channel with index '_size' to represent 'size' variable
-			R.add((c, "_size", subid))
+			R.add((c, "_size", 0))
 			# add channel with integer indices to represent items of a Message
 			if signalsize[c] > 0:
-				R.add((c, 0, subid))
+				R.add((c, 0, 0))
 			for i in range(1,len(c.type)+1):
-				R.add((c, i, subid))
+				R.add((c, i, 0))
 		#else:
 			# for i in range(0,len(c.type)):
 			# 	R.add((c, i))
@@ -2002,15 +2014,15 @@ def statement_varrefs(s, o, sm, subid):
 			# for (o2,sm2) in get_syncrec_sms(o, c, s.signal):
 			# 	R.add((c, scopename(sm2,None,o2)))
 		for p in s.params:
-			R |= statement_varrefs(p, o, sm, subid)
+			R |= statement_varrefs(p, o, sm, 0)
 	elif s.__class__.__name__ == "ReceiveSignal":
 		c = connected_channel[(o, s.target)]
 		if c.synctype == 'async':
 			# add channel with index "_size" to represent 'size' variable
-			R.add((c, "_size", subid))
+			R.add((c, "_size", 0))
 			# # add channel with integer indices to represent items of a Message
 			if signalsize[c] > 0:
-				R.add((c, 0, subid))
+				R.add((c, 0, 0))
 			# for i in range(1,len(c.type)+1):
 			# 	R.add((c, "[" + str(i) + "][0]"))
 			# Messagerefs = set([])
@@ -2024,9 +2036,9 @@ def statement_varrefs(s, o, sm, subid):
 			# 		R.add((v,j))
 		else:
 			# add (Channel, (Object,Statemachine)) pair to represent current state variable
-			R.add((c,(o,sm), subid))
+			R.add((c,(o,sm), 0))
 		for p in s.params:
-			R.add((p.var, p.index, subid))
+			R.add((p.var, p.index, 0))
 			if p.index != None:
 				R |= statement_varrefs(p.index, o, sm, subid)
 		R |= statement_varrefs(s.guard, o, sm, subid)
@@ -2050,21 +2062,27 @@ def statement_varrefs(s, o, sm, subid):
 						if o == o2 and sm != sm2:
 								if s.ref.ref in alphabet[sm2]:
 									# add two variables: src to store the current state of sm2, tgt to store target state of a transition
-									R.add((sm2,"src", subid))
-									R.add((sm2,"tgt", subid))
+									R.add((sm2,"src", 0))
+									R.add((sm2,"tgt", 0))
 			if s.ref.index != None:
 				R |= statement_varrefs(s.ref.index, o, sm, subid)
 			# obtain suitable object matching name s.ref.ref
 			for v1 in sm_variables(sm):
 				if v1.name == s.ref.ref:
-					R.add((v1, s.ref.index, subid))
+					if is_dynamic_address(s.ref.index, o):
+						R.add((v1, s.ref.index, subid))
+					else:
+						R.add((v1, s.ref.index, 0))						
 					break
 		if s.body != None:
 			R |= statement_varrefs(s.body, o, sm, subid)
 	elif s.__class__.__name__ == "VariableRef":
 		if s.index != None:
 			R |= statement_varrefs(s.index, o, sm, subid)
-		R.add((s.var, s.index, subid))
+		if is_dynamic_address(s.index, o):
+			R.add((s.var, s.index, subid))
+		else:
+			R.add((s.var, s.index, 0))			
 	return R
 
 def statement_write_varrefs(s, o):
@@ -2244,13 +2262,13 @@ def get_buffer_allocs(T):
 		nr_bool = 0
 		dict_arrays_8 = {}
 		dict_arrays_bool = {}
-		for (v,i) in O:
+		for (v,i,subid) in O:
 			if v.__class__.__name__ != "Channel" and v.__class__.__name__ != "StateMachine":
 				i_str = getinstruction(i, o2, {})
 			else:
 				i_str = i
-			if (v,i_str) not in Vseen:
-				Vseen.add((v,i_str))
+			if (v,i_str,subid) not in Vseen:
+				Vseen.add((v,i_str,subid))
 				if v.__class__.__name__ == "Channel":
 					if v.synctype == 'async':
 						# access channel buffer item or the buffer's size variable
@@ -2437,13 +2455,13 @@ def get_buffer_arrayindex_allocs(t, o):
 	O = set([])
 	for st in t.statements:
 		O |= statement_varrefs(st, o, sm)
-	for (v,i) in O:
+	for (v,i,subid) in O:
 		# is v an array?
 		if v.__class__.__name__ != "Channel" and v.__class__.__name__ != "StateMachine": 
 			if v.type.size > 0:
 				i_str = getinstruction(i, o, {})
-				if (v,i_str) not in Vseen:
-					Vseen.add((v,i_str))
+				if (v,i_str,subid) not in Vseen:
+					Vseen.add((v,i_str,subid))
 					count = access_counters.get(v, 0)
 					count += 1
 					access_counters[v] = count
@@ -2544,11 +2562,11 @@ def map_variables_on_buffer(t, o, buffer_allocs, prevM={}):
 	M = {}
 	access_counters = {}
 	Vseen = set([])
-	for (v,i) in O:
-		if not v.__class__.__name__ != "Channel" and v.__class__.__name__ != "StateMachine":
+	for (v,i,subid) in O:
+		if v.__class__.__name__ != "Channel" and v.__class__.__name__ != "StateMachine":
 			i_str = getinstruction(i, o, {})
-			if (v,i_str) not in Vseen:
-				Vseen.add((v,i_str))
+			if (v,i_str,subid) not in Vseen:
+				Vseen.add((v,i_str,subid))
 				count = access_counters.get(v, 0)
 				count += 1
 				access_counters[v] = count
@@ -2676,7 +2694,7 @@ def get_all_relevant_vectorparts_for_state(s, o):
 		if must_be_processed_by(t, smid, o):
 			for st in t.statements:
 				O = statement_varrefs(st, o, sm)
-				for (v,i) in O:
+				for (v,i,subid) in O:
 					if v.__class__.__name__ == "Channel":
 						if v.synctype == 'async':
 							# add all elements of the channel's buffer
@@ -2998,7 +3016,7 @@ def has_dynamic_indexing(v, vname, t, o):
 		O = set([])
 		for st in t.statements:
 			O |= statement_varrefs(st, o, sm)
-		for (v1,i) in O:
+		for (v1,i,subid) in O:
 			if v1.name == vname:
 				if i != None:
 					i_str = getinstruction(i, o, {})
@@ -3014,7 +3032,7 @@ def get_constant_indices(v, vname, t, o):
 		O = set([])
 		for st in t.statements:
 			O |= statement_varrefs(st, o, sm)
-		for (v1,i) in O:
+		for (v1,i,subid) in O:
 			if v1.name == vname:
 				if i != None:
 					i_str = getinstruction(i, o, {})
