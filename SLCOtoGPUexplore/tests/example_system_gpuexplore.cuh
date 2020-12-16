@@ -3,9 +3,9 @@
 using namespace cooperative_groups;
 
 // Structure of the state vector:
-// [ two bits reserved, state p'REC1: 1 bit(s), variable p'x[0]: 8 bit(s), variable p'x[1]: 8 bit(s), variable p'x[2]: 8 bit(s), 
-//   variable p'x[3]: 8 bit(s), variable p'x[4]: 8 bit(s), variable p'x[5]: 8 bit(s), variable p'x[6]: 8 bit(s), variable p'x[7]: 5 bit(s) ],
-// Combined with a non-leaf vector tree node: [ variable p'x[7]: 3 bit(s), variable p'REC1'i: 8 bit(s) ]
+// [ two bits reserved, state p'REC1: 1 bit(s), variable p'REC1'i: 8 bit(s), variable p'x[0]: 8 bit(s), variable p'x[1]: 8 bit(s), 
+//   variable p'x[2]: 8 bit(s), variable p'x[3]: 8 bit(s), variable p'x[4]: 8 bit(s), variable p'x[5]: 8 bit(s), variable p'x[6]: 5 bit(s) ],
+// Combined with a non-leaf vector tree node: [ variable p'x[6]: 3 bit(s), variable p'x[7]: 8 bit(s) ]
 
 // type of vectortree nodes used.
 #define nodetype uint64_t
@@ -605,7 +605,7 @@ inline __device__ void get_p_REC1_i(elem_chartype *b, nodetype part1, nodetype p
 	uint16_t t2;
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
-		" bfe.u64 t1, %1, 20, 8;\n\t"
+		" bfe.u64 t1, %1, 53, 8;\n\t"
 		" cvt.u16.u64 %0, t1;\n\t"
 	    "}" : "=h"(t2) : "l"(part1), "l"(part2));
 	*b = (elem_chartype) t2;
@@ -615,26 +615,50 @@ inline __device__ void get_p_REC1_i(elem_chartype *b, nodetype part1, nodetype p
 inline __device__ void get_p_x(shared_indextype node_index, elem_chartype *b, array_indextype index) {
 	nodetype part;
 	uint16_t t2;
-	if (index <= 7) {
+	if (index <= 6) {
 		part = get_vectorpart_0(node_index);
 
 		asm("{\n\t"
 			" .reg .u64 t1;\n\t"
 			" bfe.u64 t1, %1, %2, %3;\n\t"
 			" cvt.u16.u64 %0, t1;\n\t"
-	    	"}" : "=h"(t2) : "l"(part), "r"((index == 7) ? 0 : 53-(index-0)*8), "r"((index == 7) ? 5 : 8));
-		if (index == 7) {
+	    	"}" : "=h"(t2) : "l"(part), "r"((index == 6) ? 0 : 45-(index-0)*8), "r"((index == 6) ? 5 : 8));
+		if (index == 6) {
 			part = get_vectorpart_1(node_index);
 			t2 = t2 << 3;
 			uint16_t t3;
 			asm("{\n\t"
 				" .reg .u64 t1;\n\t"
-				" bfe.u64 t1, %1, 53, 3;\n\t"
+				" bfe.u64 t1, %1, 45, 3;\n\t"
 				" cvt.u16.u64 %0, t1;\n\t"
 	    		"}" : "=h"(t3) : "l"(part));
 	    	t2 = t2 | t3;
 		}
 		*b = (elem_chartype) t2;
+	}
+	else if (index <= 7) {
+		part = get_vectorpart_1(node_index);
+
+		asm("{\n\t"
+			" .reg .u64 t1;\n\t"
+			" bfe.u64 t1, %1, %2, %3;\n\t"
+			" cvt.u16.u64 %0, t1;\n\t"
+	    	"}" : "=h"(t2) : "l"(part), "r"(20-(index-7)*8), "r"(8));
+		*b = (elem_chartype) t2;
+	}
+}
+
+// Data retrieval functions to support dynamic array accessing. Retrieve the requested element from a local array buffer, if present, and if not, fetch it and store it in the array buffer.
+// Precondition: if the requested element is not in the buffer, there is still space in the buffer to store it.
+inline __device__ elem_chartype p_x(shared_indextype node_index, array_indextype *idx_0, array_indextype *idx_1, array_indextype *idx_2, elem_chartype *v_0, elem_chartype *v_1, elem_chartype *v_2, array_indextype e) {
+	if (!A_IEX_3(*idx_0, *idx_1, *idx_2, e)) {
+		// Fetch and store value.
+		get_p_x(node_index, v_2, e);
+		A_STR_3(idx_0, idx_1, idx_2, v_0, v_1, v_2, (array_indextype) e, *v_2);
+		return *v_2;
+	}
+	else {
+		return A_LD_3(*idx_0, *idx_1, *idx_2, *v_0, *v_1, *v_2, e);
 	}
 }
 
@@ -667,21 +691,21 @@ inline void host_get_p_REC1(statetype *b, nodetype part1, nodetype part2) {
 inline void host_get_p_REC1_i(elem_chartype *b, nodetype part1, nodetype part2) {
 	nodetype t1 = part1;
 	// Strip away data beyond the requested data.
-	t1 = t1 & 0xfffffff;
+	t1 = t1 & 0x1fffffffffffffff;
 	// Right shift to isolate requested data.
-	t1 = t1 >> 20;
+	t1 = t1 >> 53;
 	*b = (elem_chartype) t1;
 }
 
 // CPU data retrieval functions for arrays.
 inline void host_get_p_x(elem_chartype *b, nodetype part1, nodetype part2, array_indextype index) {
 	nodetype t1 = part1;
-	if (index <= 7) {
+	if (index <= 6) {
 		// Right shift to isolate requested data.
-		t1 = t1 >> (index == 7 ? 0 : (53 - ((index - 0)*8)));
+		t1 = t1 >> (index == 6 ? 0 : (45 - ((index - 0)*8)));
 		// Strip away data beyond the requested data.
 		t1 = t1 & 0xff;
-		if (index == 7) {
+		if (index == 6) {
 			nodetype t2 = part2;
 			// Strip away data beyond the requested data.
 			t2 = t2 & 0x7fffffff;
@@ -692,6 +716,13 @@ inline void host_get_p_x(elem_chartype *b, nodetype part1, nodetype part2, array
 			t1 = t1 << 3;
 			t1 = t1 | t2;
 		}
+		*b = (elem_chartype) t1;
+	}
+	else if (index <= 7) {
+		// Right shift to isolate requested data.
+		t1 = t1 >> (20 - ((index - 7)*8));
+		// Strip away data beyond the requested data.
+		t1 = t1 & 0xff;
 		*b = (elem_chartype) t1;
 	}
 }
@@ -705,17 +736,17 @@ inline __device__ void set_left_p_REC1(nodetype *part, elem_booltype x) {
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_left_p_x_0(nodetype *part, elem_chartype x) {
+inline __device__ void set_left_p_REC1_i(nodetype *part, elem_chartype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
 		" bfi.b64 %0, %1, %0, 53, 8;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_left_p_REC1_i(nodetype *part, elem_chartype x) {
+inline __device__ void set_left_p_x_0(nodetype *part, elem_chartype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
-		" bfi.b64 %0, %1, %0, 20, 8;\n\t"
+		" bfi.b64 %0, %1, %0, 45, 8;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
@@ -724,9 +755,9 @@ inline __device__ void set_left_p_REC1_i(nodetype *part, elem_chartype x) {
 inline __device__ bool array_element_is_in_vectorpart_p_x(array_indextype i, vectornode_indextype pid) {
 	switch (pid) {
 		case 0:
-			return (i >= 0 && i <= 7);
+			return (i >= 0 && i <= 6);
 		case 1:
-			return (i >= 7 && i <= 7);
+			return (i >= 6 && i <= 7);
 		default:
 			return false;
 	}
@@ -736,9 +767,9 @@ inline __device__ bool array_element_is_in_vectorpart_p_x(array_indextype i, vec
 inline __device__ bool is_left_vectorpart_for_array_element_p_x(array_indextype i, vectornode_indextype pid) {
 	switch (pid) {
 		case 0:
-			return (i >= 0 && i <= 7);
+			return (i >= 0 && i <= 6);
 		case 1:
-			return (i > 7 && i <= 7);
+			return (i > 6 && i <= 7);
 		default:
 			return false;
 	}	
@@ -752,7 +783,12 @@ inline __device__ void set_left_p_x(nodetype *part, array_indextype index, elem_
 		case 0:
 			asm("{\n\t"
 			" bfi.b64 %0, %1, %0, %2, %3;\n\t"
-			"}" : "+l"(*part) : "l"(index == 7 ? (t1 >> 3) : t1), "r"((index == 7) ? 0 : 53-(index-0)*8), "r"((index == 7) ? 5 : 8));
+			"}" : "+l"(*part) : "l"(index == 6 ? (t1 >> 3) : t1), "r"((index == 6) ? 0 : 45-(index-0)*8), "r"((index == 6) ? 5 : 8));
+			break;
+		case 1:
+			asm("{\n\t"
+			" bfi.b64 %0, %1, %0, %2, %3;\n\t"
+			"}" : "+l"(*part) : "l"(t1), "r"(20-(index-7)*8), "r"(8));
 			break;
 		default:
 			break;
@@ -2175,27 +2211,20 @@ inline __device__ void explore_p_REC1(shared_indextype node_index) {
 			idx_1 = EMPTY_INDEX;
 			idx_2 = EMPTY_INDEX;
 			// Fetch values of unguarded variables.
-			part1 = get_vectorpart(node_index, 1);
+			part1 = get_vectorpart(node_index, 0);
 			part2 = part1;
 			get_p_REC1_i(&buf8_3, part1, part2);
-			// Fetch values of variables involving dynamic array indexing.
-			// Check for presence of index in buffer indices.
-			if (!A_IEX_3(idx_0, idx_1, idx_2, buf8_3)) {
-				// Fetch and store value.
-				get_p_x(node_index, &buf8_2, buf8_3);
-				A_STR_3(&idx_0, &idx_1, &idx_2, &buf8_0, &buf8_1, &buf8_2, (array_indextype) buf8_3, buf8_2);
-			}
 			
 			// Statement computation.
 			target = 1;
 			buf8_3 = (elem_chartype) (7);
-			A_STR_3(&idx_0, &idx_1, &idx_2, &buf8_0, (array_indextype) &buf8_1, (array_indextype) &buf8_2, (array_indextype) buf8_3, (elem_chartype) 17);
-			A_STR_3(&idx_0, &idx_1, &idx_2, &buf8_0, (array_indextype) &buf8_1, (array_indextype) &buf8_2, (array_indextype) 0, (elem_chartype) A_LD_3(idx_0, idx_1, idx_2, buf8_0, buf8_1, buf8_2, buf8_3));
+			A_STR_3(&idx_0, &idx_1, &idx_2, &buf8_0, &buf8_1, &buf8_2, (array_indextype) buf8_3, (elem_chartype) 17);
+			A_STR_3(&idx_0, &idx_1, &idx_2, &buf8_0, &buf8_1, &buf8_2, (array_indextype) 0, (elem_chartype) p_x(node_index, idx_0, idx_1, idx_2, buf8_0, buf8_1, buf8_2, buf8_3));
 			// Store new state vector in shared memory.
 			get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
 			// Store new values.
 			part2 = part1;
-			set_left_p_x_0(&part2, A_LD_3(idx_0, idx_1, idx_2, buf8_0, buf8_1, buf8_2, 0));
+			set_left_p_REC1(&part2, (statetype) target);
 			// Write array buffer content.
 			if (0 >= 0 && 0 <= 1) {
 				if (idx_0 != EMPTY_INDEX) {
@@ -2220,7 +2249,7 @@ inline __device__ void explore_p_REC1(shared_indextype node_index) {
 					}
 				}
 			}
-			set_left_p_REC1(&part2, (statetype) target);
+			set_left_p_REC1_i(&part2, buf8_3);
 			if (part2 != part1) {
 				// This part has been altered. Store it in shared memory and remember address of new part.
 				part_cachepointers = CACHE_POINTERS_NEW_LEAF;
@@ -2235,7 +2264,6 @@ inline __device__ void explore_p_REC1(shared_indextype node_index) {
 			get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
 			// Store new values.
 			part2 = part1;
-			set_left_p_REC1_i(&part2, buf8_3);
 			// Write array buffer content.
 			if (1 >= 0 && 1 <= 1) {
 				if (idx_0 != EMPTY_INDEX) {
@@ -2345,7 +2373,7 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q, indextype q_
 			p2 = p1;
 			host_get_p_REC1(&e_st, *p1, *p2);
 			fprintf(stream, "state p'REC1: %u\n", (uint32_t) e_st);
-			p1 = &part1;
+			p1 = &part0;
 			p2 = p1;
 			host_get_p_REC1_i(&e_c, *p1, *p2);
 			fprintf(stream, "variable p'REC1'i: %u\n", (uint32_t) e_c);
@@ -2374,11 +2402,11 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q, indextype q_
 			host_get_p_x(&e_c, *p1, *p2, 5);
 			fprintf(stream, "array element p'x[5]: %u\n", (uint32_t) e_c);
 			p1 = &part0;
-			p2 = p1;
+			p2 = &part1;
 			host_get_p_x(&e_c, *p1, *p2, 6);
 			fprintf(stream, "array element p'x[6]: %u\n", (uint32_t) e_c);
-			p1 = &part0;
-			p2 = &part1;
+			p1 = &part1;
+			p2 = p1;
 			host_get_p_x(&e_c, *p1, *p2, 7);
 			fprintf(stream, "array element p'x[7]: %u\n", (uint32_t) e_c);
 			fprintf(stream, "-----\n");

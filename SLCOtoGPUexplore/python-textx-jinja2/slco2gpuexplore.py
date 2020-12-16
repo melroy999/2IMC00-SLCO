@@ -1550,7 +1550,7 @@ def cudastatement(s,indent,o,D,sender_o='',sender_sm='',senderparams=[]):
 						for j in range(0,size):
 							output2 += "&idx_" + str(j+idx_offset) + ", "
 						for j in range(0,size):
-							output2 += "&buf" + tpsize + "_" + str(j+offset) + ", (array_indextype) "
+							output2 += "&buf" + tpsize + "_" + str(j+offset) + ", "
 						output2 += indexresult + ", (" + cudatype(s.params[i].var.type, True) + ") " + getinstruction(senderparams[i+1],sender_o,D) + ");\n" + indentspace
 					else:
 						indexdict = get_constant_indices(s.params[i].var, s.params[i].var.name, s.parent, o)
@@ -1721,26 +1721,27 @@ def cudafetchdata(s, indent, o, D, unguarded, resetfetched):
 							first = False
 			vpfirst = False
 		first = True
-		for (v,j) in transition_sorted_dynamic_read_varrefs(t,o,unguarded):
-			if first:
-				output += "// Fetch values of variables involving dynamic array indexing.\n" + indentspace
-			print(D)
-			output += "// Check for presence of index in buffer indices.\n" + indentspace
-			size = allocs[(o,v)]
-			output += "if (!A_IEX_" + str(size) + "("
-			for i in range(0,size):
-				output += "idx_" + str(i+D[v][2]) + ", "
-			output += getinstruction(j,o,D) + ")) {\n" + indentspace
-			output += "\t// Fetch and store value.\n" + indentspace
-			output += "\tget_" + scopename(v,None,o).replace("'","_") + "(node_index, &buf" + str(gettypesize(v.type)) + "_" + str(D[v][1]+size-1) + ", " + getinstruction(j,o,D) + ");\n" + indentspace
-			output += "\tA_STR_" + str(size) + "("
-			for i in range(0,size):
-				output += "&idx_" + str(i+D[v][2]) + ", "
-			for i in range(0,size):
-				output += "&buf" + str(gettypesize(v.type)) + "_" + str(D[v][1]+i) + ", "
-			output += "(array_indextype) " + getinstruction(j,o,D) + ", buf" + str(gettypesize(v.type)) + "_" + str(D[v][1]+size-1) + ");\n" + indentspace
-			output += "}\n" + indentspace
-			first = False
+		# DYNAMIC ARRAY ACCESSING HAS BEEN REMOVED. SHOULD BE DONE WHEN NEEDED IN THE EXECUTION OF STATEMENT BLOCK ITSELF.
+		# for (v,j) in transition_sorted_dynamic_read_varrefs(t,o,unguarded):
+		# 	if first:
+		# 		output += "// Fetch values of variables involving dynamic array indexing.\n" + indentspace
+		# 	print(D)
+		# 	output += "// Check for presence of index in buffer indices.\n" + indentspace
+		# 	size = allocs[(o,v)]
+		# 	output += "if (!A_IEX_" + str(size) + "("
+		# 	for i in range(0,size):
+		# 		output += "idx_" + str(i+D[v][2]) + ", "
+		# 	output += getinstruction(j,o,D) + ")) {\n" + indentspace
+		# 	output += "\t// Fetch and store value.\n" + indentspace
+		# 	output += "\tget_" + scopename(v,None,o).replace("'","_") + "(node_index, &buf" + str(gettypesize(v.type)) + "_" + str(D[v][1]+size-1) + ", " + getinstruction(j,o,D) + ");\n" + indentspace
+		# 	output += "\tA_STR_" + str(size) + "("
+		# 	for i in range(0,size):
+		# 		output += "&idx_" + str(i+D[v][2]) + ", "
+		# 	for i in range(0,size):
+		# 		output += "&buf" + str(gettypesize(v.type)) + "_" + str(D[v][1]+i) + ", "
+		# 	output += "(array_indextype) " + getinstruction(j,o,D) + ", buf" + str(gettypesize(v.type)) + "_" + str(D[v][1]+size-1) + ");\n" + indentspace
+		# 	output += "}\n" + indentspace
+		# 	first = False
 	return output
 
 def getinstruction(s, o, D):
@@ -1776,8 +1777,8 @@ def getinstruction(s, o, D):
 				for j in range(0,size):
 					result += "&idx_" + str(j+idx_offset) + ", "
 				for j in range(0,size):
-					result += "&buf" + tpsize + "_" + str(j+offset) + ", (array_indextype) "
-				result += indexresult + ", (" + cudatype(s.left.var.type, True) + ") " + rightexp + ")"
+					result += "&buf" + tpsize + "_" + str(j+offset) + ", "
+				result += "(array_indextype) " + indexresult + ", (" + cudatype(s.left.var.type, True) + ") " + rightexp + ")"
 			else:
 				indexdict = get_constant_indices(s.left.var, s.left.var.name, t, o)
 				offsetcnt += indexdict[indexresult]
@@ -1835,7 +1836,7 @@ def getinstruction(s, o, D):
 							break
 					size = allocs[(o,v)]
 					tpsize = str(gettypesize(v.type))
-					result2 += "A_LD_" + str(size) + "("
+					result2 += scopename(v,None,o).replace("[","_").replace("]","").replace("'","_") + "(node_index, "
 					for j in range(0,size):
 						result2 += "idx_" + str(j+idx_offset) + ", "
 					for j in range(0,size):
@@ -2808,8 +2809,11 @@ def get_write_vectorparts_info(s, o, sender_o='', sender_sm='', lossy=False):
 	D = {}
 	for (v,i) in Refs:
 		i_str = getinstruction(i, o, {})
-		name = scopename(v,i,o)
-		if i == None or RepresentsInt(i_str):
+		if has_dynamic_indexing(v, v.name, s.parent, o):
+			name = scopename(v,None,o)
+		else:
+			name = scopename(v,i,o)
+		if i == None or (RepresentsInt(i_str) and not has_dynamic_indexing(v, v.name, s.parent, o)):
 			PIDs = vectorelem_in_structure_map[name]
 			p = PIDs[1][0]
 			Dv = D.get(p,set([]))
@@ -3043,7 +3047,7 @@ def get_constant_indices(v, vname, t, o):
 		counter += 1
 	return D
 
-def is_write_constant_indexed(vname):
+def is_model_write_constant_indexed(vname):
 	"""Returns whether or not to given array element (identified by string name) is at least once written to in the model by referring to the index statically (i.e., with a constant)."""
 	global model
 
@@ -3060,7 +3064,7 @@ def is_write_constant_indexed(vname):
 							return True
 	return False
 
-def is_write_dynamic_indexed(vname):
+def is_model_write_dynamic_indexed(vname):
 	"""Returns whether or not to given array (identified by string name) is at least once written to in the model by referring to the index dynamically (i.e., with an expression)."""
 	global model, arraynames
 
@@ -3973,8 +3977,8 @@ def translate():
 	jinja_env.filters['map_variables_on_buffer'] = map_variables_on_buffer
 	jinja_env.filters['is_state'] = is_state
 	jinja_env.filters['has_dynamic_indexing'] = has_dynamic_indexing
-	jinja_env.filters['is_write_constant_indexed'] = is_write_constant_indexed
-	jinja_env.filters['is_write_dynamic_indexed'] = is_write_dynamic_indexed
+	jinja_env.filters['is_model_write_constant_indexed'] = is_model_write_constant_indexed
+	jinja_env.filters['is_model_write_dynamic_indexed'] = is_model_write_dynamic_indexed
 	jinja_env.filters['get_array_range_in_vectorpart'] = get_array_range_in_vectorpart
 	jinja_env.filters['next_buffer_element'] = next_buffer_element
 	jinja_env.filters['difference'] = difference
