@@ -857,6 +857,60 @@ inline __device__ shared_indextype STOREINCACHE(nodetype node, shared_inttype ca
 
 // *** START FUNCTIONS FOR MODEL DATA RETRIEVAL AND STORAGE ***
 
+{% for n in all_arrayindex_allocs_sizes %}
+{% if loop.first %}
+// Auxiliary functions to check for and obtain/store an array element with an index equal to the given expression e.
+// There are functions for the various buffer sizes required to interpret the model.
+
+// Store the given value v under index e. Check for presence of e in the index buffer. If not present, store e and v.
+// Precondition: if e is not already present, there is space in the buffer to store it.
+{% endif %}
+template<class T>
+inline __device__ void A_STR_{{n}}({% for i in range(0,n) %}array_indextype *idx_{{i}}, {% endfor %}{% for i in range(0,n) %}T *v_{{i}}, {% endfor %}array_indextype e, T v) {
+{% for i in range(0,n) %}
+{% if not loop.first%}	else {% else %}	{% endif %}if (((array_indextype) e) == *idx_{{i}}) {
+		*v_{{i}} = v;
+		return;
+	}
+	else if (*idx_{{i}} == EMPTY_INDEX) {
+		*idx_{{i}} = (array_indextype) e;
+		*v_{{i}} = v;
+		return;
+	}
+{% endfor %}
+}
+
+{% endfor %}
+{% for n in all_arrayindex_allocs_sizes %}
+{% if loop.first %}
+// Return the value stored at index e.
+// Precondition: provided array contains the requested element.
+{% endif %}
+template<class T>
+inline __device__ T A_LD_{{n}}({% for i in range(0,n) %}array_indextype idx_{{i}}, {% endfor %}{% for i in range(0,n) %}T v_{{i}}, {% endfor %}array_indextype e) {
+{% for i in range(0,n) %}
+{% if not loop.first%}	else {% else %}	{% endif %}if (((array_indextype) e) == idx_{{i}}) {
+		return v_{{i}};
+	}
+{% endfor %}
+	return T();
+}
+
+{% endfor %}
+{% for n in all_arrayindex_allocs_sizes %}
+{% if loop.first %}
+// Check whether the given array index e is stored in the given array index buffer.
+{% endif %}
+inline __device__ bool A_IEX_{{n}}({% for i in range(0,n) %}array_indextype idx_{{i}}, {% endfor %}array_indextype e) {
+{% for i in range(0,n) %}
+{% if not loop.first%}	else {% else %}	{% endif %}if (((array_indextype) e) == idx_{{i}}) {
+		return true;
+	}
+{% endfor %}
+	return false;
+}
+
+{% endfor %}
 // GPU data retrieval functions. Retrieve particular state info from the given state vector part(s).
 // Precondition: the given parts indeed contain the requested info.
 {% for s in vectorelem_in_structure_map.keys() %}
@@ -1253,60 +1307,6 @@ inline __device__ void shift_buffer_tail_elements_{{c.name}}(shared_indextype no
 	{% else %}
 	return;
 	{% endif %}
-}
-
-{% endfor %}
-{% for n in all_arrayindex_allocs_sizes %}
-{% if loop.first %}
-// Auxiliary functions to check for and obtain/store an array element with an index equal to the given expression e.
-// There are functions for the various buffer sizes required to interpret the model.
-
-// Store the given value v under index e. Check for presence of e in the index buffer. If not present, store e and v.
-// Precondition: if e is not already present, there is space in the buffer to store it.
-{% endif %}
-template<class T>
-inline __device__ void A_STR_{{n}}({% for i in range(0,n) %}array_indextype *idx_{{i}}, {% endfor %}{% for i in range(0,n) %}T *v_{{i}}, {% endfor %}array_indextype e, T v) {
-{% for i in range(0,n) %}
-{% if not loop.first%}	else {% else %}	{% endif %}if (((array_indextype) e) == *idx_{{i}}) {
-		*v_{{i}} = v;
-		return;
-	}
-	else if (*idx_{{i}} == EMPTY_INDEX) {
-		*idx_{{i}} = (array_indextype) e;
-		*v_{{i}} = v;
-		return;
-	}
-{% endfor %}
-}
-
-{% endfor %}
-{% for n in all_arrayindex_allocs_sizes %}
-{% if loop.first %}
-// Return the value stored at index e.
-// Precondition: provided array contains the requested element.
-{% endif %}
-template<class T>
-inline __device__ T A_LD_{{n}}({% for i in range(0,n) %}array_indextype idx_{{i}}, {% endfor %}{% for i in range(0,n) %}T v_{{i}}, {% endfor %}array_indextype e) {
-{% for i in range(0,n) %}
-{% if not loop.first%}	else {% else %}	{% endif %}if (((array_indextype) e) == idx_{{i}}) {
-		return v_{{i}};
-	}
-{% endfor %}
-	return T();
-}
-
-{% endfor %}
-{% for n in all_arrayindex_allocs_sizes %}
-{% if loop.first %}
-// Check whether the given array index e is stored in the given array index buffer.
-{% endif %}
-inline __device__ bool A_IEX_{{n}}({% for i in range(0,n) %}array_indextype idx_{{i}}, {% endfor %}array_indextype e) {
-{% for i in range(0,n) %}
-{% if not loop.first%}	else {% else %}	{% endif %}if (((array_indextype) e) == idx_{{i}}) {
-		return true;
-	}
-{% endfor %}
-	return false;
 }
 
 {% endfor %}

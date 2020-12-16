@@ -589,6 +589,72 @@ inline __device__ shared_indextype STOREINCACHE(nodetype node, shared_inttype ca
 
 // *** START FUNCTIONS FOR MODEL DATA RETRIEVAL AND STORAGE ***
 
+// Auxiliary functions to check for and obtain/store an array element with an index equal to the given expression e.
+// There are functions for the various buffer sizes required to interpret the model.
+
+// Store the given value v under index e. Check for presence of e in the index buffer. If not present, store e and v.
+// Precondition: if e is not already present, there is space in the buffer to store it.
+template<class T>
+inline __device__ void A_STR_3(array_indextype *idx_0, array_indextype *idx_1, array_indextype *idx_2, T *v_0, T *v_1, T *v_2, array_indextype e, T v) {
+	if (((array_indextype) e) == *idx_0) {
+		*v_0 = v;
+		return;
+	}
+	else if (*idx_0 == EMPTY_INDEX) {
+		*idx_0 = (array_indextype) e;
+		*v_0 = v;
+		return;
+	}
+	else if (((array_indextype) e) == *idx_1) {
+		*v_1 = v;
+		return;
+	}
+	else if (*idx_1 == EMPTY_INDEX) {
+		*idx_1 = (array_indextype) e;
+		*v_1 = v;
+		return;
+	}
+	else if (((array_indextype) e) == *idx_2) {
+		*v_2 = v;
+		return;
+	}
+	else if (*idx_2 == EMPTY_INDEX) {
+		*idx_2 = (array_indextype) e;
+		*v_2 = v;
+		return;
+	}
+}
+
+// Return the value stored at index e.
+// Precondition: provided array contains the requested element.
+template<class T>
+inline __device__ T A_LD_3(array_indextype idx_0, array_indextype idx_1, array_indextype idx_2, T v_0, T v_1, T v_2, array_indextype e) {
+	if (((array_indextype) e) == idx_0) {
+		return v_0;
+	}
+	else if (((array_indextype) e) == idx_1) {
+		return v_1;
+	}
+	else if (((array_indextype) e) == idx_2) {
+		return v_2;
+	}
+	return T();
+}
+
+// Check whether the given array index e is stored in the given array index buffer.
+inline __device__ bool A_IEX_3(array_indextype idx_0, array_indextype idx_1, array_indextype idx_2, array_indextype e) {
+	if (((array_indextype) e) == idx_0) {
+		return true;
+	}
+	else if (((array_indextype) e) == idx_1) {
+		return true;
+	}
+	else if (((array_indextype) e) == idx_2) {
+		return true;
+	}
+	return false;
+}
+
 // GPU data retrieval functions. Retrieve particular state info from the given state vector part(s).
 // Precondition: the given parts indeed contain the requested info.
 inline __device__ void get_p_REC1(statetype *b, nodetype part1, nodetype part2) {
@@ -808,72 +874,6 @@ inline __device__ void set_right_p_x(nodetype *part, array_indextype index, elem
 		default:
 			break;
 	}
-}
-
-// Auxiliary functions to check for and obtain/store an array element with an index equal to the given expression e.
-// There are functions for the various buffer sizes required to interpret the model.
-
-// Store the given value v under index e. Check for presence of e in the index buffer. If not present, store e and v.
-// Precondition: if e is not already present, there is space in the buffer to store it.
-template<class T>
-inline __device__ void A_STR_3(array_indextype *idx_0, array_indextype *idx_1, array_indextype *idx_2, T *v_0, T *v_1, T *v_2, array_indextype e, T v) {
-	if (((array_indextype) e) == *idx_0) {
-		*v_0 = v;
-		return;
-	}
-	else if (*idx_0 == EMPTY_INDEX) {
-		*idx_0 = (array_indextype) e;
-		*v_0 = v;
-		return;
-	}
-	else if (((array_indextype) e) == *idx_1) {
-		*v_1 = v;
-		return;
-	}
-	else if (*idx_1 == EMPTY_INDEX) {
-		*idx_1 = (array_indextype) e;
-		*v_1 = v;
-		return;
-	}
-	else if (((array_indextype) e) == *idx_2) {
-		*v_2 = v;
-		return;
-	}
-	else if (*idx_2 == EMPTY_INDEX) {
-		*idx_2 = (array_indextype) e;
-		*v_2 = v;
-		return;
-	}
-}
-
-// Return the value stored at index e.
-// Precondition: provided array contains the requested element.
-template<class T>
-inline __device__ T A_LD_3(array_indextype idx_0, array_indextype idx_1, array_indextype idx_2, T v_0, T v_1, T v_2, array_indextype e) {
-	if (((array_indextype) e) == idx_0) {
-		return v_0;
-	}
-	else if (((array_indextype) e) == idx_1) {
-		return v_1;
-	}
-	else if (((array_indextype) e) == idx_2) {
-		return v_2;
-	}
-	return T();
-}
-
-// Check whether the given array index e is stored in the given array index buffer.
-inline __device__ bool A_IEX_3(array_indextype idx_0, array_indextype idx_1, array_indextype idx_2, array_indextype e) {
-	if (((array_indextype) e) == idx_0) {
-		return true;
-	}
-	else if (((array_indextype) e) == idx_1) {
-		return true;
-	}
-	else if (((array_indextype) e) == idx_2) {
-		return true;
-	}
-	return false;
 }
 
 // *** END FUNCTIONS FOR MODEL DATA RETRIEVAL AND STORAGE ***
@@ -2219,12 +2219,12 @@ inline __device__ void explore_p_REC1(shared_indextype node_index) {
 			target = 1;
 			buf8_3 = (elem_chartype) (7);
 			A_STR_3(&idx_0, &idx_1, &idx_2, &buf8_0, &buf8_1, &buf8_2, (array_indextype) buf8_3, (elem_chartype) 17);
-			A_STR_3(&idx_0, &idx_1, &idx_2, &buf8_0, &buf8_1, &buf8_2, (array_indextype) 0, (elem_chartype) p_x(node_index, idx_0, idx_1, idx_2, buf8_0, buf8_1, buf8_2, buf8_3));
+			A_STR_3(&idx_0, &idx_1, &idx_2, &buf8_0, &buf8_1, &buf8_2, (array_indextype) 0, (elem_chartype) p_x(node_index, &idx_0, &idx_1, &idx_2, &buf8_0, &buf8_1, &buf8_2, buf8_3));
 			// Store new state vector in shared memory.
 			get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
 			// Store new values.
 			part2 = part1;
-			set_left_p_REC1(&part2, (statetype) target);
+			set_left_p_REC1_i(&part2, buf8_3);
 			// Write array buffer content.
 			if (0 >= 0 && 0 <= 1) {
 				if (idx_0 != EMPTY_INDEX) {
@@ -2249,7 +2249,7 @@ inline __device__ void explore_p_REC1(shared_indextype node_index) {
 					}
 				}
 			}
-			set_left_p_REC1_i(&part2, buf8_3);
+			set_left_p_REC1(&part2, (statetype) target);
 			if (part2 != part1) {
 				// This part has been altered. Store it in shared memory and remember address of new part.
 				part_cachepointers = CACHE_POINTERS_NEW_LEAF;

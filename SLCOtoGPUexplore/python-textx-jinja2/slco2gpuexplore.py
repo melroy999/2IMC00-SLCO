@@ -1838,9 +1838,9 @@ def getinstruction(s, o, D):
 					tpsize = str(gettypesize(v.type))
 					result2 += scopename(v,None,o).replace("[","_").replace("]","").replace("'","_") + "(node_index, "
 					for j in range(0,size):
-						result2 += "idx_" + str(j+idx_offset) + ", "
+						result2 += "&idx_" + str(j+idx_offset) + ", "
 					for j in range(0,size):
-						result2 += "buf" + tpsize + "_" + str(j+offset) + ", "
+						result2 += "&buf" + tpsize + "_" + str(j+offset) + ", "
 					result2 += indexresult + ")"
 				else:
 					indexdict = get_constant_indices(s.ref, s.ref.ref, t, o)
