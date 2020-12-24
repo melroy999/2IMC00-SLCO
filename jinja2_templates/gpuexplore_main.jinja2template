@@ -211,7 +211,7 @@ inline __device__ void PREPARE_CACHE() {
 	// Scan the cache one more time, remove non-leaf nodes that are no longer required (alternative: keep them with their global memory addresses)
 	// and reset the 'prepared' and the 'old_required' marks of required non-leaf nodes.
 	#pragma unroll
-	for (shared_indextype i = THREAD_ID; (i*3)+2 < d_shared_cache_size; i += BLOCK_SIZE) {
+	for (shared_indextype i = THREAD_ID; (i*3)+2 < d_shared_cache_size - CACHEOFFSET; i += BLOCK_SIZE) {
 		pointers = shared[CACHEOFFSET+(i*3)+2];
 		if (cached_node_is_prepared(pointers)) {
 			if (cached_node_is_old_required(shared[CACHEOFFSET+(i*3)])) {

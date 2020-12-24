@@ -911,12 +911,12 @@ def reset_right_pointer(node):
 def set_left_cache_pointer(nodes_cachepointers, value):
 	"""Set the left cache pointer"""
 	hivalue = (value << 15)
-	return (nodes_cachepointers | hivalue)
+	return ((nodes_cachepointers & 0xC0007FFF) | hivalue)
 
 def set_right_cache_pointer(nodes_cachepointers, value):
 	"""Set the right cache pointer"""
 	lovalue = value
-	return (nodes_cachepointers | lovalue)
+	return ((nodes_cachepointers & 0xFFFF8000) | lovalue)
 
 def cudastore_initial_vector():
 	"""Construct CUDA code to put the initial state in the global hash table"""
@@ -961,13 +961,13 @@ def cudastore_initial_vector():
 			part_id = vectorpart_id(current)
 			p = vectorparts[part_id]
 			if vectorpart_is_combined_with_nonleaf_node(part_id):
-				p_cpointers = 0x80000000
+				p_cpointers = 0xBFFFFFFF
 				p = reset_left_pointer(p)
 				p_cpointers = set_left_cache_pointer(p_cpointers, children[0])
 			nodes[current] = p
 			nodes_cachepointers[current] = p_cpointers
 		else:
-			p_cpointers = 0x80000000
+			p_cpointers = 0xBFFFFFFF
 			p = 0
 			p = reset_left_pointer(p)
 			p_cpointers = set_left_cache_pointer(p_cpointers, children[0])
