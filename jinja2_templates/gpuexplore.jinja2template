@@ -385,27 +385,21 @@ inline __device__ void mark_cached_node_as_next_in_preparation(volatile shared_i
 	*pointers = (*pointers & 0x3FFFFFFF) | 0x80000000;
 }
 
-inline __device__ bool cached_node_is_prepared(shared_inttype pointers) {
-	return (pointers & 0xC0000000) == 0x40000000;
-}
-
 inline __device__ void mark_cached_node_as_prepared(volatile shared_inttype *pointers) {
 	*pointers = (*pointers & 0x3FFFFFFF) | 0x40000000;
 }
 
-// In part 1 of a cached node, we set the highest bit in case the node is old, but needs to be kept in the cache for future successor generation.
-// (This is used when preparing the cache to distinguish old nodes that are still needed from old nodes that are not).
-inline __device__ void mark_cached_node_as_old_required(volatile shared_inttype *part1) {
+// In part 1 of a cached node, we set the highest bit in case the (non-leaf) node needs to be kept in the cache for future successor generation.
+// (This is used when preparing the cache to distinguish nodes that are still needed from nodes that are not).
+inline __device__ void mark_cached_node_as_required(volatile shared_inttype *part1) {
 	*part1 = (*part1) | 0x80000000;
 }
 
-// In part 1 of a cached node, we set the highest bit in case the node is old, but needs to be kept in the cache for future successor generation.
-// (This is used when preparing the cache to distinguish old nodes that are still needed from old nodes that are not).
-inline __device__ void reset_cached_node_old_required(volatile shared_inttype *part1) {
+inline __device__ void reset_cached_node_required(volatile shared_inttype *part1) {
 	*part1 = (*part1) & 0x7FFFFFFF;
 }
 
-inline __device__ bool cached_node_is_old_required(shared_inttype pointers) {
+inline __device__ bool cached_node_is_required(shared_inttype pointers) {
 	return (pointers & 0x80000000) == 0x80000000;
 }
 
@@ -2509,12 +2503,40 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 					CONTINUE = 2;
 				}
 				else if (!is_root(node)) {
-					// Preserve original cache pointers for future successor generation iterations.
-					shared[CACHEOFFSET+(i*3)] = shared[CACHEOFFSET+(i*3)+2];
-					// Mark the node in the (preserved) pointers as old, to distinguish it from already older nodes that are required later for successor generation.
-					// When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure, and we must make sure that the current
-					// node is not seen as such a node.
-					mark_cached_node_as_old(&shared[CACHEOFFSET+(i*3)]);
+					// Will there be a next successor generation iteration in the current gather kernel launch?
+					if (ITERATIONS < d_kernel_iters-1) {
+						// Preserve original cache pointers for future successor generation iterations.
+					
+						// First check repeatedly for the left child in the vectortree whether it has stored its global address,
+						// otherwise the overwritten information cannot be reconstructed. This procedure stops when a leaf has been reached, or a new non-leaf with a
+						// global memory address.
+						while(!cached_node_contains_global_address(shared[CACHEOFFSET+(sv_step(i, false)*3)+2])) {
+							node_pointers = i;
+							node_pointers_child = sv_step(i, false);
+							while(!cached_node_contains_global_address(shared[CACHEOFFSET+(sv_step(node_pointers_child, false)*3)+2])) {
+								node_pointers = node_pointers_child;
+								node_pointers_child = sv_step(node_pointers_child, false);
+							}
+							// Set global address for node at cache address node_pointers_child. This address can be retrieved from node_pointers: it is the left global
+							// address in the node stored at cache address node_pointers.
+
+							// Overwrite first half of the node to preserve the cache pointers.
+							shared[CACHEOFFSET+(node_pointers_child*3)] = shared[CACHEOFFSET+(node_pointers_child*3)+2];
+							// Mark the node in the (preserved) pointers as old, to distinguish it from already older nodes that are required later for successor generation.
+							// When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure, and we must make sure that the current
+							// node is not seen as such a node.
+							mark_cached_node_as_old(&shared[CACHEOFFSET+(node_pointers_child*3)]);
+							// Store global memory address retrieved from the parent at cache address node_pointers.
+							node = combine_halfs(shared[CACHEOFFSET+(node_pointers*3)], shared[CACHEOFFSET+(node_pointers*3)+1]);
+							set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(node_pointers_child*3)+2], get_pointer_from_vectortree_node(node, false), false);
+						}
+						// Overwrite first half of the node to preserve the cache pointers.
+						shared[CACHEOFFSET+(i*3)] = shared[CACHEOFFSET+(i*3)+2];
+						// Mark the node in the (preserved) pointers as old, to distinguish it from nodes that are required later for successor generation and for which we have
+						// not applied the pointers preservation procedure. When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure,
+						// and we must make sure that the current node is not seen as such a node.
+						mark_cached_node_as_old(&shared[CACHEOFFSET+(i*3)]);
+					}
 					// Store global memory address in cache.
 					set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(i*3)+2], addr, false);
 				}

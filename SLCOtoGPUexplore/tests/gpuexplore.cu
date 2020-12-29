@@ -106,6 +106,8 @@ inline __device__ void PREPARE_CACHE() {
 	nodetype node;
 	bool next_it, is_old;
 
+	nodetype debug_tmp = combine_halfs(shared[CACHEOFFSET+(2152*3)], shared[CACHEOFFSET+(2152*3)+1]);
+
 	// In the first iteration, we know that only root nodes are marked for preparation.
 	#pragma unroll
 	for (shared_indextype i = THREAD_ID; (i*3)+2 < d_shared_cache_size - CACHEOFFSET; i += BLOCK_SIZE) {
@@ -208,8 +210,11 @@ inline __device__ void PREPARE_CACHE() {
 		pointers = shared[CACHEOFFSET+(i*3)+2];
 		if (cached_node_is_prepared(pointers)) {
 			if (cached_node_is_old_required(shared[CACHEOFFSET+(i*3)])) {
+				debug_tmp = combine_halfs(shared[CACHEOFFSET+(2152*3)], shared[CACHEOFFSET+(2152*3)+1]);
 				reset_cached_node_old_required(&shared[CACHEOFFSET+(i*3)]);
+				debug_tmp = combine_halfs(shared[CACHEOFFSET+(2152*3)], shared[CACHEOFFSET+(2152*3)+1]);
 				mark_cached_node_as_old(&shared[CACHEOFFSET+(i*3)+2]);
+				debug_tmp = combine_halfs(shared[CACHEOFFSET+(2152*3)], shared[CACHEOFFSET+(2152*3)+1]);
 			}
 		}
 		else {
@@ -219,6 +224,7 @@ inline __device__ void PREPARE_CACHE() {
 			shared[CACHEOFFSET+(i*3)+2] = EMPTYVECT32;
 		}
 	}
+	debug_tmp = combine_halfs(shared[CACHEOFFSET+(2152*3)], shared[CACHEOFFSET+(2152*3)+1]);
 }
 
 __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodetype *d_q_i, uint8_t *d_contBFS, uint8_t *d_property_violation, volatile uint8_t *d_newstate_flags, shared_inttype *d_worktiles, const uint8_t scan) {
@@ -226,6 +232,8 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodet
 	shared_inttype l;
 	shared_indextype sh_index, opentile_scan_start;
 	compressed_nodetype tmp;
+	// Debug!
+	nodetype debug_tmp;
 
 	// Reset the shared variables preceding the cache, and reset the cache.
 	if (THREAD_ID < SH_OFFSET) {
@@ -255,6 +263,7 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodet
 			PREPARE_CACHE();
 		}
 		__syncthreads();
+		debug_tmp = combine_halfs(shared[CACHEOFFSET+(2152*3)], shared[CACHEOFFSET+(2152*3)+1]);
 		if (THREAD_ID == 0 && OPENTILECOUNT < OPENTILELEN && d_newstate_flags[BLOCK_ID] == 1) {
 			// Indicate that we are scanning.
 			d_newstate_flags[BLOCK_ID] = 2;
