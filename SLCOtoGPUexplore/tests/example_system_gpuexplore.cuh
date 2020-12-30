@@ -3,8 +3,8 @@
 using namespace cooperative_groups;
 
 // Structure of the state vector:
-// [ state p'REC1: 1 bit(s), variable p'y: 32 bit(s), variable p'x: 31 bit(s) ],
-// Combined with a non-leaf vector tree node: [ variable p'x: 1 bit(s) ]
+// [ state p'REC1: 1 bit(s), variable p'x: 32 bit(s), variable p'y: 31 bit(s) ],
+// Combined with a non-leaf vector tree node: [ variable p'y: 1 bit(s) ]
 
 // type of vectortree nodes used.
 #define nodetype uint64_t
@@ -265,27 +265,21 @@ inline __device__ void mark_cached_node_as_next_in_preparation(volatile shared_i
 	*pointers = (*pointers & 0x3FFFFFFF) | 0x80000000;
 }
 
-inline __device__ bool cached_node_is_prepared(shared_inttype pointers) {
-	return (pointers & 0xC0000000) == 0x40000000;
-}
-
 inline __device__ void mark_cached_node_as_prepared(volatile shared_inttype *pointers) {
 	*pointers = (*pointers & 0x3FFFFFFF) | 0x40000000;
 }
 
-// In part 1 of a cached node, we set the highest bit in case the node is old, but needs to be kept in the cache for future successor generation.
-// (This is used when preparing the cache to distinguish old nodes that are still needed from old nodes that are not).
-inline __device__ void mark_cached_node_as_old_required(volatile shared_inttype *part1) {
+// In part 1 of a cached node, we set the highest bit in case the (non-leaf) node needs to be kept in the cache for future successor generation.
+// (This is used when preparing the cache to distinguish nodes that are still needed from nodes that are not).
+inline __device__ void mark_cached_node_as_required(volatile shared_inttype *part1) {
 	*part1 = (*part1) | 0x80000000;
 }
 
-// In part 1 of a cached node, we set the highest bit in case the node is old, but needs to be kept in the cache for future successor generation.
-// (This is used when preparing the cache to distinguish old nodes that are still needed from old nodes that are not).
-inline __device__ void reset_cached_node_old_required(volatile shared_inttype *part1) {
+inline __device__ void reset_cached_node_required(volatile shared_inttype *part1) {
 	*part1 = (*part1) & 0x7FFFFFFF;
 }
 
-inline __device__ bool cached_node_is_old_required(shared_inttype pointers) {
+inline __device__ bool cached_node_is_required(shared_inttype pointers) {
 	return (pointers & 0x80000000) == 0x80000000;
 }
 
@@ -623,7 +617,7 @@ inline __device__ void get_p_REC1(statetype *b, nodetype part1, nodetype part2) 
 	*b = (statetype) t2;
 }
 
-inline __device__ void get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
+inline __device__ void get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
 		" bfe.u64 t1, %1, 31, 32;\n\t"
@@ -631,7 +625,7 @@ inline __device__ void get_p_y(elem_inttype *b, nodetype part1, nodetype part2) 
 	    "}" : "=r"(*b) : "l"(part1), "l"(part2));
 }
 
-inline __device__ void get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
+inline __device__ void get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
 		" bfe.u64 t1, %2, 28, 1;\n\t"
@@ -666,7 +660,7 @@ inline void host_get_p_REC1(statetype *b, nodetype part1, nodetype part2) {
 	*b = (statetype) t1;
 }
 
-inline void host_get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
+inline void host_get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
 	nodetype t1 = part1;
 	// Strip away data beyond the requested data.
 	t1 = t1 & 0x7fffffffffffffff;
@@ -675,7 +669,7 @@ inline void host_get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
 	*b = (elem_inttype) t1;
 }
 
-inline void host_get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
+inline void host_get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
 	nodetype t1 = part1;
 	nodetype t2 = part2;
 	// Strip away data beyond the requested data.
@@ -701,21 +695,21 @@ inline __device__ void set_left_p_REC1(nodetype *part, elem_booltype x) {
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_left_p_y(nodetype *part, elem_inttype x) {
+inline __device__ void set_left_p_x(nodetype *part, elem_inttype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
 		" bfi.b64 %0, %1, %0, 31, 32;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_left_p_x(nodetype *part, elem_inttype x) {
+inline __device__ void set_left_p_y(nodetype *part, elem_inttype x) {
 	nodetype t1 = (nodetype) x >> 1;
 	asm("{\n\t"
 		" bfi.b64 %0, %1, %0, 0, 31;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_right_p_x(nodetype *part, elem_inttype x) {
+inline __device__ void set_right_p_y(nodetype *part, elem_inttype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
 		" bfi.b64 %0, %1, %0, 28, 1;\n\t"
@@ -2944,12 +2938,40 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q, nodetype *d_q_i, volati
 					CONTINUE = 2;
 				}
 				else if (!is_root(node)) {
-					// Preserve original cache pointers for future successor generation iterations.
-					shared[CACHEOFFSET+(i*3)] = shared[CACHEOFFSET+(i*3)+2];
-					// Mark the node in the (preserved) pointers as old, to distinguish it from already older nodes that are required later for successor generation.
-					// When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure, and we must make sure that the current
-					// node is not seen as such a node.
-					mark_cached_node_as_old(&shared[CACHEOFFSET+(i*3)]);
+					// Will there be a next successor generation iteration in the current gather kernel launch?
+					if (ITERATIONS < d_kernel_iters-1) {
+						// Preserve original cache pointers for future successor generation iterations.
+					
+						// First check repeatedly for the left child in the vectortree whether it has stored its global address,
+						// otherwise the overwritten information cannot be reconstructed. This procedure stops when a leaf has been reached, or a new non-leaf with a
+						// global memory address.
+						while(!cached_node_contains_global_address(shared[CACHEOFFSET+(sv_step(i, false)*3)+2])) {
+							node_pointers = i;
+							node_pointers_child = sv_step(i, false);
+							while(!cached_node_contains_global_address(shared[CACHEOFFSET+(sv_step(node_pointers_child, false)*3)+2])) {
+								node_pointers = node_pointers_child;
+								node_pointers_child = sv_step(node_pointers_child, false);
+							}
+							// Set global address for node at cache address node_pointers_child. This address can be retrieved from node_pointers: it is the left global
+							// address in the node stored at cache address node_pointers.
+
+							// Overwrite first half of the node to preserve the cache pointers.
+							shared[CACHEOFFSET+(node_pointers_child*3)] = shared[CACHEOFFSET+(node_pointers_child*3)+2];
+							// Mark the node in the (preserved) pointers as old, to distinguish it from already older nodes that are required later for successor generation.
+							// When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure, and we must make sure that the current
+							// node is not seen as such a node.
+							mark_cached_node_as_old(&shared[CACHEOFFSET+(node_pointers_child*3)]);
+							// Store global memory address retrieved from the parent at cache address node_pointers.
+							node = combine_halfs(shared[CACHEOFFSET+(node_pointers*3)], shared[CACHEOFFSET+(node_pointers*3)+1]);
+							set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(node_pointers_child*3)+2], get_pointer_from_vectortree_node(node, false), false);
+						}
+						// Overwrite first half of the node to preserve the cache pointers.
+						shared[CACHEOFFSET+(i*3)] = shared[CACHEOFFSET+(i*3)+2];
+						// Mark the node in the (preserved) pointers as old, to distinguish it from nodes that are required later for successor generation and for which we have
+						// not applied the pointers preservation procedure. When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure,
+						// and we must make sure that the current node is not seen as such a node.
+						mark_cached_node_as_old(&shared[CACHEOFFSET+(i*3)]);
+					}
 					// Store global memory address in cache.
 					set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(i*3)+2], addr, false);
 				}
@@ -3140,9 +3162,9 @@ inline __device__ uint32_t get_part_reachability(uint8_t tid, uint8_t level) {
 inline __device__ uint32_t get_part_bitmask_p_REC1(statetype sid) {
 	switch (sid) {
 		case 0:
-			return 0xc0000000;
-		case 1:
 			return 0x80000000;
+		case 1:
+			return 0xc0000000;
 		default:
 			return 0;
 	}
@@ -3802,15 +3824,11 @@ inline __device__ void explore_p_REC1(shared_indextype node_index) {
 			else {
 				buf16_0 = EMPTY_CACHE_POINTER;
 			}
-			get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
-			// Store new values.
-			part2 = part1;
-			set_right_p_x(&part2, buf32_0);
 			if (buf16_0 != EMPTY_CACHE_POINTER) {
+				get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+				part2 = part1;
 				set_left_cache_pointer(&part_cachepointers, buf16_0);
 				reset_left_in_vectortree_node(&part2);
-			}
-			if (part2 != part1) {
 				// This part has been altered. Store it in shared memory and remember address of new part.
 				mark_root(&part2);
 				mark_cached_node_new_nonleaf(&part_cachepointers);
@@ -3836,8 +3854,8 @@ inline __device__ void explore_p_REC1(shared_indextype node_index) {
 			get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
 			// Store new values.
 			part2 = part1;
-			set_left_p_y(&part2, buf32_0);
 			set_left_p_REC1(&part2, (statetype) target);
+			set_left_p_y(&part2, buf32_0);
 			if (part2 != part1) {
 				// This part has been altered. Store it in shared memory and remember address of new part.
 				part_cachepointers = CACHE_POINTERS_NEW_LEAF;
@@ -3849,11 +3867,15 @@ inline __device__ void explore_p_REC1(shared_indextype node_index) {
 			else {
 				buf16_0 = EMPTY_CACHE_POINTER;
 			}
+			get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+			// Store new values.
+			part2 = part1;
+			set_right_p_y(&part2, buf32_0);
 			if (buf16_0 != EMPTY_CACHE_POINTER) {
-				get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
-				part2 = part1;
 				set_left_cache_pointer(&part_cachepointers, buf16_0);
 				reset_left_in_vectortree_node(&part2);
+			}
+			if (part2 != part1) {
 				// This part has been altered. Store it in shared memory and remember address of new part.
 				mark_root(&part2);
 				mark_cached_node_new_nonleaf(&part_cachepointers);
@@ -3927,12 +3949,12 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q, nodetype *q_
 			fprintf(stream, "state p'REC1: %u\n", (uint32_t) e_st);
 			p1 = &part0;
 			p2 = p1;
-			host_get_p_y(&e_i, *p1, *p2);
-			fprintf(stream, "variable p'y: %u\n", (uint32_t) e_i);
-			p1 = &part0;
-			p2 = &part1;
 			host_get_p_x(&e_i, *p1, *p2);
 			fprintf(stream, "variable p'x: %u\n", (uint32_t) e_i);
+			p1 = &part0;
+			p2 = &part1;
+			host_get_p_y(&e_i, *p1, *p2);
+			fprintf(stream, "variable p'y: %u\n", (uint32_t) e_i);
 			fprintf(stream, "-----\n");
 		}
 	}
