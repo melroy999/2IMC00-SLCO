@@ -106,8 +106,6 @@ inline __device__ void PREPARE_CACHE() {
 	nodetype node;
 	bool next_it, is_required;
 
-	nodetype debug_tmp = combine_halfs(shared[CACHEOFFSET+(2152*3)], shared[CACHEOFFSET+(2152*3)+1]);
-
 	while (CONTINUE == 1) {
 		__syncthreads();
 		if (THREAD_ID == 0) {
@@ -132,11 +130,18 @@ inline __device__ void PREPARE_CACHE() {
 				pointers = shared[CACHEOFFSET+(addr*3)+2];
 				if (!cached_node_is_leaf_with_global_address(pointers)) {
 					// By definition, a left child stores a global address in its cache pointers.
-					mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(addr*3)+2]);
-					next_it = true;
+					// Is the node not a global address stub?
+					if (shared[CACHEOFFSET+(addr*3)] != EMPTYVECT32) {
+						mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(addr*3)+2]);
+						next_it = true;
+					}
 				}
 				if (!is_required) {
 					set_left_in_vectortree_node(&node, global_address(pointers));
+					// Reset left cache pointer in case the left child is a stub.
+					if (shared[CACHEOFFSET+(addr*3)] == EMPTYVECT32) {
+						set_left_cache_pointer((shared_inttype *) &shared[CACHEOFFSET+(i*3)+2], EMPTY_CACHE_POINTER);
+					}
 				}
 				addr = sv_step(i, true);
 				// Is there actually a right child?
@@ -163,28 +168,27 @@ inline __device__ void PREPARE_CACHE() {
 				}
 			}
 		}
+		__syncthreads();
 	}
-	__syncthreads();
 	// Scan the cache one more time, remove non-leaf nodes that are no longer required (alternative: keep them with their global memory addresses)
 	// and reset the 'required' marks of required non-leaf nodes.
 	#pragma unroll
 	for (shared_indextype i = THREAD_ID; (i*3)+2 < d_shared_cache_size - CACHEOFFSET; i += BLOCK_SIZE) {
 		pointers = shared[CACHEOFFSET+(i*3)+2];
-		if (!cached_node_is_leaf_with_global_address(pointers)) {
-			if (cached_node_is_required(shared[CACHEOFFSET+(i*3)])) {
-				debug_tmp = combine_halfs(shared[CACHEOFFSET+(2152*3)], shared[CACHEOFFSET+(2152*3)+1]);
-				reset_cached_node_required(&shared[CACHEOFFSET+(i*3)]);
-				debug_tmp = combine_halfs(shared[CACHEOFFSET+(2152*3)], shared[CACHEOFFSET+(2152*3)+1]);
-			}
-			else if (pointers != EMPTYVECT32) {
-				// Delete node.
-				shared[CACHEOFFSET+(i*3)] = EMPTYVECT32;
-				shared[CACHEOFFSET+(i*3)+1] = EMPTYVECT32;
-				shared[CACHEOFFSET+(i*3)+2] = EMPTYVECT32;
+		if (pointers != EMPTYVECT32) {
+			if (!cached_node_is_leaf_with_global_address(pointers)) {
+				if (cached_node_is_required(shared[CACHEOFFSET+(i*3)])) {
+					reset_cached_node_required(&shared[CACHEOFFSET+(i*3)]);
+				}
+				else {
+					// Delete node.
+					shared[CACHEOFFSET+(i*3)] = EMPTYVECT32;
+					shared[CACHEOFFSET+(i*3)+1] = EMPTYVECT32;
+					shared[CACHEOFFSET+(i*3)+2] = EMPTYVECT32;
+				}
 			}
 		}
 	}
-	debug_tmp = combine_halfs(shared[CACHEOFFSET+(2152*3)], shared[CACHEOFFSET+(2152*3)+1]);
 }
 
 __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodetype *d_q_i, uint8_t *d_contBFS, uint8_t *d_property_violation, volatile uint8_t *d_newstate_flags, shared_inttype *d_worktiles, const uint8_t scan) {
@@ -471,7 +475,7 @@ int main(int argc, char** argv) {
 	fprintf (stdout, "Internal global mem hash table size: %lu; Number of entries: %lu\n", internal_hash_table_size*sizeof(nodetype), internal_hash_table_size);
 
 	shared_inttype shared_cache_size = (shared_inttype) prop.sharedMemPerMultiprocessor / sizeof(shared_inttype) / 2;
-	fprintf (stdout, "Shared mem work tile size: 256\n");
+	fprintf (stdout, "Shared mem work tile size: 128\n");
 	fprintf (stdout, "Shared mem cache size: %u; Number of entries: %u\n", (uint32_t) (shared_cache_size*sizeof(shared_inttype)), (uint32_t) shared_cache_size*3);
 	fprintf (stdout, "Nr. of blocks: %d; Block size: 512; Nr. of kernel iterations: %d\n", nblocks, kernel_iters);
 
@@ -504,7 +508,7 @@ int main(int argc, char** argv) {
 	while (contBFS == 1) {
 		CUDA_CHECK_RETURN(cudaMemset(d_contBFS, 0, sizeof(uint8_t)));
 		// TODO: change nr of blocks back to nblocks
-		gather<<<1, 512, shared_cache_size * sizeof(shared_inttype)>>>(d_q, d_q_i, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
+		gather<<<nblocks, 512, shared_cache_size * sizeof(shared_inttype)>>>(d_q, d_q_i, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
 
 		// Copy progress result.
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());

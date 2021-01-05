@@ -120,13 +120,13 @@ static const int NR_BLOCKS = {{nrblocks}};
 {% elif vectorsize <= 62 %}
 #define EMPTYVECT64					0xBFFFFFFFFFFFFFFF
 {% else %}
-#define EMPTYVECT32					0x1FFFFFFF
+#define EMPTYVECT32					0x3FFFFFFF
 {% endif %}
 #define EMPTYVECT16					0xFFFF
 {% if vectorsize > 62 %}
-#define CACHE_POINTERS_NEW_LEAF		0x3FFFFFFF
+#define CACHE_POINTERS_NEW_LEAF		0x1FFFFFFF
 {% endif %}
-// A cache never contains 2^15 or more elements, hence 2^15 is available for the constant.
+// A cache never contains 2^16-1 or more elements, hence 2^16-1 is available for the constant.
 #define EMPTY_CACHE_POINTER			0x7FFF
 
 // Retry constant to determine number of retries for element insertion.
@@ -835,6 +835,21 @@ inline __device__ shared_indextype STOREINCACHE(nodetype node, shared_inttype ca
 	return CACHE_FULL;
 }
 
+{% if not no_smart_fetching %}
+// Create a 'stub' for storage of a global address, and store it in the cache.
+inline __device__ shared_indextype store_global_address_stub(nodetype node, shared_indextype i) {
+	// Construct cache pointers to store the global address.
+	shared_inttype n = 0;
+	set_cache_pointers_to_global_address(&n, get_pointer_from_vectortree_node(node, false), false);
+	// Create a node for storage of the stub. Only the global address, stored as cache pointers, is
+	// actually relevant. The node is created to be able to dinstinguish a stub from a non-leaf. To do so, the highest bits of the node
+	// are set to EMPTYVECT32, which is a value those bits can never have when the node is a non-leaf. The lowest bits are set to the
+	// global address, to achieve variation in values. This helps the hashing.
+	shared_indextype addr = STOREINCACHE(combine_halfs(EMPTYVECT32, n), n);
+	return addr;
+}
+
+{% endif %}
 // *** END FUNCTIONS FOR {% if vectorsize > 62 %}VECTOR TREE {% endif %}NODE MANIPULATION AND STORAGE TO THE SHARED MEMORY CACHE ***
 
 // *** START FUNCTIONS FOR MODEL DATA RETRIEVAL AND STORAGE ***
@@ -961,7 +976,7 @@ inline __device__ void get_{{vname|replace("[","_")|replace("]","")|replace("'",
 				" .reg .u{% if vectorsize < 31 %}32{% else %}64{% endif %} t1;\n\t"
 				" bfe.u{% if vectorsize < 31 %}32{% else %}64{% endif %} t1, %1, {{array_in_structure_map[vname][i][2]}}, {{array_in_structure_map[vname][i][3]}};\n\t"
 				" cvt.u{% if (t|gettypesize) < 32 %}16{% else %}32{% endif %}.u{% if vectorsize < 31 %}32{% else %}64{% endif %} %0, t1;\n\t"
-	    		"}" : "={% if (t|gettypesize) < 16 %}h"(t3){% else %}r"(*b){% endif %} : "{% if vectorsize <= 30 %}r{% else %}l{% endif %}"(part));
+	    		"}" : "={% if (t|gettypesize) < 16 %}h{% else %}r{% endif %}"(t3) : "{% if vectorsize <= 30 %}r{% else %}l{% endif %}"(part));
 	    	{% if (t|gettypesize) < 16 %}
 	    	t2 = t2 | t3;
 	    	{% else %}
@@ -969,7 +984,7 @@ inline __device__ void get_{{vname|replace("[","_")|replace("]","")|replace("'",
 	    	{% endif %}
 		}
 		{% endif %}
-		{% if size < 16 %}
+		{% if (t|gettypesize) < 16 %}
 		*b = ({{t|cudatype(True)}}) t2;
 		{% endif %}
 	}
@@ -2444,115 +2459,20 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i{% endif %}, volatile uint8_t *d_newstate_flags) {
 	nodetype node;
 	indextype addr;
+	{% if not no_smart_fetching %}
+	indextype addr2;
+	{% endif %}
 	{% if vectorsize > 62 %}
 	shared_inttype node_pointers;
 	shared_inttype node_pointers_child;
-	bool work_to_do = false;
+	bool work_to_do = true;
 
 	if (THREAD_ID == 0) {
-		CONTINUE = 0;
-	}
-	__syncthreads();
-	for (shared_indextype i = THREAD_ID; (i*3)+2 < (d_shared_cache_size - CACHEOFFSET) && CONTINUE != 2; i += BLOCK_SIZE) {
-		node_pointers = shared[CACHEOFFSET+(i*3)+2];
-		// Check if node is ready for storage. Only new leafs are ready at this point. We rely on old non-leafs having pointers with the highest
-		// two bits set to '00', new non-leafs having pointers with the highest two bits set to '10', empty entries having pointers set to 0,
-		// old leafs having pointers with the highest two bits set to '01', and new leafs having pointers set to 0x40000000.
-		if (cached_node_is_new_leaf(node_pointers)) {
-			node = combine_halfs(shared[CACHEOFFSET+(i*3)], shared[CACHEOFFSET+(i*3)+1]);
-			// Store node in hash table.
-			addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, node, d_newstate_flags{% if vectorsize > 62 %}, i{% endif %}{% if compact_hash_table %}, false{% endif %}, true);
-			if (addr == HASHTABLE_FULL) {
-				CONTINUE = 2;
-			}
-			else {
-				// Store global memory address in cache.
-				set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(i*3)+2], addr, true);
-			}
-		}
-		// Node is not ready yet. Check if it can be updated.
-		else if (cached_node_is_new_nonleaf(node_pointers)) {
-			node = combine_halfs(shared[CACHEOFFSET+(i*3)], shared[CACHEOFFSET+(i*3)+1]);
-			if (vectortree_node_contains_left_gap(node)) {
-				// Look up left child and check for presence of global memory address.
-				node_pointers_child = sv_step(i, false);
-				node_pointers_child = shared[CACHEOFFSET+(node_pointers_child*3)+2];
-				if (cached_node_contains_global_address(node_pointers_child)) {
-					set_left_in_vectortree_node(&node, node_pointers_child);
-					// Copy back to shared memory.
-					shared[CACHEOFFSET+(i*3)] = get_left(node);
-					shared[CACHEOFFSET+(i*3)+1] = get_right(node);
-				}
-			}
-			if (vectortree_node_contains_right_gap(node)) {
-				// Look up right child and check for presence of global memory address.
-				node_pointers_child = sv_step(i, true);
-				node_pointers_child = shared[CACHEOFFSET+(node_pointers_child*3)+2];
-				if (cached_node_contains_global_address(node_pointers_child)) {
-					set_right_in_vectortree_node(&node, node_pointers_child);
-					// Copy back to shared memory.
-					shared[CACHEOFFSET+(i*3)] = get_left(node);
-					shared[CACHEOFFSET+(i*3)+1] = get_right(node);
-				}
-			}
-			// Ready now?
-			if (!vectortree_node_contains_left_gap(node) && !vectortree_node_contains_right_gap(node)) {
-				// Store node in hash table.
-				addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, node, d_newstate_flags{% if vectorsize > 62 %}, i{% endif %}{% if compact_hash_table %}, is_root(node){% endif %}, true);
-				if (addr == HASHTABLE_FULL) {
-					CONTINUE = 2;
-				}
-				else if (!is_root(node)) {
-					// Will there be a next successor generation iteration in the current gather kernel launch?
-					if (ITERATIONS < d_kernel_iters-1) {
-						// Preserve original cache pointers for future successor generation iterations.
-					
-						// First check repeatedly for the left child in the vectortree whether it has stored its global address,
-						// otherwise the overwritten information cannot be reconstructed. This procedure stops when a leaf has been reached, or a new non-leaf with a
-						// global memory address.
-						while(!cached_node_contains_global_address(shared[CACHEOFFSET+(sv_step(i, false)*3)+2])) {
-							node_pointers = i;
-							node_pointers_child = sv_step(i, false);
-							while(!cached_node_contains_global_address(shared[CACHEOFFSET+(sv_step(node_pointers_child, false)*3)+2])) {
-								node_pointers = node_pointers_child;
-								node_pointers_child = sv_step(node_pointers_child, false);
-							}
-							// Set global address for node at cache address node_pointers_child. This address can be retrieved from node_pointers: it is the left global
-							// address in the node stored at cache address node_pointers.
-
-							// Overwrite first half of the node to preserve the cache pointers.
-							shared[CACHEOFFSET+(node_pointers_child*3)] = shared[CACHEOFFSET+(node_pointers_child*3)+2];
-							// Mark the node in the (preserved) pointers as old, to distinguish it from already older nodes that are required later for successor generation.
-							// When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure, and we must make sure that the current
-							// node is not seen as such a node.
-							mark_cached_node_as_old(&shared[CACHEOFFSET+(node_pointers_child*3)]);
-							// Store global memory address retrieved from the parent at cache address node_pointers.
-							node = combine_halfs(shared[CACHEOFFSET+(node_pointers*3)], shared[CACHEOFFSET+(node_pointers*3)+1]);
-							set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(node_pointers_child*3)+2], get_pointer_from_vectortree_node(node, false), false);
-						}
-						// Overwrite first half of the node to preserve the cache pointers.
-						shared[CACHEOFFSET+(i*3)] = shared[CACHEOFFSET+(i*3)+2];
-						// Mark the node in the (preserved) pointers as old, to distinguish it from nodes that are required later for successor generation and for which we have
-						// not applied the pointers preservation procedure. When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure,
-						// and we must make sure that the current node is not seen as such a node.
-						mark_cached_node_as_old(&shared[CACHEOFFSET+(i*3)]);
-					}
-					// Store global memory address in cache.
-					set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(i*3)+2], addr, false);
-				}
-				else {
-					// New root. Mark the pointers to prepare the cache for the next iteration (if there is one. If not, the cache will be wiped anyway).
-					mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(i*3)+2]);
-				}
-			}
-			else {
-				work_to_do = true;
-				CONTINUE = 1;
-			}
-		}
+		CONTINUE = 1;
 	}
 	__syncthreads();
 	while (CONTINUE == 1) {
+		__syncthreads();
 		if (THREAD_ID == 0) {
 			CONTINUE = 0;
 		}
@@ -2561,54 +2481,122 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 			work_to_do = false;
 			for (shared_indextype i = THREAD_ID; (i*3)+2 < (d_shared_cache_size - CACHEOFFSET) && CONTINUE != 2; i += BLOCK_SIZE) {
 				node_pointers = shared[CACHEOFFSET+(i*3)+2];
-				if (node_pointers != EMPTYVECT32) {
-					// If the node is marked new, this is a node still to be processed.
-					if (cached_node_is_new(node_pointers)) {
-						node = combine_halfs(shared[CACHEOFFSET+(i*3)], shared[CACHEOFFSET+(i*3)+1]);
-						if (vectortree_node_contains_left_gap(node)) {
-							// Look up left child and check for presence of global memory address.
-							node_pointers_child = sv_step(i, false);
-							node_pointers_child = shared[CACHEOFFSET+(node_pointers_child*3)+2];
-							if (cached_node_contains_global_address(node_pointers_child)) {
-								set_left_in_vectortree_node(&node, node_pointers_child);
-								// Copy back to shared memory.
-								shared[CACHEOFFSET+(i*3)] = get_left(node);
-								shared[CACHEOFFSET+(i*3)+1] = get_right(node);
-							}
+				// Check if node is ready for storage. Only new leafs are ready at this point. We rely on old non-leafs having pointers with the highest
+				// two bits set to '00', new non-leafs having pointers with the highest two bits set to '10', empty entries having pointers set to 0,
+				// old leafs having pointers with the highest two bits set to '01', and new leafs having pointers set to 0x40000000.
+				if (cached_node_is_new_leaf(node_pointers)) {
+					node = combine_halfs(shared[CACHEOFFSET+(i*3)], shared[CACHEOFFSET+(i*3)+1]);
+					// Store node in hash table.
+					addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, node, d_newstate_flags{% if vectorsize > 62 %}, i{% endif %}{% if compact_hash_table %}, false{% endif %}, true);
+					if (addr == HASHTABLE_FULL) {
+						CONTINUE = 2;
+					}
+					else {
+						// Store global memory address in cache.
+						set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(i*3)+2], addr, true);
+					}
+				}
+				// Node is not ready yet. Check if it can be updated.
+				else if (cached_node_is_new_nonleaf(node_pointers)) {
+					node = combine_halfs(shared[CACHEOFFSET+(i*3)], shared[CACHEOFFSET+(i*3)+1]);
+					if (vectortree_node_contains_left_gap(node)) {
+						// Look up left child and check for presence of global memory address.
+						node_pointers_child = sv_step(i, false);
+						node_pointers_child = shared[CACHEOFFSET+(node_pointers_child*3)+2];
+						if (cached_node_contains_global_address(node_pointers_child)) {
+							set_left_in_vectortree_node(&node, node_pointers_child);
+							// Copy back to shared memory.
+							shared[CACHEOFFSET+(i*3)] = get_left(node);
+							shared[CACHEOFFSET+(i*3)+1] = get_right(node);
 						}
-						if (vectortree_node_contains_right_gap(node)) {
-							// Look up right child and check for presence of global memory address.
-							node_pointers_child = sv_step(i, true);
-							node_pointers_child = shared[CACHEOFFSET+(node_pointers_child*3)+2];
-							if (cached_node_contains_global_address(node_pointers_child)) {
-								set_right_in_vectortree_node(&node, node_pointers_child);
-								// Copy back to shared memory.
-								shared[CACHEOFFSET+(i*3)] = get_left(node);
-								shared[CACHEOFFSET+(i*3)+1] = get_right(node);
-							}
+					}
+					if (vectortree_node_contains_right_gap(node)) {
+						// Look up right child and check for presence of global memory address.
+						node_pointers_child = sv_step(i, true);
+						node_pointers_child = shared[CACHEOFFSET+(node_pointers_child*3)+2];
+						if (cached_node_contains_global_address(node_pointers_child)) {
+							set_right_in_vectortree_node(&node, node_pointers_child);
+							// Copy back to shared memory.
+							shared[CACHEOFFSET+(i*3)] = get_left(node);
+							shared[CACHEOFFSET+(i*3)+1] = get_right(node);
 						}
-						// Ready now?
-						if (!vectortree_node_contains_left_gap(node) && !vectortree_node_contains_right_gap(node)) {
-							// Store node in hash table.
-							addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, node, d_newstate_flags{% if vectorsize > 62 %}, i{% endif %}{% if compact_hash_table %}, is_root(node){% endif %}, true);
-							if (addr == HASHTABLE_FULL) {
-								CONTINUE = 2;
-							}
-							else if (!is_root(node)) {
+					}
+					// Ready now?
+					if (!vectortree_node_contains_left_gap(node) && !vectortree_node_contains_right_gap(node)) {
+						// Store node in hash table.
+						addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, node, d_newstate_flags{% if vectorsize > 62 %}, i{% endif %}{% if compact_hash_table %}, is_root(node){% endif %}, true);
+						if (addr == HASHTABLE_FULL) {
+							CONTINUE = 2;
+						}
+						else if (!is_root(node)) {
+							// Will there be a next successor generation iteration in the current gather kernel launch?
+							if (ITERATIONS < d_kernel_iters-1) {
 								// Preserve original cache pointers for future successor generation iterations.
+						
+								// First check repeatedly for the left child in the vectortree whether it has stored its global address,
+								// otherwise the overwritten information cannot be reconstructed. This procedure stops when a leaf has been reached, or a new non-leaf with a
+								// global memory address.
+								{% if not no_smart_fetching %}
+								// We may also encounter an empty pointer to the left child. In that case, the child has not been stored, since it is not needed for successor generation.
+								// Reconstruction of the nodes later on requires us to seperately store in the cache the global address to that missing child.
+								if (sv_step(i, false) == EMPTY_CACHE_POINTER) {
+									addr2 = store_global_address_stub(node, i);
+									// Store the pointer to the global address.
+									set_left_cache_pointer((shared_inttype *) &shared[CACHEOFFSET+(i*3)+2], addr2);
+								}
+								{% endif %}
+								while(!cached_node_contains_global_address(shared[CACHEOFFSET+(sv_step(i, false)*3)+2])) {
+									node_pointers = i;
+									node_pointers_child = sv_step(i, false);
+									{% if not no_smart_fetching %}
+									if (sv_step(node_pointers_child, false) == EMPTY_CACHE_POINTER) {
+										addr2 = store_global_address_stub(combine_halfs(shared[CACHEOFFSET+(node_pointers_child*3)], shared[CACHEOFFSET+(node_pointers_child*3)+1]), node_pointers_child);
+										// Store the pointer to the global address.
+										set_left_cache_pointer((shared_inttype *) &shared[CACHEOFFSET+(node_pointers_child*3)+2], addr2);
+									}
+									{% endif %}
+									while(!cached_node_contains_global_address(shared[CACHEOFFSET+(sv_step(node_pointers_child, false)*3)+2])) {
+										node_pointers = node_pointers_child;
+										node_pointers_child = sv_step(node_pointers_child, false);
+										{% if not no_smart_fetching %}
+										if (sv_step(node_pointers_child, false) == EMPTY_CACHE_POINTER) {
+											addr2 = store_global_address_stub(combine_halfs(shared[CACHEOFFSET+(node_pointers_child*3)], shared[CACHEOFFSET+(node_pointers_child*3)+1]), node_pointers_child);
+											// Store the pointer to the global address.
+											set_left_cache_pointer((shared_inttype *) &shared[CACHEOFFSET+(node_pointers_child*3)+2], addr2);
+										}
+										{% endif %}
+									}
+									// Set global address for node at cache address node_pointers_child. This address can be retrieved from node_pointers: it is the left global
+									// address in the node stored at cache address node_pointers.
+
+									// Overwrite first half of the node to preserve the cache pointers.
+									shared[CACHEOFFSET+(node_pointers_child*3)] = shared[CACHEOFFSET+(node_pointers_child*3)+2];
+									// Mark the node in the (preserved) pointers as old, to distinguish it from already older nodes that are required later for successor generation.
+									// When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure, and we must make sure that the current
+									// node is not seen as such a node.
+									mark_cached_node_as_old(&shared[CACHEOFFSET+(node_pointers_child*3)]);
+									// Store global memory address retrieved from the parent at cache address node_pointers.
+									node = combine_halfs(shared[CACHEOFFSET+(node_pointers*3)], shared[CACHEOFFSET+(node_pointers*3)+1]);
+									set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(node_pointers_child*3)+2], get_pointer_from_vectortree_node(node, false), false);
+								}
+								// Overwrite first half of the node to preserve the cache pointers.
 								shared[CACHEOFFSET+(i*3)] = shared[CACHEOFFSET+(i*3)+2];
-								// Store global memory address in cache.
-								set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(i*3)+2], addr, false);
+								// Mark the node in the (preserved) pointers as old, to distinguish it from nodes that are required later for successor generation and for which we have
+								// not applied the pointers preservation procedure. When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure,
+								// and we must make sure that the current node is not seen as such a node.
+								mark_cached_node_as_old(&shared[CACHEOFFSET+(i*3)]);
 							}
-							else {
-								// New root. Set the cache pointers for cache preparation.
-								mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(i*3)+2]);
-							}
+							// Store global memory address in cache.
+							set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(i*3)+2], addr, false);
 						}
 						else {
-							work_to_do = true;
-							CONTINUE = 1;
+							// New root. Mark the pointers to prepare the cache for the next iteration (if there is one. If not, the cache will be wiped anyway).
+							mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(i*3)+2]);
 						}
+					}
+					else {
+						work_to_do = true;
+						CONTINUE = 1;
 					}
 				}
 			}
@@ -3364,10 +3352,10 @@ inline __device__ void GENERATE_SUCCESSORS() {
 	for (shared_indextype i = THREAD_ID; i < (OPENTILECOUNT * NR_SMS); i += BLOCK_SIZE) {
 		entry_id = i / NR_SMS;
 		entry_state_id = i - (entry_id * NR_SMS);
-		{% if vectorsize > 30 %}
+		{% if vectorsize > 62 %}
 		src_state = shared[OPENTILEOFFSET+entry_id];
 		{% endif %}
-		get_successors_of_sm({% if vectorsize > 30 %}(shared_indextype) src_state{% else %}entry_id{% endif %}, entry_state_id);
+		get_successors_of_sm({% if vectorsize > 62 %}(shared_indextype) src_state{% else %}entry_id{% endif %}, entry_state_id);
 	}
 	{% else %}
 

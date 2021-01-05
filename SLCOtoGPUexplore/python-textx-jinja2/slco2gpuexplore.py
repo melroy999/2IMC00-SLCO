@@ -373,42 +373,6 @@ def vector_has_nonstate_parts():
 			return True
 	return False
 
-def get_vector_tree_to_part_navigation(p):
-	"""For the given vector part (number), provide how to navigate to it from a root node"""
-	global vectorstructure, smnames
-
-	nav = []
-	# are there states at this position? if so, go initially left, unless no parts without states exist
-	t = vectorstructure[p]
-	move = t[0][0] not in smnames
-	if vector_has_nonstate_parts():
-		nav.append(move)
-	lowerbound = -1
-	upperbound = -1
-	for ti in range(0,len((vectorstructure))):
-		if vectorstructure[ti][0][0] in smnames and not move:
-			if lowerbound == -1:
-				lowerbound = ti
-			upperbound = ti
-		elif vectorstructure[ti][0][0] not in smnames and move:
-			if lowerbound == -1:
-				lowerbound = ti
-			upperbound = ti
-	# iteratively select parts of the vector until position is left
-	while lowerbound != upperbound:
-		split = lowerbound + int(math.ceil((upperbound - lowerbound) / 2.0)) - 1
-		if p <= split:
-			upperbound = split
-			nav.append(False)
-		else:
-			lowerbound = split+1
-			nav.append(True)
-	# if the requested part is the final one in the vector, there are multiple parts in a vector, and the requested part is sufficiently small, it is actually combined
-	# with a non-leaf node of the vector tree, and the final navigation step should be removed again.
-	if vectorpart_is_combined_with_nonleaf_node(p):
-		del nav[-1]
-	return nav
-
 def get_vector_tree_to_node_navigation(p):
 	"""For the given tree node (number), provide how to navigate to it from the root node"""
 	global vectortree, vectortree_T
@@ -432,6 +396,10 @@ def get_vector_tree_to_node_navigation(p):
 		children = vectortree[trace[i]]
 		nav.append(children[0] != nextnode)
 	return nav
+
+def get_vector_tree_to_part_navigation(p):
+	"""For the given vector part (number), provide how to navigate to it from a root node"""
+	return get_vector_tree_to_node_navigation(vectornode_id(p))
 
 # def get_bitmask(s, write):
 # 	"""Return bitmask to extract s from statevector (flag False) or set s in statevector (flag True)"""
@@ -486,7 +454,6 @@ def get_compact_thread_condition(level):
 	prev = -2
 	rg = [-1,-1]
 	R = []
-	print(nodes)
 	for i in range(0, len(nodes)):
 		if nodes[i]-1 != prev:
 			if prev != -2:
@@ -497,7 +464,6 @@ def get_compact_thread_condition(level):
 	# prepare the final range
 	rg[1] = nodes[len(nodes)-1]
 	R.append(rg)
-	print(R)
 	# now construct the condition
 	first = True
 	for p in R:
@@ -841,6 +807,12 @@ def vectorpart_id(pid):
 	# return i
 	return vectorpart_id_dict.get(pid, -1)
 
+def vectornode_id(pid):
+	"""For the given vectorpart with id pid, return its vectortree node id"""
+	"""Precondition: part pid is a valid vectorpart"""
+	global vectornode_id_dict
+	return vectornode_id_dict.get(pid, -1)
+
 def is_non_leaf(pid):
 	"""Return whether the given vectortree node with id pid is a non-leaf node"""
 	global vectortree
@@ -984,13 +956,8 @@ def cudastore_initial_vector():
 		else:
 			nodes[0] |= 0xC000000000000000
 	else:
-		if compact_hash_table:
-			# mark the root node as being root. No need to mark it as new. This will be done in
-			# FINDORPUT_SINGLE for the compressed version of the node.
-			nodes[0] = (nodes[0] & 0x3FFFFFFFFFFFFFFF) | 0x4000000000000000;
-		if not compact_hash_table:
-			# mark the root node as being root and being new.
-			nodes[0] = (nodes[0] | 0xC000000000000000)
+		# mark the root node as being root.
+		nodes[0] = (nodes[0] & 0x3FFFFFFFFFFFFFFF) | 0x4000000000000000;
 	# construct code
 	output = "\tif (GLOBAL_THREAD_ID < " + str(nrnodes) + ") {\n"
 	output += "\t\tswitch (GLOBAL_THREAD_ID) {\n"
@@ -2356,18 +2323,12 @@ def get_buffer_allocs(T):
 					ST.append((o3,st3))
 			for (o3,st3) in ST:
 				O = get_write_vectorparts_info(st3,o3)
-				O = list(O.keys())
+				O = sorted(list(O.keys()))
 				n = len(vectorstructure)-1
 				Onew = []
-				extranode = -1
 				for v in O:
-					if vectorpart_is_combined_with_nonleaf_node(v):
-						extranode = n-1
-					else:
-						Onew.append(v+n)
-				O = sorted(Onew)
-				if extranode != -1:
-					O.append(extranode)
+					Onew.append(vectornode_id(v))
+				O = Onew
 				# explore vectortree to find maximum number of required pointers to store (the delta of) a new state vector tree
 				navcounters = {}
 				waiting = set([])
@@ -2480,7 +2441,6 @@ def map_variables_on_buffer(t, o, buffer_allocs, prevM={}):
 	s = t.statements[0]
 
 	allocs = get_buffer_arrayindex_allocs(t, o)
-	print(allocs)
 
 	# counters
 	current_32 = 0
@@ -2572,7 +2532,6 @@ def map_variables_on_buffer(t, o, buffer_allocs, prevM={}):
 			access_counters[v] = 2
 		else:
 			access_counters[v] = 1
-	print(access_counters)
 	
 	# iterate over elements in descending order w.r.t. nr of items (arrays have multiple items)
 	for (v, ac) in sorted(access_counters.items(), key=(lambda x: x[1]), reverse=True):
@@ -3216,7 +3175,7 @@ def debug(text):
 
 def preprocess():
 	"""Preprocessing of model"""
-	global model, vectorsize, vectorstructure, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_nr_reachable_state_parts, vectortree_node_thread, vectorstructure_string, smnames, vectorelem_in_structure_map, max_statesize, state_order, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, connected_channel, signalsize, signalnr, alphabet, syncactions, actiontargets, actions, syncreccomm, no_state_constant, no_prio_constant, dynamic_write_arrays, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, tilesize, gpuexplore2_succdist, regsort_nr_el_per_thread, all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask, nr_warps_per_tile, compact_hash_table, elements_strings, nrblocks, nrthreadsperblock, array_in_structure_map, vectorpart_id_dict, vectornode_id_dict
+	global model, vectorsize, vectorstructure, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_nr_reachable_state_parts, vectortree_node_thread, vectorstructure_string, smnames, vectorelem_in_structure_map, max_statesize, state_order, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, connected_channel, signalsize, signalnr, alphabet, syncactions, actiontargets, actions, syncreccomm, no_state_constant, no_prio_constant, dynamic_write_arrays, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, tilesize, gpuexplore2_succdist, regsort_nr_el_per_thread, all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask, nr_warps_per_tile, compact_hash_table, elements_strings, nrblocks, nrthreadsperblock, array_in_structure_map, vectorpart_id_dict, vectornode_id_dict, no_smart_fetching
 
 	# construct set of statemachine names in the system
 	# also construct a map from names to objects
@@ -3333,9 +3292,10 @@ def preprocess():
 			# take buffer counter into account
 			vectorsize += int(max(1,math.ceil(math.log(dimension, 2))))
 			dataelements.add((ch.name, tuple(typelist), dimension))
-	# if the vectorsize is sufficiently small, compact hash table storage is not needed.
+	# if the vectorsize is sufficiently small, compact hash table storage and smart fetching are not needed.
 	if vectorsize < 63:
 		compact_hash_table = False
+		no_smart_fetching = True
 	for (s,i) in stateelements:
 		if i > max_statesize:
 			max_statesize = i
@@ -3810,6 +3770,7 @@ def preprocess():
 					tmp[4] = old_PIDs[2][1]
 				L.append(tuple(tmp))
 				tmp = [i,0,PIDs[1][1],0,0]
+				current_vp = PIDs[1][0]
 			old_PIDs = PIDs
 		# store final tuple
 		tmp[1] = size-1
@@ -3818,8 +3779,6 @@ def preprocess():
 			tmp[4] = PIDs[2][1]
 		L.append(tuple(tmp))
 		array_in_structure_map[vname] = L
-	print(vectorelem_in_structure_map)
-	print(array_in_structure_map)
 	# construct async_channel_vectorpart_buffer_range: for all (asynchronous channel, vectorpart) pairs, provide the range of buffer elements of that channel stored in that vectorpart of a vector.
 	async_channel_vectorpart_buffer_range = {}
 	for c in model.channels:
