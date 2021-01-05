@@ -562,66 +562,40 @@ inline __device__ void set_right_cache_pointer(shared_inttype *pointers, shared_
 
 // Vectornode reset functions.
 inline __device__ void reset_left_in_vectortree_node(nodetype *node) {
-{% if not compact_hash_table %}
 	asm("{\n\t"
-		" bfi.b64 %0, 0xFFFFFFFFFFFFFFFF, %0, {{64-2-nr_bits_address_root}}, {{nr_bits_address_root}};\n\t"
+		" bfi.b64 %0, 0xFFFFFFFFFFFFFFFF, %0, 31, 31;\n\t"
 		"}" : "+l"(*node));
-{% else %}
-	asm("{\n\t"
-		" bfi.b64 %0, 0xFFFFFFFFFFFFFFFF, %0, {{nr_bits_address_internal}}, {{nr_bits_address_internal}};\n\t"
-		"}" : "+l"(*node));
-{% endif %}
 }
 
 inline __device__ void reset_right_in_vectortree_node(nodetype *node) {
-{% if not compact_hash_table %}
 	asm("{\n\t"
-		" bfi.b64 %0, {{((nr_bits_address_root|pow2)-1)|hexa}}, %0, 0, {{nr_bits_address_root}};\n\t"
+		" bfi.b64 %0, 0xFFFFFFFFFFFFFFFF, %0, 0, 31;\n\t"
 		"}" : "+l"(*node));
-{% else %}
-	asm("{\n\t"
-		" bfi.b64 %0, {{((nr_bits_address_internal|pow2)-1)|hexa}}, %0, 0, {{nr_bits_address_internal}};\n\t"
-		"}" : "+l"(*node));
-{% endif %}
 }
 
 // Vectornode set functions.
 inline __device__ void set_left_in_vectortree_node(nodetype *node, indextype address) {
 	nodetype t1 = (nodetype) global_address(address);
-{% if not compact_hash_table %}
 	asm("{\n\t"
-		" bfi.b64 %0, %1, %0, {{64-2-nr_bits_address_root}}, {{nr_bits_address_root}};\n\t"
+		" bfi.b64 %0, %1, %0, 31, 31;\n\t"
 		"}" : "+l"(*node) : "l"(t1));
-{% else %}
-	asm("{\n\t"
-		" bfi.b64 %0, %1, %0, {{nr_bits_address_internal}}, {{nr_bits_address_internal}};\n\t"
-		"}" : "+l"(*node) : "l"(t1));
-{% endif %}
 }
 
 inline __device__ void set_right_in_vectortree_node(nodetype *node, indextype address) {
 	nodetype t1 = (nodetype) global_address(address);
 	asm("{\n\t"
-		" bfi.b64 %0, %1, %0, 0, {% if compact_hash_table %}{{nr_bits_address_internal}}{% else %}{{nr_bits_address_root}}{% endif %};\n\t"
+		" bfi.b64 %0, %1, %0, 0, 31;\n\t"
 		"}" : "+l"(*node) : "l"(t1));
 }
 
 // Vectornode get functions.
 inline __device__ indextype get_pointer_from_vectortree_node(nodetype node, bool choice) {
 	indextype result;
-{% if not compact_hash_table %}
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
-		" bfe.u64 t1, %1, %2, {{nr_bits_address_root}};\n\t"
+		" bfe.u64 t1, %1, %2, 31;\n\t"
 		" cvt.u32.u64 %0, t1;\n\t"
-		"}" : "=r"(result) : "l"(node), "r"((1-(choice ? 1 : 0))*{{64-2-nr_bits_address_root}}));
-{% else %}
-	asm("{\n\t"
-		" .reg .u64 t1;\n\t"
-		" bfe.u64 t1, %1, %2, {{nr_bits_address_internal}};\n\t"
-		" cvt.u32.u64 %0, t1;\n\t"
-		"}" : "=r"(result) : "l"(node), "r"(choice ? 0 : {{nr_bits_address_internal}}));
-{% endif %}
+		"}" : "=r"(result) : "l"(node), "r"((1-(choice ? 1 : 0))*31));
 	return result;
 }
 
@@ -637,21 +611,12 @@ inline __device__ nodetype direct_sv_step(compressed_nodetype *d_q{% if compact_
 
 // Host (CPU) version of get_pointer_from_vectortree_node.
 inline __host__ indextype host_get_pointer_from_vectortree_node(nodetype node, bool choice) {
-	{% if not compact_hash_table %}
 	if (choice) {
-		return (indextype) (node & {{((nr_bits_address_root|pow2)-1)|hexa}});
+		return (indextype) (node & {{((31|pow2)-1)|hexa}});
 	}
 	else {
-		return (indextype) ((node & {{((nr_bits_address_root|pow2)-1)|bitshift_left(64-2-nr_bits_address_root)|hexa}}) >> {{64-2-nr_bits_address_root}});
+		return (indextype) ((node & {{((31|pow2)-1)|bitshift_left(31)|hexa}}) >> 31);
 	}
-	{% else %}
-	if (choice) {
-		return (indextype) (node & {{((nr_bits_address_internal|pow2)-1)|hexa}});
-	}
-	else {
-		return (indextype) ((node & {{((nr_bits_address_internal|pow2)-1)|bitshift_left(nr_bits_address_internal)|hexa}}) >> {{nr_bits_address_internal}});
-	}
-	{% endif %}
 }
 
 // Host (CPU) version of direct_sv_step.
@@ -726,21 +691,34 @@ inline __host__ nodetype host_direct_get_vectorpart_{{i}}(compressed_nodetype *q
 {% endfor %}
 // Vectornode check for a left or right pointer gap.
 inline __device__ bool vectortree_node_contains_left_gap(nodetype node) {
-{% if not compact_hash_table %}
-	return (node & {{((nr_bits_address_root|pow2)-1)|bitshift_left(64-2-nr_bits_address_root)|hexa}}) == {{((nr_bits_address_root|pow2)-1)|bitshift_left(64-2-nr_bits_address_root)|hexa}};
-{% else %}
-	return (node & {{((nr_bits_address_internal|pow2)-1)|bitshift_left(nr_bits_address_internal)|hexa}}) == {{((nr_bits_address_internal|pow2)-1)|bitshift_left(nr_bits_address_internal)|hexa}};
-{% endif %}
+	return (node & {{((31|pow2)-1)|bitshift_left(31)|hexa}}) == {{((31|pow2)-1)|bitshift_left(31)|hexa}};
 }
 
 inline __device__ bool vectortree_node_contains_right_gap(nodetype node) {
-{% if not compact_hash_table %}
-	return (node & {{((nr_bits_address_root|pow2)-1)|hexa}}) == {{((nr_bits_address_root|pow2)-1)|hexa}};
-{% else %}
-	return (node & {{((nr_bits_address_internal|pow2)-1)|hexa}}) == {{((nr_bits_address_internal|pow2)-1)|hexa}};
-{% endif %}
+	return (node & {{((31|pow2)-1)|hexa}}) == {{((31|pow2)-1)|hexa}};
 }
 
+{% if compact_hash_table %}
+// Functions to collapse and expand 64-bit nodes to/from {{2*nr_bits_address_internal}}-bit nodes.
+
+// Create a node in which the two pointers in the given node are stored each in {{nr_bits_address_internal}} bits.
+// Precondition: the two pointers fit in {{nr_bits_address_internal}} bits each, and are stored in the input each in 31 bits.
+inline __device__ nodetype collapse(nodetype node) {
+	nodetype newnode = filter_bookkeeping(node);
+	newnode = (newnode >> 31) << {{nr_bits_address_internal}};
+	newnode = newnode | (node & {{(((nr_bits_address_internal)|pow2)-1)|hexa}});
+	return newnode;
+}
+
+// Create a node in which the two pointers in the given node are stored each in 31 bits.
+// Precondition: the two pointers in the input are stored in {{nr_bits_address_internal}} bits each.
+inline __device__ nodetype expand(nodetype node) {
+	nodetype newnode = (node >> {{nr_bits_address_internal}}) << 31;
+	newnode = newnode | (node & {{(((nr_bits_address_internal)|pow2)-1)|hexa}});
+	return newnode;
+}
+
+{% endif %}
 {% endif %}
 // Cache hash function.
 inline __device__ shared_indextype CACHE_HASH(nodetype node) {
@@ -2524,7 +2502,7 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 					// Ready now?
 					if (!vectortree_node_contains_left_gap(node) && !vectortree_node_contains_right_gap(node)) {
 						// Store node in hash table.
-						addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, node, d_newstate_flags{% if vectorsize > 62 %}, i{% endif %}{% if compact_hash_table %}, is_root(node){% endif %}, true);
+						addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, {% if compact_hash_table %}collapse(node){% else %}node{% endif %}, d_newstate_flags{% if vectorsize > 62 %}, i{% endif %}{% if compact_hash_table %}, is_root(node){% endif %}, true);
 						if (addr == HASHTABLE_FULL) {
 							CONTINUE = 2;
 						}
@@ -2785,6 +2763,10 @@ inline __device__ shared_indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> tr
 	
 	if (gid == 0) {
 		node = HT_RETRIEVE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, addr{% if compact_hash_table %}, true{% endif %});
+		{% if compact_hash_table %}
+		// Expand the node from {{2*nr_bits_address_internal}} bits to 64 bits.
+		node = expand(node);
+		{% endif %}
 	}
 	{% set bound = 1 %}{% if not no_smart_fetching %}{% set bound = bound + 1 %}{% endif %}
 	{% for j in range(0, bound) %}
@@ -2836,10 +2818,18 @@ inline __device__ shared_indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> tr
 			}
 			else {
 				node = leaf_node;
+				{% if compact_hash_table %}
+				// Expand the node from {{2*nr_bits_address_internal}} bits to 64 bits.
+				node = expand(node);
+				{% endif %}
 				leaf_node = EMPTY_NODE;
 			}
 			{% else %}
 			node = leaf_node;
+			{% if compact_hash_table %}
+			// Expand the node from {{2*nr_bits_address_internal}} bits to 64 bits.
+			node = expand(node);
+			{% endif %}
 			leaf_node = EMPTY_NODE;
 			{% endif %}
 		}
@@ -2871,10 +2861,18 @@ inline __device__ shared_indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> tr
 		}
 		else {
 			node = leaf_node;
+			{% if compact_hash_table %}
+			// Expand the node from {{2*nr_bits_address_internal}} bits to 64 bits.
+			node = expand(node);
+			{% endif %}
 			leaf_node = EMPTY_NODE;
 		}
 		{% else %}
 		node = leaf_node;
+		{% if compact_hash_table %}
+		// Expand the node from {{2*nr_bits_address_internal}} bits to 64 bits.
+		node = expand(node);
+		{% endif %}
 		leaf_node = EMPTY_NODE;
 		{% endif %}
 		{% endif %}
