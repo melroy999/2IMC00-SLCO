@@ -2947,7 +2947,7 @@ __inline__ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q, nodetype *d_
 				if (cached_node_is_new_leaf(node_pointers)) {
 					node = combine_halfs(shared[CACHEOFFSET+(i*3)], shared[CACHEOFFSET+(i*3)+1]);
 					// Store node in hash table.
-					addr = FINDORPUT_SINGLE(d_q, d_q_i, node, d_newstate_flags, i, false, true);
+					addr = 20;//FINDORPUT_SINGLE(d_q, d_q_i, node, d_newstate_flags, i, false, true);
 					if (addr == HASHTABLE_FULL) {
 						local_CONTINUE = 2;
 					}
