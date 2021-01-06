@@ -3,10 +3,12 @@
 using namespace cooperative_groups;
 
 // Structure of the state vector:
-// [ state p'REC1: 1 bit(s), variable p'x[0]: 32 bit(s), variable p'x[1]: 31 bit(s) ],
-// [ variable p'x[1]: 1 bit(s), variable p'x[2]: 32 bit(s), variable p'x[3]: 31 bit(s) ],
-// [ variable p'x[3]: 1 bit(s), variable p'x[4]: 32 bit(s), variable p'x[5]: 31 bit(s) ],
-// [ variable p'x[5]: 1 bit(s), variable p'x[6]: 32 bit(s) ]
+// [ state p'REC1: 1 bit(s), variable p'y: 32 bit(s), variable p'x: 31 bit(s) ],
+// Combined with a non-leaf vector tree node: [ variable p'x: 1 bit(s) ]
+
+// test macros
+#define PRINTTHREADID()						{printf("Hello thread %d\n", (blockIdx.x*blockDim.x)+threadIdx.x);}
+#define PRINTTHREAD(j, i)					{printf("%d: Seen by thread %d: %d\n", (j), (blockIdx.x*blockDim.x)+threadIdx.x, (i));}
 
 // type of vectortree nodes used.
 #define nodetype uint64_t
@@ -54,7 +56,7 @@ static const int NR_BLOCKS = 3120;
 #define NR_WARPS_PER_BLOCK			(BLOCK_SIZE / WARP_SIZE)
 #define NR_WARPS					(NR_WARPS_PER_BLOCK * GRID_SIZE)
 #define LANE						(THREAD_ID & 0x0000001F)
-#define VECTOR_GROUP_SIZE			4
+#define VECTOR_GROUP_SIZE			1
 #define VECTOR_GROUP_ID				(THREAD_ID / VECTOR_GROUP_SIZE)
 #define NR_VECTOR_GROUPS_PER_BLOCK	(BLOCK_SIZE / VECTOR_GROUP_SIZE)
 
@@ -78,7 +80,7 @@ const size_t Mb = 1<<20;
 
 // CONSTANTS FOR SHARED MEMORY CACHES
 // Offsets calculations for shared memory arrays
-#define OPENTILELEN					128
+#define OPENTILELEN					256
 #define LASTSEARCHLEN				(512/WARP_SIZE)
 
 // Offsets in shared memory from which loaded data can be read.
@@ -88,10 +90,10 @@ const size_t Mb = 1<<20;
 #define CACHEOFFSET 				(LASTSEARCHOFFSET+LASTSEARCHLEN)
 
 // Shared memory work tile size in nr. of warps
-#define OPENTILE_WARP_WIDTH			0
+#define OPENTILE_WARP_WIDTH			8
 
 // Error value to indicate a full global hash table.
-#define HASHTABLE_FULL 				0xFFFFFFFFFFFFFFFF
+#define HASHTABLE_FULL 				0xFFFFFFFF
 // Error value to indicate that a shared memory cache is full.
 // Assumption: the cache cannot store 2^16 or more elements.
 #define CACHE_FULL 0xFFFF
@@ -286,7 +288,7 @@ inline __device__ bool cached_node_is_required(shared_inttype pointers) {
 }
 
 // Filter the bookkeeping bit values from the given node.
-inline __device__ nodetype filter_bookkeeping(nodetype node) {
+inline __device__ __host__ nodetype filter_bookkeeping(nodetype node) {
 	return node & 0x3FFFFFFFFFFFFFFF;
 }
 
@@ -364,37 +366,10 @@ inline __device__ nodetype get_vectorpart_0(shared_indextype node_index) {
 }
 
 inline __device__ nodetype get_vectorpart_1(shared_indextype node_index) {
-	shared_indextype index = node_index;
-	index = sv_step(index, true);
-	index = sv_step(index, false);
-	index = sv_step(index, false);
 	nodetype part;
 	asm("{\n\t"
 		" mov.b64 %0,{ %1, %2 };\n\t"
-		"}" : "=l"(part) : "r"(shared[CACHEOFFSET+(index*3)+1]), "r"(shared[CACHEOFFSET+(index*3)]));
-	return part;
-}
-
-inline __device__ nodetype get_vectorpart_2(shared_indextype node_index) {
-	shared_indextype index = node_index;
-	index = sv_step(index, true);
-	index = sv_step(index, false);
-	index = sv_step(index, true);
-	nodetype part;
-	asm("{\n\t"
-		" mov.b64 %0,{ %1, %2 };\n\t"
-		"}" : "=l"(part) : "r"(shared[CACHEOFFSET+(index*3)+1]), "r"(shared[CACHEOFFSET+(index*3)]));
-	return part;
-}
-
-inline __device__ nodetype get_vectorpart_3(shared_indextype node_index) {
-	shared_indextype index = node_index;
-	index = sv_step(index, true);
-	index = sv_step(index, true);
-	nodetype part;
-	asm("{\n\t"
-		" mov.b64 %0,{ %1, %2 };\n\t"
-		"}" : "=l"(part) : "r"(shared[CACHEOFFSET+(index*3)+1]), "r"(shared[CACHEOFFSET+(index*3)]));
+		"}" : "=l"(part) : "r"(shared[CACHEOFFSET+(node_index*3)+1]), "r"(shared[CACHEOFFSET+(node_index*3)]));
 	return part;
 }
 
@@ -406,10 +381,6 @@ inline __device__ nodetype get_vectorpart(shared_indextype node_index, vectornod
 	  	return get_vectorpart_0(node_index);
 	  case 1:
 	  	return get_vectorpart_1(node_index);
-	  case 2:
-	  	return get_vectorpart_2(node_index);
-	  case 3:
-	  	return get_vectorpart_3(node_index);
 	  default:
 	  	return 0;
 	}
@@ -431,57 +402,6 @@ inline __device__ void get_vectortree_node_1(nodetype *node, shared_inttype *d_c
 	*d_cachepointers = shared[CACHEOFFSET+(index*3)+2];
 }
 
-inline __device__ void get_vectortree_node_2(nodetype *node, shared_inttype *d_cachepointers, shared_indextype node_index) {
-	shared_indextype index = node_index;
-	index = sv_step(index, true);
-	asm("{\n\t"
-		" mov.b64 %0,{ %1, %2 };\n\t"
-		"}" : "=l"(*node) : "r"(shared[CACHEOFFSET+(index*3)+1]), "r"(shared[CACHEOFFSET+(index*3)]));
-	*d_cachepointers = shared[CACHEOFFSET+(index*3)+2];
-}
-
-inline __device__ void get_vectortree_node_3(nodetype *node, shared_inttype *d_cachepointers, shared_indextype node_index) {
-	shared_indextype index = node_index;
-	index = sv_step(index, true);
-	index = sv_step(index, false);
-	asm("{\n\t"
-		" mov.b64 %0,{ %1, %2 };\n\t"
-		"}" : "=l"(*node) : "r"(shared[CACHEOFFSET+(index*3)+1]), "r"(shared[CACHEOFFSET+(index*3)]));
-	*d_cachepointers = shared[CACHEOFFSET+(index*3)+2];
-}
-
-inline __device__ void get_vectortree_node_4(nodetype *node, shared_inttype *d_cachepointers, shared_indextype node_index) {
-	shared_indextype index = node_index;
-	index = sv_step(index, true);
-	index = sv_step(index, true);
-	asm("{\n\t"
-		" mov.b64 %0,{ %1, %2 };\n\t"
-		"}" : "=l"(*node) : "r"(shared[CACHEOFFSET+(index*3)+1]), "r"(shared[CACHEOFFSET+(index*3)]));
-	*d_cachepointers = shared[CACHEOFFSET+(index*3)+2];
-}
-
-inline __device__ void get_vectortree_node_5(nodetype *node, shared_inttype *d_cachepointers, shared_indextype node_index) {
-	shared_indextype index = node_index;
-	index = sv_step(index, true);
-	index = sv_step(index, false);
-	index = sv_step(index, false);
-	asm("{\n\t"
-		" mov.b64 %0,{ %1, %2 };\n\t"
-		"}" : "=l"(*node) : "r"(shared[CACHEOFFSET+(index*3)+1]), "r"(shared[CACHEOFFSET+(index*3)]));
-	*d_cachepointers = shared[CACHEOFFSET+(index*3)+2];
-}
-
-inline __device__ void get_vectortree_node_6(nodetype *node, shared_inttype *d_cachepointers, shared_indextype node_index) {
-	shared_indextype index = node_index;
-	index = sv_step(index, true);
-	index = sv_step(index, false);
-	index = sv_step(index, true);
-	asm("{\n\t"
-		" mov.b64 %0,{ %1, %2 };\n\t"
-		"}" : "=l"(*node) : "r"(shared[CACHEOFFSET+(index*3)+1]), "r"(shared[CACHEOFFSET+(index*3)]));
-	*d_cachepointers = shared[CACHEOFFSET+(index*3)+2];
-}
-
 // Retrieval functions for vector tree nodes from shared memory, including shared memory node pointers (cache pointers).
 inline __device__ void get_vectortree_node(nodetype *node, shared_inttype *d_cachepointers, shared_indextype node_index, vectornode_indextype i) {
 	switch (i) {
@@ -490,21 +410,6 @@ inline __device__ void get_vectortree_node(nodetype *node, shared_inttype *d_cac
 	  	break;
 	  case 1:
 	  	get_vectortree_node_1(node, d_cachepointers, node_index);
-	  	break;
-	  case 2:
-	  	get_vectortree_node_2(node, d_cachepointers, node_index);
-	  	break;
-	  case 3:
-	  	get_vectortree_node_3(node, d_cachepointers, node_index);
-	  	break;
-	  case 4:
-	  	get_vectortree_node_4(node, d_cachepointers, node_index);
-	  	break;
-	  case 5:
-	  	get_vectortree_node_5(node, d_cachepointers, node_index);
-	  	break;
-	  case 6:
-	  	get_vectortree_node_6(node, d_cachepointers, node_index);
 	  	break;
 	  default:
 	  	return;
@@ -529,13 +434,13 @@ inline __device__ void set_right_cache_pointer(shared_inttype *pointers, shared_
 // Vectornode reset functions.
 inline __device__ void reset_left_in_vectortree_node(nodetype *node) {
 	asm("{\n\t"
-		" bfi.b64 %0, 0xFFFFFFFFFFFFFFFF, %0, 29, 29;\n\t"
+		" bfi.b64 %0, 0xFFFFFFFFFFFFFFFF, %0, 31, 31;\n\t"
 		"}" : "+l"(*node));
 }
 
 inline __device__ void reset_right_in_vectortree_node(nodetype *node) {
 	asm("{\n\t"
-		" bfi.b64 %0, 0x1fffffff, %0, 0, 29;\n\t"
+		" bfi.b64 %0, 0xFFFFFFFFFFFFFFFF, %0, 0, 31;\n\t"
 		"}" : "+l"(*node));
 }
 
@@ -543,14 +448,14 @@ inline __device__ void reset_right_in_vectortree_node(nodetype *node) {
 inline __device__ void set_left_in_vectortree_node(nodetype *node, indextype address) {
 	nodetype t1 = (nodetype) global_address(address);
 	asm("{\n\t"
-		" bfi.b64 %0, %1, %0, 29, 29;\n\t"
+		" bfi.b64 %0, %1, %0, 31, 31;\n\t"
 		"}" : "+l"(*node) : "l"(t1));
 }
 
 inline __device__ void set_right_in_vectortree_node(nodetype *node, indextype address) {
 	nodetype t1 = (nodetype) global_address(address);
 	asm("{\n\t"
-		" bfi.b64 %0, %1, %0, 0, 29;\n\t"
+		" bfi.b64 %0, %1, %0, 0, 31;\n\t"
 		"}" : "+l"(*node) : "l"(t1));
 }
 
@@ -559,10 +464,29 @@ inline __device__ indextype get_pointer_from_vectortree_node(nodetype node, bool
 	indextype result;
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
-		" bfe.u64 t1, %1, %2, 29;\n\t"
+		" bfe.u64 t1, %1, %2, 31;\n\t"
 		" cvt.u32.u64 %0, t1;\n\t"
-		"}" : "=r"(result) : "l"(node), "r"(choice ? 0 : 29));
+		"}" : "=r"(result) : "l"(node), "r"((1-(choice ? 1 : 0))*31));
 	return result;
+}
+
+// Functions to collapse and expand 64-bit nodes to/from 58-bit nodes.
+
+// Create a node in which the two pointers in the given node are stored each in 29 bits.
+// Precondition: the two pointers fit in 29 bits each, and are stored in the input each in 31 bits.
+inline __device__ nodetype collapse(nodetype node) {
+	nodetype newnode = filter_bookkeeping(node);
+	newnode = (newnode >> 31) << 29;
+	newnode = newnode | (node & 0x1fffffff);
+	return newnode;
+}
+
+// Create a node in which the two pointers in the given node are stored each in 31 bits.
+// Precondition: the two pointers in the input are stored in 29 bits each.
+inline __device__ __host__ nodetype expand(nodetype node) {
+	nodetype newnode = (node >> 29) << 31;
+	newnode = newnode | (node & 0x1fffffff);
+	return newnode;
 }
 
 // Function to traverse one step in state vector tree (stored in global memory).
@@ -574,16 +498,16 @@ inline __device__ nodetype direct_sv_step(compressed_nodetype *d_q, nodetype *d_
 // Host (CPU) version of get_pointer_from_vectortree_node.
 inline __host__ indextype host_get_pointer_from_vectortree_node(nodetype node, bool choice) {
 	if (choice) {
-		return (indextype) (node & 0x1fffffff);
+		return (indextype) (node & 0x7fffffff);
 	}
 	else {
-		return (indextype) ((node & 0x3ffffffe0000000) >> 29);
+		return (indextype) ((node & 0x3fffffff80000000) >> 31);
 	}
 }
 
 // Host (CPU) version of direct_sv_step.
 inline __host__ nodetype host_direct_sv_step(compressed_nodetype *q, nodetype *q_i, nodetype node, bool goright, FILE* stream, bool print_pointers) {
-	indextype index = host_get_pointer_from_vectortree_node(node, goright);
+	indextype index = host_get_pointer_from_vectortree_node(expand(node), goright);
 	if (print_pointers) {
 		fprintf(stream, "Navigating node with value %lu.\n", node);
 		if (goright) {
@@ -604,26 +528,7 @@ inline __device__ nodetype direct_get_vectorpart_0(compressed_nodetype *d_q, nod
 }
 
 inline __device__ nodetype direct_get_vectorpart_1(compressed_nodetype *d_q, nodetype *d_q_i, nodetype node) {
-	nodetype tmp = node;
-	tmp = direct_sv_step(d_q, d_q_i, tmp, true);
-	tmp = direct_sv_step(d_q, d_q_i, tmp, false);
-	tmp = direct_sv_step(d_q, d_q_i, tmp, false);
-	return tmp;
-}
-
-inline __device__ nodetype direct_get_vectorpart_2(compressed_nodetype *d_q, nodetype *d_q_i, nodetype node) {
-	nodetype tmp = node;
-	tmp = direct_sv_step(d_q, d_q_i, tmp, true);
-	tmp = direct_sv_step(d_q, d_q_i, tmp, false);
-	tmp = direct_sv_step(d_q, d_q_i, tmp, true);
-	return tmp;
-}
-
-inline __device__ nodetype direct_get_vectorpart_3(compressed_nodetype *d_q, nodetype *d_q_i, nodetype node) {
-	nodetype tmp = node;
-	tmp = direct_sv_step(d_q, d_q_i, tmp, true);
-	tmp = direct_sv_step(d_q, d_q_i, tmp, true);
-	return tmp;
+	return node;
 }
 
 // Functions to retrieve vector parts from host memory.
@@ -634,35 +539,16 @@ inline __host__ nodetype host_direct_get_vectorpart_0(compressed_nodetype *q, no
 }
 
 inline __host__ nodetype host_direct_get_vectorpart_1(compressed_nodetype *q, nodetype *q_i, nodetype node, FILE* stream, bool print_pointers) {
-	nodetype tmp = node;
-	tmp = host_direct_sv_step(q, q_i, tmp, true, stream, print_pointers);
-	tmp = host_direct_sv_step(q, q_i, tmp, false, stream, print_pointers);
-	tmp = host_direct_sv_step(q, q_i, tmp, false, stream, print_pointers);
-	return tmp;
-}
-
-inline __host__ nodetype host_direct_get_vectorpart_2(compressed_nodetype *q, nodetype *q_i, nodetype node, FILE* stream, bool print_pointers) {
-	nodetype tmp = node;
-	tmp = host_direct_sv_step(q, q_i, tmp, true, stream, print_pointers);
-	tmp = host_direct_sv_step(q, q_i, tmp, false, stream, print_pointers);
-	tmp = host_direct_sv_step(q, q_i, tmp, true, stream, print_pointers);
-	return tmp;
-}
-
-inline __host__ nodetype host_direct_get_vectorpart_3(compressed_nodetype *q, nodetype *q_i, nodetype node, FILE* stream, bool print_pointers) {
-	nodetype tmp = node;
-	tmp = host_direct_sv_step(q, q_i, tmp, true, stream, print_pointers);
-	tmp = host_direct_sv_step(q, q_i, tmp, true, stream, print_pointers);
-	return tmp;
+	return node;
 }
 
 // Vectornode check for a left or right pointer gap.
 inline __device__ bool vectortree_node_contains_left_gap(nodetype node) {
-	return (node & 0x3ffffffe0000000) == 0x3ffffffe0000000;
+	return (node & 0x3fffffff80000000) == 0x3fffffff80000000;
 }
 
 inline __device__ bool vectortree_node_contains_right_gap(nodetype node) {
-	return (node & 0x1fffffff) == 0x1fffffff;
+	return (node & 0x000000007fffffff) == 0x000000007fffffff;
 }
 
 // Cache hash function.
@@ -767,78 +653,21 @@ inline __device__ void get_p_REC1(statetype *b, nodetype part1, nodetype part2) 
 	*b = (statetype) t2;
 }
 
-// Data retrieval functions for array elements, including the fetching of required vector parts.
-inline __device__ void get_p_x(shared_indextype node_index, elem_inttype *b, array_indextype index) {
-	nodetype part;
-	if (index <= 1) {
-		part = get_vectorpart_0(node_index);
+inline __device__ void get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
+	asm("{\n\t"
+		" .reg .u64 t1;\n\t"
+		" bfe.u64 t1, %1, 31, 32;\n\t"
+		" cvt.u32.u64 %0, t1;\n\t"
+	    "}" : "=r"(*b) : "l"(part1), "l"(part2));
+}
 
-		asm("{\n\t"
-			" .reg .u64 t1;\n\t"
-			" bfe.u64 t1, %1, %2, %3;\n\t"
-			" cvt.u32.u64 %0, t1;\n\t"
-	    	"}" : "=r"(*b) : "l"(part), "r"((index == 1) ? 0 : 31-(index-0)*32), "r"((index == 1) ? 31 : 32));
-		if (index == 1) {
-			part = get_vectorpart_1(node_index);
-			*b = (*b) << 1;
-			elem_inttype t3;
-			asm("{\n\t"
-				" .reg .u64 t1;\n\t"
-				" bfe.u64 t1, %1, 31, 1;\n\t"
-				" cvt.u32.u64 %0, t1;\n\t"
-	    		"}" : "=r"(t3) : "l"(part));
-	    	*b = (*b) | t3;
-		}
-	}
-	else if (index <= 3) {
-		part = get_vectorpart_1(node_index);
-
-		asm("{\n\t"
-			" .reg .u64 t1;\n\t"
-			" bfe.u64 t1, %1, %2, %3;\n\t"
-			" cvt.u32.u64 %0, t1;\n\t"
-	    	"}" : "=r"(*b) : "l"(part), "r"((index == 3) ? 0 : 31-(index-2)*32), "r"((index == 3) ? 31 : 32));
-		if (index == 3) {
-			part = get_vectorpart_2(node_index);
-			*b = (*b) << 1;
-			elem_inttype t3;
-			asm("{\n\t"
-				" .reg .u64 t1;\n\t"
-				" bfe.u64 t1, %1, 31, 1;\n\t"
-				" cvt.u32.u64 %0, t1;\n\t"
-	    		"}" : "=r"(t3) : "l"(part));
-	    	*b = (*b) | t3;
-		}
-	}
-	else if (index <= 5) {
-		part = get_vectorpart_2(node_index);
-
-		asm("{\n\t"
-			" .reg .u64 t1;\n\t"
-			" bfe.u64 t1, %1, %2, %3;\n\t"
-			" cvt.u32.u64 %0, t1;\n\t"
-	    	"}" : "=r"(*b) : "l"(part), "r"((index == 5) ? 0 : 31-(index-4)*32), "r"((index == 5) ? 31 : 32));
-		if (index == 5) {
-			part = get_vectorpart_3(node_index);
-			*b = (*b) << 1;
-			elem_inttype t3;
-			asm("{\n\t"
-				" .reg .u64 t1;\n\t"
-				" bfe.u64 t1, %1, 31, 1;\n\t"
-				" cvt.u32.u64 %0, t1;\n\t"
-	    		"}" : "=r"(t3) : "l"(part));
-	    	*b = (*b) | t3;
-		}
-	}
-	else if (index <= 6) {
-		part = get_vectorpart_3(node_index);
-
-		asm("{\n\t"
-			" .reg .u64 t1;\n\t"
-			" bfe.u64 t1, %1, %2, %3;\n\t"
-			" cvt.u32.u64 %0, t1;\n\t"
-	    	"}" : "=r"(*b) : "l"(part), "r"(31-(index-6)*32), "r"(32));
-	}
+inline __device__ void get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
+	asm("{\n\t"
+		" .reg .u64 t1;\n\t"
+		" bfe.u64 t1, %2, 28, 1;\n\t"
+		" bfi.b64 t1, %1, t1, 0, 31;\n\t"
+		" cvt.u32.u64 %0, t1;\n\t"
+	    "}" : "=r"(*b) : "l"(part1), "l"(part2));
 }
 
 // Retrieval of current state of state machine at position i in state vector.
@@ -867,71 +696,31 @@ inline void host_get_p_REC1(statetype *b, nodetype part1, nodetype part2) {
 	*b = (statetype) t1;
 }
 
-// CPU data retrieval functions for arrays.
-inline void host_get_p_x(elem_inttype *b, nodetype part1, nodetype part2, array_indextype index) {
+inline void host_get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
 	nodetype t1 = part1;
-	if (index <= 1) {
-		// Right shift to isolate requested data.
-		t1 = t1 >> (index == 1 ? 0 : (31 - ((index - 0)*32)));
-		// Strip away data beyond the requested data.
-		t1 = t1 & 0xffffffff;
-		if (index == 1) {
-			nodetype t2 = part2;
-			// Strip away data beyond the requested data.
-			t2 = t2 & 0xffffffffffffffff;
-			// Right shift to isolate requested data.
-			t2 = t2 >> 63;
-			// Move to integrate with first part.
-			t1 = t1 & 0x7fffffff;
-			t1 = t1 << 1;
-			t1 = t1 | t2;
-		}
-		*b = (elem_inttype) t1;
-	}
-	else if (index <= 3) {
-		// Right shift to isolate requested data.
-		t1 = t1 >> (index == 3 ? 0 : (31 - ((index - 2)*32)));
-		// Strip away data beyond the requested data.
-		t1 = t1 & 0xffffffff;
-		if (index == 3) {
-			nodetype t2 = part2;
-			// Strip away data beyond the requested data.
-			t2 = t2 & 0xffffffffffffffff;
-			// Right shift to isolate requested data.
-			t2 = t2 >> 63;
-			// Move to integrate with first part.
-			t1 = t1 & 0x7fffffff;
-			t1 = t1 << 1;
-			t1 = t1 | t2;
-		}
-		*b = (elem_inttype) t1;
-	}
-	else if (index <= 5) {
-		// Right shift to isolate requested data.
-		t1 = t1 >> (index == 5 ? 0 : (31 - ((index - 4)*32)));
-		// Strip away data beyond the requested data.
-		t1 = t1 & 0xffffffff;
-		if (index == 5) {
-			nodetype t2 = part2;
-			// Strip away data beyond the requested data.
-			t2 = t2 & 0xffffffffffffffff;
-			// Right shift to isolate requested data.
-			t2 = t2 >> 63;
-			// Move to integrate with first part.
-			t1 = t1 & 0x7fffffff;
-			t1 = t1 << 1;
-			t1 = t1 | t2;
-		}
-		*b = (elem_inttype) t1;
-	}
-	else if (index <= 6) {
-		// Right shift to isolate requested data.
-		t1 = t1 >> (31 - ((index - 6)*32));
-		// Strip away data beyond the requested data.
-		t1 = t1 & 0xffffffff;
-		*b = (elem_inttype) t1;
-	}
+	// Strip away data beyond the requested data.
+	t1 = t1 & 0x7fffffffffffffff;
+	// Right shift to isolate requested data.
+	t1 = t1 >> 31;
+	*b = (elem_inttype) t1;
 }
+
+inline void host_get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
+	nodetype t1 = part1;
+	nodetype t2 = part2;
+	// Strip away data beyond the requested data.
+	t2 = t2 & 0x1fffffff;
+	// Right shift to isolate requested data.
+	t2 = t2 >> 28;
+	// Isolate requested data.
+	t1 = t1 & 0x7fffffff;
+	// Move to integrate with first part.
+	t1 = t1 << 1;
+	t1 = t1 | t2;
+	*b = (elem_inttype) t1;
+}
+
+// CPU data retrieval functions for arrays.
 
 // GPU data update functions. Update particular state info in the given state vector part(s).
 // Precondition: the given part indeed needs to contain the indicated fragment (left or right in case the info is split over two parts) of the updated info.
@@ -942,10 +731,24 @@ inline __device__ void set_left_p_REC1(nodetype *part, elem_booltype x) {
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_left_p_x_6(nodetype *part, elem_inttype x) {
+inline __device__ void set_left_p_y(nodetype *part, elem_inttype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
 		" bfi.b64 %0, %1, %0, 31, 32;\n\t"
+		"}" : "+l"(*part) : "l"(t1));
+}
+
+inline __device__ void set_left_p_x(nodetype *part, elem_inttype x) {
+	nodetype t1 = (nodetype) x >> 1;
+	asm("{\n\t"
+		" bfi.b64 %0, %1, %0, 0, 31;\n\t"
+		"}" : "+l"(*part) : "l"(t1));
+}
+
+inline __device__ void set_right_p_x(nodetype *part, elem_inttype x) {
+	nodetype t1 = (nodetype) x;
+	asm("{\n\t"
+		" bfi.b64 %0, %1, %0, 28, 1;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
@@ -3046,7 +2849,7 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 	indextype addr;
 	nodetype element;
 	shared_inttype shared_addr;
-	e1 = HASH_INIT(filter_bookkeeping(node), is_root);
+	e1 = HASH_INIT(node, is_root);
 	#pragma unroll
 	for (int i = 0; i < NR_HASH_FUNCTIONS; i++) {
 		if (is_root) {
@@ -3110,18 +2913,21 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 }
 
 // Find or put all new vectortree nodes stored in the shared memory cache into the global memory hash table.
-__device__ void FINDORPUT_MANY(compressed_nodetype *d_q, nodetype *d_q_i, volatile uint8_t *d_newstate_flags) {
+__inline__ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q, nodetype *d_q_i, volatile uint8_t *d_newstate_flags) {
 	nodetype node;
 	indextype addr;
 	indextype addr2;
 	shared_inttype node_pointers;
 	shared_inttype node_pointers_child;
 	bool work_to_do = true;
+	shared_inttype local_CONTINUE = 1;
 
 	if (THREAD_ID == 0) {
 		CONTINUE = 1;
 	}
 	__syncthreads();
+	indextype counter = 0;
+	compressed_nodetype result = 0;
 	while (CONTINUE == 1) {
 		__syncthreads();
 		if (THREAD_ID == 0) {
@@ -3130,24 +2936,27 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q, nodetype *d_q_i, volati
 		__syncthreads();
 		if (work_to_do) {
 			work_to_do = false;
-			for (shared_indextype i = THREAD_ID; (i*3)+2 < (d_shared_cache_size - CACHEOFFSET) && CONTINUE != 2; i += BLOCK_SIZE) {
+			for (shared_inttype i = THREAD_ID; ((i*3)+2) < (d_shared_cache_size - CACHEOFFSET) && (CONTINUE != 2); i += BLOCK_SIZE) {
 				node_pointers = shared[CACHEOFFSET+(i*3)+2];
-				// Check if node is ready for storage. Only new leafs are ready at this point. We rely on old non-leafs having pointers with the highest
-				// two bits set to '00', new non-leafs having pointers with the highest two bits set to '10', empty entries having pointers set to 0,
-				// old leafs having pointers with the highest two bits set to '01', and new leafs having pointers set to 0x40000000.
+				if (i == 0) {
+					result = node_pointers;
+				}
+//				// Check if node is ready for storage. Only new leafs are ready at this point. We rely on old non-leafs having pointers with the highest
+//				// two bits set to '00', new non-leafs having pointers with the highest two bits set to '10', empty entries having pointers set to 0,
+//				// old leafs having pointers with the highest two bits set to '01', and new leafs having pointers set to 0x40000000.
 				if (cached_node_is_new_leaf(node_pointers)) {
 					node = combine_halfs(shared[CACHEOFFSET+(i*3)], shared[CACHEOFFSET+(i*3)+1]);
 					// Store node in hash table.
 					addr = FINDORPUT_SINGLE(d_q, d_q_i, node, d_newstate_flags, i, false, true);
 					if (addr == HASHTABLE_FULL) {
-						CONTINUE = 2;
+						local_CONTINUE = 2;
 					}
 					else {
 						// Store global memory address in cache.
 						set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(i*3)+2], addr, true);
 					}
 				}
-				// Node is not ready yet. Check if it can be updated.
+//				// Node is not ready yet. Check if it can be updated.
 				else if (cached_node_is_new_nonleaf(node_pointers)) {
 					node = combine_halfs(shared[CACHEOFFSET+(i*3)], shared[CACHEOFFSET+(i*3)+1]);
 					if (vectortree_node_contains_left_gap(node)) {
@@ -3173,64 +2982,64 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q, nodetype *d_q_i, volati
 						}
 					}
 					// Ready now?
-					if (!vectortree_node_contains_left_gap(node) && !vectortree_node_contains_right_gap(node)) {
+					if (!vectortree_node_contains_left_gap(node)) {
 						// Store node in hash table.
-						addr = FINDORPUT_SINGLE(d_q, d_q_i, node, d_newstate_flags, i, is_root(node), true);
+						addr = FINDORPUT_SINGLE(d_q, d_q_i, collapse(node), d_newstate_flags, i, is_root(node), true);
 						if (addr == HASHTABLE_FULL) {
-							CONTINUE = 2;
+							local_CONTINUE = 2;
 						}
 						else if (!is_root(node)) {
-							// Will there be a next successor generation iteration in the current gather kernel launch?
-							if (ITERATIONS < d_kernel_iters-1) {
-								// Preserve original cache pointers for future successor generation iterations.
-						
-								// First check repeatedly for the left child in the vectortree whether it has stored its global address,
-								// otherwise the overwritten information cannot be reconstructed. This procedure stops when a leaf has been reached, or a new non-leaf with a
-								// global memory address.
-								// We may also encounter an empty pointer to the left child. In that case, the child has not been stored, since it is not needed for successor generation.
-								// Reconstruction of the nodes later on requires us to seperately store in the cache the global address to that missing child.
-								if (sv_step(i, false) == EMPTY_CACHE_POINTER) {
-									addr2 = store_global_address_stub(node, i);
-									// Store the pointer to the global address.
-									set_left_cache_pointer((shared_inttype *) &shared[CACHEOFFSET+(i*3)+2], addr2);
-								}
-								while(!cached_node_contains_global_address(shared[CACHEOFFSET+(sv_step(i, false)*3)+2])) {
-									node_pointers = i;
-									node_pointers_child = sv_step(i, false);
-									if (sv_step(node_pointers_child, false) == EMPTY_CACHE_POINTER) {
-										addr2 = store_global_address_stub(combine_halfs(shared[CACHEOFFSET+(node_pointers_child*3)], shared[CACHEOFFSET+(node_pointers_child*3)+1]), node_pointers_child);
-										// Store the pointer to the global address.
-										set_left_cache_pointer((shared_inttype *) &shared[CACHEOFFSET+(node_pointers_child*3)+2], addr2);
-									}
-									while(!cached_node_contains_global_address(shared[CACHEOFFSET+(sv_step(node_pointers_child, false)*3)+2])) {
-										node_pointers = node_pointers_child;
-										node_pointers_child = sv_step(node_pointers_child, false);
-										if (sv_step(node_pointers_child, false) == EMPTY_CACHE_POINTER) {
-											addr2 = store_global_address_stub(combine_halfs(shared[CACHEOFFSET+(node_pointers_child*3)], shared[CACHEOFFSET+(node_pointers_child*3)+1]), node_pointers_child);
-											// Store the pointer to the global address.
-											set_left_cache_pointer((shared_inttype *) &shared[CACHEOFFSET+(node_pointers_child*3)+2], addr2);
-										}
-									}
-									// Set global address for node at cache address node_pointers_child. This address can be retrieved from node_pointers: it is the left global
-									// address in the node stored at cache address node_pointers.
-
-									// Overwrite first half of the node to preserve the cache pointers.
-									shared[CACHEOFFSET+(node_pointers_child*3)] = shared[CACHEOFFSET+(node_pointers_child*3)+2];
-									// Mark the node in the (preserved) pointers as old, to distinguish it from already older nodes that are required later for successor generation.
-									// When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure, and we must make sure that the current
-									// node is not seen as such a node.
-									mark_cached_node_as_old(&shared[CACHEOFFSET+(node_pointers_child*3)]);
-									// Store global memory address retrieved from the parent at cache address node_pointers.
-									node = combine_halfs(shared[CACHEOFFSET+(node_pointers*3)], shared[CACHEOFFSET+(node_pointers*3)+1]);
-									set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(node_pointers_child*3)+2], get_pointer_from_vectortree_node(node, false), false);
-								}
-								// Overwrite first half of the node to preserve the cache pointers.
-								shared[CACHEOFFSET+(i*3)] = shared[CACHEOFFSET+(i*3)+2];
-								// Mark the node in the (preserved) pointers as old, to distinguish it from nodes that are required later for successor generation and for which we have
-								// not applied the pointers preservation procedure. When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure,
-								// and we must make sure that the current node is not seen as such a node.
-								mark_cached_node_as_old(&shared[CACHEOFFSET+(i*3)]);
-							}
+//							// Will there be a next successor generation iteration in the current gather kernel launch?
+//							if (ITERATIONS < d_kernel_iters-1) {
+//								// Preserve original cache pointers for future successor generation iterations.
+//
+//								// First check repeatedly for the left child in the vectortree whether it has stored its global address,
+//								// otherwise the overwritten information cannot be reconstructed. This procedure stops when a leaf has been reached, or a new non-leaf with a
+//								// global memory address.
+//								// We may also encounter an empty pointer to the left child. In that case, the child has not been stored, since it is not needed for successor generation.
+//								// Reconstruction of the nodes later on requires us to seperately store in the cache the global address to that missing child.
+//								if (sv_step(i, false) == EMPTY_CACHE_POINTER) {
+//									addr2 = store_global_address_stub(node, i);
+//									// Store the pointer to the global address.
+//									set_left_cache_pointer((shared_inttype *) &shared[CACHEOFFSET+(i*3)+2], addr2);
+//								}
+//								while(!cached_node_contains_global_address(shared[CACHEOFFSET+(sv_step(i, false)*3)+2])) {
+//									node_pointers = i;
+//									node_pointers_child = sv_step(i, false);
+//									if (sv_step(node_pointers_child, false) == EMPTY_CACHE_POINTER) {
+//										addr2 = store_global_address_stub(combine_halfs(shared[CACHEOFFSET+(node_pointers_child*3)], shared[CACHEOFFSET+(node_pointers_child*3)+1]), node_pointers_child);
+//										// Store the pointer to the global address.
+//										set_left_cache_pointer((shared_inttype *) &shared[CACHEOFFSET+(node_pointers_child*3)+2], addr2);
+//									}
+//									while(!cached_node_contains_global_address(shared[CACHEOFFSET+(sv_step(node_pointers_child, false)*3)+2])) {
+//										node_pointers = node_pointers_child;
+//										node_pointers_child = sv_step(node_pointers_child, false);
+//										if (sv_step(node_pointers_child, false) == EMPTY_CACHE_POINTER) {
+//											addr2 = store_global_address_stub(combine_halfs(shared[CACHEOFFSET+(node_pointers_child*3)], shared[CACHEOFFSET+(node_pointers_child*3)+1]), node_pointers_child);
+//											// Store the pointer to the global address.
+//											set_left_cache_pointer((shared_inttype *) &shared[CACHEOFFSET+(node_pointers_child*3)+2], addr2);
+//										}
+//									}
+//									// Set global address for node at cache address node_pointers_child. This address can be retrieved from node_pointers: it is the left global
+//									// address in the node stored at cache address node_pointers.
+//
+//									// Overwrite first half of the node to preserve the cache pointers.
+//									shared[CACHEOFFSET+(node_pointers_child*3)] = shared[CACHEOFFSET+(node_pointers_child*3)+2];
+//									// Mark the node in the (preserved) pointers as old, to distinguish it from already older nodes that are required later for successor generation.
+//									// When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure, and we must make sure that the current
+//									// node is not seen as such a node.
+//									mark_cached_node_as_old(&shared[CACHEOFFSET+(node_pointers_child*3)]);
+//									// Store global memory address retrieved from the parent at cache address node_pointers.
+//									node = combine_halfs(shared[CACHEOFFSET+(node_pointers*3)], shared[CACHEOFFSET+(node_pointers*3)+1]);
+//									set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(node_pointers_child*3)+2], get_pointer_from_vectortree_node(node, false), false);
+//								}
+//								// Overwrite first half of the node to preserve the cache pointers.
+//								shared[CACHEOFFSET+(i*3)] = shared[CACHEOFFSET+(i*3)+2];
+//								// Mark the node in the (preserved) pointers as old, to distinguish it from nodes that are required later for successor generation and for which we have
+//								// not applied the pointers preservation procedure. When executing PREPARE_CACHE(), the latter type of node has its highest bit set to 1 in that procedure,
+//								// and we must make sure that the current node is not seen as such a node.
+//								mark_cached_node_as_old(&shared[CACHEOFFSET+(i*3)]);
+//							}
 							// Store global memory address in cache.
 							set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(i*3)+2], addr, false);
 						}
@@ -3241,12 +3050,26 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q, nodetype *d_q_i, volati
 					}
 					else {
 						work_to_do = true;
+						counter++;
 						CONTINUE = 1;
 					}
 				}
 			}
+			__syncthreads();
+			if (local_CONTINUE == 2) {
+				CONTINUE = 2;
+			}
 		}
 		__syncthreads();
+	}
+	// Debug: store element in global hash table.
+	if (THREAD_ID < 2) {
+		if (result != 0) {
+			//d_q[9] = 1;
+		}
+		d_q[THREAD_ID*3] = shared[CACHEOFFSET+(THREAD_ID*3)];
+		d_q[(THREAD_ID*3)+1] = shared[CACHEOFFSET+(THREAD_ID*3)+1];
+		d_q[(THREAD_ID*3)+2] = shared[CACHEOFFSET+(THREAD_ID*3)+2];
 	}
 }
 
@@ -3266,55 +3089,30 @@ __global__ void store_initial_state(compressed_nodetype *d_q, nodetype *d_q_i, v
 		shared[SH_OFFSET + i] = EMPTYVECT32;
 	}
 	__syncthreads();
-	if (GLOBAL_THREAD_ID < 7) {
+	if (GLOBAL_THREAD_ID < 2) {
 		switch (GLOBAL_THREAD_ID) {
 			case 0:
-				shared[CACHEOFFSET+(0*3)] = get_left(0x43ffffffffffffff);
-				shared[CACHEOFFSET+(0*3)+1] = get_right(0x43ffffffffffffff);
-				shared[CACHEOFFSET+(0*3)+2] = 0x80008002;
+				shared[CACHEOFFSET+(0*3)] = get_left(0x7fffffff80000000);
+				shared[CACHEOFFSET+(0*3)+1] = get_right(0x7fffffff80000000);
+				shared[CACHEOFFSET+(0*3)+2] = 0x8000ffff;
 				break;
 			case 1:
 				shared[CACHEOFFSET+(1*3)] = get_left(0x0);
 				shared[CACHEOFFSET+(1*3)+1] = get_right(0x0);
 				shared[CACHEOFFSET+(1*3)+2] = CACHE_POINTERS_NEW_LEAF;
 				break;
-			case 2:
-				shared[CACHEOFFSET+(2*3)] = get_left(0x3ffffffffffffff);
-				shared[CACHEOFFSET+(2*3)+1] = get_right(0x3ffffffffffffff);
-				shared[CACHEOFFSET+(2*3)+2] = 0x80018004;
-				break;
-			case 3:
-				shared[CACHEOFFSET+(3*3)] = get_left(0x3ffffffffffffff);
-				shared[CACHEOFFSET+(3*3)+1] = get_right(0x3ffffffffffffff);
-				shared[CACHEOFFSET+(3*3)+2] = 0x80028006;
-				break;
-			case 4:
-				shared[CACHEOFFSET+(4*3)] = get_left(0x0);
-				shared[CACHEOFFSET+(4*3)+1] = get_right(0x0);
-				shared[CACHEOFFSET+(4*3)+2] = CACHE_POINTERS_NEW_LEAF;
-				break;
-			case 5:
-				shared[CACHEOFFSET+(5*3)] = get_left(0x0);
-				shared[CACHEOFFSET+(5*3)+1] = get_right(0x0);
-				shared[CACHEOFFSET+(5*3)+2] = CACHE_POINTERS_NEW_LEAF;
-				break;
-			case 6:
-				shared[CACHEOFFSET+(6*3)] = get_left(0x0);
-				shared[CACHEOFFSET+(6*3)+1] = get_right(0x0);
-				shared[CACHEOFFSET+(6*3)+2] = CACHE_POINTERS_NEW_LEAF;
-				break;
 		}
 	}
 	__syncthreads();
 	FINDORPUT_MANY(d_q, d_q_i, d_newstate_flags);
 	__syncthreads();
-	// Done. Copy the work tile to global memory.
-	if (THREAD_ID < OPENTILELEN+LASTSEARCHLEN) {
-		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = shared[OPENTILEOFFSET+THREAD_ID];
-	}
-	if (THREAD_ID == 0) {
-		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = OPENTILECOUNT;
-	}
+//	// Done. Copy the work tile to global memory.
+//	if (THREAD_ID < OPENTILELEN+LASTSEARCHLEN) {
+//		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = shared[OPENTILEOFFSET+THREAD_ID];
+//	}
+//	if (THREAD_ID == 0) {
+//		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = OPENTILECOUNT;
+//	}
 }
 
 // Auxiliary functions for the fetching of vectortrees from the global hash table. They encode the distribution of vectortree nodes over the threads
@@ -3326,42 +3124,13 @@ inline __device__ uint8_t get_vectortree_node_parent_thread(uint8_t tid, uint8_t
 				case 0:
 					return 0;
 					break;
-				case 1:
-					return 0;
-					break;
 				default:
-					return 7;
-					break;
-			}
-			break;
-		case 2:
-			switch (tid) {
-				case 2:
-					return 1;
-					break;
-				case 1:
-					return 1;
-					break;
-				default:
-					return 7;
-					break;
-			}
-			break;
-		case 3:
-			switch (tid) {
-				case 2:
 					return 2;
-					break;
-				case 3:
-					return 2;
-					break;
-				default:
-					return 7;
 					break;
 			}
 			break;
 		default:
-			return 7;
+			return 2;
 			break;		
 	}
 }
@@ -3371,31 +3140,16 @@ inline __device__ uint8_t get_vectortree_nonleaf_left_child_thread(uint8_t tid) 
 		case 0:
 			return 0;
 			break;
-		case 1:
-			return 2;
-			break;
-		case 2:
-			return 2;
-			break;
 		default:
-			return 7;
+			return 2;
 			break;
 	}
 }
 
 inline __device__ uint8_t get_vectortree_nonleaf_right_child_thread(uint8_t tid) {
 	switch (tid) {
-		case 0:
-			return 1;
-			break;
-		case 1:
-			return 1;
-			break;
-		case 2:
-			return 3;
-			break;
 		default:
-			return 7;
+			return 2;
 			break;
 	}
 }
@@ -3408,7 +3162,7 @@ inline __device__ uint32_t get_part_reachability(uint8_t tid, uint8_t level) {
 		case 0:
 			switch (tid) {
 				case 0:
-					return 0xf0000000;
+					return 0xc0000000;
 				default:
 					return 0x0;
 			}
@@ -3416,26 +3170,6 @@ inline __device__ uint32_t get_part_reachability(uint8_t tid, uint8_t level) {
 			switch (tid) {
 				case 0:
 					return 0x80000000;
-				case 1:
-					return 0x70000000;
-				default:
-					return 0x0;
-			}
-		case 2:
-			switch (tid) {
-				case 2:
-					return 0x60000000;
-				case 1:
-					return 0x10000000;
-				default:
-					return 0x0;
-			}
-		case 3:
-			switch (tid) {
-				case 2:
-					return 0x40000000;
-				case 3:
-					return 0x20000000;
 				default:
 					return 0x0;
 			}
@@ -3449,9 +3183,7 @@ inline __device__ uint32_t get_part_reachability(uint8_t tid, uint8_t level) {
 inline __device__ uint32_t get_part_bitmask_p_REC1(statetype sid) {
 	switch (sid) {
 		case 0:
-			return 0x10000000;
-		case 1:
-			return 0x10000000;
+			return 0xc0000000;
 		default:
 			return 0;
 	}
@@ -3467,10 +3199,6 @@ inline __device__ uint32_t get_part_bitmask_for_states_in_vectorpart(uint8_t pid
 			result = result | get_part_bitmask_p_REC1(s);
 			return result;
 		case 1:
-			return result;
-		case 2:
-			return result;
-		case 3:
 			return result;
 		default:
 			return result;
@@ -3496,36 +3224,32 @@ inline __device__ shared_indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> tr
 	
 	if (gid == 0) {
 		node = HT_RETRIEVE(d_q, d_q_i, addr, true);
+		// Expand the node from 58 bits to 64 bits.
+		node = expand(node);
 	}
 	// Obtain node from vectortree parent.
 	node_tmp_1 = node;
-	target_thread_id = 7;
-	if (gid <= 1) {
+	target_thread_id = 2;
+	if (gid == 0) {
 		target_thread_id = get_vectortree_node_parent_thread(gid, 1);
 	}
 	treegroup.sync();
 	node_tmp_2 = treegroup.shfl(node_tmp_1, target_thread_id);
 	// Process the received node, if applicable.
-	if (target_thread_id != 7 && node_tmp_2 != EMPTY_NODE) {
-		node_addr = get_pointer_from_vectortree_node(node_tmp_2, false || gid == 1);	
+	if (target_thread_id != 2 && node_tmp_2 != EMPTY_NODE) {
+		node_addr = get_pointer_from_vectortree_node(node_tmp_2, false);	
 		// Smart fetching: first only fetch state vector nodes that can reach parts containing statemachine states.
 		if ((VECTOR_SMPARTS & get_part_reachability(gid, 1)) != 0x0) {
 			leaf_node = HT_RETRIEVE(d_q, d_q_i, node_addr, false);
-			if (gid == 0) {
-				// Store the leaf node in the cache. Link the global memory address to it such that it can be retrieved in case of collisions
-				// when generating successors.
-				set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
-				result = STOREINCACHE(leaf_node, cache_pointers);
-				if (result == CACHE_FULL) {
-					return CACHE_FULL;
-				}
-				else {
-					cache_addr = result;
-				}
+			// Store the leaf node in the cache. Link the global memory address to it such that it can be retrieved in case of collisions
+			// when generating successors.
+			set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
+			result = STOREINCACHE(leaf_node, cache_pointers);
+			if (result == CACHE_FULL) {
+				return CACHE_FULL;
 			}
 			else {
-				node = leaf_node;
-				leaf_node = EMPTY_NODE;
+				cache_addr = result;
 			}
 		}
 	}
@@ -3547,81 +3271,17 @@ inline __device__ shared_indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> tr
 	smart_fetching_bitmask = smart_fetching_bitmask & ~(VECTOR_SMPARTS);
 	// Obtain node from vectortree parent.
 	node_tmp_1 = node;
-	target_thread_id = 7;
-	if (gid <= 1) {
+	target_thread_id = 2;
+	if (gid == 0) {
 		target_thread_id = get_vectortree_node_parent_thread(gid, 1);
 	}
 	treegroup.sync();
 	node_tmp_2 = treegroup.shfl(node_tmp_1, target_thread_id);
 	// Process the received node, if applicable.
-	if (target_thread_id != 7 && node_tmp_2 != EMPTY_NODE) {
-		node_addr = get_pointer_from_vectortree_node(node_tmp_2, false || gid == 1);	
+	if (target_thread_id != 2 && node_tmp_2 != EMPTY_NODE) {
+		node_addr = get_pointer_from_vectortree_node(node_tmp_2, false);	
 		// Smart fetching: only fetch vector nodes that are required for successor generation.
 		if ((smart_fetching_bitmask & get_part_reachability(gid, 1)) != 0x0) {
-			leaf_node = HT_RETRIEVE(d_q, d_q_i, node_addr, false);
-			if (gid == 0) {
-				// Store the leaf node in the cache. Link the global memory address to it such that it can be retrieved in case of collisions
-				// when generating successors.
-				set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
-				result = STOREINCACHE(leaf_node, cache_pointers);
-				if (result == CACHE_FULL) {
-					return CACHE_FULL;
-				}
-				else {
-					cache_addr = result;
-				}
-			}
-			else {
-				node = leaf_node;
-				leaf_node = EMPTY_NODE;
-			}
-		}
-	}
-	// Obtain node from vectortree parent.
-	node_tmp_1 = node;
-	target_thread_id = 7;
-	if ((gid >= 1 && gid <= 2)) {
-		target_thread_id = get_vectortree_node_parent_thread(gid, 2);
-	}
-	treegroup.sync();
-	node_tmp_2 = treegroup.shfl(node_tmp_1, target_thread_id);
-	// Process the received node, if applicable.
-	if (target_thread_id != 7 && node_tmp_2 != EMPTY_NODE) {
-		node_addr = get_pointer_from_vectortree_node(node_tmp_2, false || gid == 1);	
-		// Smart fetching: only fetch vector nodes that are required for successor generation.
-		if ((smart_fetching_bitmask & get_part_reachability(gid, 2)) != 0x0) {
-			leaf_node = HT_RETRIEVE(d_q, d_q_i, node_addr, false);
-			if (gid == 1) {
-				// Store the leaf node in the cache. Link the global memory address to it such that it can be retrieved in case of collisions
-				// when generating successors.
-				set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
-				result = STOREINCACHE(leaf_node, cache_pointers);
-				if (result == CACHE_FULL) {
-					return CACHE_FULL;
-				}
-				else {
-					cache_addr = result;
-				}
-			}
-			else {
-				node = leaf_node;
-				leaf_node = EMPTY_NODE;
-			}
-		}
-	}
-	// Obtain node from vectortree parent.
-	node_tmp_1 = node;
-	target_thread_id = 7;
-	if ((gid >= 2 && gid <= 3)) {
-		target_thread_id = get_vectortree_node_parent_thread(gid, 3);
-	}
-	treegroup.sync();
-	node_tmp_2 = treegroup.shfl(node_tmp_1, target_thread_id);
-	// Process the received node, if applicable.
-	if (target_thread_id != 7 && node_tmp_2 != EMPTY_NODE) {
-		node_addr = get_pointer_from_vectortree_node(node_tmp_2, false || gid == 3);	
-		// Smart fetching: only fetch vector nodes that are required for successor generation.
-		if ((smart_fetching_bitmask & get_part_reachability(gid, 3)) != 0x0) {
 			leaf_node = HT_RETRIEVE(d_q, d_q_i, node_addr, false);
 			// Store the leaf node in the cache. Link the global memory address to it such that it can be retrieved in case of collisions
 			// when generating successors.
@@ -3639,89 +3299,7 @@ inline __device__ shared_indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> tr
 	smart_fetching_bitmask = smart_fetching_bitmask | VECTOR_SMPARTS;
 	cache_pointers = EMPTYVECT32;
 	// Obtain cache address for left child.
-	target_thread_id = 7;
-	if (gid == 2) {
-		if ((smart_fetching_bitmask & get_part_reachability(gid, 2)) != 0x0) {
-			target_thread_id = get_vectortree_nonleaf_left_child_thread(gid);
-		}
-	}
-	treegroup.sync();
-	cache_addr_child = EMPTY_CACHE_POINTER;
-	cache_addr_child = treegroup.shfl(cache_addr, target_thread_id);
-	// Set the received cache pointer.
-	if (target_thread_id != 7 && cache_addr_child != EMPTY_CACHE_POINTER) {
-		set_left_cache_pointer(&cache_pointers, cache_addr_child);
-	}
-	// Obtain cache address for right child.
-	target_thread_id = 7;
-	if (gid == 2) {
-		if ((smart_fetching_bitmask & get_part_reachability(gid, 2)) != 0x0) {
-			target_thread_id = get_vectortree_nonleaf_right_child_thread(gid);
-		}
-	}
-	treegroup.sync();
-	cache_addr_child = EMPTY_CACHE_POINTER;
-	cache_addr_child = treegroup.shfl(cache_addr, target_thread_id);
-	// Set the received cache pointer.
-	if (target_thread_id != 7 && cache_addr_child != EMPTY_CACHE_POINTER) {
-		set_right_cache_pointer(&cache_pointers, cache_addr_child);
-	}
-	// Store the non-leaf node in the cache.
-	if (gid == 2) {
-		if ((smart_fetching_bitmask & get_part_reachability(gid, 2)) != 0x0) {
-			result = STOREINCACHE(node, cache_pointers);
-			if (result == CACHE_FULL) {
-				return CACHE_FULL;
-			}
-			else {
-				cache_addr = result;
-			}
-		}
-	}
-	treegroup.sync();
-	// Obtain cache address for left child.
-	target_thread_id = 7;
-	if (gid == 1) {
-		if ((smart_fetching_bitmask & get_part_reachability(gid, 1)) != 0x0) {
-			target_thread_id = get_vectortree_nonleaf_left_child_thread(gid);
-		}
-	}
-	treegroup.sync();
-	cache_addr_child = EMPTY_CACHE_POINTER;
-	cache_addr_child = treegroup.shfl(cache_addr, target_thread_id);
-	// Set the received cache pointer.
-	if (target_thread_id != 7 && cache_addr_child != EMPTY_CACHE_POINTER) {
-		set_left_cache_pointer(&cache_pointers, cache_addr_child);
-	}
-	// Obtain cache address for right child.
-	target_thread_id = 7;
-	if (gid == 1) {
-		if ((smart_fetching_bitmask & get_part_reachability(gid, 1)) != 0x0) {
-			target_thread_id = get_vectortree_nonleaf_right_child_thread(gid);
-		}
-	}
-	treegroup.sync();
-	cache_addr_child = EMPTY_CACHE_POINTER;
-	cache_addr_child = treegroup.shfl(cache_addr, target_thread_id);
-	// Set the received cache pointer.
-	if (target_thread_id != 7 && cache_addr_child != EMPTY_CACHE_POINTER) {
-		set_right_cache_pointer(&cache_pointers, cache_addr_child);
-	}
-	// Store the non-leaf node in the cache.
-	if (gid == 1) {
-		if ((smart_fetching_bitmask & get_part_reachability(gid, 1)) != 0x0) {
-			result = STOREINCACHE(node, cache_pointers);
-			if (result == CACHE_FULL) {
-				return CACHE_FULL;
-			}
-			else {
-				cache_addr = result;
-			}
-		}
-	}
-	treegroup.sync();
-	// Obtain cache address for left child.
-	target_thread_id = 7;
+	target_thread_id = 2;
 	if (gid == 0) {
 		if ((smart_fetching_bitmask & get_part_reachability(gid, 0)) != 0x0) {
 			target_thread_id = get_vectortree_nonleaf_left_child_thread(gid);
@@ -3731,22 +3309,8 @@ inline __device__ shared_indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> tr
 	cache_addr_child = EMPTY_CACHE_POINTER;
 	cache_addr_child = treegroup.shfl(cache_addr, target_thread_id);
 	// Set the received cache pointer.
-	if (target_thread_id != 7 && cache_addr_child != EMPTY_CACHE_POINTER) {
+	if (target_thread_id != 2 && cache_addr_child != EMPTY_CACHE_POINTER) {
 		set_left_cache_pointer(&cache_pointers, cache_addr_child);
-	}
-	// Obtain cache address for right child.
-	target_thread_id = 7;
-	if (gid == 0) {
-		if ((smart_fetching_bitmask & get_part_reachability(gid, 0)) != 0x0) {
-			target_thread_id = get_vectortree_nonleaf_right_child_thread(gid);
-		}
-	}
-	treegroup.sync();
-	cache_addr_child = EMPTY_CACHE_POINTER;
-	cache_addr_child = treegroup.shfl(cache_addr, target_thread_id);
-	// Set the received cache pointer.
-	if (target_thread_id != 7 && cache_addr_child != EMPTY_CACHE_POINTER) {
-		set_right_cache_pointer(&cache_pointers, cache_addr_child);
 	}
 	// Store the non-leaf node in the cache.
 	if (gid == 0) {
@@ -3768,6 +3332,482 @@ inline __device__ shared_indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> tr
 
 // *** END KERNELS AND FUNCTIONS FOR VECTOR TREE NODE STORAGE AND RETRIEVAL TO/FROM THE GLOBAL MEMORY HASH TABLE ***
 
+// *** START FUNCTIONS FOR INTRA-WARP BITONIC MERGESORT (Fast Segmented Sort on GPUs, Hou et al., 2017) ***
+
+inline __device__ void CMP_SWP(statetype *s0, statetype *s1, shared_indextype *p0, shared_indextype *p1) {
+	statetype s_tmp;
+	shared_indextype p_tmp;
+
+	if (*s0 > *s1) {
+		s_tmp = *s0;
+		*s0 = *s1;
+		*s1 = s_tmp;
+		p_tmp = *p0;
+		*p0 = *p1;
+		*p1 = p_tmp;
+	}
+}
+
+inline __device__ void EQL_SWP(statetype *s0, statetype *s1, shared_indextype *p0, shared_indextype *p1) {
+	statetype s_tmp;
+	shared_indextype p_tmp;
+
+	if (*s0 != *s1) {
+		s_tmp = *s0;
+		*s0 = *s1;
+		*s1 = s_tmp;
+		p_tmp = *p0;
+		*p0 = *p1;
+		*p1 = p_tmp;
+	}
+}
+
+inline __device__ void SWP(statetype *s0, statetype *s1, shared_indextype *p0, shared_indextype *p1) {
+	statetype s_tmp;
+	shared_indextype p_tmp;
+
+	s_tmp = *s0;
+	*s0 = *s1;
+	*s1 = s_tmp;
+	p_tmp = *p0;
+	*p0 = *p1;
+	*p1 = p_tmp;
+}
+
+inline __device__ void _exch_intxn(statetype *s0, statetype *s1, statetype *s2, statetype *s3, statetype *s4, statetype *s5, statetype *s6, statetype *s7, shared_indextype *p0, shared_indextype *p1, shared_indextype *p2, shared_indextype *p3, shared_indextype *p4, shared_indextype *p5, shared_indextype *p6, shared_indextype *p7, uint8_t mask, bool bit) {
+	statetype ex_s0, ex_s1;
+	shared_indextype ex_p0, ex_p1;
+	if (bit) SWP(s0, s6, p0, p6);
+	if (bit) SWP(s1, s7, p1, p7);
+	if (bit) SWP(s2, s4, p2, p4);
+	if (bit) SWP(s3, s5, p3, p5);
+	ex_s0 = *s0;
+	ex_s1 = __shfl_xor_sync(0xFFFFFFFF, *s1, mask);
+	ex_p0 = *p0;
+	ex_p1 = __shfl_xor_sync(0xFFFFFFFF, *p1, mask);
+	CMP_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	if (bit) EQL_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	*s0 = ex_s0;
+	*s1 = __shfl_xor_sync(0xFFFFFFFF, ex_s1, mask);
+	*p0 = ex_p0;
+	*p1 = __shfl_xor_sync(0xFFFFFFFF, ex_p1, mask);
+	ex_s0 = *s2;
+	ex_s1 = __shfl_xor_sync(0xFFFFFFFF, *s3, mask);
+	ex_p0 = *p2;
+	ex_p1 = __shfl_xor_sync(0xFFFFFFFF, *p3, mask);
+	CMP_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	if (bit) EQL_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	*s2 = ex_s0;
+	*s3 = __shfl_xor_sync(0xFFFFFFFF, ex_s1, mask);
+	*p2 = ex_p0;
+	*p3 = __shfl_xor_sync(0xFFFFFFFF, ex_p1, mask);
+	ex_s0 = *s4;
+	ex_s1 = __shfl_xor_sync(0xFFFFFFFF, *s5, mask);
+	ex_p0 = *p4;
+	ex_p1 = __shfl_xor_sync(0xFFFFFFFF, *p5, mask);
+	CMP_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	if (bit) EQL_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	*s4 = ex_s0;
+	*s5 = __shfl_xor_sync(0xFFFFFFFF, ex_s1, mask);
+	*p4 = ex_p0;
+	*p5 = __shfl_xor_sync(0xFFFFFFFF, ex_p1, mask);
+	ex_s0 = *s6;
+	ex_s1 = __shfl_xor_sync(0xFFFFFFFF, *s7, mask);
+	ex_p0 = *p6;
+	ex_p1 = __shfl_xor_sync(0xFFFFFFFF, *p7, mask);
+	CMP_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	if (bit) EQL_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	*s6 = ex_s0;
+	*s7 = __shfl_xor_sync(0xFFFFFFFF, ex_s1, mask);
+	*p6 = ex_p0;
+	*p7 = __shfl_xor_sync(0xFFFFFFFF, ex_p1, mask);
+	if (bit) SWP(s0, s6, p0, p6);
+	if (bit) SWP(s1, s7, p1, p7);
+	if (bit) SWP(s2, s4, p2, p4);
+	if (bit) SWP(s3, s5, p3, p5);
+}
+
+inline __device__ void _exch_paral(statetype *s0, statetype *s1, statetype *s2, statetype *s3, statetype *s4, statetype *s5, statetype *s6, statetype *s7, shared_indextype *p0, shared_indextype *p1, shared_indextype *p2, shared_indextype *p3, shared_indextype *p4, shared_indextype *p5, shared_indextype *p6, shared_indextype *p7, uint8_t mask, bool bit) {
+	statetype ex_s0, ex_s1;
+	shared_indextype ex_p0, ex_p1;
+	if (bit) SWP(s0, s1, p0, p1);
+	if (bit) SWP(s2, s3, p2, p3);
+	if (bit) SWP(s4, s5, p4, p5);
+	if (bit) SWP(s6, s7, p6, p7);
+	ex_s0 = *s0;
+	ex_s1 = __shfl_xor_sync(0xFFFFFFFF, *s1, mask);
+	ex_p0 = *p0;
+	ex_p1 = __shfl_xor_sync(0xFFFFFFFF, *p1, mask);
+	CMP_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	if (bit) EQL_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	*s0 = ex_s0;
+	*s1 = __shfl_xor_sync(0xFFFFFFFF, ex_s1, mask);
+	*p0 = ex_p0;
+	*p1 = __shfl_xor_sync(0xFFFFFFFF, ex_p1, mask);
+	ex_s0 = *s2;
+	ex_s1 = __shfl_xor_sync(0xFFFFFFFF, *s3, mask);
+	ex_p0 = *p2;
+	ex_p1 = __shfl_xor_sync(0xFFFFFFFF, *p3, mask);
+	CMP_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	if (bit) EQL_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	*s2 = ex_s0;
+	*s3 = __shfl_xor_sync(0xFFFFFFFF, ex_s1, mask);
+	*p2 = ex_p0;
+	*p3 = __shfl_xor_sync(0xFFFFFFFF, ex_p1, mask);
+	ex_s0 = *s4;
+	ex_s1 = __shfl_xor_sync(0xFFFFFFFF, *s5, mask);
+	ex_p0 = *p4;
+	ex_p1 = __shfl_xor_sync(0xFFFFFFFF, *p5, mask);
+	CMP_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	if (bit) EQL_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	*s4 = ex_s0;
+	*s5 = __shfl_xor_sync(0xFFFFFFFF, ex_s1, mask);
+	*p4 = ex_p0;
+	*p5 = __shfl_xor_sync(0xFFFFFFFF, ex_p1, mask);
+	ex_s0 = *s6;
+	ex_s1 = __shfl_xor_sync(0xFFFFFFFF, *s7, mask);
+	ex_p0 = *p6;
+	ex_p1 = __shfl_xor_sync(0xFFFFFFFF, *p7, mask);
+	CMP_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	if (bit) EQL_SWP(&ex_s0, &ex_s1, &ex_p0, &ex_p1);
+	*s6 = ex_s0;
+	*s7 = __shfl_xor_sync(0xFFFFFFFF, ex_s1, mask);
+	*p6 = ex_p0;
+	*p7 = __shfl_xor_sync(0xFFFFFFFF, ex_p1, mask);
+	if (bit) SWP(s0, s1, p0, p1);
+	if (bit) SWP(s2, s3, p2, p3);
+	if (bit) SWP(s4, s5, p4, p5);
+	if (bit) SWP(s6, s7, p6, p7);
+}
+
+// The main bitonic sorting function, including loading the data to be sorted,
+// and returning the tile index of the element to be subsequently used by the calling thread.
+// wid is the ID of the warp executing the function. It is a parameter (as opposed to deriving the ID from the thread dynamically),
+// to allow a thread to run the function with multiple IDs.
+__device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
+	statetype s0, s1, s2, s3, s4, s5, s6, s7;	
+	shared_indextype p0, p1, p2, p3, p4, p5, p6, p7, p_tmp1, p_tmp2, p_result;
+	
+	// Load the tile indices.
+	asm("{\n\t"
+		" cvt.u16.u32 %0, %1;\n\t"
+		"}" : "=h"(p0) : "r"(shared[OPENTILEOFFSET+0+LANE]));
+	if (p0 != EMPTYVECT16) {
+		// Retrieve corresponding state value.
+		get_current_state(&s0, p0, wid / OPENTILE_WARP_WIDTH);
+	}
+	else {
+		s0 = NO_STATE;
+	}
+	p0 = 0+LANE;
+	asm("{\n\t"
+		" cvt.u16.u32 %0, %1;\n\t"
+		"}" : "=h"(p1) : "r"(shared[OPENTILEOFFSET+32+LANE]));
+	if (p1 != EMPTYVECT16) {
+		// Retrieve corresponding state value.
+		get_current_state(&s1, p1, wid / OPENTILE_WARP_WIDTH);
+	}
+	else {
+		s1 = NO_STATE;
+	}
+	p1 = 32+LANE;
+	asm("{\n\t"
+		" cvt.u16.u32 %0, %1;\n\t"
+		"}" : "=h"(p2) : "r"(shared[OPENTILEOFFSET+64+LANE]));
+	if (p2 != EMPTYVECT16) {
+		// Retrieve corresponding state value.
+		get_current_state(&s2, p2, wid / OPENTILE_WARP_WIDTH);
+	}
+	else {
+		s2 = NO_STATE;
+	}
+	p2 = 64+LANE;
+	asm("{\n\t"
+		" cvt.u16.u32 %0, %1;\n\t"
+		"}" : "=h"(p3) : "r"(shared[OPENTILEOFFSET+96+LANE]));
+	if (p3 != EMPTYVECT16) {
+		// Retrieve corresponding state value.
+		get_current_state(&s3, p3, wid / OPENTILE_WARP_WIDTH);
+	}
+	else {
+		s3 = NO_STATE;
+	}
+	p3 = 96+LANE;
+	asm("{\n\t"
+		" cvt.u16.u32 %0, %1;\n\t"
+		"}" : "=h"(p4) : "r"(shared[OPENTILEOFFSET+128+LANE]));
+	if (p4 != EMPTYVECT16) {
+		// Retrieve corresponding state value.
+		get_current_state(&s4, p4, wid / OPENTILE_WARP_WIDTH);
+	}
+	else {
+		s4 = NO_STATE;
+	}
+	p4 = 128+LANE;
+	asm("{\n\t"
+		" cvt.u16.u32 %0, %1;\n\t"
+		"}" : "=h"(p5) : "r"(shared[OPENTILEOFFSET+160+LANE]));
+	if (p5 != EMPTYVECT16) {
+		// Retrieve corresponding state value.
+		get_current_state(&s5, p5, wid / OPENTILE_WARP_WIDTH);
+	}
+	else {
+		s5 = NO_STATE;
+	}
+	p5 = 160+LANE;
+	asm("{\n\t"
+		" cvt.u16.u32 %0, %1;\n\t"
+		"}" : "=h"(p6) : "r"(shared[OPENTILEOFFSET+192+LANE]));
+	if (p6 != EMPTYVECT16) {
+		// Retrieve corresponding state value.
+		get_current_state(&s6, p6, wid / OPENTILE_WARP_WIDTH);
+	}
+	else {
+		s6 = NO_STATE;
+	}
+	p6 = 192+LANE;
+	if (224+LANE < OPENTILELEN) {
+		asm("{\n\t"
+			" cvt.u16.u32 %0, %1;\n\t"
+			"}" : "=h"(p7) : "r"(shared[OPENTILEOFFSET+224+LANE]));
+		if (p7 != EMPTYVECT16) {
+			// Retrieve corresponding state value.
+			get_current_state(&s7, p7, wid / OPENTILE_WARP_WIDTH);
+		}
+		else {
+			s7 = NO_STATE;
+		}
+	}
+	else {
+		p7 = EMPTYVECT16;
+		s7 = NO_STATE;
+	}
+	__syncwarp();
+	// Perform the sorting.
+	// exch_local intxn.
+	CMP_SWP(&s0, &s1, &p0, &p1);
+	CMP_SWP(&s2, &s3, &p2, &p3);
+	CMP_SWP(&s4, &s5, &p4, &p5);
+	CMP_SWP(&s6, &s7, &p6, &p7);
+	// exch_local intxn.
+	CMP_SWP(&s0, &s3, &p0, &p3);
+	CMP_SWP(&s1, &s2, &p1, &p2);
+	CMP_SWP(&s4, &s7, &p4, &p7);
+	CMP_SWP(&s5, &s6, &p5, &p6);
+	// exch_local paral.
+	CMP_SWP(&s0, &s1, &p0, &p1);
+	CMP_SWP(&s2, &s3, &p2, &p3);
+	CMP_SWP(&s4, &s5, &p4, &p5);
+	CMP_SWP(&s6, &s7, &p6, &p7);
+	// exch_local intxn.
+	CMP_SWP(&s0, &s7, &p0, &p7);
+	CMP_SWP(&s1, &s6, &p1, &p6);
+	CMP_SWP(&s2, &s5, &p2, &p5);
+	CMP_SWP(&s3, &s4, &p3, &p4);
+	// exch_local paral.
+	CMP_SWP(&s0, &s2, &p0, &p2);
+	CMP_SWP(&s1, &s3, &p1, &p3);
+	CMP_SWP(&s4, &s6, &p4, &p6);
+	CMP_SWP(&s5, &s7, &p5, &p7);
+	// exch_local paral.
+	CMP_SWP(&s0, &s1, &p0, &p1);
+	CMP_SWP(&s2, &s3, &p2, &p3);
+	CMP_SWP(&s4, &s5, &p4, &p5);
+	CMP_SWP(&s6, &s7, &p6, &p7);
+	_exch_intxn(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x1, (LANE & 0x1) != 0);
+	// exch_local paral.
+	CMP_SWP(&s0, &s4, &p0, &p4);
+	CMP_SWP(&s1, &s5, &p1, &p5);
+	CMP_SWP(&s2, &s6, &p2, &p6);
+	CMP_SWP(&s3, &s7, &p3, &p7);
+	// exch_local paral.
+	CMP_SWP(&s0, &s2, &p0, &p2);
+	CMP_SWP(&s1, &s3, &p1, &p3);
+	CMP_SWP(&s4, &s6, &p4, &p6);
+	CMP_SWP(&s5, &s7, &p5, &p7);
+	// exch_local paral.
+	CMP_SWP(&s0, &s1, &p0, &p1);
+	CMP_SWP(&s2, &s3, &p2, &p3);
+	CMP_SWP(&s4, &s5, &p4, &p5);
+	CMP_SWP(&s6, &s7, &p6, &p7);
+	_exch_intxn(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x3, (LANE & 0x2) != 0);
+	_exch_paral(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x1, (LANE & 0x1) != 0);
+	// exch_local paral.
+	CMP_SWP(&s0, &s4, &p0, &p4);
+	CMP_SWP(&s1, &s5, &p1, &p5);
+	CMP_SWP(&s2, &s6, &p2, &p6);
+	CMP_SWP(&s3, &s7, &p3, &p7);
+	// exch_local paral.
+	CMP_SWP(&s0, &s2, &p0, &p2);
+	CMP_SWP(&s1, &s3, &p1, &p3);
+	CMP_SWP(&s4, &s6, &p4, &p6);
+	CMP_SWP(&s5, &s7, &p5, &p7);
+	// exch_local paral.
+	CMP_SWP(&s0, &s1, &p0, &p1);
+	CMP_SWP(&s2, &s3, &p2, &p3);
+	CMP_SWP(&s4, &s5, &p4, &p5);
+	CMP_SWP(&s6, &s7, &p6, &p7);
+	_exch_intxn(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x7, (LANE & 0x4) != 0);
+	_exch_paral(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x2, (LANE & 0x2) != 0);
+	_exch_paral(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x1, (LANE & 0x1) != 0);
+	// exch_local paral.
+	CMP_SWP(&s0, &s4, &p0, &p4);
+	CMP_SWP(&s1, &s5, &p1, &p5);
+	CMP_SWP(&s2, &s6, &p2, &p6);
+	CMP_SWP(&s3, &s7, &p3, &p7);
+	// exch_local paral.
+	CMP_SWP(&s0, &s2, &p0, &p2);
+	CMP_SWP(&s1, &s3, &p1, &p3);
+	CMP_SWP(&s4, &s6, &p4, &p6);
+	CMP_SWP(&s5, &s7, &p5, &p7);
+	// exch_local paral.
+	CMP_SWP(&s0, &s1, &p0, &p1);
+	CMP_SWP(&s2, &s3, &p2, &p3);
+	CMP_SWP(&s4, &s5, &p4, &p5);
+	CMP_SWP(&s6, &s7, &p6, &p7);
+	_exch_intxn(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0xf, (LANE & 0x8) != 0);
+	_exch_paral(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x4, (LANE & 0x4) != 0);
+	_exch_paral(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x2, (LANE & 0x2) != 0);
+	_exch_paral(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x1, (LANE & 0x1) != 0);
+	// exch_local paral.
+	CMP_SWP(&s0, &s4, &p0, &p4);
+	CMP_SWP(&s1, &s5, &p1, &p5);
+	CMP_SWP(&s2, &s6, &p2, &p6);
+	CMP_SWP(&s3, &s7, &p3, &p7);
+	// exch_local paral.
+	CMP_SWP(&s0, &s2, &p0, &p2);
+	CMP_SWP(&s1, &s3, &p1, &p3);
+	CMP_SWP(&s4, &s6, &p4, &p6);
+	CMP_SWP(&s5, &s7, &p5, &p7);
+	// exch_local paral.
+	CMP_SWP(&s0, &s1, &p0, &p1);
+	CMP_SWP(&s2, &s3, &p2, &p3);
+	CMP_SWP(&s4, &s5, &p4, &p5);
+	CMP_SWP(&s6, &s7, &p6, &p7);
+	_exch_intxn(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x1f, (LANE & 0x10) != 0);
+	_exch_paral(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x8, (LANE & 0x8) != 0);
+	_exch_paral(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x4, (LANE & 0x4) != 0);
+	_exch_paral(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x2, (LANE & 0x2) != 0);
+	_exch_paral(&s0, &s1, &s2, &s3, &s4, &s5, &s6, &s7, &p0, &p1, &p2, &p3, &p4, &p5, &p6, &p7, 0x1, (LANE & 0x1) != 0);
+	// exch_local paral.
+	CMP_SWP(&s0, &s4, &p0, &p4);
+	CMP_SWP(&s1, &s5, &p1, &p5);
+	CMP_SWP(&s2, &s6, &p2, &p6);
+	CMP_SWP(&s3, &s7, &p3, &p7);
+	// exch_local paral.
+	CMP_SWP(&s0, &s2, &p0, &p2);
+	CMP_SWP(&s1, &s3, &p1, &p3);
+	CMP_SWP(&s4, &s6, &p4, &p6);
+	CMP_SWP(&s5, &s7, &p5, &p7);
+	// exch_local paral.
+	CMP_SWP(&s0, &s1, &p0, &p1);
+	CMP_SWP(&s2, &s3, &p2, &p3);
+	CMP_SWP(&s4, &s5, &p4, &p5);
+	CMP_SWP(&s6, &s7, &p6, &p7);
+
+	// Finally, retrieve the index of the tile element of interest for the current thread.
+	uint8_t offset = wid % OPENTILE_WARP_WIDTH;
+	// If the index of the p0 element of the thread is within the range of interest, prepare it for communication.
+	if (LANE*8+0 >= offset*WARP_SIZE && LANE*8+0 < (offset+1)*WARP_SIZE) {
+		p_tmp1 = p0;
+	}
+	__syncwarp();
+	// Retrieve from the thread that holds the element of interest for the current thread the prepared value (if it exists).
+	p_tmp2 = __shfl_sync(0xFFFFFFFF, p_tmp1, LANE / 8);
+	// If the value was indeed prepared by the source thread, store it.
+	if ((LANE & 0x7) == 0) {
+		// Value of interest is ready to be fetched.
+		p_result = p_tmp2;
+	}
+	// If the index of the p1 element of the thread is within the range of interest, prepare it for communication.
+	if (LANE*8+1 >= offset*WARP_SIZE && LANE*8+1 < (offset+1)*WARP_SIZE) {
+		p_tmp1 = p1;
+	}
+	__syncwarp();
+	// Retrieve from the thread that holds the element of interest for the current thread the prepared value (if it exists).
+	p_tmp2 = __shfl_sync(0xFFFFFFFF, p_tmp1, LANE / 8);
+	// If the value was indeed prepared by the source thread, store it.
+	if ((LANE & 0x7) == 1) {
+		// Value of interest is ready to be fetched.
+		p_result = p_tmp2;
+	}
+	// If the index of the p2 element of the thread is within the range of interest, prepare it for communication.
+	if (LANE*8+2 >= offset*WARP_SIZE && LANE*8+2 < (offset+1)*WARP_SIZE) {
+		p_tmp1 = p2;
+	}
+	__syncwarp();
+	// Retrieve from the thread that holds the element of interest for the current thread the prepared value (if it exists).
+	p_tmp2 = __shfl_sync(0xFFFFFFFF, p_tmp1, LANE / 8);
+	// If the value was indeed prepared by the source thread, store it.
+	if ((LANE & 0x7) == 2) {
+		// Value of interest is ready to be fetched.
+		p_result = p_tmp2;
+	}
+	// If the index of the p3 element of the thread is within the range of interest, prepare it for communication.
+	if (LANE*8+3 >= offset*WARP_SIZE && LANE*8+3 < (offset+1)*WARP_SIZE) {
+		p_tmp1 = p3;
+	}
+	__syncwarp();
+	// Retrieve from the thread that holds the element of interest for the current thread the prepared value (if it exists).
+	p_tmp2 = __shfl_sync(0xFFFFFFFF, p_tmp1, LANE / 8);
+	// If the value was indeed prepared by the source thread, store it.
+	if ((LANE & 0x7) == 3) {
+		// Value of interest is ready to be fetched.
+		p_result = p_tmp2;
+	}
+	// If the index of the p4 element of the thread is within the range of interest, prepare it for communication.
+	if (LANE*8+4 >= offset*WARP_SIZE && LANE*8+4 < (offset+1)*WARP_SIZE) {
+		p_tmp1 = p4;
+	}
+	__syncwarp();
+	// Retrieve from the thread that holds the element of interest for the current thread the prepared value (if it exists).
+	p_tmp2 = __shfl_sync(0xFFFFFFFF, p_tmp1, LANE / 8);
+	// If the value was indeed prepared by the source thread, store it.
+	if ((LANE & 0x7) == 4) {
+		// Value of interest is ready to be fetched.
+		p_result = p_tmp2;
+	}
+	// If the index of the p5 element of the thread is within the range of interest, prepare it for communication.
+	if (LANE*8+5 >= offset*WARP_SIZE && LANE*8+5 < (offset+1)*WARP_SIZE) {
+		p_tmp1 = p5;
+	}
+	__syncwarp();
+	// Retrieve from the thread that holds the element of interest for the current thread the prepared value (if it exists).
+	p_tmp2 = __shfl_sync(0xFFFFFFFF, p_tmp1, LANE / 8);
+	// If the value was indeed prepared by the source thread, store it.
+	if ((LANE & 0x7) == 5) {
+		// Value of interest is ready to be fetched.
+		p_result = p_tmp2;
+	}
+	// If the index of the p6 element of the thread is within the range of interest, prepare it for communication.
+	if (LANE*8+6 >= offset*WARP_SIZE && LANE*8+6 < (offset+1)*WARP_SIZE) {
+		p_tmp1 = p6;
+	}
+	__syncwarp();
+	// Retrieve from the thread that holds the element of interest for the current thread the prepared value (if it exists).
+	p_tmp2 = __shfl_sync(0xFFFFFFFF, p_tmp1, LANE / 8);
+	// If the value was indeed prepared by the source thread, store it.
+	if ((LANE & 0x7) == 6) {
+		// Value of interest is ready to be fetched.
+		p_result = p_tmp2;
+	}
+	// If the index of the p7 element of the thread is within the range of interest, prepare it for communication.
+	if (LANE*8+7 >= offset*WARP_SIZE && LANE*8+7 < (offset+1)*WARP_SIZE) {
+		p_tmp1 = p7;
+	}
+	__syncwarp();
+	// Retrieve from the thread that holds the element of interest for the current thread the prepared value (if it exists).
+	p_tmp2 = __shfl_sync(0xFFFFFFFF, p_tmp1, LANE / 8);
+	// If the value was indeed prepared by the source thread, store it.
+	if ((LANE & 0x7) == 7) {
+		// Value of interest is ready to be fetched.
+		p_result = p_tmp2;
+	}
+	return p_result;
+}
+
+//*** END FUNCTIONS FOR INTRA-WARP BITONIC MERGESORT ***
+
 // Exploration functions to traverse outgoing transitions of the various states.
 inline __device__ void explore_p_REC1(shared_indextype node_index) {
 	// Fetch the current state of the state machine.
@@ -3781,152 +3821,52 @@ inline __device__ void explore_p_REC1(shared_indextype node_index) {
 			{
 			// Allocate register memory to process transition(s).
 			elem_inttype buf32_0;
-			shared_indextype buf16_0, buf16_1;
+			shared_indextype buf16_0;
 			
-			// R0 --{ x[6] := 3 }--> R1
+			// R0 --{ [ x = 2; x := 1 ] }--> R1
+			
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = get_vectorpart(node_index, 1);
+			get_p_x(&buf32_0, part1, part2);
 			
 			// Statement computation.
-			target = 1;
-			buf32_0 = 3;
-			// Store new state vector in shared memory.
-			get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
-			// Store new values.
-			part2 = part1;
-			set_left_p_REC1(&part2, (statetype) target);
-			if (part2 != part1) {
-				// This part has been altered. Store it in shared memory and remember address of new part.
-				part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-				buf16_0 = STOREINCACHE(part2, part_cachepointers);
-				if (buf16_0 == CACHE_FULL) {
-					// TODO: Plan B
-				}
-			}
-			else {
-				buf16_0 = EMPTY_CACHE_POINTER;
-			}
-			get_vectortree_node(&part1, &part_cachepointers, node_index, 4);
-			// Store new values.
-			part2 = part1;
-			set_left_p_x_6(&part2, buf32_0);
-			if (part2 != part1) {
-				// This part has been altered. Store it in shared memory and remember address of new part.
-				part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-				buf16_1 = STOREINCACHE(part2, part_cachepointers);
-				if (buf16_1 == CACHE_FULL) {
-					// TODO: Plan B
-				}
-			}
-			else {
-				buf16_1 = EMPTY_CACHE_POINTER;
-			}
-			if (buf16_1 != EMPTY_CACHE_POINTER) {
-				get_vectortree_node(&part1, &part_cachepointers, node_index, 2);
+			if (buf32_0 == 2) {
+				target = 1;
+				buf32_0 = 1;
+				// Store new state vector in shared memory.
+				get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+				// Store new values.
 				part2 = part1;
-				set_right_cache_pointer(&part_cachepointers, buf16_1);
-				reset_right_in_vectortree_node(&part2);
-				mark_cached_node_new_nonleaf(&part_cachepointers);
-				buf16_1 = STOREINCACHE(part2, part_cachepointers);
-				if (buf16_1 == CACHE_FULL) {
-					// TODO: Plan B
+				set_left_p_x(&part2, buf32_0);
+				set_left_p_REC1(&part2, (statetype) target);
+				if (part2 != part1) {
+					// This part has been altered. Store it in shared memory and remember address of new part.
+					part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+					buf16_0 = STOREINCACHE(part2, part_cachepointers);
+					if (buf16_0 == CACHE_FULL) {
+						// TODO: Plan B
+					}
 				}
-			}
-			else {
-				buf16_1 = EMPTY_CACHE_POINTER;
-			}
-			if (buf16_0 != EMPTY_CACHE_POINTER || buf16_1 != EMPTY_CACHE_POINTER) {
+				else {
+					buf16_0 = EMPTY_CACHE_POINTER;
+				}
 				get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+				// Store new values.
 				part2 = part1;
+				set_right_p_x(&part2, buf32_0);
 				if (buf16_0 != EMPTY_CACHE_POINTER) {
 					set_left_cache_pointer(&part_cachepointers, buf16_0);
 					reset_left_in_vectortree_node(&part2);
 				}
-				if (buf16_1 != EMPTY_CACHE_POINTER) {
-					set_right_cache_pointer(&part_cachepointers, buf16_1);
-					reset_right_in_vectortree_node(&part2);
-				}
-				// This part has been altered. Store it in shared memory and remember address of new part.
-				mark_root(&part2);
-				mark_cached_node_new_nonleaf(&part_cachepointers);
-				buf16_0 = STOREINCACHE(part2, part_cachepointers);
-				if (buf16_0 == CACHE_FULL) {
-					// TODO: Plan B
-				}
-			}
-			}
-			break;
-		case 1:
-			{
-			// Allocate register memory to process transition(s).
-			elem_inttype buf32_0;
-			shared_indextype buf16_0, buf16_1;
-			
-			// R1 --{ x[6] := 5 }--> R0
-			
-			// Statement computation.
-			target = 0;
-			buf32_0 = 5;
-			// Store new state vector in shared memory.
-			get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
-			// Store new values.
-			part2 = part1;
-			set_left_p_REC1(&part2, (statetype) target);
-			if (part2 != part1) {
-				// This part has been altered. Store it in shared memory and remember address of new part.
-				part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-				buf16_0 = STOREINCACHE(part2, part_cachepointers);
-				if (buf16_0 == CACHE_FULL) {
-					// TODO: Plan B
-				}
-			}
-			else {
-				buf16_0 = EMPTY_CACHE_POINTER;
-			}
-			get_vectortree_node(&part1, &part_cachepointers, node_index, 4);
-			// Store new values.
-			part2 = part1;
-			set_left_p_x_6(&part2, buf32_0);
-			if (part2 != part1) {
-				// This part has been altered. Store it in shared memory and remember address of new part.
-				part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-				buf16_1 = STOREINCACHE(part2, part_cachepointers);
-				if (buf16_1 == CACHE_FULL) {
-					// TODO: Plan B
-				}
-			}
-			else {
-				buf16_1 = EMPTY_CACHE_POINTER;
-			}
-			if (buf16_1 != EMPTY_CACHE_POINTER) {
-				get_vectortree_node(&part1, &part_cachepointers, node_index, 2);
-				part2 = part1;
-				set_right_cache_pointer(&part_cachepointers, buf16_1);
-				reset_right_in_vectortree_node(&part2);
-				mark_cached_node_new_nonleaf(&part_cachepointers);
-				buf16_1 = STOREINCACHE(part2, part_cachepointers);
-				if (buf16_1 == CACHE_FULL) {
-					// TODO: Plan B
-				}
-			}
-			else {
-				buf16_1 = EMPTY_CACHE_POINTER;
-			}
-			if (buf16_0 != EMPTY_CACHE_POINTER || buf16_1 != EMPTY_CACHE_POINTER) {
-				get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
-				part2 = part1;
-				if (buf16_0 != EMPTY_CACHE_POINTER) {
-					set_left_cache_pointer(&part_cachepointers, buf16_0);
-					reset_left_in_vectortree_node(&part2);
-				}
-				if (buf16_1 != EMPTY_CACHE_POINTER) {
-					set_right_cache_pointer(&part_cachepointers, buf16_1);
-					reset_right_in_vectortree_node(&part2);
-				}
-				// This part has been altered. Store it in shared memory and remember address of new part.
-				mark_root(&part2);
-				mark_cached_node_new_nonleaf(&part_cachepointers);
-				buf16_0 = STOREINCACHE(part2, part_cachepointers);
-				if (buf16_0 == CACHE_FULL) {
-					// TODO: Plan B
+				if (part2 != part1) {
+					// This part has been altered. Store it in shared memory and remember address of new part.
+					mark_root(&part2);
+					mark_cached_node_new_nonleaf(&part_cachepointers);
+					buf16_0 = STOREINCACHE(part2, part_cachepointers);
+					if (buf16_0 == CACHE_FULL) {
+						// TODO: Plan B
+					}
 				}
 			}
 			}
@@ -3954,15 +3894,18 @@ inline __device__ void get_successors_of_sm(shared_indextype node_index, uint8_t
 inline __device__ void GENERATE_SUCCESSORS() {
 	// Iterate over the designated work.
 	shared_indextype entry_id;
-	shared_indextype entry_state_id;
 	shared_inttype src_state;
 
 	#pragma unroll
-	for (shared_indextype i = THREAD_ID; i < (OPENTILECOUNT * NR_SMS); i += BLOCK_SIZE) {
-		entry_id = i / NR_SMS;
-		entry_state_id = i - (entry_id * NR_SMS);
-		src_state = shared[OPENTILEOFFSET+entry_id];
-		get_successors_of_sm((shared_indextype) src_state, entry_state_id);
+	for (shared_indextype i = WARP_ID; i/OPENTILE_WARP_WIDTH < NR_SMS; i += NR_WARPS_PER_BLOCK) {	
+		entry_id = ((fast_modulo(i, OPENTILE_WARP_WIDTH)) * WARP_SIZE);
+		if (entry_id < OPENTILECOUNT) {
+			entry_id = get_sorted_opentile_element(i);
+		}
+		if (entry_id < OPENTILECOUNT) {
+			src_state = shared[OPENTILEOFFSET+entry_id];
+			get_successors_of_sm((shared_indextype) src_state, i/OPENTILE_WARP_WIDTH);
+		}
 	}
 } 
 
@@ -3977,8 +3920,6 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q, nodetype *q_
 			printf("retrieved node: %lu\n", root);
 			nodetype part0 = host_direct_get_vectorpart_0(q, q_i, root, stream, print_pointers);
 			nodetype part1 = host_direct_get_vectorpart_1(q, q_i, root, stream, print_pointers);
-			nodetype part2 = host_direct_get_vectorpart_2(q, q_i, root, stream, print_pointers);
-			nodetype part3 = host_direct_get_vectorpart_3(q, q_i, root, stream, print_pointers);
 			// Print the contents of the state.
 			nodetype *p1, *p2;
 			statetype e_st;
@@ -3993,32 +3934,12 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q, nodetype *q_
 			fprintf(stream, "state p'REC1: %u\n", (uint32_t) e_st);
 			p1 = &part0;
 			p2 = p1;
-			host_get_p_x(&e_i, *p1, *p2, 0);
-			fprintf(stream, "array element p'x[0]: %u\n", (uint32_t) e_i);
+			host_get_p_y(&e_i, *p1, *p2);
+			fprintf(stream, "variable p'y: %u\n", (uint32_t) e_i);
 			p1 = &part0;
 			p2 = &part1;
-			host_get_p_x(&e_i, *p1, *p2, 1);
-			fprintf(stream, "array element p'x[1]: %u\n", (uint32_t) e_i);
-			p1 = &part1;
-			p2 = p1;
-			host_get_p_x(&e_i, *p1, *p2, 2);
-			fprintf(stream, "array element p'x[2]: %u\n", (uint32_t) e_i);
-			p1 = &part1;
-			p2 = &part2;
-			host_get_p_x(&e_i, *p1, *p2, 3);
-			fprintf(stream, "array element p'x[3]: %u\n", (uint32_t) e_i);
-			p1 = &part2;
-			p2 = p1;
-			host_get_p_x(&e_i, *p1, *p2, 4);
-			fprintf(stream, "array element p'x[4]: %u\n", (uint32_t) e_i);
-			p1 = &part2;
-			p2 = &part3;
-			host_get_p_x(&e_i, *p1, *p2, 5);
-			fprintf(stream, "array element p'x[5]: %u\n", (uint32_t) e_i);
-			p1 = &part3;
-			p2 = p1;
-			host_get_p_x(&e_i, *p1, *p2, 6);
-			fprintf(stream, "array element p'x[6]: %u\n", (uint32_t) e_i);
+			host_get_p_x(&e_i, *p1, *p2);
+			fprintf(stream, "variable p'x: %u\n", (uint32_t) e_i);
 			fprintf(stream, "-----\n");
 		}
 	}

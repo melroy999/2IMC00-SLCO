@@ -213,8 +213,6 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 	shared_indextype sh_index, opentile_scan_start;
 	{% endif %}
 	compressed_nodetype tmp;
-	// Debug!
-	nodetype debug_tmp;
 
 	// Reset the shared variables preceding the cache, and reset the cache.
 	if (THREAD_ID < SH_OFFSET) {
@@ -245,7 +243,6 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 			PREPARE_CACHE();
 		}
 		__syncthreads();
-		debug_tmp = combine_halfs(shared[CACHEOFFSET+(2152*3)], shared[CACHEOFFSET+(2152*3)+1]);
 		{% endif %}
 		if (THREAD_ID == 0 && OPENTILECOUNT < OPENTILELEN && d_newstate_flags[BLOCK_ID] == 1) {
 			// Indicate that we are scanning.
@@ -547,8 +544,9 @@ int main(int argc, char** argv) {
 
 	// Initialise the hash table.
 	init_hash_table<<<NR_BLOCKS, {{nrthreadsperblock}}>>>(d_q{% if compact_hash_table %}, d_q_i{% endif %});
-	CUDA_CHECK_FOR_ERROR(0);
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 	store_initial_state<<<1, {{nrthreadsperblock}}, shared_cache_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i{% endif %}, d_newstate_flags, d_worktiles);
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 	compressed_nodetype *q_test;
 	{% if compact_hash_table %}
@@ -572,7 +570,7 @@ int main(int argc, char** argv) {
 	while (contBFS == 1) {
 		CUDA_CHECK_RETURN(cudaMemset(d_contBFS, 0, sizeof(uint8_t)));
 		// TODO: change nr of blocks back to nblocks
-		gather<<<nblocks, {{nrthreadsperblock}}, shared_cache_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i{% endif %}, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
+		gather<<<1, {{nrthreadsperblock}}, shared_cache_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i{% endif %}, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
 
 		// Copy progress result.
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());

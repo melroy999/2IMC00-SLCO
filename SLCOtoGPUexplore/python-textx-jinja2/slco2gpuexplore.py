@@ -861,22 +861,14 @@ def update_parts(name, value, vectorparts):
 def reset_left_pointer(node):
 	"""Reset the left pointer in the given vectortree node."""
 	"""Precondition: the given node has a left pointer."""
-	global compact_hash_table
-	if not compact_hash_table:
-		resetvalue = ((pow2(nr_bits_address_root())-1) << 64-2-nr_bits_address_root())
-	else:
-		resetvalue = ((pow2(nr_bits_address_internal())-1) << nr_bits_address_internal())		
+	resetvalue = ((pow2(31)-1) << 31)
 	node |= resetvalue
 	return node
 
 def reset_right_pointer(node):
 	"""Reset the right pointer in the given vectortree node."""
 	"""Precondition: the given node has a right pointer."""
-	global compact_hash_table
-	if not compact_hash_table:
-		resetvalue = pow2(nr_bits_address_root())-1
-	else:
-		resetvalue = pow2(nr_bits_address_internal())-1		
+	resetvalue = pow2(31)-1
 	node |= resetvalue
 	return node
 
@@ -3996,7 +3988,7 @@ def main(args):
 			print(" -s                    size of the GPU global memory (in GB) (default 24)")
 			print(" -d                    check for deadlocks")
 			print(" -p                    verify given LTL property")
-			print(" -b                    number of CUDA blocks to run (default 3120")
+			print(" -b                    number of CUDA blocks to run (default 3120)")
 			print(" -t                    number of threads per CUDA block (default 512)")
 			print(" -g2                   apply GPUexplore 2.0 successor generation work distribution (default False)")
 			print(" -noregsort            do not apply regsort for successor generation work distribution (default False)")

@@ -19,9 +19,6 @@
        __typeof__ (b) _b = (b); \
      _a > _b ? _a : _b; })
 
-// test macros
-#define PRINTTHREADID()						{printf("Hello thread %d\n", (blockIdx.x*blockDim.x)+threadIdx.x);}
-#define PRINTTHREAD(j, i)					{printf("%d: Seen by thread %d: %d\n", (j), (blockIdx.x*blockDim.x)+threadIdx.x, (i));}
 
 /**
  * This macro checks return value of the CUDA runtime call and exits
@@ -196,160 +193,157 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodet
 	shared_inttype l;
 	shared_indextype sh_index, opentile_scan_start;
 	compressed_nodetype tmp;
-	// Debug!
-	nodetype debug_tmp;
 
 	// Reset the shared variables preceding the cache, and reset the cache.
-	if (THREAD_ID < SH_OFFSET) {
-		shared[THREAD_ID] = 0;
-	}
-	for (i = THREAD_ID; i < (d_shared_cache_size - SH_OFFSET); i += BLOCK_SIZE) {
-		shared[SH_OFFSET+i] = EMPTYVECT32;
-	}
-	__syncthreads();
-	if (scan) {
-		// Copy the work tile from global memory.
-		if (THREAD_ID < OPENTILELEN + LASTSEARCHLEN) {
-			shared[OPENTILEOFFSET + THREAD_ID] = d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1) * BLOCK_ID + THREAD_ID];
-		}
-		if (THREAD_ID == 0) {
-			OPENTILECOUNT = d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1) * BLOCK_ID + OPENTILELEN + LASTSEARCHLEN];
-		}
-	}
-	else if (THREAD_ID < OPENTILELEN+LASTSEARCHLEN) {
-		// On first run: initialise the work tile to empty.
-		shared[OPENTILEOFFSET+THREAD_ID] = 0;
-	}
-	__syncthreads();
-	while (ITERATIONS < d_kernel_iters) {
-		if (ITERATIONS > 0) {
-			// Prepare the cache for the next iteration.
-			PREPARE_CACHE();
-		}
-		__syncthreads();
-		debug_tmp = combine_halfs(shared[CACHEOFFSET+(2152*3)], shared[CACHEOFFSET+(2152*3)+1]);
-		if (THREAD_ID == 0 && OPENTILECOUNT < OPENTILELEN && d_newstate_flags[BLOCK_ID] == 1) {
-			// Indicate that we are scanning.
-			d_newstate_flags[BLOCK_ID] = 2;
-			SCAN = 1;
-		}
-		// We store the current value of OPENTILECOUNT in opentile_scan_start, to check later whether we have added scanned states
-		// to a non-empty work-tile, and to identify those newly added states for fetching. If this is the first iteration, this is
-		// not relevant, as in that case, all states are newly added and require fetching.
-		opentile_scan_start = 0;
-		if (ITERATIONS > 0) {
-			opentile_scan_start = OPENTILECOUNT;
-		}
-		__syncthreads();
-		// Scan the open set for work; we use OPENTILECOUNT to count retrieved elements.
-		if (SCAN) {
-			indextype last_search_location = (indextype) shared[LASTSEARCHOFFSET + WARP_ID];
-			// This block should be able to find a new state.
-			bool found_new_state = false;
-			for (i = GLOBAL_WARP_ID; i < (d_hash_table_size/WARP_SIZE) && OPENTILECOUNT < OPENTILELEN; i += NR_WARPS) {
-				indextype loc = last_search_location + i;
-				if (loc >= d_hash_table_size/WARP_SIZE) {
-					last_search_location = -i + GLOBAL_WARP_ID;
-					loc = i + last_search_location;
-				}
-				if (loc*WARP_SIZE+LANE < d_hash_table_size) {
-					tmp = d_q[loc*WARP_SIZE+LANE];
-					if (is_new(tmp)) {
-						found_new_state = true;
-						// Try to increment the OPENTILECOUNT counter. If successful, store the state pointer.
-						l = atomicAdd((shared_inttype *) &OPENTILECOUNT, 1);
-						if (l < OPENTILELEN) {
-							d_q[loc] = mark_old(tmp);
-							shared[OPENTILEOFFSET+l] = tmp;
-						}
-					}
-				}
-			}
-			if (i < (d_hash_table_size/WARP_SIZE)) {
-				last_search_location = i - GLOBAL_WARP_ID;
-			}
-			else {
-				last_search_location = 0;
-			}
-			if (LANE == 0) {
-				shared[LASTSEARCHOFFSET + WARP_ID] = last_search_location;
-			}
-			if (found_new_state || i < (d_hash_table_size/WARP_SIZE)) {
-				WORKSCANRESULT = 1;
-			}
-		}
-		__syncthreads();
-		// If work has been retrieved, indicate this.
-		if (THREAD_ID == 0) {
-			if (OPENTILECOUNT > 0) {
-				(*d_contBFS) = 1;
-			}
-			if (SCAN && WORKSCANRESULT == 0 && d_newstate_flags[BLOCK_ID] == 2) {
-				// Scanning has completed and no new states were found by this block.
-				// Save this information to prevent unnecessary scanning later on.
-				d_newstate_flags[BLOCK_ID] = 0;
-			}
-			else {
-				WORKSCANRESULT = 0;
-			}
-		}
-		if (OPENTILECOUNT > opentile_scan_start) {
-			// Fill the cache with the newly added vector trees referred to in the work tile.
-			// Create a cooperative group within a warp in which the thread resides.
-			thread_block_tile<VECTOR_GROUP_SIZE> gtile = tiled_partition<VECTOR_GROUP_SIZE>(this_thread_block());
-
-			#pragma unroll
-			for (i = VECTOR_GROUP_ID; i < (OPENTILECOUNT-opentile_scan_start); i += NR_VECTOR_GROUPS_PER_BLOCK) {
-				l = FETCH(gtile, d_q, d_q_i, shared[OPENTILEOFFSET+opentile_scan_start+i]);
-				if (l == CACHE_FULL) {
-					// PLAN B?
-				}
-				else {
-					sh_index = (shared_indextype) l;
-				}
-				if (gtile.thread_rank() == 0) {
-					// Store the address to the tree in the cache in the work tile.
-					shared[OPENTILEOFFSET+opentile_scan_start+i] = sh_index;
-				}
-			}
-		}
-		__syncthreads();
-		GENERATE_SUCCESSORS();
-		bool performed_work = OPENTILECOUNT != 0;
-		__syncthreads();
-		// Reset the work tile count
-		if (THREAD_ID == 0) {
-			OPENTILECOUNT = 0;
-		}
-		// Start scanning the local cache and write results to the global hash table.
-		if (performed_work) {
-			FINDORPUT_MANY(d_q, d_q_i, d_newstate_flags);
-		}
-		__syncthreads();
-		// Write 'empty' pointers to unused part of the work tile.
-		if (THREAD_ID < OPENTILELEN - OPENTILECOUNT) {
-			shared[OPENTILEOFFSET+OPENTILECOUNT+THREAD_ID] = EMPTYVECT32;
-		}
-		// Ready to start next iteration, if error has not occurred.
-		if (THREAD_ID == 0) {
-			if (CONTINUE == 2) {
-				(*d_contBFS) = 2;
-				ITERATIONS = d_kernel_iters;
-			}
-			else {
-				ITERATIONS++;
-			}
-			CONTINUE = 1;
-		}
-		__syncthreads();
-	}
-	// Done. Copy the work tile to global memory.
-	if (THREAD_ID < OPENTILELEN+LASTSEARCHLEN) {
-		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = shared[OPENTILEOFFSET+THREAD_ID];
-	}
-	if (THREAD_ID == 0) {
-		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = OPENTILECOUNT;
-	}
+//	if (THREAD_ID < SH_OFFSET) {
+//		shared[THREAD_ID] = 0;
+//	}
+//	for (i = THREAD_ID; i < (d_shared_cache_size - SH_OFFSET); i += BLOCK_SIZE) {
+//		shared[SH_OFFSET+i] = EMPTYVECT32;
+//	}
+//	__syncthreads();
+//	if (scan) {
+//		// Copy the work tile from global memory.
+//		if (THREAD_ID < OPENTILELEN + LASTSEARCHLEN) {
+//			shared[OPENTILEOFFSET + THREAD_ID] = d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1) * BLOCK_ID + THREAD_ID];
+//		}
+//		if (THREAD_ID == 0) {
+//			OPENTILECOUNT = d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1) * BLOCK_ID + OPENTILELEN + LASTSEARCHLEN];
+//		}
+//	}
+//	else if (THREAD_ID < OPENTILELEN+LASTSEARCHLEN) {
+//		// On first run: initialise the work tile to empty.
+//		shared[OPENTILEOFFSET+THREAD_ID] = 0;
+//	}
+//	__syncthreads();
+//	while (ITERATIONS < d_kernel_iters) {
+//		if (ITERATIONS > 0) {
+//			// Prepare the cache for the next iteration.
+//			PREPARE_CACHE();
+//		}
+//		__syncthreads();
+//		if (THREAD_ID == 0 && OPENTILECOUNT < OPENTILELEN && d_newstate_flags[BLOCK_ID] == 1) {
+//			// Indicate that we are scanning.
+//			d_newstate_flags[BLOCK_ID] = 2;
+//			SCAN = 1;
+//		}
+//		// We store the current value of OPENTILECOUNT in opentile_scan_start, to check later whether we have added scanned states
+//		// to a non-empty work-tile, and to identify those newly added states for fetching. If this is the first iteration, this is
+//		// not relevant, as in that case, all states are newly added and require fetching.
+//		opentile_scan_start = 0;
+//		if (ITERATIONS > 0) {
+//			opentile_scan_start = OPENTILECOUNT;
+//		}
+//		__syncthreads();
+//		// Scan the open set for work; we use OPENTILECOUNT to count retrieved elements.
+//		if (SCAN) {
+//			indextype last_search_location = (indextype) shared[LASTSEARCHOFFSET + WARP_ID];
+//			// This block should be able to find a new state.
+//			bool found_new_state = false;
+//			for (i = GLOBAL_WARP_ID; i < (d_hash_table_size/WARP_SIZE) && OPENTILECOUNT < OPENTILELEN; i += NR_WARPS) {
+//				indextype loc = last_search_location + i;
+//				if (loc >= d_hash_table_size/WARP_SIZE) {
+//					last_search_location = -i + GLOBAL_WARP_ID;
+//					loc = i + last_search_location;
+//				}
+//				if (loc*WARP_SIZE+LANE < d_hash_table_size) {
+//					tmp = d_q[loc*WARP_SIZE+LANE];
+//					if (is_new(tmp)) {
+//						found_new_state = true;
+//						// Try to increment the OPENTILECOUNT counter. If successful, store the state pointer.
+//						l = atomicAdd((shared_inttype *) &OPENTILECOUNT, 1);
+//						if (l < OPENTILELEN) {
+//							d_q[loc] = mark_old(tmp);
+//							shared[OPENTILEOFFSET+l] = tmp;
+//						}
+//					}
+//				}
+//			}
+//			if (i < (d_hash_table_size/WARP_SIZE)) {
+//				last_search_location = i - GLOBAL_WARP_ID;
+//			}
+//			else {
+//				last_search_location = 0;
+//			}
+//			if (LANE == 0) {
+//				shared[LASTSEARCHOFFSET + WARP_ID] = last_search_location;
+//			}
+//			if (found_new_state || i < (d_hash_table_size/WARP_SIZE)) {
+//				WORKSCANRESULT = 1;
+//			}
+//		}
+//		__syncthreads();
+//		// If work has been retrieved, indicate this.
+//		if (THREAD_ID == 0) {
+//			if (OPENTILECOUNT > 0) {
+//				(*d_contBFS) = 1;
+//			}
+//			if (SCAN && WORKSCANRESULT == 0 && d_newstate_flags[BLOCK_ID] == 2) {
+//				// Scanning has completed and no new states were found by this block.
+//				// Save this information to prevent unnecessary scanning later on.
+//				d_newstate_flags[BLOCK_ID] = 0;
+//			}
+//			else {
+//				WORKSCANRESULT = 0;
+//			}
+//		}
+//		if (OPENTILECOUNT > opentile_scan_start) {
+//			// Fill the cache with the newly added vector trees referred to in the work tile.
+//			// Create a cooperative group within a warp in which the thread resides.
+//			thread_block_tile<VECTOR_GROUP_SIZE> gtile = tiled_partition<VECTOR_GROUP_SIZE>(this_thread_block());
+//
+//			#pragma unroll
+//			for (i = VECTOR_GROUP_ID; i < (OPENTILECOUNT-opentile_scan_start); i += NR_VECTOR_GROUPS_PER_BLOCK) {
+//				l = FETCH(gtile, d_q, d_q_i, shared[OPENTILEOFFSET+opentile_scan_start+i]);
+//				if (l == CACHE_FULL) {
+//					// PLAN B?
+//				}
+//				else {
+//					sh_index = (shared_indextype) l;
+//				}
+//				if (gtile.thread_rank() == 0) {
+//					// Store the address to the tree in the cache in the work tile.
+//					shared[OPENTILEOFFSET+opentile_scan_start+i] = sh_index;
+//				}
+//			}
+//		}
+//		__syncthreads();
+//		GENERATE_SUCCESSORS();
+//		bool performed_work = OPENTILECOUNT != 0;
+//		__syncthreads();
+//		// Reset the work tile count
+//		if (THREAD_ID == 0) {
+//			OPENTILECOUNT = 0;
+//		}
+//		// Start scanning the local cache and write results to the global hash table.
+//		if (performed_work) {
+//			FINDORPUT_MANY(d_q, d_q_i, d_newstate_flags);
+//		}
+//		__syncthreads();
+//		// Write 'empty' pointers to unused part of the work tile.
+//		if (THREAD_ID < OPENTILELEN - OPENTILECOUNT) {
+//			shared[OPENTILEOFFSET+OPENTILECOUNT+THREAD_ID] = EMPTYVECT32;
+//		}
+//		// Ready to start next iteration, if error has not occurred.
+//		if (THREAD_ID == 0) {
+//			if (CONTINUE == 2) {
+//				(*d_contBFS) = 2;
+//				ITERATIONS = d_kernel_iters;
+//			}
+//			else {
+//				ITERATIONS++;
+//			}
+//			CONTINUE = 1;
+//		}
+//		__syncthreads();
+//	}
+//	// Done. Copy the work tile to global memory.
+//	if (THREAD_ID < OPENTILELEN+LASTSEARCHLEN) {
+//		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = shared[OPENTILEOFFSET+THREAD_ID];
+//	}
+//	if (THREAD_ID == 0) {
+//		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = OPENTILECOUNT;
+//	}
 }
 
 /**
@@ -475,7 +469,7 @@ int main(int argc, char** argv) {
 	fprintf (stdout, "Internal global mem hash table size: %lu; Number of entries: %lu\n", internal_hash_table_size*sizeof(nodetype), internal_hash_table_size);
 
 	shared_inttype shared_cache_size = (shared_inttype) prop.sharedMemPerMultiprocessor / sizeof(shared_inttype) / 2;
-	fprintf (stdout, "Shared mem work tile size: 128\n");
+	fprintf (stdout, "Shared mem work tile size: 256\n");
 	fprintf (stdout, "Shared mem cache size: %u; Number of entries: %u\n", (uint32_t) (shared_cache_size*sizeof(shared_inttype)), (uint32_t) shared_cache_size*3);
 	fprintf (stdout, "Nr. of blocks: %d; Block size: 512; Nr. of kernel iterations: %d\n", nblocks, kernel_iters);
 
@@ -487,15 +481,25 @@ int main(int argc, char** argv) {
 
 	// Initialise the hash table.
 	init_hash_table<<<NR_BLOCKS, 512>>>(d_q, d_q_i);
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	fprintf(stdout, "here2!\n");
 	CUDA_CHECK_FOR_ERROR(0);
 	store_initial_state<<<1, 512, shared_cache_size * sizeof(shared_inttype)>>>(d_q, d_q_i, d_newstate_flags, d_worktiles);
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	fprintf(stdout, "here2!\n");
 
 	compressed_nodetype *q_test;
 	nodetype *q_i_test;
+	q_test = (compressed_nodetype*) malloc(sizeof(compressed_nodetype)*hash_table_size);
 	if (verbosity >= 3) {
-		q_test = (compressed_nodetype*) malloc(sizeof(compressed_nodetype)*hash_table_size);
 		q_i_test = (nodetype*) malloc(sizeof(nodetype)*internal_hash_table_size);
 	}
+	// Debug: Print elements in d_q.
+	cudaMemcpy(q_test, d_q, 10 * sizeof(compressed_nodetype), cudaMemcpyDeviceToHost);
+	for (i = 0; i < 10; i++) {
+		fprintf(stdout, "Node %x.\n", q_test[i]);
+	}
+	exit(0);
 
 	uint32_t iterations_counter = 0;
 	uint8_t scan = 1;
@@ -508,11 +512,13 @@ int main(int argc, char** argv) {
 	while (contBFS == 1) {
 		CUDA_CHECK_RETURN(cudaMemset(d_contBFS, 0, sizeof(uint8_t)));
 		// TODO: change nr of blocks back to nblocks
-		gather<<<nblocks, 512, shared_cache_size * sizeof(shared_inttype)>>>(d_q, d_q_i, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
+		gather<<<1, 512, shared_cache_size * sizeof(shared_inttype)>>>(d_q, d_q_i, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
 
 		// Copy progress result.
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+		fprintf(stdout, "here!\n");
 		CUDA_CHECK_RETURN(cudaMemcpy(&contBFS, d_contBFS, sizeof(uint8_t), cudaMemcpyDeviceToHost));
+		fprintf(stdout, "here!\n");
 		// if (check_property > 0) {
 		// }
 		if (verbosity > 0) {

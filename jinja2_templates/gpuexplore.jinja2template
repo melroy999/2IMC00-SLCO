@@ -152,7 +152,7 @@ const size_t Mb = 1<<20;
 #define OPENTILE_WARP_WIDTH			{{nr_warps_per_tile}}
 
 // Error value to indicate a full global hash table.
-{% if nr_bits_address_root < 32 %}
+{% if nr_bits_address_root <= 32 %}
 #define HASHTABLE_FULL 				0xFFFFFFFF
 {% else %}
 #define HASHTABLE_FULL 				0xFFFFFFFFFFFFFFFF
@@ -405,7 +405,7 @@ inline __device__ bool cached_node_is_required(shared_inttype pointers) {
 
 {% endif %}
 // Filter the bookkeeping bit values from the given node.
-inline __device__ nodetype filter_bookkeeping(nodetype node) {
+inline __device__ __host__ nodetype filter_bookkeeping(nodetype node) {
 {% if vectorsize <= 30 %}
 	return node & 0x3FFFFFFF;
 {% else %}
@@ -599,6 +599,27 @@ inline __device__ indextype get_pointer_from_vectortree_node(nodetype node, bool
 	return result;
 }
 
+{% if compact_hash_table %}
+// Functions to collapse and expand 64-bit nodes to/from {{2*nr_bits_address_internal}}-bit nodes.
+
+// Create a node in which the two pointers in the given node are stored each in {{nr_bits_address_internal}} bits.
+// Precondition: the two pointers fit in {{nr_bits_address_internal}} bits each, and are stored in the input each in 31 bits.
+inline __device__ nodetype collapse(nodetype node) {
+	nodetype newnode = filter_bookkeeping(node);
+	newnode = (newnode >> 31) << {{nr_bits_address_internal}};
+	newnode = newnode | (node & {{(((nr_bits_address_internal)|pow2)-1)|hexa}});
+	return newnode;
+}
+
+// Create a node in which the two pointers in the given node are stored each in 31 bits.
+// Precondition: the two pointers in the input are stored in {{nr_bits_address_internal}} bits each.
+inline __device__ __host__ nodetype expand(nodetype node) {
+	nodetype newnode = (node >> {{nr_bits_address_internal}}) << 31;
+	newnode = newnode | (node & {{(((nr_bits_address_internal)|pow2)-1)|hexa}});
+	return newnode;
+}
+
+{% endif %}
 // Function to traverse one step in state vector tree (stored in global memory).
 inline __device__ nodetype direct_sv_step(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i{% endif %}, nodetype node, bool goright) {
 	indextype index = get_pointer_from_vectortree_node(node, goright);
@@ -621,7 +642,7 @@ inline __host__ indextype host_get_pointer_from_vectortree_node(nodetype node, b
 
 // Host (CPU) version of direct_sv_step.
 inline __host__ nodetype host_direct_sv_step(compressed_nodetype *q{% if compact_hash_table %}, nodetype *q_i{% endif %}, nodetype node, bool goright{% if vectorsize > 62 %}, FILE* stream, bool print_pointers{% endif %}) {
-	indextype index = host_get_pointer_from_vectortree_node(node, goright);
+	indextype index = host_get_pointer_from_vectortree_node({% if compact_hash_table %}expand(node){% else %}node{% endif %}, goright);
 	{% if not compact_hash_table %}
 	{% if vectorsize > 62 %}
 	if (print_pointers) {
@@ -698,27 +719,6 @@ inline __device__ bool vectortree_node_contains_right_gap(nodetype node) {
 	return (node & {{((31|pow2)-1)|hexa}}) == {{((31|pow2)-1)|hexa}};
 }
 
-{% if compact_hash_table %}
-// Functions to collapse and expand 64-bit nodes to/from {{2*nr_bits_address_internal}}-bit nodes.
-
-// Create a node in which the two pointers in the given node are stored each in {{nr_bits_address_internal}} bits.
-// Precondition: the two pointers fit in {{nr_bits_address_internal}} bits each, and are stored in the input each in 31 bits.
-inline __device__ nodetype collapse(nodetype node) {
-	nodetype newnode = filter_bookkeeping(node);
-	newnode = (newnode >> 31) << {{nr_bits_address_internal}};
-	newnode = newnode | (node & {{(((nr_bits_address_internal)|pow2)-1)|hexa}});
-	return newnode;
-}
-
-// Create a node in which the two pointers in the given node are stored each in 31 bits.
-// Precondition: the two pointers in the input are stored in {{nr_bits_address_internal}} bits each.
-inline __device__ nodetype expand(nodetype node) {
-	nodetype newnode = (node >> {{nr_bits_address_internal}}) << 31;
-	newnode = newnode | (node & {{(((nr_bits_address_internal)|pow2)-1)|hexa}});
-	return newnode;
-}
-
-{% endif %}
 {% endif %}
 // Cache hash function.
 inline __device__ shared_indextype CACHE_HASH(nodetype node) {
@@ -2325,7 +2325,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 	indextype addr;
 	nodetype element;
 	shared_inttype shared_addr;
-	e1 = HASH_INIT(filter_bookkeeping(node){% if compact_hash_table %}, is_root{% endif %});
+	e1 = HASH_INIT({% if compact_hash_table %}node{% else %}filter_bookkeeping(node){% endif %}{% if compact_hash_table %}, is_root{% endif %});
 	{% if vectorsize > 62 and not compact_hash_table %}
 	if (is_root(node)) {
 		node = mark_new(node);
@@ -3341,7 +3341,7 @@ inline __device__ void GENERATE_SUCCESSORS() {
 	{% if no_regsort %}
 	shared_indextype entry_state_id;
 	{% endif %}
-	{% if vectorsize > 30 %}
+	{% if vectorsize > 62 %}
 	shared_inttype src_state;
 	{% endif %}
 	{% if gpuexplore2_succdist %}

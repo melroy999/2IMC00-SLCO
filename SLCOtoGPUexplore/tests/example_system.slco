@@ -1,9 +1,8 @@
 model Test {
-  actions a
   classes
   P {
     variables
-			Integer[7] x
+			Integer x y
 
     state machines
     REC1 {
@@ -12,11 +11,16 @@ model Test {
 
       transitions
       R0 -> R1 {
-        x[6] := 3
+        x := 1
       }
-      R1 -> R0 {
-        x[6] := 5
-      }
+    }
+    REC2 {
+      initial Q0 states Q1
+
+      transitions
+      Q0 -> Q1 {
+        x := 2
+      }    
     }
   }
   objects p: P()
