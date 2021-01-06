@@ -2841,7 +2841,7 @@ inline __host__ __device__ nodetype HT_RETRIEVE(compressed_nodetype *d_q, nodety
 }
 
 // Find or put a given vectortree node in the global hash table.
-inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *d_q_i, nodetype node, volatile uint8_t *d_newstate_flags, shared_indextype node_index, bool is_root, bool claim_work) {
+inline __device__ uint32_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *d_q_i, nodetype node, volatile uint8_t *d_newstate_flags, shared_indextype node_index, bool is_root, bool claim_work) {
 	nodetype e1;
 	nodetype e2;
 	compressed_nodetype compressed_node;
