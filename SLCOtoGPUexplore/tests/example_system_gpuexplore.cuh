@@ -3051,7 +3051,9 @@ __inline__ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q, nodetype *d_
 					else {
 						work_to_do = true;
 						counter++;
-						CONTINUE = 1;
+                        if (counter < 100) {
+                            CONTINUE = 1;
+                        }
 					}
 				}
 			}
