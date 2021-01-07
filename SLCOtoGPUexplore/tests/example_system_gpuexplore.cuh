@@ -108,7 +108,7 @@ const size_t Mb = 1<<20;
 // Empty root hash table element
 #define EMPTY_COMPRESSED_NODE		0xFFFFFFFF
 // Empty internal hash table element (exploits that an uncompressed internal vectornode always has its highest bit set to 0)
-#define EMPTY_NODE					0xFFFFFFFF
+#define EMPTY_NODE					0xFFFFFFFFFFFFFFFF
 
 // GPU shared memory array.
 extern __shared__ volatile shared_inttype shared[];
@@ -2923,7 +2923,7 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 			addr = get_index_internal(e2);
 			element = d_q_i[addr];
 			if (element == EMPTY_NODE) {
-				element = atomicCAS((unsigned long long *) &(d_q_i[addr]), EMPTY_NODE, (unsigned long long) node);
+				element = (nodetype) atomicCAS((unsigned long long *) &(d_q_i[addr]), EMPTY_NODE, (unsigned long long) node);
 				if (element == EMPTY_NODE) {
 //					// Successfully stored the node.
 					return addr;
