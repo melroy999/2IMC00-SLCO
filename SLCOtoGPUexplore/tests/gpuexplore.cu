@@ -463,10 +463,10 @@ int main(int argc, char** argv) {
 	CUDA_CHECK_RETURN(cudaMemset(d_counted_states, 0, sizeof(uint64_t)));
 
 	// We create a global compact hash table for 24 GB. A root table is created that has exactly 2^32 elements, and an internal table is created with 500 million elements.
-	hash_table_size = 4294967296;
-	cudaMalloc((void **)&d_q, hash_table_size * sizeof(compressed_nodetype));
 	internal_hash_table_size = 536870912;
 	cudaMalloc((void **)&d_q_i, internal_hash_table_size * sizeof(nodetype));
+	hash_table_size = 4294967296;
+	cudaMalloc((void **)&d_q, hash_table_size * sizeof(compressed_nodetype));
 
 	fprintf (stdout, "Global mem hash table size: %lu; Number of entries: %lu\n", hash_table_size*sizeof(compressed_nodetype),  hash_table_size);
 	fprintf (stdout, "Internal global mem hash table size: %lu; Number of entries: %lu\n", internal_hash_table_size*sizeof(nodetype), internal_hash_table_size);
