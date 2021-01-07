@@ -108,7 +108,7 @@ const size_t Mb = 1<<20;
 // Empty root hash table element
 #define EMPTY_COMPRESSED_NODE		0xFFFFFFFF
 // Empty internal hash table element (exploits that an uncompressed internal vectornode always has its highest bit set to 0)
-#define EMPTY_NODE					0xEFFFFFFFFFFFFFFF
+#define EMPTY_NODE					0xFFFFFFFFFFFFFFF
 
 // GPU shared memory array.
 extern __shared__ volatile shared_inttype shared[];
