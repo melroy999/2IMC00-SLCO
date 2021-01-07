@@ -2389,7 +2389,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 				element = atomicCAS({% if vectorsize > 30 %}(unsigned long long *) {% endif %}&(d_q[addr]), {% if vectorsize > 30 %}(unsigned long long) {% endif %}element, {% if vectorsize > 30 %}(unsigned long long) {% endif %}node);
 				if (element == EMPTY_NODE{% if vectorsize > 62 %}|| (filter_bookkeeping(node) == filter_bookkeeping(element) && !is_root(element)){% endif %}) {
 				{% else %}
-				if (atomicCAS((unsigned long long *) &(d_q_i[addr]), EMPTY_NODE, (unsigned long long) node) == EMPTY_NODE) {
+				if (atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node) == EMPTY_NODE) {
 				{% endif %}
 					// Successfully stored the node.
 				{% if not compact_hash_table and vectorsize > 62 %}
