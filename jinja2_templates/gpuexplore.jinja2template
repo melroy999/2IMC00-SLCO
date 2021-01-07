@@ -2315,7 +2315,7 @@ inline __host__ __device__ nodetype HT_RETRIEVE(compressed_nodetype *d_q{% if co
 }
 
 // Find or put a given vectortree node in the global hash table.
-inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{% endif %} FINDORPUT_SINGLE(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i{% endif %}, nodetype node, volatile uint8_t *d_newstate_flags{% if vectorsize > 62 %}, shared_indextype node_index{% endif %}{% if compact_hash_table %}, bool is_root{% endif %}, bool claim_work) {
+inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{% endif %} FINDORPUT_SINGLE(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, nodetype node, volatile uint8_t *d_newstate_flags{% if vectorsize > 62 %}, shared_indextype node_index{% endif %}{% if compact_hash_table %}, bool is_root{% endif %}, bool claim_work) {
 	nodetype e1;
 	{% if compact_hash_table %}
 	nodetype e2;
@@ -2390,6 +2390,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 				if (element == EMPTY_NODE{% if vectorsize > 62 %}|| (filter_bookkeeping(node) == filter_bookkeeping(element) && !is_root(element)){% endif %}) {
 				{% else %}
 				if (atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node) == EMPTY_NODE) {
+					(*d_dummy) = true;
 				{% endif %}
 					// Successfully stored the node.
 				{% if not compact_hash_table and vectorsize > 62 %}
@@ -2438,7 +2439,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 }
 
 // Find or put all new vectortree nodes stored in the shared memory cache into the global memory hash table.
-__device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i{% endif %}, volatile uint8_t *d_newstate_flags) {
+__device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, volatile uint8_t *d_newstate_flags) {
 	nodetype node;
 	indextype addr;
 	{% if not no_smart_fetching %}
@@ -2469,7 +2470,7 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 				if (cached_node_is_new_leaf(node_pointers)) {
 					node = combine_halfs(shared[CACHEOFFSET+(i*3)], shared[CACHEOFFSET+(i*3)+1]);
 					// Store node in hash table.
-					addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, node, d_newstate_flags{% if vectorsize > 62 %}, i{% endif %}{% if compact_hash_table %}, false{% endif %}, true);
+					addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, node, d_newstate_flags{% if vectorsize > 62 %}, i{% endif %}{% if compact_hash_table %}, false{% endif %}, true);
 					if (addr == HASHTABLE_FULL) {
 						CONTINUE = 2;
 					}
@@ -2506,7 +2507,7 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 					// Ready now?
 					if (!vectortree_node_contains_left_gap(node) && !vectortree_node_contains_right_gap(node)) {
 						// Store node in hash table.
-						addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, {% if compact_hash_table %}collapse(node){% else %}node{% endif %}, d_newstate_flags{% if vectorsize > 62 %}, i{% endif %}{% if compact_hash_table %}, is_root(node){% endif %}, true);
+						addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, {% if compact_hash_table %}collapse(node){% else %}node{% endif %}, d_newstate_flags{% if vectorsize > 62 %}, i{% endif %}{% if compact_hash_table %}, is_root(node){% endif %}, true);
 						if (addr == HASHTABLE_FULL) {
 							CONTINUE = 2;
 						}
@@ -2605,7 +2606,7 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 }
 
 // Kernel to store the initial state in the global memory hash table.
-__global__ void store_initial_state(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i{% endif %}, volatile uint8_t *d_newstate_flags, shared_inttype *d_worktiles) {
+__global__ void store_initial_state(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, volatile uint8_t *d_newstate_flags, shared_inttype *d_worktiles) {
 	// Reset the shared variables preceding the cache, and reset the cache.
 	if (THREAD_ID < SH_OFFSET) {
 		shared[THREAD_ID] = 0;
@@ -2622,7 +2623,7 @@ __global__ void store_initial_state(compressed_nodetype *d_q{% if compact_hash_t
 	__syncthreads();
 {{cuda_initial_vector}}
 	__syncthreads();
-	FINDORPUT_MANY(d_q{% if compact_hash_table %}, d_q_i{% endif %}, d_newstate_flags);
+	FINDORPUT_MANY(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags);
 	__syncthreads();
 	// Done. Copy the work tile to global memory.
 	if (THREAD_ID < OPENTILELEN+LASTSEARCHLEN) {

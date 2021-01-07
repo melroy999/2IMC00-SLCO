@@ -414,6 +414,8 @@ int main(int argc, char** argv) {
 	{% if compact_hash_table %}
 	// Internal node global hash table.
 	nodetype *d_q_i;
+	// Dummy flag to regulate writes to d_q_i.
+	bool *d_dummy;
 	{% endif %}
 
 	const char* help_text =
@@ -484,6 +486,9 @@ int main(int argc, char** argv) {
 	cudaMallocCount((void **) &d_counted_states, sizeof(uint64_t));
 	cudaMallocCount((void **) &d_newstate_flags, nblocks * sizeof(uint8_t));
 	cudaMallocCount((void **) &d_worktiles, nblocks * (OPENTILELEN+LASTSEARCHLEN+1) * sizeof(shared_inttype));
+	{% if compact_hash_table %}
+	cudaMallocCount((void **) &d_dummy, sizeof(bool));
+	{% endif %}
 
 	// Set data on the GPU to initial values.
 	CUDA_CHECK_RETURN(cudaMemset(d_contBFS, 1, sizeof(uint8_t)));
@@ -545,7 +550,7 @@ int main(int argc, char** argv) {
 	// Initialise the hash table.
 	init_hash_table<<<NR_BLOCKS, {{nrthreadsperblock}}>>>(d_q{% if compact_hash_table %}, d_q_i{% endif %});
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
-	store_initial_state<<<1, {{nrthreadsperblock}}, shared_cache_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i{% endif %}, d_newstate_flags, d_worktiles);
+	store_initial_state<<<1, {{nrthreadsperblock}}, shared_cache_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags, d_worktiles);
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 	compressed_nodetype *q_test;
@@ -570,7 +575,7 @@ int main(int argc, char** argv) {
 	while (contBFS == 1) {
 		CUDA_CHECK_RETURN(cudaMemset(d_contBFS, 0, sizeof(uint8_t)));
 		// TODO: change nr of blocks back to nblocks
-		gather<<<1, {{nrthreadsperblock}}, shared_cache_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i{% endif %}, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
+		gather<<<1, {{nrthreadsperblock}}, shared_cache_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
 
 		// Copy progress result.
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
