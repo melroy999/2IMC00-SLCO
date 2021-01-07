@@ -3,8 +3,8 @@
 using namespace cooperative_groups;
 
 // Structure of the state vector:
-// [ state p'REC2: 1 bit(s), state p'REC1: 1 bit(s), variable p'y: 32 bit(s), variable p'x: 29 bit(s) ],
-// Combined with a non-leaf vector tree node: [ variable p'x: 3 bit(s) ]
+// [ state p'REC1: 1 bit(s), state p'REC2: 1 bit(s), variable p'x: 32 bit(s), variable p'y: 29 bit(s) ],
+// Combined with a non-leaf vector tree node: [ variable p'y: 3 bit(s) ]
 
 // type of vectortree nodes used.
 #define nodetype uint64_t
@@ -639,7 +639,7 @@ inline __device__ shared_indextype store_global_address_stub(nodetype node, shar
 
 // GPU data retrieval functions. Retrieve particular state info from the given state vector part(s).
 // Precondition: the given parts indeed contain the requested info.
-inline __device__ void get_p_REC2(statetype *b, nodetype part1, nodetype part2) {
+inline __device__ void get_p_REC1(statetype *b, nodetype part1, nodetype part2) {
 	uint16_t t2;
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
@@ -649,7 +649,7 @@ inline __device__ void get_p_REC2(statetype *b, nodetype part1, nodetype part2) 
 	*b = (statetype) t2;
 }
 
-inline __device__ void get_p_REC1(statetype *b, nodetype part1, nodetype part2) {
+inline __device__ void get_p_REC2(statetype *b, nodetype part1, nodetype part2) {
 	uint16_t t2;
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
@@ -659,7 +659,7 @@ inline __device__ void get_p_REC1(statetype *b, nodetype part1, nodetype part2) 
 	*b = (statetype) t2;
 }
 
-inline __device__ void get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
+inline __device__ void get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
 		" bfe.u64 t1, %1, 29, 32;\n\t"
@@ -667,7 +667,7 @@ inline __device__ void get_p_y(elem_inttype *b, nodetype part1, nodetype part2) 
 	    "}" : "=r"(*b) : "l"(part1), "l"(part2));
 }
 
-inline __device__ void get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
+inline __device__ void get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
 		" bfe.u64 t1, %2, 25, 3;\n\t"
@@ -684,12 +684,12 @@ inline __device__ void get_current_state(statetype *b, shared_indextype node_ind
 		case 0:
 			part1 = get_vectorpart_0(node_index);
 			part2 = part1;
-			get_p_REC2(b, part1, part2);
+			get_p_REC1(b, part1, part2);
 			break;
 		case 1:
 			part1 = get_vectorpart_0(node_index);
 			part2 = part1;
-			get_p_REC1(b, part1, part2);
+			get_p_REC2(b, part1, part2);
 			break;
 		default:
 			break;
@@ -698,7 +698,7 @@ inline __device__ void get_current_state(statetype *b, shared_indextype node_ind
 
 // CPU data retrieval functions. Retrieve particular state info from the given state vector part(s).
 // Precondition: the given parts indeed contain the requested info.
-inline void host_get_p_REC2(statetype *b, nodetype part1, nodetype part2) {
+inline void host_get_p_REC1(statetype *b, nodetype part1, nodetype part2) {
 	nodetype t1 = part1;
 	// Strip away data beyond the requested data.
 	t1 = t1 & 0x7fffffffffffffff;
@@ -707,7 +707,7 @@ inline void host_get_p_REC2(statetype *b, nodetype part1, nodetype part2) {
 	*b = (statetype) t1;
 }
 
-inline void host_get_p_REC1(statetype *b, nodetype part1, nodetype part2) {
+inline void host_get_p_REC2(statetype *b, nodetype part1, nodetype part2) {
 	nodetype t1 = part1;
 	// Strip away data beyond the requested data.
 	t1 = t1 & 0x3fffffffffffffff;
@@ -716,7 +716,7 @@ inline void host_get_p_REC1(statetype *b, nodetype part1, nodetype part2) {
 	*b = (statetype) t1;
 }
 
-inline void host_get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
+inline void host_get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
 	nodetype t1 = part1;
 	// Strip away data beyond the requested data.
 	t1 = t1 & 0x1fffffffffffffff;
@@ -725,7 +725,7 @@ inline void host_get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
 	*b = (elem_inttype) t1;
 }
 
-inline void host_get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
+inline void host_get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
 	nodetype t1 = part1;
 	nodetype t2 = part2;
 	// Strip away data beyond the requested data.
@@ -744,35 +744,35 @@ inline void host_get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
 
 // GPU data update functions. Update particular state info in the given state vector part(s).
 // Precondition: the given part indeed needs to contain the indicated fragment (left or right in case the info is split over two parts) of the updated info.
-inline __device__ void set_left_p_REC2(nodetype *part, elem_booltype x) {
+inline __device__ void set_left_p_REC1(nodetype *part, elem_booltype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
 		" bfi.b64 %0, %1, %0, 62, 1;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_left_p_REC1(nodetype *part, elem_booltype x) {
+inline __device__ void set_left_p_REC2(nodetype *part, elem_booltype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
 		" bfi.b64 %0, %1, %0, 61, 1;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_left_p_y(nodetype *part, elem_inttype x) {
+inline __device__ void set_left_p_x(nodetype *part, elem_inttype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
 		" bfi.b64 %0, %1, %0, 29, 32;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_left_p_x(nodetype *part, elem_inttype x) {
+inline __device__ void set_left_p_y(nodetype *part, elem_inttype x) {
 	nodetype t1 = (nodetype) x >> 3;
 	asm("{\n\t"
 		" bfi.b64 %0, %1, %0, 0, 29;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_right_p_x(nodetype *part, elem_inttype x) {
+inline __device__ void set_right_p_y(nodetype *part, elem_inttype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
 		" bfi.b64 %0, %1, %0, 25, 3;\n\t"
@@ -2923,10 +2923,8 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 			addr = get_index_internal(e2);
 			element = d_q_i[addr];
 			if (element == EMPTY_NODE) {
-				if (atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node) == EMPTY_NODE) {
-				//if (element == EMPTY_NODE) {
+				if (atomicCAS((unsigned long long *) &(d_q_i[addr]), EMPTY_NODE, (unsigned long long) node) == EMPTY_NODE) {
 					// Successfully stored the node.
-					d_q_i[1000] = 0;
 					return addr;
 				}
 			}
@@ -3188,18 +3186,18 @@ inline __device__ uint32_t get_part_reachability(uint8_t tid, uint8_t level) {
 
 // Functions to obtain a bitmask for a given state machine state that indicates which vectorparts are of interest to process outgoing transitions
 // of that state.
-inline __device__ uint32_t get_part_bitmask_p_REC2(statetype sid) {
+inline __device__ uint32_t get_part_bitmask_p_REC1(statetype sid) {
 	switch (sid) {
 		case 0:
-			return 0xc0000000;
+			return 0x80000000;
 		default:
 			return 0;
 	}
 }
-inline __device__ uint32_t get_part_bitmask_p_REC1(statetype sid) {
+inline __device__ uint32_t get_part_bitmask_p_REC2(statetype sid) {
 	switch (sid) {
 		case 0:
-			return 0xc0000000;
+			return 0x80000000;
 		default:
 			return 0;
 	}
@@ -3211,10 +3209,10 @@ inline __device__ uint32_t get_part_bitmask_for_states_in_vectorpart(uint8_t pid
 	statetype s;
 	switch (pid) {
 		case 0:
-			get_p_REC2(&s, part1, part2);
-			result = result | get_part_bitmask_p_REC2(s);
 			get_p_REC1(&s, part1, part2);
 			result = result | get_part_bitmask_p_REC1(s);
+			get_p_REC2(&s, part1, part2);
+			result = result | get_part_bitmask_p_REC2(s);
 			return result;
 		case 1:
 			return result;
@@ -3827,70 +3825,10 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 //*** END FUNCTIONS FOR INTRA-WARP BITONIC MERGESORT ***
 
 // Exploration functions to traverse outgoing transitions of the various states.
-inline __device__ void explore_p_REC2(shared_indextype node_index) {
-	// Fetch the current state of the state machine.
-	statetype current;
-	get_current_state(&current, node_index, 0);
-	statetype target = NO_STATE;
-	nodetype part1, part2;
-	shared_inttype part_cachepointers;
-	switch (current) {
-		case 0:
-			{
-			// Allocate register memory to process transition(s).
-			elem_inttype buf32_0;
-			shared_indextype buf16_0;
-			
-			// Q0 --{ x := 2 }--> Q1
-			
-			// Statement computation.
-			target = 1;
-			buf32_0 = 2;
-			// Store new state vector in shared memory.
-			get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
-			// Store new values.
-			part2 = part1;
-			set_left_p_REC2(&part2, (statetype) target);
-			set_left_p_x(&part2, buf32_0);
-			if (part2 != part1) {
-				// This part has been altered. Store it in shared memory and remember address of new part.
-				part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-				buf16_0 = STOREINCACHE(part2, part_cachepointers);
-				if (buf16_0 == CACHE_FULL) {
-					// TODO: Plan B
-				}
-			}
-			else {
-				buf16_0 = EMPTY_CACHE_POINTER;
-			}
-			get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
-			// Store new values.
-			part2 = part1;
-			set_right_p_x(&part2, buf32_0);
-			if (buf16_0 != EMPTY_CACHE_POINTER) {
-				set_left_cache_pointer(&part_cachepointers, buf16_0);
-				reset_left_in_vectortree_node(&part2);
-			}
-			if (part2 != part1) {
-				// This part has been altered. Store it in shared memory and remember address of new part.
-				mark_root(&part2);
-				mark_cached_node_new_nonleaf(&part_cachepointers);
-				buf16_0 = STOREINCACHE(part2, part_cachepointers);
-				if (buf16_0 == CACHE_FULL) {
-					// TODO: Plan B
-				}
-			}
-			}
-			break;
-		default:
-			break;
-	}
-}
-
 inline __device__ void explore_p_REC1(shared_indextype node_index) {
 	// Fetch the current state of the state machine.
 	statetype current;
-	get_current_state(&current, node_index, 1);
+	get_current_state(&current, node_index, 0);
 	statetype target = NO_STATE;
 	nodetype part1, part2;
 	shared_inttype part_cachepointers;
@@ -3923,15 +3861,67 @@ inline __device__ void explore_p_REC1(shared_indextype node_index) {
 			else {
 				buf16_0 = EMPTY_CACHE_POINTER;
 			}
-			get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
-			// Store new values.
-			part2 = part1;
-			set_right_p_x(&part2, buf32_0);
 			if (buf16_0 != EMPTY_CACHE_POINTER) {
+				get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+				part2 = part1;
 				set_left_cache_pointer(&part_cachepointers, buf16_0);
 				reset_left_in_vectortree_node(&part2);
+				// This part has been altered. Store it in shared memory and remember address of new part.
+				mark_root(&part2);
+				mark_cached_node_new_nonleaf(&part_cachepointers);
+				buf16_0 = STOREINCACHE(part2, part_cachepointers);
+				if (buf16_0 == CACHE_FULL) {
+					// TODO: Plan B
+				}
 			}
+			}
+			break;
+		default:
+			break;
+	}
+}
+
+inline __device__ void explore_p_REC2(shared_indextype node_index) {
+	// Fetch the current state of the state machine.
+	statetype current;
+	get_current_state(&current, node_index, 1);
+	statetype target = NO_STATE;
+	nodetype part1, part2;
+	shared_inttype part_cachepointers;
+	switch (current) {
+		case 0:
+			{
+			// Allocate register memory to process transition(s).
+			elem_inttype buf32_0;
+			shared_indextype buf16_0;
+			
+			// Q0 --{ x := 2 }--> Q1
+			
+			// Statement computation.
+			target = 1;
+			buf32_0 = 2;
+			// Store new state vector in shared memory.
+			get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+			// Store new values.
+			part2 = part1;
+			set_left_p_REC2(&part2, (statetype) target);
+			set_left_p_x(&part2, buf32_0);
 			if (part2 != part1) {
+				// This part has been altered. Store it in shared memory and remember address of new part.
+				part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+				buf16_0 = STOREINCACHE(part2, part_cachepointers);
+				if (buf16_0 == CACHE_FULL) {
+					// TODO: Plan B
+				}
+			}
+			else {
+				buf16_0 = EMPTY_CACHE_POINTER;
+			}
+			if (buf16_0 != EMPTY_CACHE_POINTER) {
+				get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+				part2 = part1;
+				set_left_cache_pointer(&part_cachepointers, buf16_0);
+				reset_left_in_vectortree_node(&part2);
 				// This part has been altered. Store it in shared memory and remember address of new part.
 				mark_root(&part2);
 				mark_cached_node_new_nonleaf(&part_cachepointers);
@@ -3953,10 +3943,10 @@ inline __device__ void get_successors_of_sm(shared_indextype node_index, uint8_t
 	// explore the outgoing transitions of the current state of the state machine assigned to vgtid.
 	switch (vgtid) {
 		case 0:
-			explore_p_REC2(node_index);
+			explore_p_REC1(node_index);
 			break;
 		case 1:
-			explore_p_REC1(node_index);
+			explore_p_REC2(node_index);
 			break;
 		default:
 			break;
@@ -4004,20 +3994,20 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q, nodetype *q_
 			fprintf(stream, "At index %lu:\n", i);
 			p1 = &part0;
 			p2 = p1;
-			host_get_p_REC2(&e_st, *p1, *p2);
-			fprintf(stream, "state p'REC2: %u\n", (uint32_t) e_st);
-			p1 = &part0;
-			p2 = p1;
 			host_get_p_REC1(&e_st, *p1, *p2);
 			fprintf(stream, "state p'REC1: %u\n", (uint32_t) e_st);
 			p1 = &part0;
 			p2 = p1;
-			host_get_p_y(&e_i, *p1, *p2);
-			fprintf(stream, "variable p'y: %u\n", (uint32_t) e_i);
+			host_get_p_REC2(&e_st, *p1, *p2);
+			fprintf(stream, "state p'REC2: %u\n", (uint32_t) e_st);
 			p1 = &part0;
-			p2 = &part1;
+			p2 = p1;
 			host_get_p_x(&e_i, *p1, *p2);
 			fprintf(stream, "variable p'x: %u\n", (uint32_t) e_i);
+			p1 = &part0;
+			p2 = &part1;
+			host_get_p_y(&e_i, *p1, *p2);
+			fprintf(stream, "variable p'y: %u\n", (uint32_t) e_i);
 			fprintf(stream, "-----\n");
 		}
 	}
