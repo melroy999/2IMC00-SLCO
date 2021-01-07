@@ -1137,7 +1137,7 @@ inline __device__ indextype FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype 
 			element = d_q[addr];
 			if (element == EMPTY_NODE || (filter_bookkeeping(node) == filter_bookkeeping(element) && is_root(node) && !is_root(element))) {
 				element = atomicCAS((unsigned long long *) &(d_q[addr]), (unsigned long long) element, (unsigned long long) node);
-				if (element == EMPTY_NODE|| (filter_bookkeeping(node) == filter_bookkeeping(element) && !is_root(element))) {
+				if (element == EMPTY_NODE) {
 					// Successfully stored the node.
 					if (is_root(node)) {
 						// Try to claim the vector for future work. For this, try to increment the OPENTILECOUNT counter.
