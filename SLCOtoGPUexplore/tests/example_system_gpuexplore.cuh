@@ -2923,7 +2923,7 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 			addr = get_index_internal(e2);
 			element = d_q_i[addr];
 			if (element == EMPTY_NODE) {
-				element = atomicCAS(&(d_q_i[addr]), EMPTY_NODE, node);
+				element = atomicCAS((unsigned long *) &(d_q_i[addr]), EMPTY_NODE, (unsigned long) node);
 				if (element == EMPTY_NODE) {
 //					// Successfully stored the node.
 					return addr;
