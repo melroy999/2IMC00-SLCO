@@ -2933,7 +2933,7 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 //				// The node is already stored.
 //				return addr;
 //			}
-			return 20;
+			return addr;
 		}
 	}
 	// Error: hash table considered full.
