@@ -2919,9 +2919,9 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 			}
 		}
 		else {
-//			e2 = HASH(i, e1, false);
-//			addr = get_index_internal(e2);
-			element = d_q_i[20];
+			e2 = HASH(i, e1, false);
+			addr = get_index_internal(e2);
+			element = d_q_i[addr];
 //			if (element == EMPTY_NODE) {
 				element = atomicCAS((unsigned long long *) &(d_q_i[20]), (unsigned long long) element, (unsigned long long) node);
 //				if (element == EMPTY_NODE) {
