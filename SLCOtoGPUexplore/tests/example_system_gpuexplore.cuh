@@ -2926,7 +2926,7 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 				if (atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node) == EMPTY_NODE) {
 				//if (element == EMPTY_NODE) {
 					// Successfully stored the node.
-					d_q_i[1000] = 0;
+					//d_q_i[1000] = 0;
 					return addr;
 				}
 			}
