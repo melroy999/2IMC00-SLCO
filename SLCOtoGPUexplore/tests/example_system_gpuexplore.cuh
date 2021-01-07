@@ -2924,10 +2924,11 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 			element = d_q_i[addr];
 			if (element == EMPTY_NODE) {
 				element = atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node);
-				if (element == EMPTY_NODE) {
+				//if (element == EMPTY_NODE) {
 					// Successfully stored the node.
+					d_q_i[1000] = element;
 					return addr;
-				}
+				//}
 			}
 			if (element == node) {
 				// The node is already stored.

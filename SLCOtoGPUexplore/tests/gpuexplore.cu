@@ -533,6 +533,7 @@ int main(int argc, char** argv) {
 				cudaMemcpy(q_test, d_q, hash_table_size * sizeof(compressed_nodetype), cudaMemcpyDeviceToHost);
 				cudaMemcpy(q_i_test, d_q_i, internal_hash_table_size * sizeof(nodetype), cudaMemcpyDeviceToHost);
 				print_content_hash_table(stdout, q_test, q_i_test, hash_table_size, internal_hash_table_size, true);
+				fprintf(stdout, "Seen value:%lu\n", q_i_test[1000]);
 			}
 		}
 		scan = 1;
