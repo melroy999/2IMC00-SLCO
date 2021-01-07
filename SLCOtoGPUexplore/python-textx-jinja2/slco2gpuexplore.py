@@ -3318,7 +3318,7 @@ def preprocess():
 	if vectorsize > 30:
 		intsize = 62
 	if compact_hash_table:
-		intsize += 2
+		intsize += 1
 	vp_id = 0
 	state_nr = 0
 	while stateelements != set([]) or dataelements != set([]):
