@@ -2919,20 +2919,21 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 			}
 		}
 		else {
-			e2 = HASH(i, e1, false);
-			addr = get_index_internal(e2);
-			element = d_q_i[addr];
-			if (element == EMPTY_NODE) {
-				element = atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node);
-				if (element == EMPTY_NODE) {
-					// Successfully stored the node.
-					return addr;
-				}
-			}
-			if (element == node) {
-				// The node is already stored.
-				return addr;
-			}
+//			e2 = HASH(i, e1, false);
+//			addr = get_index_internal(e2);
+//			element = d_q_i[addr];
+//			if (element == EMPTY_NODE) {
+//				element = atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node);
+//				if (element == EMPTY_NODE) {
+//					// Successfully stored the node.
+//					return addr;
+//				}
+//			}
+//			if (element == node) {
+//				// The node is already stored.
+//				return addr;
+//			}
+			return 20;
 		}
 	}
 	// Error: hash table considered full.
