@@ -2874,7 +2874,7 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 	compressed_nodetype compressed_node;
 	compressed_nodetype compressed_element;
 	indextype addr;
-	nodetype element;
+	nodetype element, element2;
 	shared_inttype shared_addr;
 	e1 = HASH_INIT(node, is_root);
 	#pragma unroll
@@ -2923,8 +2923,8 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 			addr = get_index_internal(e2);
 			element = d_q_i[addr];
 			if (element == EMPTY_NODE) {
-				if (atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node) == EMPTY_NODE) {
-				//if (element == EMPTY_NODE) {
+				element2 = atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node);
+				if (element == element2) {
 					// Successfully stored the node.
 					//d_q_i[1000] = 0;
 					return addr;
