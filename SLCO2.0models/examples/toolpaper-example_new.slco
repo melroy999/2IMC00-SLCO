@@ -10,15 +10,17 @@ model Test {
     C1 {
       variables
         Boolean started := False      
-      initial Com0 states Com1 Com2 SimpleState0 SimpleState1
+      initial Com0 states Com1 Com2
 
       transitions
-      Com0 -> SimpleState0 {
-        sa
+      Com0 -> Com1 {
+        sa; 
+        started := true
       }
       
-      Com1 -> SimpleState1 {
-        [x > 0; x := x - 1; y := y + 1]
+      Com1 -> Com1 {
+        [x > 0; x := x - 1; y := y + 1]; 
+        sa
       }
       
       1: Com1 -> Com2 {
@@ -28,16 +30,8 @@ model Test {
       Com2 -> Com0 {
         init
       }
-      
-      SimpleState0 -> Com1 {
-        started := true
-      }
-      
-      SimpleState1 -> Com1 {
-        sa
-      }
     }
   }
-  objects q: Q(x := 10, y := 0)
+  objects q: Q(x := 10y := 0)
 
 }
