@@ -901,7 +901,7 @@ inline __device__ void get_{{s|replace("[","_")|replace("]","")|replace("'","_")
 		" bfe.u{% if vectorsize < 31 %}32{% else %}64{% endif %} t1, %1, {{vectorelem_in_structure_map[s][1][1]}}, {{vectorelem_in_structure_map[s][1][2]}};\n\t"
 {% else %}
 		" bfe.u{% if vectorsize < 31 %}32{% else %}64{% endif %} t1, %2, {{vectorelem_in_structure_map[s][2][1]}}, {{vectorelem_in_structure_map[s][2][2]}};\n\t"
-		" bfi.b{% if vectorsize < 31 %}32{% else %}64{% endif %} t1, %1, t1, 0, {{vectorelem_in_structure_map[s][1][2]}};\n\t"
+		" bfi.b{% if vectorsize < 31 %}32{% else %}64{% endif %} t1, %1, t1, {{vectorelem_in_structure_map[s][2][2]}}, {{vectorelem_in_structure_map[s][1][2]}};\n\t"
 {% endif %}
 		" cvt.u{% if size < 32 %}16{% else %}32{% endif %}.u{% if vectorsize < 31 %}32{% else %}64{% endif %} %0, t1;\n\t"
 	    "}" : "={% if size < 16 %}h"(t2){% else %}r"(*b){% endif %} : "{% if vectorsize <= 30 %}r{% else %}l{% endif %}"(part1), "{% if vectorsize <= 30 %}r{% else %}l{% endif %}"(part2));
