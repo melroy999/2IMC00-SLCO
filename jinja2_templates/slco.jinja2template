@@ -27,7 +27,7 @@ model {{model.name}} {
     {% endfor %}
   }
 {% endfor %}
-{% for o in model.objects %}{{'  objects ' if loop.first }}{{', ' if not loop.first }}{{o.name}}: {{o.type.name}}({% for s in o.assignments %}{{s.left.name}} := {% if s.right != None %}{{s.right}}{% else %}{{s.rights}}{% endif %}{% endfor %}){% endfor %}
+{% for o in model.objects %}{{'  objects ' if loop.first }}{{', ' if not loop.first }}{{o.name}}: {{o.type.name}}({% for s in o.assignments %}{% if not loop.first %}, {% endif %}{{s.left.name}} := {% if s.right != None %}{{s.right}}{% else %}{{s.rights}}{% endif %}{% endfor %}){% endfor %}
 
 {% if model.channels|length > 0 %}  channels{% endif %}
 
