@@ -32,6 +32,6 @@ model Test {
       }
     }
   }
-  objects q: Q(x := 10, y := 0)
+  objects q: Q(x := 10y := 0)
 
 }
