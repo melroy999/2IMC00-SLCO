@@ -1541,7 +1541,7 @@ def cudastatement(s,indent,o,D,sender_o='',sender_sm='',senderparams=[]):
 
 def cudafetchdata(s, indent, o, D, unguarded, resetfetched):
 	"""Produce CUDA code to fetch the necessary data from the shared memory cache into thread register variables for the processing
-	of statement s in Object o. M is a mapping from SLCO variables to register buffer variables. only_unguarded indicates whether or not
+	of statement s in Object o. M is a mapping from SLCO variables to register buffer variables. unguarded indicates whether or not
 	only values for unguarded variables must be fetched. If not, then all guarded variables are fetched, assuming that the unguarded
 	ones have already been fetched. If resetfetched, set the fetched variables to initial values."""
 	global connected_channel, signalsize, fetched, vectorsize
@@ -1595,7 +1595,9 @@ def cudafetchdata(s, indent, o, D, unguarded, resetfetched):
 				output += "// Fetch values of unguarded variables.\n" + indentspace
 			else:
 				output += "// Fetch values of guarded variables.\n" + indentspace
+		# are we considering the first vector part accessed by this statement?
 		vpfirst = True
+		# are we accessing the first variable from the current vector part for this statement?
 		first = True
 		if resetfetched:
 			fetched = {0: -1, 1: -1}
@@ -1623,8 +1625,10 @@ def cudafetchdata(s, indent, o, D, unguarded, resetfetched):
 								elif VP[i] == fetched[1]:
 									fetched[0] = fetched[1]
 									output += "part1 = part2\n" + indentspace
-							if (not vpfirst) and first:
-								output += "part1 = part2\n;" + indentspace
+							if (not vpfirst) and VP[i] != fetched[0]:
+								# we have already fetched part VP[i] as the second part (part2) in the previous iteration.
+								fetched[0] = fetched[1]
+								output += "part1 = part2;\n" + indentspace
 							if i+1 < len(VP):
 								if VP[i+1] != fetched[0] and VP[i+1] != fetched[1]:
 									fetched[1] = VP[i+1]
