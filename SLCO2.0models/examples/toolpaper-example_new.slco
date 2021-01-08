@@ -1,0 +1,43 @@
+model Test {
+  actions init sa ra
+  classes
+  Q {
+    variables
+      Integer x y    
+    
+
+    state machines
+    C1 {
+      variables
+        Boolean started := False      
+      initial Com0 states Com1 Com2 SimpleState0 SimpleState1
+
+      transitions
+      Com0 -> SimpleState0 {
+        sa
+      }
+      
+      Com1 -> SimpleState1 {
+        [x > 0; x := x - 1; y := y + 1]
+      }
+      
+      1: Com1 -> Com2 {
+        ra
+      }
+      
+      Com2 -> Com0 {
+        init
+      }
+      
+      SimpleState0 -> Com1 {
+        started := true
+      }
+      
+      SimpleState1 -> Com1 {
+        sa
+      }
+    }
+  }
+  objects q: Q(x := 10, y := 0)
+
+}

@@ -2261,19 +2261,19 @@ inline __host__ __device__ uint8_t get_hash_id_root(compressed_nodetype n) {
 // Reconstruct uncompressed root vectortree node from the given compressed root vectortree node and the address at which it is stored in the global memory hash table.
 inline __host__ __device__ nodetype get_uncompressed_node_root(compressed_nodetype n, indextype i) {
 	nodetype e = (nodetype) i;
-	printf("Intermediate value 1: %lu.\n", e);
+	//printf("Intermediate value 1: %lu.\n", e);
 	e = (e << {{(2*nr_bits_address_internal)-nr_bits_address_root}});
-	printf("Intermediate value 2: %lu.\n", e);
+	//printf("Intermediate value 2: %lu.\n", e);
 	// Obtain hash function ID.
 	uint8_t hid = get_hash_id_root(n);
 	// Remove five bits for hash function ID + one for 'new' flag.
 	e |= (nodetype) (n & 0x03FFFFFF);
-	printf("Intermediate value 3: %lu.\n", e);
+	//printf("Intermediate value 3: %lu.\n", e);
 	// Retrieve uncompressed node and return it.
 	e = RHASH_INVERSE(hid, e);
-	printf("Intermediate value 4: %lu.\n", e);	
+	//printf("Intermediate value 4: %lu.\n", e);	
 	e = RHASH_INIT_INVERSE(e);
-	printf("Intermediate value 5: %lu.\n", e);		
+	//printf("Intermediate value 5: %lu.\n", e);		
 	return e;
 }
 
@@ -2390,6 +2390,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 				if (element == EMPTY_NODE{% if vectorsize > 62 %}|| (filter_bookkeeping(node) == filter_bookkeeping(element) && !is_root(element)){% endif %}) {
 				{% else %}
 				if (atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node) == EMPTY_NODE) {
+					// This write is performed to fix a problem that causes the program to hang.
 					(*d_dummy) = true;
 				{% endif %}
 					// Successfully stored the node.
@@ -2427,6 +2428,10 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 				}
 			}
 			if ({% if not compact_hash_table %}filter_bookkeeping({% endif %}element{% if not compact_hash_table %}){% endif %} == {% if not compact_hash_table %}filter_bookkeeping({% endif %}node{% if not compact_hash_table %}){% endif %}) {
+				{% if compact_hash_table %}
+				// This write is performed to fix a problem that causes the program to hang.
+				(*d_dummy) = true;
+				{% endif %}
 				// The node is already stored.
 				return addr;
 			}
