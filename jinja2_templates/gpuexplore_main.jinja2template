@@ -19,10 +19,6 @@
        __typeof__ (b) _b = (b); \
      _a > _b ? _a : _b; })
 
-// test macros
-#define PRINTTHREADID()						{printf("Hello thread %d\n", (blockIdx.x*blockDim.x)+threadIdx.x);}
-#define PRINTTHREAD(j, i)					{printf("%d: Seen by thread %d: %d\n", (j), (blockIdx.x*blockDim.x)+threadIdx.x, (i));}
-
 /**
  * This macro checks return value of the CUDA runtime call and exits
  * the application if the call failed.

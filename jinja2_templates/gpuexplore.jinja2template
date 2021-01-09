@@ -2,6 +2,10 @@
 #include <cooperative_groups.h>
 using namespace cooperative_groups;
 
+// test macros
+#define PRINTTHREADID()						{printf("Hello thread %d\n", (blockIdx.x*blockDim.x)+threadIdx.x);}
+#define PRINTTHREAD(j, i)					{printf("%d: Seen by thread %d: %d\n", (j), (blockIdx.x*blockDim.x)+threadIdx.x, (i));}
+
 // Structure of the state vector:
 // {{vectorstructure_string}}
 
@@ -754,7 +758,7 @@ inline __device__ shared_indextype STOREINCACHE(nodetype node, shared_inttype ca
 	addr = CACHE_HASH(node);
 	while (i < CACHERETRYFREQ) {
 		element = atomicCAS((shared_inttype *) &(shared[CACHEOFFSET+{% if vectorsize > 62 %}(addr*3){% else %}addr{% endif %}]), {% if vectorsize > 30 and vectorsize <= 62 %}(unsigned long long) {% endif %}EMPTYVECT{% if vectorsize <= 30 or vectorsize > 62 %}32{% else %}64{% endif %}, {% if vectorsize <= 62 %}node{% else %}part1{% endif %});
-		if (element == EMPTYVECT{% if vectorsize <= 30 or vectorsize > 62 %}32{% else %}64{% endif %} || element == {% if vectorsize <= 62 %}node{% else %}part1{% endif %}) {
+		if (element == EMPTYVECT{% if vectorsize <= 30 or vectorsize > 62 %}32{% else %}64{% endif %} || {% if vectorsize < 63 %}filter_bookkeeping(element){% else %}element{% endif %} == {% if vectorsize < 63 %}filter_bookkeeping(node){% else %}part1{% endif %}) {
 			// Successful storage.
 			{% if vectorsize > 62 %}
 			element = atomicCAS((shared_inttype *) &(shared[CACHEOFFSET+{% if vectorsize > 62 %}(addr*3){% else %}addr{% endif %}+1]), EMPTYVECT32, part2);
@@ -790,14 +794,9 @@ inline __device__ shared_indextype STOREINCACHE(nodetype node, shared_inttype ca
 		}
 		else {
 			// Storage of node after all not successful. Try another address.
-			{% if vectorsize < 31 %}
+			{% if vectorsize < 63 %}
 			addr++;
 			if (addr >= d_shared_cache_size) {
-				addr = 0;
-			}
-			{% elif vectorsize < 63 %}
-			addr += 2;
-			if (addr+1 >= d_shared_cache_size) {
 				addr = 0;
 			}
 			{% else %}
