@@ -3102,7 +3102,11 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 	
 	// Load the tile {% if vectorsize > 62 %}indices{% else %}elements{% endif %}.
 	{% for i in range(0,regsort_nr_el_per_thread) %}
-	{% if loop.last %}
+	{% if i*warpsize > tilesize %}
+	p{{i}} = EMPTYVECT16;
+	s{{i}} = NO_STATE;
+	{% else %}
+	{% if (i*warpsize)+32 > tilesize %}
 	if ({{i*warpsize}}+LANE < OPENTILELEN) {
 		{% if vectorsize > 62 %}
 		asm("{\n\t"
@@ -3142,6 +3146,7 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 	}
 	{% if vectorsize > 62 %}
 	p{{i}} = {{i*warpsize}}+LANE;
+	{% endif %}
 	{% endif %}
 	{% endif %}
 	{% endfor %}

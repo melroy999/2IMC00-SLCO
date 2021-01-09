@@ -585,7 +585,7 @@ def vectorstructure_to_string(D):
 		if nr_of_parts == 1 or ((not compact_hash_table) and vectorstructure_part_size(t) > (64-2-nr_bits_address_root())):
 			vs += "[ two bits reserved, "
 		elif nr_of_parts > 1 and (compact_hash_table and vectorstructure_part_size(t) > nr_bits_address_internal()):
-			vs += "[ "
+			vs += "[ one bit reserved, "
 		else:
 			vs += "Combined with a non-leaf vector tree node: [ "
 		first = True
@@ -3446,7 +3446,7 @@ def preprocess():
 				else:
 					newpos = 0
 					if compact_hash_table:
-						newpos = 58-nr_bits_address_internal()-(64-PIDs[i][1])
+						newpos = 58-nr_bits_address_internal()-(63-PIDs[i][1])
 					else:
 						newpos = 62-nr_bits_address_root()-(62-PIDs[i][1])
 					newPIDslist.append((PIDs[i][0], newpos, PIDs[i][2]))
