@@ -789,7 +789,7 @@ inline __device__ shared_indextype STOREINCACHE(nodetype node, shared_inttype ca
 				continue;
 			}
 			{% else %}
-			return (shared_inttype) addr;
+			return (shared_indextype) addr;
 			{% endif %}
 		}
 		else {
@@ -3394,6 +3394,7 @@ inline __device__ void GENERATE_SUCCESSORS() {
 // *** START PRINT FUNCTIONS ***
 
 void print_content_hash_table(FILE* stream, compressed_nodetype *q{% if compact_hash_table %}, nodetype *q_i, uint64_t q_size, uint64_t q_i_size{% else %}, indextype q_size{% endif %}{% if vectorsize > 62 %}, bool print_pointers{% endif %}) {
+	uint64_t counter = 0;
 	fprintf(stream, "BEGIN HASH TABLE CONTENTS.\n");
 	for ({% if compact_hash_table %}uint64_t{% else %}indextype{% endif %} i = 0; i < q_size; i++) {
 		{% if not compact_hash_table and vectorsize > 63 %}
@@ -3401,6 +3402,7 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q{% if compact_
 		{% else %}
 		if (q[i] != {% if compact_hash_table %}EMPTY_COMPRESSED_NODE{% else %}EMPTY_NODE{% endif %}) {
 		{% endif %}
+			counter++;
 			// Retrieve state vector.
 			nodetype {% if vectorsize > 62 %}root{% else %}part0{% endif %} = HT_RETRIEVE(q{% if compact_hash_table %}, q_i{% endif %}, i{% if compact_hash_table %}, true{% endif %});
 			printf("retrieved node: %{% if vectorsize > 30 %}l{% endif %}u\n", {% if vectorsize > 62 %}root{% else %}part0{% endif %});
@@ -3468,6 +3470,7 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q{% if compact_
 	}
 	{% endif %}
 	fprintf(stream, "END HASH TABLE CONTENTS.\n");
+	fprintf(stream, "NR. OF STATES: %lu.\n", counter);
 }
 
 // *** END PRINT FUNCTIONS ***
