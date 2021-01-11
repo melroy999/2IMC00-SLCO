@@ -3194,15 +3194,15 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 	{% endfor %}
 
 	// Finally, retrieve the index of the tile element of interest for the current thread.
-	uint8_t offset = wid % OPENTILE_WARP_WIDTH;
+	uint8_t offset = fast_modulo(wid, OPENTILE_WARP_WIDTH);
 	{% for i in range(0,regsort_nr_el_per_thread) %}
 	// If the index of the p{{i}} element of the thread is within the range of interest, prepare it for communication.
-	if (LANE*{{regsort_nr_el_per_thread}}+{{i}} >= offset*WARP_SIZE && LANE*{{regsort_nr_el_per_thread}}+{{i}} < (offset+1)*WARP_SIZE) {
+	if (((LANE/(WARP_SIZE/{{regsort_nr_el_per_thread}}))*WARP_SIZE)+{{i*regsort_nr_el_per_thread}}+LANE >= offset*WARP_SIZE && ((LANE/(WARP_SIZE/{{regsort_nr_el_per_thread}}))*WARP_SIZE)+{{i*regsort_nr_el_per_thread}}+LANE < (offset+1)*WARP_SIZE) {
 		p_tmp1 = p{{i}};
 	}
 	__syncwarp();
 	// Retrieve from the thread that holds the element of interest for the current thread the prepared value (if it exists).
-	p_tmp2 = __shfl_sync(0xFFFFFFFF, p_tmp1, LANE / {{regsort_nr_el_per_thread}});
+	p_tmp2 = __shfl_sync(0xFFFFFFFF, p_tmp1, LANE / {{regsort_nr_el_per_thread}} offset*(WARP_SIZE/{{regsort_nr_el_per_thread}}));
 	// If the value was indeed prepared by the source thread, store it.
 	if ((LANE & {{(regsort_nr_el_per_thread-1)|hexa}}) == {{i}}) {
 		// Value of interest is ready to be fetched.
