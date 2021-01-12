@@ -137,7 +137,10 @@ static const int NR_BLOCKS = {{nrblocks}};
 #define RETRYFREQ 7
 #define NR_HASH_FUNCTIONS 32
 // Number of retries in local cache.
-#define CACHERETRYFREQ 20
+#define CACHERETRYFREQ 40
+
+// Enum type to indicate node storage mode (see the 'explore_' functions).
+enum Storage_mode {STORED, TO_CACHE, TO_GLOBAL};
 
 const size_t Mb = 1<<20;
 
@@ -162,8 +165,11 @@ const size_t Mb = 1<<20;
 #define HASHTABLE_FULL 				0xFFFFFFFFFFFFFFFF
 {% endif %}
 // Error value to indicate that a shared memory cache is full.
-// Assumption: the cache cannot store 2^16 or more elements.
-#define CACHE_FULL 0xFFFF
+{% if nr_bits_address_root <= 32 %}
+#define CACHE_FULL 				0xFFFFFFFF
+{% else %}
+#define CACHE_FULL 				0xFFFFFFFFFFFFFFFF
+{% endif %}
 
 // Shared memory local progress flags
 #define ITERATIONS					(shared[0])
@@ -741,9 +747,9 @@ inline __device__ shared_indextype CACHE_HASH(nodetype node) {
 // Store a vectortree node in the cache.
 // Return address if successful, HASHTABLE_FULL if cache is full.
 {% if vectorsize <= 62 %}
-inline __device__ shared_indextype STOREINCACHE(nodetype node) {
+inline __device__ indextype STOREINCACHE(nodetype node) {
 {% else %}
-inline __device__ shared_indextype STOREINCACHE(nodetype node, shared_inttype cache_pointers) {
+inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_pointers) {
 {% endif %}
 	uint8_t i = 0;
 	shared_indextype addr;
@@ -2754,14 +2760,14 @@ inline __device__ uint32_t get_part_bitmask_for_states_in_vectorpart(uint8_t pid
 // Retrieve a vectortree from the global hash table and store it in the cache. This is performed in a warp-centric way.
 // Address addr points to the root of the requested vectortree. The function returns the address of the root of the vectortree in the cache,
 // or CACHE_FULL in the case the cache is full.
-inline __device__ shared_indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup, compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i{% endif %}, indextype addr) {
+inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup, compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i{% endif %}, indextype addr) {
 	nodetype node = EMPTY_NODE;
 	nodetype leaf_node = EMPTY_NODE;
 	nodetype node_tmp_1 = EMPTY_NODE;
 	nodetype node_tmp_2 = EMPTY_NODE;
 	indextype node_addr = 0;
 	shared_inttype cache_pointers = EMPTYVECT32;
-	shared_indextype result;
+	indextype result;
 	shared_indextype cache_addr = EMPTY_CACHE_POINTER;
 	shared_indextype cache_addr_child = EMPTY_CACHE_POINTER;
 	uint8_t gid = treegroup.thread_rank();
@@ -3197,12 +3203,12 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 	uint8_t offset = fast_modulo(wid, OPENTILE_WARP_WIDTH);
 	{% for i in range(0,regsort_nr_el_per_thread) %}
 	// If the index of the p{{i}} element of the thread is within the range of interest, prepare it for communication.
-	if (((LANE/(WARP_SIZE/{{regsort_nr_el_per_thread}}))*WARP_SIZE)+{{i*regsort_nr_el_per_thread}}+LANE >= offset*WARP_SIZE && ((LANE/(WARP_SIZE/{{regsort_nr_el_per_thread}}))*WARP_SIZE)+{{i*regsort_nr_el_per_thread}}+LANE < (offset+1)*WARP_SIZE) {
+	if (LANE/(WARP_SIZE/{{regsort_nr_el_per_thread}}) == offset) {
 		p_tmp1 = p{{i}};
 	}
 	__syncwarp();
 	// Retrieve from the thread that holds the element of interest for the current thread the prepared value (if it exists).
-	p_tmp2 = __shfl_sync(0xFFFFFFFF, p_tmp1, LANE / {{regsort_nr_el_per_thread}} offset*(WARP_SIZE/{{regsort_nr_el_per_thread}}));
+	p_tmp2 = __shfl_sync(0xFFFFFFFF, p_tmp1, offset*(WARP_SIZE/{{regsort_nr_el_per_thread}})+(LANE/{{regsort_nr_el_per_thread}}));
 	// If the value was indeed prepared by the source thread, store it.
 	if ((LANE & {{(regsort_nr_el_per_thread-1)|hexa}}) == {{i}}) {
 		// Value of interest is ready to be fetched.
@@ -3223,6 +3229,8 @@ inline __device__ void explore_{{state_order[i]|replace("'","_")}}(shared_indext
 	get_current_state(&current, node_index, {{i}});
 	statetype target = NO_STATE;
 	nodetype part1, part2;
+	// Storage mode to determine where to store the node(s).
+	Storage_mode mode;
 	{% if vectorsize > 62 %}
 	shared_inttype part_cachepointers;
 	{% else %}
@@ -3245,7 +3253,7 @@ inline __device__ void explore_{{state_order[i]|replace("'","_")}}(shared_indext
 			elem_inttype {% for j in range(0,buffer_allocs[0]) %}buf32_{{j}}{{', ' if not loop.last}}{% endfor %};
 			{% endif %}
 			{% if buffer_allocs[1] > 0 %}
-			shared_indextype {% for j in range(0,buffer_allocs[1]) %}buf16_{{j}}{{', ' if not loop.last}}{% endfor %};
+			indextype {% for j in range(0,buffer_allocs[1]) %}bufaddr_{{j}}{{', ' if not loop.last}}{% endfor %};
 			{% endif %}
 			{% if buffer_allocs[2] > 0 %}
 			elem_chartype {% for j in range(0,buffer_allocs[2]) %}buf8_{{j}}{{', ' if not loop.last}}{% endfor %};
@@ -3271,52 +3279,56 @@ inline __device__ void explore_{{state_order[i]|replace("'","_")}}(shared_indext
 			
 			{{indent}}// {{s.name}} --{ {{st|getlabel}} }--> {{t.target.name}}
 			
+			mode = TO_CACHE;
 			{% set M = t|map_variables_on_buffer(o,buffer_allocs) %}
-			{% if st.__class__.__name__ == 'ReceiveSignal' %}
-			{% if st|cudarecsizeguard(M,o) != "" %}
-			{{indent}}// Fetch buffer size value.
-			{% set ch = connected_channel[(o, st.target)] %}
-			{% set VP = [(ch,"_size")]|get_vectorparts(o) %}
-			{% if vectorsize > 62 %}
-			{{indent}}part1 = get_vectorpart(node_index, {{VP[0]}});
-			{% if VP|length > 1 %}
-			{{indent}}part2 = get_vectorpart(node_index, {{VP[1]}});
-			{% endif %}
-			{% endif %}
-			{{indent}}get_{{ch.name}}_size(&{{M[(ch,"_size")][0]}}_{{M[(ch,"_size")][1]}}, part1, part2);
-			{{indent}}if ({{st|cudarecsizeguard(M,o)}}) {
-			{% set indent = indent + "\t" %}
-			{% endif %}
-			{% endif %}
-			{% set fetchcode = st|cudafetchdata(indent|length+3, o, M, True, True) %}
-			{% if fetchcode != "" %}
-			{{indent}}{{fetchcode}}
-			{% endif %}
-			{{indent}}// Statement computation.
-			{% if st|cudaguard(M,o) != "" %}
-			{{indent}}if ({{st|cudaguard(M,o)}}) {
-			{% set indent = indent + "\t" %}
-			{% endif %}
-			{% set fetchcode = st|cudafetchdata(indent|length+3, o, M, False, False) %}
-			{% if fetchcode != "" %}
-			{{indent}}{{fetchcode}}
-			{% endif %}
-			{% if st|cudastatement(1,o,M) != "" %}
-			{{indent}}{{st|cudastatement(indent|length+3,o,M)}}{% endif %}
-			{% if st|cudaguard(M,o) != "" %}
-			{% set indent = indent[:-1] %}
-			{{indent}}}
-			{% endif %}
-			{% if st.__class__.__name__ == "ReceiveSignal" %}
-			{% if st|cudarecsizeguard(M,o) != "" %}
+			while (mode != STORED) {
+				{% if st.__class__.__name__ == 'ReceiveSignal' %}
+				{% if st|cudarecsizeguard(M,o) != "" %}
+				{{indent}}// Fetch buffer size value.
+				{% set ch = connected_channel[(o, st.target)] %}
+				{% set VP = [(ch,"_size")]|get_vectorparts(o) %}
+				{% if vectorsize > 62 %}
+				{{indent}}part1 = get_vectorpart(node_index, {{VP[0]}});
+				{% if VP|length > 1 %}
+				{{indent}}part2 = get_vectorpart(node_index, {{VP[1]}});
+				{% endif %}
+				{% endif %}
+				{{indent}}get_{{ch.name}}_size(&{{M[(ch,"_size")][0]}}_{{M[(ch,"_size")][1]}}, part1, part2);
+				{{indent}}if ({{st|cudarecsizeguard(M,o)}}) {
+				{% set indent = indent + "\t" %}
+				{% endif %}
+				{% endif %}
+				{% set fetchcode = st|cudafetchdata(indent|length+4, o, M, True, True) %}
+				{% if fetchcode != "" %}
+				{{indent}}{{fetchcode}}
+				{% endif %}
+				{{indent}}// Statement computation.
+				{% if st|cudaguard(M,o) != "" %}
+				{{indent}}if ({{st|cudaguard(M,o)}}) {
+				{% set indent = indent + "\t" %}
+				{% endif %}
+				{% set fetchcode = st|cudafetchdata(indent|length+4, o, M, False, False) %}
+				{% if fetchcode != "" %}
+				{{indent}}{{fetchcode}}
+				{% endif %}
+				{% if st|cudastatement(1,o,M) != "" %}
+				{{indent}}{{st|cudastatement(indent|length+4,o,M)}}{% endif %}
+				{% if st|cudaguard(M,o) != "" %}
+				{% set indent = indent[:-1] %}
+				{{indent}}}
+				{% endif %}
+				{% if st.__class__.__name__ == "ReceiveSignal" %}
+				{% if st|cudarecsizeguard(M,o) != "" %}
+				}
+				{% endif %}
+				{% endif %}
+				{% endif %}
+				{% for j in range(0, ns.prio_nestings) %}
+				{% set indent = indent[:-1] %}
+				{{indent}}}
+				{% endfor %}
+				mode = STORED;
 			}
-			{% endif %}
-			{% endif %}
-			{% endif %}
-			{% for j in range(0, ns.prio_nestings) %}
-			{% set indent = indent[:-1] %}
-			{{indent}}}
-			{% endfor %}
 			{% endfor %}
 			}
 			break;

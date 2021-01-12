@@ -273,7 +273,7 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 						// Try to increment the OPENTILECOUNT counter. If successful, store the state pointer.
 						l = atomicAdd((shared_inttype *) &OPENTILECOUNT, 1);
 						if (l < OPENTILELEN) {
-							d_q[loc] = mark_old(tmp);
+							d_q[loc*WARP_SIZE+LANE] = mark_old(tmp);
 							shared[OPENTILEOFFSET+l] = tmp;
 						}
 					}
