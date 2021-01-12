@@ -132,6 +132,11 @@ static const int NR_BLOCKS = {{nrblocks}};
 {% endif %}
 // A cache never contains 2^16-1 or more elements, hence 2^16-1 is available for the constant.
 #define EMPTY_CACHE_POINTER			0x7FFF
+{% if nr_bits_address_root <= 32 %}
+#define EMPTY_HASH_POINTER 			0xFFFFFFFF
+{% else %}
+#define EMPTY_HASH_POINTER 			0xFFFFFFFFFFFFFFFF
+{% endif %}
 
 // Retry constant to determine number of retries for element insertion.
 #define RETRYFREQ 7
@@ -140,7 +145,7 @@ static const int NR_BLOCKS = {{nrblocks}};
 #define CACHERETRYFREQ 40
 
 // Enum type to indicate node storage mode (see the 'explore_' functions).
-enum Storage_mode {STORED, TO_CACHE, TO_GLOBAL};
+enum Storage_mode {STORED, TO_CACHE, TO_GLOBAL, HASH_TABLE_FULL};
 
 const size_t Mb = 1<<20;
 
@@ -3223,7 +3228,7 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 {% endif %}
 // Exploration functions to traverse outgoing transitions of the various states.
 {% for i in range(0,smnames|length) %}
-inline __device__ void explore_{{state_order[i]|replace("'","_")}}(shared_indextype node_index) {
+inline __device__ Storage_mode explore_{{state_order[i]|replace("'","_")}}(shared_indextype node_index) {
 	// Fetch the current state of the state machine.
 	statetype current;
 	get_current_state(&current, node_index, {{i}});
@@ -3342,15 +3347,16 @@ inline __device__ void explore_{{state_order[i]|replace("'","_")}}(shared_indext
 {% endfor %}
 // Successor construction function for a particular state machine. Given a state vector, construct its successor state vectors w.r.t. the state machine, and store them in cache.
 // Vgtid is the identity of the thread calling the function (id of thread relevant for successor generation).
-inline __device__ void get_successors_of_sm(shared_indextype node_index, uint8_t vgtid) {
+inline __device__ Storage_mode get_successors_of_sm(shared_indextype node_index, uint8_t vgtid) {
 	// explore the outgoing transitions of the current state of the state machine assigned to vgtid.
 	switch (vgtid) {
 		{% for i in range(0,smnames|length) %}
 		case {{i}}:
-			explore_{{state_order[i]|replace("'","_")}}(node_index);
+			return explore_{{state_order[i]|replace("'","_")}}(node_index);
 			break;
 		{% endfor %}
 		default:
+			return STORED;
 			break;
 	}
 }
@@ -3361,7 +3367,7 @@ inline __device__ void get_successors_of_sm(shared_indextype node_index, uint8_t
 {% else %}
 // Precondition: a tile of state nodes is stored in the shared memory.
 {% endif %}
-inline __device__ void GENERATE_SUCCESSORS() {
+inline __device__ Storage_mode GENERATE_SUCCESSORS() {
 	// Iterate over the designated work.
 	shared_indextype entry_id;
 	{% if no_regsort %}
@@ -3379,7 +3385,7 @@ inline __device__ void GENERATE_SUCCESSORS() {
 		{% if vectorsize > 62 %}
 		src_state = shared[OPENTILEOFFSET+entry_id];
 		{% endif %}
-		get_successors_of_sm({% if vectorsize > 62 %}(shared_indextype) src_state{% else %}entry_id{% endif %}, entry_state_id);
+		return get_successors_of_sm({% if vectorsize > 62 %}(shared_indextype) src_state{% else %}entry_id{% endif %}, entry_state_id);
 	}
 	{% else %}
 
@@ -3397,7 +3403,7 @@ inline __device__ void GENERATE_SUCCESSORS() {
 			{% if vectorsize > 62 %}
 			src_state = shared[OPENTILEOFFSET+entry_id];
 			{% endif %}
-			get_successors_of_sm({% if vectorsize > 62 %}(shared_indextype) src_state{% else %}entry_id{% endif %}, i/OPENTILE_WARP_WIDTH);
+			return get_successors_of_sm({% if vectorsize > 62 %}(shared_indextype) src_state{% else %}entry_id{% endif %}, i/OPENTILE_WARP_WIDTH);
 		}
 	}
 	{% endif %}

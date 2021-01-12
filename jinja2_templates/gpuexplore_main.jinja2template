@@ -330,7 +330,9 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 		}
 		__syncthreads();
 		{% endif %}
-		GENERATE_SUCCESSORS();
+		if (GENERATE_SUCCESSORS() == HASH_TABLE_FULL) {
+			CONTINUE = 2;
+		}
 		bool performed_work = OPENTILECOUNT != 0;
 		__syncthreads();
 		// Reset the work tile count
@@ -618,7 +620,7 @@ int main(int argc, char** argv) {
 
 	// Report hash table error if required.
 	if (contBFS == 2) {
-		fprintf(stderr, "ERROR: problem with hash table or caches!\n");
+		fprintf(stderr, "ERROR: problem with hash table!\n");
 	}
 
 	CUDA_CHECK_RETURN(cudaMemset(d_counted_states, 0, sizeof(uint64_t)));
