@@ -1259,8 +1259,8 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 				ic -= 1
 				output += "}\n" + indentspace(ic)
 				output += "}\n" + indentspace(ic)
-				ic += 1
-				output += "if (mode == TO_CACHE) {\n" + indentspace(ic)
+			ic += 1
+			output += "if (mode == TO_CACHE) {\n" + indentspace(ic)
 				pointer_cnt -= 1
 				output += "// This part has been altered. Store it and remember address of new part.\n" + indentspace(ic)
 			if p == 0:
