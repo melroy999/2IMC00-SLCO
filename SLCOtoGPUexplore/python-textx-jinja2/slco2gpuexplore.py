@@ -1164,14 +1164,24 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 				# node is also a non-leaf in the vectortree. update pointers.
 				if f:
 					ic += 1
-					output += "if (bufaddr_" + str(pointer_cnt) + " != EMPTY_CACHE_POINTER) {\n" + indentspace(ic)
+					output += "if (bufaddr_" + str(pointer_cnt) + " != EMPTY_HASH_POINTER) {\n" + indentspace(ic)
 					if refs == []:
 						output += "get_vectortree_node(&part1, &part_cachepointers, node_index, " + str(p) + ");\n" + indentspace(ic)
 						output += "part2 = part1;\n" + indentspace(ic)
+					ic += 1
+					output += "if (mode == TO_CACHE) {\n" + indentspace(ic)
 					output += "set_left_cache_pointer(&part_cachepointers, bufaddr_" + str(pointer_cnt) + ");\n" + indentspace(ic)
+					output += "reset_left_in_vectortree_node(&part2);\n" + indentspace(ic)
+					ic -= 1
+					output += "}\n" + indentspace(ic)
+					ic += 1
+					output += "else {\n" + indentspace(ic)
+					ic -= 1
+					output += "set_left_in_vectortree_node(&part2, bufaddr_" + str(pointer_cnt) + ");\n" + indentspace(ic)
+					output += "}\n" + indentspace(ic)
 					if refs != []:
 						ic -= 1
-					output += "reset_left_in_vectortree_node(&part2);\n" + indentspace(ic)
+					output += "}\n" + indentspace(ic)
 					if refs != []:
 						output += "}\n" + indentspace(ic)
 						ic += 1
@@ -1181,6 +1191,8 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 				output += "if (part2 != part1) {\n" + indentspace(ic)
 			if is_non_leaf(p) or refs != []:
 				output += "// This part has been altered. Store it and remember address of new part.\n" + indentspace(ic)
+				ic += 1
+				output += "if (mode == TO_CACHE) {\n" + indentspace(ic)
 				if vectorsize > 62:
 					if p == 0:
 						output += "mark_root(&part2);\n" + indentspace(ic)
@@ -1188,12 +1200,10 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 						output += "mark_cached_node_new_nonleaf(&part_cachepointers);\n" + indentspace(ic)
 					else:
 						output += "part_cachepointers = CACHE_POINTERS_NEW_LEAF;\n" + indentspace(ic)
+					output += "bufaddr_" + str(pointer_cnt) + " = STOREINCACHE(part2, part_cachepointers);\n" + indentspace(ic)
 				else:
 					output += "part2 = mark_new(part2);\n" + indentspace(ic)
-				if vectorsize <= 62:
 					output += "bufaddr_" + str(pointer_cnt) + " = STOREINCACHE(part2);\n" + indentspace(ic)
-				else:
-					output += "bufaddr_" + str(pointer_cnt) + " = STOREINCACHE(part2, part_cachepointers);\n" + indentspace(ic)
 				ic += 1
 				output += "if (bufaddr_" + str(pointer_cnt) + " == CACHE_FULL) {\n" + indentspace(ic)
 				output += "// Construct the vector again, and store it directly in the global hash table.\n" + indentspace(ic)
@@ -1205,8 +1215,27 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 				output += "}\n"  + indentspace(ic)
 				ic += 1
 				output += "else {\n" + indentspace(ic)
+				output += "// Store the node directly in the global hash table.\n" + indentspace(ic)
+				if vectorsize > 62:
+					if p == 0 and not compact_hash_table:
+						output += "mark_root(&part2);\n" + indentspace(ic)
+					if compact_hash_table:
+						if p == 0:
+							output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, true);\n" + indentspace(ic)
+						else:
+							output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);\n" + indentspace(ic)
+					else:
+						output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true);\n" + indentspace(ic)						
+				else:
+					output += "part2 = mark_new(part2);\n" + indentspace(ic)
+					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, true);\n" + indentspace(ic)						
+				ic += 1
+				output += "if (bufaddr_" + str(pointer_cnt) + " == HASHTABLE_FULL) {\n" + indentspace(ic)
+				output += "// Hash table is considered full. Report this back.\n" + indentspace(ic)
 				ic -= 1
-				output += "STORE IN GLOB\n" + indentspace(ic)
+				output += "return HASH_TABLE_FULL;\n" + indentspace(ic)
+				ic -= 1
+				output += "}\n" + indentspace(ic)
 				ic -= 1
 				output += "}\n" + indentspace(ic)
 				output += "}\n"  + indentspace(ic)
@@ -1214,7 +1243,7 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 				if nav != []:
 					output += "else {\n" + indentspace(ic)
 					ic -= 1
-					output += "bufaddr_" + str(pointer_cnt) + " = EMPTY_CACHE_POINTER;\n" + indentspace(ic)
+					output += "bufaddr_" + str(pointer_cnt) + " = EMPTY_HASH_POINTER;\n" + indentspace(ic)
 					output += "}\n"  + indentspace(ic)
 			if nav != [] and not is_non_leaf(nav[0][0]):
 				pointer_cnt += 1
@@ -1222,7 +1251,7 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 		elif is_non_leaf(p):
 			if not f:
 				ic += 1
-				output += "if (bufaddr_" + str(pointer_cnt) + " != EMPTY_CACHE_POINTER) {\n" + indentspace(ic)
+				output += "if (bufaddr_" + str(pointer_cnt) + " != EMPTY_HASH_POINTER) {\n" + indentspace(ic)
 				output += "get_vectortree_node(&part1, &part_cachepointers, node_index, " + str(p) + ");\n" + indentspace(ic)
 				output += "part2 = part1;\n" + indentspace(ic)
 				children = vectortree[p]
@@ -1236,26 +1265,37 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 					output += "reset_right_in_vectortree_node(&part2);\n" + indentspace(ic)
 			else:
 				ic += 1
-				output += "if (bufaddr_" + str(pointer_cnt-1) + " != EMPTY_CACHE_POINTER || bufaddr_" + str(pointer_cnt) + " != EMPTY_CACHE_POINTER) {\n" + indentspace(ic)
+				output += "if (bufaddr_" + str(pointer_cnt-1) + " != EMPTY_HASH_POINTER || bufaddr_" + str(pointer_cnt) + " != EMPTY_HASH_POINTER) {\n" + indentspace(ic)
 				output += "get_vectortree_node(&part1, &part_cachepointers, node_index, " + str(p) + ");\n" + indentspace(ic)
 				output += "part2 = part1;\n" + indentspace(ic)
 				ic += 1
-				output += "if (bufaddr_" + str(pointer_cnt-1) + " != EMPTY_CACHE_POINTER) {\n" + indentspace(ic)
+				output += "if (bufaddr_" + str(pointer_cnt-1) + " != EMPTY_HASH_POINTER) {\n" + indentspace(ic)
 				ic += 1
 				output += "if (mode == TO_CACHE) {\n" + indentspace(ic)
 				output += "set_left_cache_pointer(&part_cachepointers, bufaddr_" + str(pointer_cnt-1) + ");\n" + indentspace(ic)
 				ic -= 1
 				output += "reset_left_in_vectortree_node(&part2);\n" + indentspace(ic)
+				output += "}\n" + indentspace(ic)
+				ic += 1
+				output += "else {\n" + indentspace(ic)
+				ic -= 1
+				output += "set_left_in_vectortree_node(&part2, bufaddr_" + str(pointer_cnt-1) + ");\n" + indentspace(ic)
 				ic -= 1
 				output += "}\n" + indentspace(ic)
 				output += "}\n" + indentspace(ic)
 				ic += 1
-				output += "if (bufaddr_" + str(pointer_cnt) + " != EMPTY_CACHE_POINTER) {\n" + indentspace(ic)
+				output += "if (bufaddr_" + str(pointer_cnt) + " != EMPTY_HASH_POINTER) {\n" + indentspace(ic)
 				ic += 1
 				output += "if (mode == TO_CACHE) {\n" + indentspace(ic)
 				output += "set_right_cache_pointer(&part_cachepointers, bufaddr_" + str(pointer_cnt) + ");\n" + indentspace(ic)
 				ic -= 1
 				output += "reset_right_in_vectortree_node(&part2);\n" + indentspace(ic)
+				ic += 1
+				output += "else {\n" + indentspace(ic)
+				ic -= 1
+				output += "set_right_in_vectortree_node(&part2, bufaddr_" + str(pointer_cnt) + ");\n" + indentspace(ic)
+				ic -= 1
+				output += "}\n" + indentspace(ic)
 				ic -= 1
 				output += "}\n" + indentspace(ic)
 				output += "}\n" + indentspace(ic)
@@ -1278,8 +1318,27 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 			output += "}\n" + indentspace(ic)
 			ic += 1
 			output += "else {\n" + indentspace(ic)
+			if not f:
+				if nodes_done[len(nodes_done)-1] == children[0]:
+					output += "set_left_in_vectortree_node(&part2, bufaddr_" + str(pointer_cnt) + ");\n" + indentspace(ic)
+				else:
+					output += "set_right_in_vectortree_node(&part2, bufaddr_" + str(pointer_cnt) + ");\n" + indentspace(ic)
+			if p == 0 and not compact_hash_table:
+				output += "mark_root(&part2);\n" + indentspace(ic)
+			if compact_hash_table:
+				if p == 0:
+					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, true);\n" + indentspace(ic)
+				else:
+					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);\n" + indentspace(ic)
+			else:
+				output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true);\n" + indentspace(ic)						
+			ic += 1
+			output += "if (bufaddr_" + str(pointer_cnt) + " == HASHTABLE_FULL) {\n" + indentspace(ic)
+			output += "// Hash table is considered full. Report this back.\n" + indentspace(ic)
 			ic -= 1
-			output += "TO GLOB\n" + indentspace(ic)
+			output += "return HASH_TABLE_FULL;\n" + indentspace(ic)
+			ic -= 1
+			output += "}\n" + indentspace(ic)
 			ic -= 1
 			output += "}\n" + indentspace(ic)
 			output += "}\n" + indentspace(ic)
@@ -1287,7 +1346,7 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 				ic += 1
 				output += "else {\n" + indentspace(ic)
 				ic -= 1
-				output += "bufaddr_" + str(pointer_cnt) + " = EMPTY_CACHE_POINTER;\n" + indentspace(ic)
+				output += "bufaddr_" + str(pointer_cnt) + " = EMPTY_HASH_POINTER;\n" + indentspace(ic)
 				output += "}\n"  + indentspace(ic)
 			if nav != [] and not is_non_leaf(nav[0][0]):
 				pointer_cnt += 1
