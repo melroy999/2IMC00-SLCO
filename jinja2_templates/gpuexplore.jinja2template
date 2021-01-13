@@ -418,6 +418,15 @@ inline __device__ bool cached_node_is_required(shared_inttype pointers) {
 	return (pointers & 0x80000000) == 0x80000000;
 }
 
+// A pointer to a root in the work tile contains a global address, as opposed to a cache address, if its highest bit is set.
+inline __device__ void set_worktile_pointer_to_global(shared_inttype pointer) {
+	return pointer | 0x80000000;
+}
+
+inline __device__ void worktile_pointer_is_set_to_global(shared_inttype *pointer) {
+	return (pointer & 0x80000000) == 0x80000000;
+}
+
 {% endif %}
 // Filter the bookkeeping bit values from the given node.
 inline __device__ __host__ nodetype filter_bookkeeping(nodetype node) {
@@ -2363,7 +2372,14 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 						// Store pointer to the root in the work tile. Either a pointer to the root in the global hash table or in the local cache,
 						// depending on whether there is still a next successor generation iteration.
 						if (ITERATIONS < d_kernel_iters-1) {
-							shared[OPENTILEOFFSET+shared_addr] = node_index;
+							if (node_index != EMPTY_CACHE_POINTER) {
+								shared[OPENTILEOFFSET+shared_addr] = node_index;
+							}
+							else {
+								// The cache has been bypassed, since it may be full. Add the global address, and indicate this
+								// by setting the highest bit.
+								shared[OPENTILEOFFSET+shared_addr] = set_worktile_pointer_to_global((shared_inttype) addr);
+							}
 						}
 						else {
 							shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
@@ -2414,7 +2430,14 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 							// Store pointer to the root in the work tile. Either a pointer to the root in the global hash table or in the local cache,
 							// depending on whether there is still a next successor generation iteration.
 							if (ITERATIONS < d_kernel_iters-1) {
-								shared[OPENTILEOFFSET+shared_addr] = node_index;
+								if (node_index != EMPTY_CACHE_POINTER) {
+									shared[OPENTILEOFFSET+shared_addr] = node_index;
+								}
+								else {
+									// The cache has been bypassed, since it may be full. Add the global address, and indicate this
+									// by setting the highest bit.
+									shared[OPENTILEOFFSET+shared_addr] = set_worktile_pointer_to_global((shared_inttype) addr);
+								}
 							}
 							else {
 								shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;

@@ -274,7 +274,7 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 						l = atomicAdd((shared_inttype *) &OPENTILECOUNT, 1);
 						if (l < OPENTILELEN) {
 							d_q[loc*WARP_SIZE+LANE] = mark_old(tmp);
-							shared[OPENTILEOFFSET+l] = tmp;
+							shared[OPENTILEOFFSET+l] = set_worktile_pointer_to_global(tmp);
 						}
 					}
 				}
