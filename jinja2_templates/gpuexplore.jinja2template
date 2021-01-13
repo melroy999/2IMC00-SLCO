@@ -418,12 +418,17 @@ inline __device__ bool cached_node_is_required(shared_inttype pointers) {
 	return (pointers & 0x80000000) == 0x80000000;
 }
 
-// A pointer to a root in the work tile contains a global address, as opposed to a cache address, if its highest bit is set.
-inline __device__ void set_worktile_pointer_to_global(shared_inttype pointer) {
+// A work tile entry requires fetching the corresponding vectortree from the global memory if its highest bit is set.
+// This is done when a vectortree has been claimed which was not stored in the cache due to the cache supposedly being full.
+inline __device__ void set_worktile_element_to_requiring_fetching(shared_inttype pointer) {
 	return pointer | 0x80000000;
 }
 
-inline __device__ void worktile_pointer_is_set_to_global(shared_inttype *pointer) {
+inline __device__ void filter_requiring_fetching_flag(shared_inttype pointer) {
+	return pointer & 0x7FFFFFFF;
+}
+
+inline __device__ void worktile_element_requires_fetching(shared_inttype *pointer) {
 	return (pointer & 0x80000000) == 0x80000000;
 }
 
@@ -2369,16 +2374,18 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 					// Successfully stored the node.
 					// Try to claim the vector for future work. For this, try to increment the OPENTILECOUNT counter.
 					if (claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
-						// Store pointer to the root in the work tile. Either a pointer to the root in the global hash table or in the local cache,
-						// depending on whether there is still a next successor generation iteration.
+						// If there is still a next successor generation iteration, store a reference to the root in the work tile.
+						// This is either a pointer to the root in the local cache, or the collapsed root itself, depending
+						// on whether or not the cache has been used to store the vectortree.
 						if (ITERATIONS < d_kernel_iters-1) {
 							if (node_index != EMPTY_CACHE_POINTER) {
 								shared[OPENTILEOFFSET+shared_addr] = node_index;
 							}
 							else {
-								// The cache has been bypassed, since it may be full. Add the global address, and indicate this
-								// by setting the highest bit.
-								shared[OPENTILEOFFSET+shared_addr] = set_worktile_pointer_to_global((shared_inttype) addr);
+								// The cache has been bypassed, since it may be full. Add the collapsed node, and indicate this
+								// by setting the highest bit. We store the collapsed node, since that does not require all bits of the
+								// worktile element.
+								shared[OPENTILEOFFSET+shared_addr] = set_worktile_element_to_requiring_fetching((shared_inttype) collapse(node));
 							}
 						}
 						else {
@@ -2427,16 +2434,18 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 						// Try to claim the vector for future work. For this, try to increment the OPENTILECOUNT counter.
 						if (claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
 							{% if vectorsize > 62 %}
-							// Store pointer to the root in the work tile. Either a pointer to the root in the global hash table or in the local cache,
-							// depending on whether there is still a next successor generation iteration.
+							// If there is still a next successor generation iteration, store a reference to the root in the work tile.
+							// This is either a pointer to the root in the local cache, or a pointer to the root in the global hash table, depending
+							// on whether or not the cache has been used to store the vectortree.
 							if (ITERATIONS < d_kernel_iters-1) {
 								if (node_index != EMPTY_CACHE_POINTER) {
 									shared[OPENTILEOFFSET+shared_addr] = node_index;
 								}
 								else {
 									// The cache has been bypassed, since it may be full. Add the global address, and indicate this
-									// by setting the highest bit.
-									shared[OPENTILEOFFSET+shared_addr] = set_worktile_pointer_to_global((shared_inttype) addr);
+									// by setting the highest bit. As a global address does not require all the bits in a worktile element,
+									// we can do this.
+									shared[OPENTILEOFFSET+shared_addr] = set_worktile_element_to_requiring_fetching((shared_inttype) addr);
 								}
 							}
 							else {
@@ -2786,9 +2795,13 @@ inline __device__ uint32_t get_part_bitmask_for_states_in_vectorpart(uint8_t pid
 {% endif %}
 
 // Retrieve a vectortree from the global hash table and store it in the cache. This is performed in a warp-centric way.
-// Address addr points to the root of the requested vectortree. The function returns the address of the root of the vectortree in the cache,
-// or CACHE_FULL in the case the cache is full.
-inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup, compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i{% endif %}, indextype addr) {
+{% if not compact_hash_table %}
+// Address rootref points to the root of the requested vectortree.
+{% else %}
+// rootref is the (collapsed) root of the requested vectortree.
+{% endif %}
+// The function returns the address of the root of the vectortree in the cache, or CACHE_FULL in the case the cache is full.
+inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup, compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i{% endif %}, indextype rootref) {
 	nodetype node = EMPTY_NODE;
 	nodetype leaf_node = EMPTY_NODE;
 	nodetype node_tmp_1 = EMPTY_NODE;
@@ -2805,10 +2818,11 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 	{% endif %}
 	
 	if (gid == 0) {
-		node = HT_RETRIEVE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, addr{% if compact_hash_table %}, true{% endif %});
-		{% if compact_hash_table %}
+		{% if not compact_hash_table %}
+		node = HT_RETRIEVE(d_q, filter_requiring_fetching_flag(rootref));
+		{% else %}
 		// Expand the node from {{2*nr_bits_address_internal}} bits to 64 bits.
-		node = expand(node);
+		node = expand(filter_requiring_fetching_flag(rootref));
 		{% endif %}
 	}
 	{% set bound = 1 %}{% if not no_smart_fetching %}{% set bound = bound + 1 %}{% endif %}
@@ -3013,7 +3027,7 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 	{% endfor %}
 	// Obtain cache address of the root and return it.
 	cache_addr_child = treegroup.shfl(cache_addr, 0);
-	return cache_addr_child;
+	return (indextype) cache_addr_child;
 }
 {% endif %}
 

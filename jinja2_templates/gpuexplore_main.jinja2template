@@ -204,9 +204,9 @@ inline __device__ void PREPARE_CACHE() {
 {% endif %}
 __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, uint8_t *d_contBFS, uint8_t *d_property_violation, volatile uint8_t *d_newstate_flags, shared_inttype *d_worktiles, const uint8_t scan) {
 	uint32_t i;
-	shared_inttype l;
+	indextype l;
 	{% if vectorsize > 62 %}
-	shared_indextype sh_index, opentile_scan_start;
+	shared_indextype sh_index;
 	{% endif %}
 	compressed_nodetype tmp;
 
@@ -245,15 +245,6 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 			d_newstate_flags[BLOCK_ID] = 2;
 			SCAN = 1;
 		}
-		{% if vectorsize > 62 %}
-		// We store the current value of OPENTILECOUNT in opentile_scan_start, to check later whether we have added scanned states
-		// to a non-empty work-tile, and to identify those newly added states for fetching. If this is the first iteration, this is
-		// not relevant, as in that case, all states are newly added and require fetching.
-		opentile_scan_start = 0;
-		if (ITERATIONS > 0) {
-			opentile_scan_start = OPENTILECOUNT;
-		}
-		{% endif %}
 		__syncthreads();
 		// Scan the open set for work; we use OPENTILECOUNT to count retrieved elements.
 		if (SCAN) {
@@ -270,11 +261,17 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 					tmp = d_q[loc*WARP_SIZE+LANE];
 					if (is_new(tmp)) {
 						found_new_state = true;
-						// Try to increment the OPENTILECOUNT counter. If successful, store the state pointer.
+						// Try to increment the OPENTILECOUNT counter. If successful, store a reference to the state.
 						l = atomicAdd((shared_inttype *) &OPENTILECOUNT, 1);
 						if (l < OPENTILELEN) {
 							d_q[loc*WARP_SIZE+LANE] = mark_old(tmp);
-							shared[OPENTILEOFFSET+l] = set_worktile_pointer_to_global(tmp);
+							{% if compact_hash%}
+							shared[OPENTILEOFFSET+l] = set_worktile_element_to_requiring_fetching(filter_bookkeeping(tmp));
+							{% else if vectorsize > 62 %}
+							shared[OPENTILEOFFSET+l] = set_worktile_element_to_requiring_fetching(loc*WARP_SIZE+LANE);
+							{% else %}
+							shared[OPENTILEOFFSET+l] = tmp;
+							{% endif %}
 						}
 					}
 				}
@@ -308,23 +305,25 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 			}
 		}
 		{% if vectorsize > 62 %}
-		if (OPENTILECOUNT > opentile_scan_start) {
+		if (OPENTILECOUNT > 0) {
 			// Fill the cache with the newly added vector trees referred to in the work tile.
 			// Create a cooperative group within a warp in which the thread resides.
 			thread_block_tile<VECTOR_GROUP_SIZE> gtile = tiled_partition<VECTOR_GROUP_SIZE>(this_thread_block());
 
 			#pragma unroll
-			for (i = VECTOR_GROUP_ID; i < (OPENTILECOUNT-opentile_scan_start); i += NR_VECTOR_GROUPS_PER_BLOCK) {
-				l = FETCH(gtile, d_q{% if compact_hash_table %}, d_q_i{% endif %}, shared[OPENTILEOFFSET+opentile_scan_start+i]);
-				if (l == CACHE_FULL) {
-					// PLAN B?
-				}
-				else {
-					sh_index = (shared_indextype) l;
-				}
-				if (gtile.thread_rank() == 0) {
-					// Store the address to the tree in the cache in the work tile.
-					shared[OPENTILEOFFSET+opentile_scan_start+i] = sh_index;
+			for (i = VECTOR_GROUP_ID; i < OPENTILECOUNT; i += NR_VECTOR_GROUPS_PER_BLOCK) {
+				if (worktile_element_requires_fetching(shared[OPENTILEOFFSET+i])) {
+					l = FETCH(gtile, d_q{% if compact_hash_table %}, d_q_i{% endif %}, shared[OPENTILEOFFSET+i]);
+					if (l == CACHE_FULL) {
+						// PLAN B?
+					}
+					else {
+						sh_index = (shared_indextype) l;
+					}
+					if (gtile.thread_rank() == 0) {
+						// Store the address to the tree in the cache in the work tile.
+						shared[OPENTILEOFFSET+i] = sh_index;
+					}
 				}
 			}
 		}
