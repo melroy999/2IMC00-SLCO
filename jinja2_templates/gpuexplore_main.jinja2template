@@ -109,6 +109,14 @@ inline __device__ void PREPARE_CACHE() {
 	nodetype node;
 	bool next_it, is_required;
 
+	// First we mark the root nodes referred to in the worktile for preparation.
+	for (shared_indextype i = THREAD_ID; i < OPENTILECOUNT; i += BLOCK_SIZE) {
+		pointers = shared[OPENTILEOFFSET+i];
+		if (!worktile_element_requires_fetching(pointers)) {
+			mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(pointers*3)+2]);
+		}
+	}
+
 	while (CONTINUE == 1) {
 		__syncthreads();
 		if (THREAD_ID == 0) {
