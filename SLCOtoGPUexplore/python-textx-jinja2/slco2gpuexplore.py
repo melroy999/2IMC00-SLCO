@@ -1178,10 +1178,10 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 					output += "else {\n" + indentspace(ic)
 					ic -= 1
 					output += "set_left_in_vectortree_node(&part2, bufaddr_" + str(pointer_cnt) + ");\n" + indentspace(ic)
-					output += "}\n" + indentspace(ic)
 					if refs != []:
 						ic -= 1
 					output += "}\n" + indentspace(ic)
+					# output += "}\n" + indentspace(ic)
 					if refs != []:
 						output += "}\n" + indentspace(ic)
 						ic += 1
@@ -1299,8 +1299,8 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 				ic -= 1
 				output += "}\n" + indentspace(ic)
 				output += "}\n" + indentspace(ic)
-			ic += 1
-			output += "if (mode == TO_CACHE) {\n" + indentspace(ic)
+				ic += 1
+				output += "if (mode == TO_CACHE) {\n" + indentspace(ic)
 				pointer_cnt -= 1
 				output += "// This part has been altered. Store it and remember address of new part.\n" + indentspace(ic)
 			if p == 0:
@@ -1368,7 +1368,9 @@ def cudastore_new_vector(s,indent,o,D, sender_o='', sender_sm='', lossy=False):
 
 	W = get_write_vectorparts_info(s,o,sender_o=sender_o,sender_sm=sender_sm,lossy=lossy)
 	if len(W) != 0:
-		output += "// Store new state vector in the cache or the global hash table.\n" + indentspace
+		output += "mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);\n" + indentspace
+		output += "while (mode != STORED && mode != GLOBAL_STORED) {\n" + indentspace + "\t"
+		output += "// Store new state vector in the cache or the global hash table.\n" + indentspace + "\t"
 		# obtain list of nodes in the tree to update
 		L = list(W.keys())
 		L = sorted(L)
@@ -1447,7 +1449,9 @@ def cudastore_new_vector(s,indent,o,D, sender_o='', sender_sm='', lossy=False):
 		# list of processed nodes
 		nodes_done = []
 		# process the nav list of nodes
-		output += cudastore_new_vectortree_nodes(nodes_done, nav, 0, Wnew, s, o, D, indent)
+		output += cudastore_new_vectortree_nodes(nodes_done, nav, 0, Wnew, s, o, D, indent+1) + indentspace + "\t"
+		output += "mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);\n" + indentspace
+		output += "}\n"
 	return output
 
 def cudastatement(s,indent,o,D,sender_o='',sender_sm='',senderparams=[]):
@@ -1514,7 +1518,7 @@ def cudastatement(s,indent,o,D,sender_o='',sender_sm='',senderparams=[]):
 			# 		# add line to obtain index offset
 			# 		output += "add_idx(idx_" + o.name + "_" + e.left.var.name + ", " + getinstruction(e.left.index, o, D) + ");\n" + indentspace
 			output += getinstruction(e, o, D) + ";"
-		output += "\n" + indentspace + cudastore_new_vector(s,indent,o,D)
+		output += cudastore_new_vector(s,indent,o,D)
 	elif s.__class__.__name__ == "SendSignal":
 		c = connected_channel[(o, s.target)]
 		if c.synctype == 'async':
@@ -3560,6 +3564,7 @@ def preprocess():
 	datanodes = set([])
 	statecount = 0
 	datacount = 0
+	children = []
 	# distinguish different cases regarding the presence of states and data
 	if nrnodes > 1:
 		# add elements to openlist to check for left (False) and right (True) leaves
@@ -3614,7 +3619,8 @@ def preprocess():
 	# if the final vectorpart is to be integrated into a non-leaf node, do this
 	if vectorpart_is_combined_with_nonleaf_node(len(vectorstructure)-1):
 		# remove the right-most leaf in the tree
-		children = vectortree[0]
+		current = 0
+		children = vectortree[current]
 		prev = 0
 		while len(children) == 2:
 			prev = current
@@ -3996,9 +4002,8 @@ def preprocess():
 		# multiply that number by warpsize, as each thread in a warp can work on a different state vector.
 		tilesize = int(((nrthreadsperblock / warpsize) / min(max(len(smnames), 2), (nrthreadsperblock / warpsize))) * warpsize)
 		# to handle models with much data, we divide the tilesize by a factor.
-		datadiv = int(1 + (vectortree_size/1))
+		datadiv = int(1 + (vectortree_size/4))
 		tilesize = int(tilesize / datadiv)
-		tilesize = 32
 		nr_warps_per_tile = int(math.ceil(float(tilesize) / float(warpsize)))
 		if not no_regsort:
 			# compute the number of elements per thread in intra-warp regsort of tile elements

@@ -145,7 +145,7 @@ static const int NR_BLOCKS = {{nrblocks}};
 #define CACHERETRYFREQ 40
 
 // Enum type to indicate node storage mode (see the 'explore_' functions).
-enum Storage_mode {STORED, TO_CACHE, TO_GLOBAL, HASH_TABLE_FULL};
+enum Storage_mode {TO_CACHE, TO_GLOBAL, STORED, GLOBAL_STORED, HASH_TABLE_FULL};
 
 const size_t Mb = 1<<20;
 
@@ -420,15 +420,15 @@ inline __device__ bool cached_node_is_required(shared_inttype pointers) {
 
 // A work tile entry requires fetching the corresponding vectortree from the global memory if its highest bit is set.
 // This is done when a vectortree has been claimed which was not stored in the cache due to the cache supposedly being full.
-inline __device__ void set_worktile_element_to_requiring_fetching(shared_inttype pointer) {
+inline __device__ shared_inttype set_worktile_element_to_requiring_fetching(shared_inttype pointer) {
 	return pointer | 0x80000000;
 }
 
-inline __device__ void filter_requiring_fetching_flag(shared_inttype pointer) {
+inline __device__ shared_inttype filter_requiring_fetching_flag(shared_inttype pointer) {
 	return pointer & 0x7FFFFFFF;
 }
 
-inline __device__ void worktile_element_requires_fetching(shared_inttype *pointer) {
+inline __device__ bool worktile_element_requires_fetching(shared_inttype pointer) {
 	return (pointer & 0x80000000) == 0x80000000;
 }
 
@@ -2339,6 +2339,9 @@ inline __host__ __device__ nodetype HT_RETRIEVE(compressed_nodetype *d_q{% if co
 }
 
 // Find or put a given vectortree node in the global hash table.
+{% if compact_hash_table %}
+Precondition: the given node is collapsed.
+{% endif %}
 inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{% endif %} FINDORPUT_SINGLE(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, nodetype node, volatile uint8_t *d_newstate_flags{% if vectorsize > 62 %}, shared_indextype node_index{% endif %}{% if compact_hash_table %}, bool is_root{% endif %}, bool claim_work) {
 	nodetype e1;
 	{% if compact_hash_table %}
@@ -2385,11 +2388,11 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 								// The cache has been bypassed, since it may be full. Add the collapsed node, and indicate this
 								// by setting the highest bit. We store the collapsed node, since that does not require all bits of the
 								// worktile element.
-								shared[OPENTILEOFFSET+shared_addr] = set_worktile_element_to_requiring_fetching((shared_inttype) collapse(node));
+								shared[OPENTILEOFFSET+shared_addr] = set_worktile_element_to_requiring_fetching((shared_inttype) node);
 							}
 						}
 						else {
-							shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
+							shared[OPENTILEOFFSET+shared_addr] = set_worktile_element_to_requiring_fetching((shared_inttype) node);
 						}
 						// Mark the state as old in the hash table.
 						atomicCAS(&(d_q[addr]), compressed_node, mark_old(compressed_node));
@@ -2423,7 +2426,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 				if (element == EMPTY_NODE{% if vectorsize > 62 %}|| (filter_bookkeeping(node) == filter_bookkeeping(element) && !is_root(element)){% endif %}) {
 				{% else %}
 				if (atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node) == EMPTY_NODE) {
-					// This write is performed to fix a problem that causes the program to hang.
+					// This write is performed to fix a problem that causes the program to hang (!)
 					(*d_dummy) = true;
 				{% endif %}
 					// Successfully stored the node.
@@ -2449,7 +2452,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 								}
 							}
 							else {
-								shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
+								shared[OPENTILEOFFSET+shared_addr] = set_worktile_element_to_requiring_fetching((shared_inttype) addr);
 							}
 							{% else %}
 							// Store the node in the work tile.
@@ -2471,7 +2474,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 			}
 			if ({% if not compact_hash_table %}filter_bookkeeping({% endif %}element{% if not compact_hash_table %}){% endif %} == {% if not compact_hash_table %}filter_bookkeeping({% endif %}node{% if not compact_hash_table %}){% endif %}) {
 				{% if compact_hash_table %}
-				// This write is performed to fix a problem that causes the program to hang.
+				// This write is performed to fix a problem that causes the program to hang (!)
 				(*d_dummy) = true;
 				{% endif %}
 				// The node is already stored.
@@ -2618,10 +2621,6 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 							}
 							// Store global memory address in cache.
 							set_cache_pointers_to_global_address(&shared[CACHEOFFSET+(i*3)+2], addr, false);
-						}
-						else {
-							// New root. Mark the pointers to prepare the cache for the next iteration (if there is one. If not, the cache will be wiped anyway).
-							mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(i*3)+2]);
 						}
 					}
 					else {
@@ -3265,7 +3264,7 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 {% endif %}
 // Exploration functions to traverse outgoing transitions of the various states.
 {% for i in range(0,smnames|length) %}
-inline __device__ Storage_mode explore_{{state_order[i]|replace("'","_")}}(shared_indextype node_index) {
+inline __device__ Storage_mode explore_{{state_order[i]|replace("'","_")}}(shared_indextype node_index, compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, volatile uint8_t *d_newstate_flags) {
 	// Fetch the current state of the state machine.
 	statetype current;
 	get_current_state(&current, node_index, {{i}});
@@ -3321,80 +3320,75 @@ inline __device__ Storage_mode explore_{{state_order[i]|replace("'","_")}}(share
 			
 			{{indent}}// {{s.name}} --{ {{st|getlabel}} }--> {{t.target.name}}
 			
-			mode = TO_CACHE;
+			mode = STORED;
 			{% set M = t|map_variables_on_buffer(o,buffer_allocs) %}
-			while (mode != STORED) {
-				{% if st.__class__.__name__ == 'ReceiveSignal' %}
-				{% if st|cudarecsizeguard(M,o) != "" %}
-				{{indent}}// Fetch buffer size value.
-				{% set ch = connected_channel[(o, st.target)] %}
-				{% set VP = [(ch,"_size")]|get_vectorparts(o) %}
-				{% if vectorsize > 62 %}
-				{{indent}}part1 = get_vectorpart(node_index, {{VP[0]}});
-				{% if VP|length > 1 %}
-				{{indent}}part2 = get_vectorpart(node_index, {{VP[1]}});
-				{% endif %}
-				{% endif %}
-				{{indent}}get_{{ch.name}}_size(&{{M[(ch,"_size")][0]}}_{{M[(ch,"_size")][1]}}, part1, part2);
-				{{indent}}if ({{st|cudarecsizeguard(M,o)}}) {
-				{% set indent = indent + "\t" %}
-				{% endif %}
-				{% endif %}
-				{% set fetchcode = st|cudafetchdata(indent|length+4, o, M, True, True) %}
-				{% if fetchcode != "" %}
-				{{indent}}{{fetchcode}}
-				{% endif %}
-				{{indent}}// Statement computation.
-				{% if st|cudaguard(M,o) != "" %}
-				{{indent}}if ({{st|cudaguard(M,o)}}) {
-				{% set indent = indent + "\t" %}
-				{% endif %}
-				{% set fetchcode = st|cudafetchdata(indent|length+4, o, M, False, False) %}
-				{% if fetchcode != "" %}
-				{{indent}}{{fetchcode}}
-				{% endif %}
-				{% if st|cudastatement(1,o,M) != "" %}
-				{{indent}}{{st|cudastatement(indent|length+4,o,M)}}{% endif %}
-				{% if st|cudaguard(M,o) != "" %}
-				{% set indent = indent[:-1] %}
-				{{indent}}}
-				{% endif %}
-				{% if st.__class__.__name__ == "ReceiveSignal" %}
-				{% if st|cudarecsizeguard(M,o) != "" %}
-				}
-				{% endif %}
-				{% endif %}
-				{% endif %}
-				{% for j in range(0, ns.prio_nestings) %}
-				{% set indent = indent[:-1] %}
-				{{indent}}}
-				{% endfor %}
-				mode = STORED;
+			{% if st.__class__.__name__ == 'ReceiveSignal' %}
+			{% if st|cudarecsizeguard(M,o) != "" %}
+			{{indent}}// Fetch buffer size value.
+			{% set ch = connected_channel[(o, st.target)] %}
+			{% set VP = [(ch,"_size")]|get_vectorparts(o) %}
+			{% if vectorsize > 62 %}
+			{{indent}}part1 = get_vectorpart(node_index, {{VP[0]}});
+			{% if VP|length > 1 %}
+			{{indent}}part2 = get_vectorpart(node_index, {{VP[1]}});
+			{% endif %}
+			{% endif %}
+			{{indent}}get_{{ch.name}}_size(&{{M[(ch,"_size")][0]}}_{{M[(ch,"_size")][1]}}, part1, part2);
+			{{indent}}if ({{st|cudarecsizeguard(M,o)}}) {
+			{% set indent = indent + "\t" %}
+			{% endif %}
+			{% endif %}
+			{% set fetchcode = st|cudafetchdata(indent|length+3, o, M, True, True) %}
+			{% if fetchcode != "" %}
+			{{indent}}{{fetchcode}}
+			{% endif %}
+			{{indent}}// Statement computation.
+			{% if st|cudaguard(M,o) != "" %}
+			{{indent}}if ({{st|cudaguard(M,o)}}) {
+			{% set indent = indent + "\t" %}
+			{% endif %}
+			{% set fetchcode = st|cudafetchdata(indent|length+3, o, M, False, False) %}
+			{% if fetchcode != "" %}
+			{{indent}}{{fetchcode}}
+			{% endif %}
+			{% if st|cudastatement(1,o,M) != "" %}
+			{{indent}}{{st|cudastatement(indent|length+3,o,M)}}{% endif %}
+			{% if st|cudaguard(M,o) != "" %}
+			{% set indent = indent[:-1] %}
+			{{indent}}}
+			{% endif %}
+			{% if st.__class__.__name__ == "ReceiveSignal" %}
+			{% if st|cudarecsizeguard(M,o) != "" %}
 			}
+			{% endif %}
+			{% endif %}
+			{% endif %}
+			{% for j in range(0, ns.prio_nestings) %}
+			{% set indent = indent[:-1] %}
+			{{indent}}}
+			{% endfor %}
 			{% endfor %}
 			}
-			break;
+			return STORED;
 		{% endif %}
 		{% endfor %}
 		default:
-			break;
+			return STORED;
 	}
 }
 
 {% endfor %}
 // Successor construction function for a particular state machine. Given a state vector, construct its successor state vectors w.r.t. the state machine, and store them in cache.
 // Vgtid is the identity of the thread calling the function (id of thread relevant for successor generation).
-inline __device__ Storage_mode get_successors_of_sm(shared_indextype node_index, uint8_t vgtid) {
+inline __device__ Storage_mode get_successors_of_sm(shared_indextype node_index, uint8_t vgtid, compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, volatile uint8_t *d_newstate_flags) {
 	// explore the outgoing transitions of the current state of the state machine assigned to vgtid.
 	switch (vgtid) {
 		{% for i in range(0,smnames|length) %}
 		case {{i}}:
-			return explore_{{state_order[i]|replace("'","_")}}(node_index);
-			break;
+			return explore_{{state_order[i]|replace("'","_")}}(node_index, d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags);
 		{% endfor %}
 		default:
 			return STORED;
-			break;
 	}
 }
 
@@ -3404,7 +3398,7 @@ inline __device__ Storage_mode get_successors_of_sm(shared_indextype node_index,
 {% else %}
 // Precondition: a tile of state nodes is stored in the shared memory.
 {% endif %}
-inline __device__ Storage_mode GENERATE_SUCCESSORS() {
+inline __device__ Storage_mode GENERATE_SUCCESSORS(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, volatile uint8_t *d_newstate_flags) {
 	// Iterate over the designated work.
 	shared_indextype entry_id;
 	{% if no_regsort %}
@@ -3422,7 +3416,9 @@ inline __device__ Storage_mode GENERATE_SUCCESSORS() {
 		{% if vectorsize > 62 %}
 		src_state = shared[OPENTILEOFFSET+entry_id];
 		{% endif %}
-		return get_successors_of_sm({% if vectorsize > 62 %}(shared_indextype) src_state{% else %}entry_id{% endif %}, entry_state_id);
+		if (get_successors_of_sm({% if vectorsize > 62 %}(shared_indextype) src_state{% else %}entry_id{% endif %}, entry_state_id, d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags) == HASH_TABLE_FULL) {
+			return HASH_TABLE_FULL;
+		}
 	}
 	{% else %}
 
@@ -3440,10 +3436,13 @@ inline __device__ Storage_mode GENERATE_SUCCESSORS() {
 			{% if vectorsize > 62 %}
 			src_state = shared[OPENTILEOFFSET+entry_id];
 			{% endif %}
-			return get_successors_of_sm({% if vectorsize > 62 %}(shared_indextype) src_state{% else %}entry_id{% endif %}, i/OPENTILE_WARP_WIDTH);
+			if (get_successors_of_sm({% if vectorsize > 62 %}(shared_indextype) src_state{% else %}entry_id{% endif %}, i/OPENTILE_WARP_WIDTH, d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags) == HASH_TABLE_FULL) {
+				return HASH_TABLE_FULL;
+			}
 		}
 	}
 	{% endif %}
+	return STORED;
 } 
 
 // *** START PRINT FUNCTIONS ***

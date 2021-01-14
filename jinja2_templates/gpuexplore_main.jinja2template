@@ -275,7 +275,7 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 							d_q[loc*WARP_SIZE+LANE] = mark_old(tmp);
 							{% if compact_hash%}
 							shared[OPENTILEOFFSET+l] = set_worktile_element_to_requiring_fetching(filter_bookkeeping(tmp));
-							{% else if vectorsize > 62 %}
+							{% elif vectorsize > 62 %}
 							shared[OPENTILEOFFSET+l] = set_worktile_element_to_requiring_fetching(loc*WARP_SIZE+LANE);
 							{% else %}
 							shared[OPENTILEOFFSET+l] = tmp;
@@ -337,7 +337,7 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 		}
 		__syncthreads();
 		{% endif %}
-		if (GENERATE_SUCCESSORS() == HASH_TABLE_FULL) {
+		if (GENERATE_SUCCESSORS(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags) == HASH_TABLE_FULL) {
 			CONTINUE = 2;
 		}
 		bool performed_work = OPENTILECOUNT != 0;
@@ -580,7 +580,7 @@ int main(int argc, char** argv) {
 	while (contBFS == 1) {
 		CUDA_CHECK_RETURN(cudaMemset(d_contBFS, 0, sizeof(uint8_t)));
 		// TODO: change nr of blocks back to nblocks
-		gather<<<nblocks, {{nrthreadsperblock}}, shared_cache_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
+		gather<<<1, {{nrthreadsperblock}}, shared_cache_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
 
 		// Copy progress result.
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
