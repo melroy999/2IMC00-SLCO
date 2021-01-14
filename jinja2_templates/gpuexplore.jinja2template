@@ -32,7 +32,7 @@ using namespace cooperative_groups;
 #define indextype uint32_t
 {% endif %}
 // type of shared memory elements used.
-{% if vectorsize > 30 and vectorsize <= 62 %}
+{% if nr_bits_shared_mem_element == 64 %}
 #define shared_inttype unsigned long long
 {% else %}
 #define shared_inttype uint32_t
@@ -152,11 +152,19 @@ const size_t Mb = 1<<20;
 // CONSTANTS FOR SHARED MEMORY CACHES
 // Offsets calculations for shared memory arrays
 #define OPENTILELEN					{{tilesize}}
+{% if vectorsize > 62 %}
+#define FETCHFLAGSLEN				{{(tilesize/nr_bits_shared_mem_element)|round(0, 'ceil')|int}}
+{% endif %}
 #define LASTSEARCHLEN				({{nrthreadsperblock}}/WARP_SIZE)
 
 // Offsets in shared memory from which loaded data can be read.
 #define SH_OFFSET 5
+{% if vectorsize > 62 %}
+#define FETCHFLAGSOFFSET			(SH_OFFSET)
+#define OPENTILEOFFSET 				(SH_OFFSET+FETCHFLAGSLEN)
+{% else %}
 #define OPENTILEOFFSET 				(SH_OFFSET)
+{% endif %}
 #define LASTSEARCHOFFSET			(OPENTILEOFFSET+OPENTILELEN)
 #define CACHEOFFSET 				(LASTSEARCHOFFSET+LASTSEARCHLEN)
 
@@ -418,18 +426,17 @@ inline __device__ bool cached_node_is_required(shared_inttype pointers) {
 	return (pointers & 0x80000000) == 0x80000000;
 }
 
-// A work tile entry requires fetching the corresponding vectortree from the global memory if its highest bit is set.
-// This is done when a vectortree has been claimed which was not stored in the cache due to the cache supposedly being full.
-inline __device__ shared_inttype set_worktile_element_to_requiring_fetching(shared_inttype pointer) {
-	return pointer | 0x80000000;
+// A work tile entry requires fetching the corresponding vectortree if its corresponding fetching flag is set.
+inline __device__ shared_inttype set_fetching_flag(shared_indextype index) {
+	return atomicOr((shared_inttype *) &(shared[FETCHFLAGSOFFSET+(index/{{nr_bits_shared_mem_element}})]), (shared_inttype) (1 << (31 - (index & {{(nr_bits_shared_mem_element-1)|hexa}}))));
 }
 
-inline __device__ shared_inttype filter_requiring_fetching_flag(shared_inttype pointer) {
-	return pointer & 0x7FFFFFFF;
+inline __device__ shared_inttype reset_fetching_flag(shared_indextype index) {
+	return atomicAnd((shared_inttype *) &(shared[FETCHFLAGSOFFSET+(index/{{nr_bits_shared_mem_element}})]), (shared_inttype) ~(1 << (31 - (index & {{(nr_bits_shared_mem_element-1)|hexa}}))));
 }
 
-inline __device__ bool worktile_element_requires_fetching(shared_inttype pointer) {
-	return (pointer & 0x80000000) == 0x80000000;
+inline __device__ bool requires_fetching(shared_indextype index) {
+	return (shared[FETCHFLAGSOFFSET+(index/{{nr_bits_shared_mem_element}})] & (1 << (31 - (index & {{(nr_bits_shared_mem_element-1)|hexa}}))) != 0);
 }
 
 {% endif %}
@@ -2340,7 +2347,7 @@ inline __host__ __device__ nodetype HT_RETRIEVE(compressed_nodetype *d_q{% if co
 
 // Find or put a given vectortree node in the global hash table.
 {% if compact_hash_table %}
-Precondition: the given node is collapsed.
+// Precondition: the given node is collapsed.
 {% endif %}
 inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{% endif %} FINDORPUT_SINGLE(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, nodetype node, volatile uint8_t *d_newstate_flags{% if vectorsize > 62 %}, shared_indextype node_index{% endif %}{% if compact_hash_table %}, bool is_root{% endif %}, bool claim_work) {
 	nodetype e1;
@@ -2378,21 +2385,22 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 					// Try to claim the vector for future work. For this, try to increment the OPENTILECOUNT counter.
 					if (claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
 						// If there is still a next successor generation iteration, store a reference to the root in the work tile.
-						// This is either a pointer to the root in the local cache, or the collapsed root itself, depending
+						// This is either a pointer to the root in the local cache, or a pointer to the root in the global hash table, depending
 						// on whether or not the cache has been used to store the vectortree.
 						if (ITERATIONS < d_kernel_iters-1) {
 							if (node_index != EMPTY_CACHE_POINTER) {
 								shared[OPENTILEOFFSET+shared_addr] = node_index;
 							}
 							else {
-								// The cache has been bypassed, since it may be full. Add the collapsed node, and indicate this
-								// by setting the highest bit. We store the collapsed node, since that does not require all bits of the
-								// worktile element.
-								shared[OPENTILEOFFSET+shared_addr] = set_worktile_element_to_requiring_fetching((shared_inttype) node);
+								// The cache has been bypassed, since it may be full. Add a pointer to the root in the global hash table, and indicate this
+								// by setting the corresponding fetching flag.
+								shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
+								set_fetching_flag(shared_addr);
 							}
 						}
 						else {
-							shared[OPENTILEOFFSET+shared_addr] = set_worktile_element_to_requiring_fetching((shared_inttype) node);
+							shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
+							// No need to set the fetching flag, as the kernel will not perform another successor generation iteration.
 						}
 						// Mark the state as old in the hash table.
 						atomicCAS(&(d_q[addr]), compressed_node, mark_old(compressed_node));
@@ -2446,13 +2454,14 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 								}
 								else {
 									// The cache has been bypassed, since it may be full. Add the global address, and indicate this
-									// by setting the highest bit. As a global address does not require all the bits in a worktile element,
-									// we can do this.
-									shared[OPENTILEOFFSET+shared_addr] = set_worktile_element_to_requiring_fetching((shared_inttype) addr);
+									// by setting the corresponding fetching flag.
+									shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
+									set_fetching_flag(shared_addr);
 								}
 							}
 							else {
-								shared[OPENTILEOFFSET+shared_addr] = set_worktile_element_to_requiring_fetching((shared_inttype) addr);
+								shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
+								set_fetching_flag(shared_addr);
 							}
 							{% else %}
 							// Store the node in the work tile.
@@ -2794,11 +2803,7 @@ inline __device__ uint32_t get_part_bitmask_for_states_in_vectorpart(uint8_t pid
 {% endif %}
 
 // Retrieve a vectortree from the global hash table and store it in the cache. This is performed in a warp-centric way.
-{% if not compact_hash_table %}
 // Address rootref points to the root of the requested vectortree.
-{% else %}
-// rootref is the (collapsed) root of the requested vectortree.
-{% endif %}
 // The function returns the address of the root of the vectortree in the cache, or CACHE_FULL in the case the cache is full.
 inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup, compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i{% endif %}, indextype rootref) {
 	nodetype node = EMPTY_NODE;
@@ -2817,11 +2822,10 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 	{% endif %}
 	
 	if (gid == 0) {
-		{% if not compact_hash_table %}
-		node = HT_RETRIEVE(d_q, filter_requiring_fetching_flag(rootref));
-		{% else %}
+		node = HT_RETRIEVE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, rootref{% if compact_hash_table %}, true{% endif %});
+		{% if compact_hash_table %}
 		// Expand the node from {{2*nr_bits_address_internal}} bits to 64 bits.
-		node = expand(filter_requiring_fetching_flag(rootref));
+		node = expand(node);
 		{% endif %}
 	}
 	{% set bound = 1 %}{% if not no_smart_fetching %}{% set bound = bound + 1 %}{% endif %}

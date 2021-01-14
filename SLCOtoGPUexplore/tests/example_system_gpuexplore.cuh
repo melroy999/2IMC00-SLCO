@@ -85,11 +85,13 @@ const size_t Mb = 1<<20;
 // CONSTANTS FOR SHARED MEMORY CACHES
 // Offsets calculations for shared memory arrays
 #define OPENTILELEN					256
+#define FETCHFLAGSLEN				8
 #define LASTSEARCHLEN				(512/WARP_SIZE)
 
 // Offsets in shared memory from which loaded data can be read.
 #define SH_OFFSET 5
-#define OPENTILEOFFSET 				(SH_OFFSET)
+#define FETCHFLAGSOFFSET			(SH_OFFSET)
+#define OPENTILEOFFSET 				(SH_OFFSET+FETCHFLAGSLEN)
 #define LASTSEARCHOFFSET			(OPENTILEOFFSET+OPENTILELEN)
 #define CACHEOFFSET 				(LASTSEARCHOFFSET+LASTSEARCHLEN)
 
@@ -290,18 +292,17 @@ inline __device__ bool cached_node_is_required(shared_inttype pointers) {
 	return (pointers & 0x80000000) == 0x80000000;
 }
 
-// A work tile entry requires fetching the corresponding vectortree from the global memory if its highest bit is set.
-// This is done when a vectortree has been claimed which was not stored in the cache due to the cache supposedly being full.
-inline __device__ shared_inttype set_worktile_element_to_requiring_fetching(shared_inttype pointer) {
-	return pointer | 0x80000000;
+// A work tile entry requires fetching the corresponding vectortree if its corresponding fetching flag is set.
+inline __device__ shared_inttype set_fetching_flag(shared_indextype index) {
+	return atomicOr((shared_inttype *) &(shared[FETCHFLAGSOFFSET+(index/32)]), (shared_inttype) (1 << (31 - (index & 0x1f))));
 }
 
-inline __device__ shared_inttype filter_requiring_fetching_flag(shared_inttype pointer) {
-	return pointer & 0x7FFFFFFF;
+inline __device__ shared_inttype reset_fetching_flag(shared_indextype index) {
+	return atomicAnd((shared_inttype *) &(shared[FETCHFLAGSOFFSET+(index/32)]), (shared_inttype) ~(1 << (31 - (index & 0x1f))));
 }
 
-inline __device__ bool worktile_element_requires_fetching(shared_inttype pointer) {
-	return (pointer & 0x80000000) == 0x80000000;
+inline __device__ bool requires_fetching(shared_indextype index) {
+	return (shared[FETCHFLAGSOFFSET+(index/32)] & (1 << (31 - (index & 0x1f))) != 0);
 }
 
 // Filter the bookkeeping bit values from the given node.
@@ -660,6 +661,14 @@ inline __device__ shared_indextype store_global_address_stub(nodetype node, shar
 
 // GPU data retrieval functions. Retrieve particular state info from the given state vector part(s).
 // Precondition: the given parts indeed contain the requested info.
+inline __device__ void get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
+	asm("{\n\t"
+		" .reg .u64 t1;\n\t"
+		" bfe.u64 t1, %1, 30, 32;\n\t"
+		" cvt.u32.u64 %0, t1;\n\t"
+	    "}" : "=r"(*b) : "l"(part1), "l"(part2));
+}
+
 inline __device__ void get_p_REC1(statetype *b, nodetype part1, nodetype part2) {
 	uint16_t t2;
 	asm("{\n\t"
@@ -668,14 +677,6 @@ inline __device__ void get_p_REC1(statetype *b, nodetype part1, nodetype part2) 
 		" cvt.u16.u64 %0, t1;\n\t"
 	    "}" : "=h"(t2) : "l"(part1), "l"(part2));
 	*b = (statetype) t2;
-}
-
-inline __device__ void get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
-	asm("{\n\t"
-		" .reg .u64 t1;\n\t"
-		" bfe.u64 t1, %1, 30, 32;\n\t"
-		" cvt.u32.u64 %0, t1;\n\t"
-	    "}" : "=r"(*b) : "l"(part1), "l"(part2));
 }
 
 inline __device__ void get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
@@ -704,15 +705,6 @@ inline __device__ void get_current_state(statetype *b, shared_indextype node_ind
 
 // CPU data retrieval functions. Retrieve particular state info from the given state vector part(s).
 // Precondition: the given parts indeed contain the requested info.
-inline void host_get_p_REC1(statetype *b, nodetype part1, nodetype part2) {
-	nodetype t1 = part1;
-	// Strip away data beyond the requested data.
-	t1 = t1 & 0x7fffffffffffffff;
-	// Right shift to isolate requested data.
-	t1 = t1 >> 62;
-	*b = (statetype) t1;
-}
-
 inline void host_get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
 	nodetype t1 = part1;
 	// Strip away data beyond the requested data.
@@ -720,6 +712,15 @@ inline void host_get_p_x(elem_inttype *b, nodetype part1, nodetype part2) {
 	// Right shift to isolate requested data.
 	t1 = t1 >> 30;
 	*b = (elem_inttype) t1;
+}
+
+inline void host_get_p_REC1(statetype *b, nodetype part1, nodetype part2) {
+	nodetype t1 = part1;
+	// Strip away data beyond the requested data.
+	t1 = t1 & 0x7fffffffffffffffL;
+	// Right shift to isolate requested data.
+	t1 = t1 >> 62;
+	*b = (statetype) t1;
 }
 
 inline void host_get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
@@ -741,17 +742,17 @@ inline void host_get_p_y(elem_inttype *b, nodetype part1, nodetype part2) {
 
 // GPU data update functions. Update particular state info in the given state vector part(s).
 // Precondition: the given part indeed needs to contain the indicated fragment (left or right in case the info is split over two parts) of the updated info.
-inline __device__ void set_left_p_REC1(nodetype *part, elem_booltype x) {
-	nodetype t1 = (nodetype) x;
-	asm("{\n\t"
-		" bfi.b64 %0, %1, %0, 62, 1;\n\t"
-		"}" : "+l"(*part) : "l"(t1));
-}
-
 inline __device__ void set_left_p_x(nodetype *part, elem_inttype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
 		" bfi.b64 %0, %1, %0, 30, 32;\n\t"
+		"}" : "+l"(*part) : "l"(t1));
+}
+
+inline __device__ void set_left_p_REC1(nodetype *part, elem_booltype x) {
+	nodetype t1 = (nodetype) x;
+	asm("{\n\t"
+		" bfi.b64 %0, %1, %0, 62, 1;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
@@ -898,252 +899,252 @@ inline __device__ nodetype UHASH(uint8_t id, uint64_t node) {
 			node1 = xor_shft2_64(node1, 14, 50);
 			node1 = xor_shft2_64(node1, 30, 34);
 			node1 *= 0xf922585980506801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 43);
 			node1 ^= rshft(node1, 12);
 			node1 ^= rshft(node1, 26);
 			node1 *= 0xf963d3cf7e2a1801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 31);
 			break;
 		case 12:
 			node1 = xor_shft2_64(node1, 19, 45);
 			node1 = xor_shft2_64(node1, 41, 23);
 			node1 *= 0xf9a099bfb3022801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 24);
 			node1 ^= rshft(node1, 39);
 			node1 ^= rshft(node1, 21);
 			node1 *= 0xf9d92a6f4ae93001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 25);
 			break;
 		case 13:
 			node1 = xor_shft2_64(node1, 28, 36);
 			node1 = xor_shft2_64(node1, 15, 49);
 			node1 *= 0xfa0deebd73767801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 32);
 			node1 ^= rshft(node1, 40);
 			node1 ^= rshft(node1, 24);
 			node1 *= 0xfa3f47134b674001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 27);
 			break;
 		case 14:
 			node1 = xor_shft2_64(node1, 43, 21);
 			node1 = xor_shft2_64(node1, 32, 32);
 			node1 *= 0xfa6d875fe549e801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 31);
 			node1 ^= rshft(node1, 46);
 			node1 ^= rshft(node1, 28);
 			node1 *= 0xfa98f6e7e6aa4001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 26);
 			break;
 		case 15:
 			node1 = xor_shft2_64(node1, 35, 29);
 			node1 = xor_shft2_64(node1, 42, 22);
 			node1 *= 0xfac1d3f253805801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 25);
 			node1 ^= rshft(node1, 44);
 			node1 ^= rshft(node1, 29);
 			node1 *= 0xfae8596df8e0f801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 28);
 			break;
 		case 16:
 			node1 = xor_shft2_64(node1, 35, 29);
 			node1 = xor_shft2_64(node1, 49, 15);
 			node1 *= 0xfb0cb72e09912001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 20);
 			node1 ^= rshft(node1, 29);
 			node1 ^= rshft(node1, 44);
 			node1 *= 0xfb2f1d5d45068801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 35);
 			break;
 		case 17:
 			node1 = xor_shft2_64(node1, 45, 19);
 			node1 = xor_shft2_64(node1, 29, 35);
 			node1 *= 0xfb4fb0e58fd21001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 15);
 			node1 ^= rshft(node1, 44);
 			node1 ^= rshft(node1, 33);
 			node1 *= 0xfb6e96edd75cd001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 41);
 			break;
 		case 18:
 			node1 = xor_shft2_64(node1, 20, 44);
 			node1 = xor_shft2_64(node1, 36, 28);
 			node1 *= 0xfb8bf0f836eb0801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 21);
 			node1 ^= rshft(node1, 41);
 			node1 ^= rshft(node1, 13);
 			node1 *= 0xfba7daea24511001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 34);
 			break;
 		case 19:
 			node1 = xor_shft2_64(node1, 10, 54);
 			node1 = xor_shft2_64(node1, 8, 56);
 			node1 *= 0xfbc26ee0b36f8801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 49);
 			node1 ^= rshft(node1, 11);
 			node1 ^= rshft(node1, 34);
 			node1 *= 0xfbdbc52b8ed14001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 15);
 			break;
 		case 20:
 			node1 = xor_shft2_64(node1, 29, 35);
 			node1 = xor_shft2_64(node1, 50, 14);
 			node1 *= 0xfbf3f4486e688001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 43);
 			node1 ^= rshft(node1, 39);
 			node1 ^= rshft(node1, 49);
 			node1 *= 0xfc0b0cfe69507001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 24);
 			break;
 		case 21:
 			node1 = xor_shft2_64(node1, 38, 26);
 			node1 = xor_shft2_64(node1, 31, 33);
 			node1 *= 0xfc2125faae868001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 50);
 			node1 ^= rshft(node1, 34);
 			node1 ^= rshft(node1, 48);
 			node1 *= 0xfc364c4c4e6e4001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 44);
 			break;
 		case 22:
 			node1 = xor_shft2_64(node1, 14, 50);
 			node1 = xor_shft2_64(node1, 49, 15);
 			node1 *= 0xfc4a90f39b00c001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 11);
 			node1 ^= rshft(node1, 23);
 			node1 ^= rshft(node1, 11);
 			node1 *= 0xfc5e011de66eb801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 8);
 			break;
 		case 23:
 			node1 = xor_shft2_64(node1, 20, 44);
 			node1 = xor_shft2_64(node1, 19, 45);
 			node1 *= 0xfc70aa0535529001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 50);
 			node1 ^= rshft(node1, 29);
 			node1 ^= rshft(node1, 28);
 			node1 *= 0xfc8296fd443dd001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 43);
 			break;
 		case 24:
 			node1 = xor_shft2_64(node1, 31, 33);
 			node1 = xor_shft2_64(node1, 18, 46);
 			node1 *= 0xfc93d17169271001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 39);
 			node1 ^= rshft(node1, 14);
 			node1 ^= rshft(node1, 32);
 			node1 *= 0xfca466baa09f2001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 20);
 			break;
 		case 25:
 			node1 = xor_shft2_64(node1, 26, 38);
 			node1 = xor_shft2_64(node1, 35, 29);
 			node1 *= 0xfcb45e62fe09e801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 18);
 			node1 ^= rshft(node1, 24);
 			node1 ^= rshft(node1, 50);
 			node1 *= 0xfcc3bffadf4d6801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 25);
 			break;
 		case 26:
 			node1 = xor_shft2_64(node1, 48, 16);
 			node1 = xor_shft2_64(node1, 49, 15);
 			node1 *= 0xfcd2950bef268801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 28);
 			node1 ^= rshft(node1, 33);
 			node1 ^= rshft(node1, 41);
 			node1 *= 0xfce0e33f22ce8001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 17);
 			break;
 		case 27:
 			node1 = xor_shft2_64(node1, 26, 38);
 			node1 = xor_shft2_64(node1, 20, 44);
 			node1 *= 0xfceeb42967ca2001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 46);
 			node1 ^= rshft(node1, 43);
 			node1 ^= rshft(node1, 23);
 			node1 *= 0xfcfc0b896bf43001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 18);
 			break;
 		case 28:
 			node1 = xor_shft2_64(node1, 32, 32);
 			node1 = xor_shft2_64(node1, 12, 52);
 			node1 *= 0xfd08f2fd84bba801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 10);
 			node1 ^= rshft(node1, 15);
 			node1 ^= rshft(node1, 49);
 			node1 *= 0xfd156c57a01b1001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 29);
 			break;
 		case 29:
 			node1 = xor_shft2_64(node1, 30, 34);
 			node1 = xor_shft2_64(node1, 49, 15);
 			node1 *= 0xfd217f49540da801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 27);
 			node1 ^= rshft(node1, 45);
 			node1 ^= rshft(node1, 36);
 			node1 *= 0xfd2d2da9e732b801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 49);
 			break;
 		case 30:
 			node1 = xor_shft2_64(node1, 28, 36);
 			node1 = xor_shft2_64(node1, 17, 47);
 			node1 *= 0xfd3881260ec2f001L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 12);
 			node1 ^= rshft(node1, 39);
 			node1 ^= rshft(node1, 34);
 			node1 *= 0xfd4379a53f94a801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 43);
 			break;
 		case 31:
 			node1 = xor_shft2_64(node1, 47, 17);
 			node1 = xor_shft2_64(node1, 10, 54);
 			node1 *= 0xfd4e1cef854fc801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 28);
 			node1 ^= rshft(node1, 39);
 			node1 ^= rshft(node1, 50);
 			node1 *= 0xfd586eda2734f801L;
-			node1 &= 0xffffffffffffffff;
+			node1 &= 0xffffffffffffffffL;
 			node1 ^= rshft(node1, 7);
 			break;
 	}
@@ -2858,6 +2859,7 @@ inline __host__ __device__ nodetype HT_RETRIEVE(compressed_nodetype *d_q, nodety
 }
 
 // Find or put a given vectortree node in the global hash table.
+// Precondition: the given node is collapsed.
 inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *d_q_i, bool *d_dummy, nodetype node, volatile uint8_t *d_newstate_flags, shared_indextype node_index, bool is_root, bool claim_work) {
 	nodetype e1;
 	nodetype e2;
@@ -2886,21 +2888,22 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 					// Try to claim the vector for future work. For this, try to increment the OPENTILECOUNT counter.
 					if (claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
 						// If there is still a next successor generation iteration, store a reference to the root in the work tile.
-						// This is either a pointer to the root in the local cache, or the collapsed root itself, depending
+						// This is either a pointer to the root in the local cache, or a pointer to the root in the global hash table, depending
 						// on whether or not the cache has been used to store the vectortree.
 						if (ITERATIONS < d_kernel_iters-1) {
 							if (node_index != EMPTY_CACHE_POINTER) {
 								shared[OPENTILEOFFSET+shared_addr] = node_index;
 							}
 							else {
-								// The cache has been bypassed, since it may be full. Add the collapsed node, and indicate this
-								// by setting the highest bit. We store the collapsed node, since that does not require all bits of the
-								// worktile element.
-								shared[OPENTILEOFFSET+shared_addr] = set_worktile_element_to_requiring_fetching((shared_inttype) node);
+								// The cache has been bypassed, since it may be full. Add a pointer to the root in the global hash table, and indicate this
+								// by setting the corresponding fetching flag.
+								shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
+								set_fetching_flag(shared_addr);
 							}
 						}
 						else {
-							shared[OPENTILEOFFSET+shared_addr] = set_worktile_element_to_requiring_fetching((shared_inttype) node);
+							shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
+							// No need to set the fetching flag, as the kernel will not perform another successor generation iteration.
 						}
 						// Mark the state as old in the hash table.
 						atomicCAS(&(d_q[addr]), compressed_node, mark_old(compressed_node));
@@ -3211,7 +3214,7 @@ inline __device__ uint32_t get_part_bitmask_for_states_in_vectorpart(uint8_t pid
 }
 
 // Retrieve a vectortree from the global hash table and store it in the cache. This is performed in a warp-centric way.
-// rootref is the (collapsed) root of the requested vectortree.
+// Address rootref points to the root of the requested vectortree.
 // The function returns the address of the root of the vectortree in the cache, or CACHE_FULL in the case the cache is full.
 inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup, compressed_nodetype *d_q, nodetype *d_q_i, indextype rootref) {
 	nodetype node = EMPTY_NODE;
@@ -3228,8 +3231,9 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 	uint32_t smart_fetching_bitmask = 0x0;
 	
 	if (gid == 0) {
+		node = HT_RETRIEVE(d_q, d_q_i, rootref, true);
 		// Expand the node from 58 bits to 64 bits.
-		node = expand(filter_requiring_fetching_flag(rootref));
+		node = expand(node);
 	}
 	// Obtain node from vectortree parent.
 	node_tmp_1 = node;
@@ -3830,22 +3834,22 @@ inline __device__ Storage_mode explore_p_REC1(shared_indextype node_index, compr
 			// Fetch values of unguarded variables.
 			part1 = get_vectorpart(node_index, 0);
 			part2 = get_vectorpart(node_index, 1);
-			get_p_x(&buf32_1, part1, part2);
-			get_p_y(&buf32_0, part1, part2);
+			get_p_x(&buf32_0, part1, part2);
+			get_p_y(&buf32_1, part1, part2);
 			
 			// Statement computation.
-			if (buf32_1 == buf32_0) {
+			if (buf32_0 == buf32_1) {
 				target = 1;
-				buf32_1 = 1;
-				buf32_0 = 2;mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+				buf32_0 = 1;
+				buf32_1 = 2;mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
 				while (mode != STORED && mode != GLOBAL_STORED) {
 					// Store new state vector in the cache or the global hash table.
 					get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
 					// Store new values.
 					part2 = part1;
+					set_left_p_x(&part2, buf32_0);
 					set_left_p_REC1(&part2, (statetype) target);
-					set_left_p_y(&part2, buf32_0);
-					set_left_p_x(&part2, buf32_1);
+					set_left_p_y(&part2, buf32_1);
 					if (part2 != part1) {
 						// This part has been altered. Store it and remember address of new part.
 						if (mode == TO_CACHE) {
@@ -3872,7 +3876,7 @@ inline __device__ Storage_mode explore_p_REC1(shared_indextype node_index, compr
 					get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
 					// Store new values.
 					part2 = part1;
-					set_right_p_y(&part2, buf32_0);
+					set_right_p_y(&part2, buf32_1);
 					if (bufaddr_0 != EMPTY_HASH_POINTER) {
 						if (mode == TO_CACHE) {
 							set_left_cache_pointer(&part_cachepointers, bufaddr_0);
@@ -3971,12 +3975,12 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q, nodetype *q_
 			fprintf(stream, "At index %lu:\n", i);
 			p1 = &part0;
 			p2 = p1;
-			host_get_p_REC1(&e_st, *p1, *p2);
-			fprintf(stream, "state p'REC1: %u\n", (uint32_t) e_st);
-			p1 = &part0;
-			p2 = p1;
 			host_get_p_x(&e_i, *p1, *p2);
 			fprintf(stream, "variable p'x: %u\n", (uint32_t) e_i);
+			p1 = &part0;
+			p2 = p1;
+			host_get_p_REC1(&e_st, *p1, *p2);
+			fprintf(stream, "state p'REC1: %u\n", (uint32_t) e_st);
 			p1 = &part0;
 			p2 = &part1;
 			host_get_p_y(&e_i, *p1, *p2);

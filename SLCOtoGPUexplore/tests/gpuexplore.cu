@@ -104,9 +104,8 @@ inline __device__ void PREPARE_CACHE() {
 
 	// First we mark the root nodes referred to in the worktile for preparation.
 	for (shared_indextype i = THREAD_ID; i < OPENTILECOUNT; i += BLOCK_SIZE) {
-		pointers = shared[OPENTILEOFFSET+i];
-		if (!worktile_element_requires_fetching(pointers)) {
-			mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(pointers*3)+2]);
+		if (!requires_fetching(i)) {
+			mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(shared[OPENTILEOFFSET+i]*3)+2]);
 		}
 	}
 
@@ -201,11 +200,14 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodet
 	shared_indextype sh_index;
 	compressed_nodetype tmp;
 
-	// Reset the shared variables preceding the cache, and reset the cache.
+	// Reset the shared variables preceding the cache, set all fetching flags, and reset the cache.
 	if (THREAD_ID < SH_OFFSET) {
 		shared[THREAD_ID] = 0;
 	}
-	for (i = THREAD_ID; i < (d_shared_cache_size - SH_OFFSET); i += BLOCK_SIZE) {
+	if (THREAD_ID >= SH_OFFSET && THREAD_ID < FETCHFLAGSOFFSET) {
+		shared[THREAD_ID] = 0xFFFFFFFF;
+	}
+	for (i = THREAD_ID; i < (d_shared_cache_size - FETCHFLAGSOFFSET); i += BLOCK_SIZE) {
 		shared[SH_OFFSET+i] = EMPTYVECT32;
 	}
 	__syncthreads();
@@ -254,7 +256,8 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodet
 						l = atomicAdd((shared_inttype *) &OPENTILECOUNT, 1);
 						if (l < OPENTILELEN) {
 							d_q[loc*WARP_SIZE+LANE] = mark_old(tmp);
-							shared[OPENTILEOFFSET+l] = set_worktile_element_to_requiring_fetching(loc*WARP_SIZE+LANE);
+							shared[OPENTILEOFFSET+l] = loc*WARP_SIZE+LANE;
+							set_fetching_flag(l);
 						}
 					}
 				}
@@ -294,7 +297,7 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodet
 
 			#pragma unroll
 			for (i = VECTOR_GROUP_ID; i < OPENTILECOUNT; i += NR_VECTOR_GROUPS_PER_BLOCK) {
-				if (worktile_element_requires_fetching(shared[OPENTILEOFFSET+i])) {
+				if (requires_fetching(i)) {
 					l = FETCH(gtile, d_q, d_q_i, shared[OPENTILEOFFSET+i]);
 					if (l == CACHE_FULL) {
 						// PLAN B?
@@ -303,8 +306,9 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodet
 						sh_index = (shared_indextype) l;
 					}
 					if (gtile.thread_rank() == 0) {
-						// Store the address to the tree in the cache in the work tile.
+						// Store the address to the tree in the cache in the work tile, and reset the corresponding fetching flag.
 						shared[OPENTILEOFFSET+i] = sh_index;
+						reset_fetching_flag(i);
 					}
 				}
 			}
