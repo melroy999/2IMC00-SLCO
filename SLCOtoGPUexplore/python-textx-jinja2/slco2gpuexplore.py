@@ -1231,7 +1231,7 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 						output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true);\n" + indentspace(ic)						
 				else:
 					output += "part2 = mark_new(part2);\n" + indentspace(ic)
-					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, true);\n" + indentspace(ic)						
+					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true);\n" + indentspace(ic)						
 				ic += 1
 				output += "if (bufaddr_" + str(pointer_cnt) + " == HASHTABLE_FULL) {\n" + indentspace(ic)
 				output += "// Hash table is considered full. Report this back.\n" + indentspace(ic)
@@ -1293,12 +1293,11 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 				output += "set_right_cache_pointer(&part_cachepointers, bufaddr_" + str(pointer_cnt) + ");\n" + indentspace(ic)
 				ic -= 1
 				output += "reset_right_in_vectortree_node(&part2);\n" + indentspace(ic)
+				output += "}\n" + indentspace(ic)
 				ic += 1
 				output += "else {\n" + indentspace(ic)
 				ic -= 1
 				output += "set_right_in_vectortree_node(&part2, bufaddr_" + str(pointer_cnt) + ");\n" + indentspace(ic)
-				ic -= 1
-				output += "}\n" + indentspace(ic)
 				ic -= 1
 				output += "}\n" + indentspace(ic)
 				output += "}\n" + indentspace(ic)
@@ -1509,18 +1508,15 @@ def cudastatement(s,indent,o,D,sender_o='',sender_sm='',senderparams=[]):
 		output += getinstruction(s, o, D) + ";\n" + indentspace
 		output += cudastore_new_vector(s,indent,o,D)
 	elif s.__class__.__name__ == "Composite":
-		output += "target = " + str(state_id[s.parent.target]) + ";\n" + indentspace
-		first = True
+		output += "target = " + str(state_id[s.parent.target]) + ";"
 		for e in s.assignments:
-			if not first:
-				output += "\n" + indentspace
-			else:
-				first = False
+			output += "\n" + indentspace
 			# if e.left.index != None:
 			# 	if has_dynamic_indexing(e.left.var, e.left.var.name, e.parent.parent, o):
 			# 		# add line to obtain index offset
 			# 		output += "add_idx(idx_" + o.name + "_" + e.left.var.name + ", " + getinstruction(e.left.index, o, D) + ");\n" + indentspace
 			output += getinstruction(e, o, D) + ";"
+		output += "\n" + indentspace
 		output += cudastore_new_vector(s,indent,o,D)
 	elif s.__class__.__name__ == "SendSignal":
 		c = connected_channel[(o, s.target)]
@@ -4019,7 +4015,7 @@ def preprocess():
 
 def translate():
 	"""The translation function"""
-	global modelname, model, vectorstructure, vectorstructure_string, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, vectortree_nr_reachable_state_parts, vectorelem_in_structure_map, vectortree_node_thread, state_order, max_statesize, smnames, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, signalsize, connected_channel, alphabet, syncactions, actiontargets, no_state_constant, no_prio_constant, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, gpuexplore2_succdist, no_regsort, tilesize, regsort_nr_el_per_thread, warpsize, all_arrayindex_allocs_sizes, no_smart_fetching, compact_hash_table, nrblocks, nrthreadsperblock, array_in_structure_map, nr_bits_shared_mem_element
+	global modelname, model, vectorstructure, vectorstructure_string, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, vectortree_nr_reachable_state_parts, vectorelem_in_structure_map, vectortree_node_thread, state_order, max_statesize, smnames, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, signalsize, connected_channel, alphabet, syncactions, actiontargets, no_state_constant, no_prio_constant, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, gpuexplore2_succdist, no_regsort, tilesize, regsort_nr_el_per_thread, warpsize, all_arrayindex_allocs_sizes, no_smart_fetching, compact_hash_table, nrblocks, nrthreadsperblock, array_in_structure_map, nr_bits_shared_mem_element, deadlock_check
 	
 	path, name = split(modelname)
 	if name.endswith('.slco'):
@@ -4097,14 +4093,14 @@ def translate():
 
 	# load the GPUexplore template
 	template = jinja_env.get_template('gpuexplore.jinja2template')
-	out = template.render(model=model, vectorsize=vectorsize, vectortree_group_size=vectortree_group_size, vectorstructure=vectorstructure, vectorstructure_string=vectorstructure_string, vectortree=vectortree, vectortree_T=vectortree_T, max_statesize=max_statesize, vectorelem_in_structure_map=vectorelem_in_structure_map, array_in_structure_map=array_in_structure_map, state_order=state_order, smnames=smnames, smname_to_object=smname_to_object, state_id=state_id, arraynames=arraynames, max_arrayindexsize=max_arrayindexsize, max_buffer_allocs=max_buffer_allocs, connected_channel=connected_channel, alphabet=alphabet, syncactions=syncactions, actiontargets=actiontargets, syncreccomm=syncreccomm, no_state_constant=no_state_constant, no_prio_constant=no_prio_constant, dynamic_write_arrays=dynamic_write_arrays, signalsize=signalsize, async_channel_vectorpart_buffer_range=async_channel_vectorpart_buffer_range, vectortree_depth=vectortree_depth, vectortree_level_ids=vectortree_level_ids, vectortree_level_nr_of_leaves=vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children=vectortree_level_nr_of_nodes_with_two_children, vectortree_nr_reachable_state_parts=vectortree_nr_reachable_state_parts, vectortree_node_thread=vectortree_node_thread, gpuexplore2_succdist=gpuexplore2_succdist, no_regsort=no_regsort, tilesize=tilesize, regsort_nr_el_per_thread=regsort_nr_el_per_thread, nr_warps_per_tile=nr_warps_per_tile, warpsize=warpsize, all_arrayindex_allocs_sizes=all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask=smart_vectortree_fetching_bitmask, no_smart_fetching=no_smart_fetching, compact_hash_table=compact_hash_table, nr_bits_address_root=nr_bits_address_root(), nr_bits_address_internal=nr_bits_address_internal(), cuda_initial_vector=cudastore_initial_vector(), nrblocks=nrblocks, nrthreadsperblock=nrthreadsperblock, nr_bits_shared_mem_element=nr_bits_shared_mem_element)
+	out = template.render(model=model, vectorsize=vectorsize, vectortree_group_size=vectortree_group_size, vectorstructure=vectorstructure, vectorstructure_string=vectorstructure_string, vectortree=vectortree, vectortree_T=vectortree_T, max_statesize=max_statesize, vectorelem_in_structure_map=vectorelem_in_structure_map, array_in_structure_map=array_in_structure_map, state_order=state_order, smnames=smnames, smname_to_object=smname_to_object, state_id=state_id, arraynames=arraynames, max_arrayindexsize=max_arrayindexsize, max_buffer_allocs=max_buffer_allocs, connected_channel=connected_channel, alphabet=alphabet, syncactions=syncactions, actiontargets=actiontargets, syncreccomm=syncreccomm, no_state_constant=no_state_constant, no_prio_constant=no_prio_constant, dynamic_write_arrays=dynamic_write_arrays, signalsize=signalsize, async_channel_vectorpart_buffer_range=async_channel_vectorpart_buffer_range, vectortree_depth=vectortree_depth, vectortree_level_ids=vectortree_level_ids, vectortree_level_nr_of_leaves=vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children=vectortree_level_nr_of_nodes_with_two_children, vectortree_nr_reachable_state_parts=vectortree_nr_reachable_state_parts, vectortree_node_thread=vectortree_node_thread, gpuexplore2_succdist=gpuexplore2_succdist, no_regsort=no_regsort, tilesize=tilesize, regsort_nr_el_per_thread=regsort_nr_el_per_thread, nr_warps_per_tile=nr_warps_per_tile, warpsize=warpsize, all_arrayindex_allocs_sizes=all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask=smart_vectortree_fetching_bitmask, no_smart_fetching=no_smart_fetching, compact_hash_table=compact_hash_table, nr_bits_address_root=nr_bits_address_root(), nr_bits_address_internal=nr_bits_address_internal(), cuda_initial_vector=cudastore_initial_vector(), nrblocks=nrblocks, nrthreadsperblock=nrthreadsperblock, nr_bits_shared_mem_element=nr_bits_shared_mem_element, deadlock_check=deadlock_check)
 	# write new SLCO model
 	outFile.write(out)
 	outFile.close()
 	# create the main file for GPUexplore
 	outFile = open(join(path,"gpuexplore.cu"), 'w')
 	template = jinja_env.get_template('gpuexplore_main.jinja2template')
-	out = template.render(name=name, vectorsize=vectorsize, vectortree_size=vectortree_size, vectortree_group_size=vectortree_group_size, compact_hash_table=compact_hash_table, global_memsize=global_memsize, nrthreadsperblock=nrthreadsperblock, tilesize=tilesize)
+	out = template.render(name=name, vectorsize=vectorsize, vectortree_size=vectortree_size, vectortree_group_size=vectortree_group_size, compact_hash_table=compact_hash_table, global_memsize=global_memsize, nrthreadsperblock=nrthreadsperblock, tilesize=tilesize, deadlock_check=deadlock_check)
 	outFile.write(out)
 	outFile.close()
 	# create a Makefile

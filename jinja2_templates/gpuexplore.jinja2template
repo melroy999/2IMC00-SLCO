@@ -152,16 +152,16 @@ const size_t Mb = 1<<20;
 // CONSTANTS FOR SHARED MEMORY CACHES
 // Offsets calculations for shared memory arrays
 #define OPENTILELEN					{{tilesize}}
-{% if vectorsize > 62 %}
-#define FETCHFLAGSLEN				{{(tilesize/nr_bits_shared_mem_element)|round(0, 'ceil')|int}}
+{% if deadlock_check %}
+#define DEADLOCKFLAGSLEN			{{(tilesize/nr_bits_shared_mem_element)|round(0, 'ceil')|int}}
 {% endif %}
 #define LASTSEARCHLEN				({{nrthreadsperblock}}/WARP_SIZE)
 
 // Offsets in shared memory from which loaded data can be read.
 #define SH_OFFSET 5
-{% if vectorsize > 62 %}
-#define FETCHFLAGSOFFSET			(SH_OFFSET)
-#define OPENTILEOFFSET 				(SH_OFFSET+FETCHFLAGSLEN)
+{% if deadlock_check %}
+#define DEADLOCKFLAGSOFFSET			(SH_OFFSET)
+#define OPENTILEOFFSET 				(SH_OFFSET+DEADLOCKFLAGSLEN)
 {% else %}
 #define OPENTILEOFFSET 				(SH_OFFSET)
 {% endif %}
@@ -424,19 +424,6 @@ inline __device__ void reset_cached_node_required(volatile shared_inttype *part1
 
 inline __device__ bool cached_node_is_required(shared_inttype pointers) {
 	return (pointers & 0x80000000) == 0x80000000;
-}
-
-// A work tile entry requires fetching the corresponding vectortree if its corresponding fetching flag is set.
-inline __device__ shared_inttype set_fetching_flag(shared_indextype index) {
-	return atomicOr((shared_inttype *) &(shared[FETCHFLAGSOFFSET+(index/{{nr_bits_shared_mem_element}})]), (shared_inttype) (1 << (31 - (index & {{(nr_bits_shared_mem_element-1)|hexa}}))));
-}
-
-inline __device__ shared_inttype reset_fetching_flag(shared_indextype index) {
-	return atomicAnd((shared_inttype *) &(shared[FETCHFLAGSOFFSET+(index/{{nr_bits_shared_mem_element}})]), (shared_inttype) ~(1 << (31 - (index & {{(nr_bits_shared_mem_element-1)|hexa}}))));
-}
-
-inline __device__ bool requires_fetching(shared_indextype index) {
-	return (shared[FETCHFLAGSOFFSET+(index/{{nr_bits_shared_mem_element}})] & (1 << (31 - (index & {{(nr_bits_shared_mem_element-1)|hexa}}))) != 0);
 }
 
 {% endif %}
@@ -861,6 +848,17 @@ inline __device__ shared_indextype store_global_address_stub(nodetype node, shar
 {% endif %}
 // *** END FUNCTIONS FOR {% if vectorsize > 62 %}VECTOR TREE {% endif %}NODE MANIPULATION AND STORAGE TO THE SHARED MEMORY CACHE ***
 
+{% if deadlock_check %}
+// *** START FUNCTIONS FOR PROPERTY VERIFICATION ***
+
+// Resetting a deadlock bitflag in the cache for deadlock checking.
+inline __device__ shared_inttype reset_deadlock_flag(shared_indextype index) {
+	void atomicAnd((shared_inttype *) &(shared[DEADLOCKFLAGSOFFSET+(index/{{nr_bits_shared_mem_element}})]), (shared_inttype) ~(1 << (31 - (index & {{(nr_bits_shared_mem_element-1)|hexa}}))));
+}
+
+// *** END FUNCTIONS FOR PROPERTY VERIFICATION ***
+
+{% endif %}
 // *** START FUNCTIONS FOR MODEL DATA RETRIEVAL AND STORAGE ***
 
 {% for n in all_arrayindex_allocs_sizes %}
@@ -2349,7 +2347,7 @@ inline __host__ __device__ nodetype HT_RETRIEVE(compressed_nodetype *d_q{% if co
 {% if compact_hash_table %}
 // Precondition: the given node is collapsed.
 {% endif %}
-inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{% endif %} FINDORPUT_SINGLE(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, nodetype node, volatile uint8_t *d_newstate_flags{% if vectorsize > 62 %}, shared_indextype node_index{% endif %}{% if compact_hash_table %}, bool is_root{% endif %}, bool claim_work) {
+inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{% endif %} FINDORPUT_SINGLE(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, nodetype node, volatile uint8_t *d_newstate_flags, shared_indextype node_index{% if compact_hash_table %}, bool is_root{% endif %}, bool claim_work) {
 	nodetype e1;
 	{% if compact_hash_table %}
 	nodetype e2;
@@ -2383,24 +2381,15 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 				if (compressed_element == EMPTY_COMPRESSED_NODE) {
 					// Successfully stored the node.
 					// Try to claim the vector for future work. For this, try to increment the OPENTILECOUNT counter.
-					if (claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
-						// If there is still a next successor generation iteration, store a reference to the root in the work tile.
-						// This is either a pointer to the root in the local cache, or a pointer to the root in the global hash table, depending
-						// on whether or not the cache has been used to store the vectortree.
+					// If the given node_index is EMPTY_CACHE_POINTER, the cache has been skipped, since it was considered full. In that case,
+					// we do not try to claim the vector, on the assumption that the full cache already provides sufficient new work.
+					if (node_index != EMPTY_CACHE_POINTER && claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
+						// If there is still a next successor generation iteration, store a cache reference to the root in the work tile.
 						if (ITERATIONS < d_kernel_iters-1) {
-							if (node_index != EMPTY_CACHE_POINTER) {
-								shared[OPENTILEOFFSET+shared_addr] = node_index;
-							}
-							else {
-								// The cache has been bypassed, since it may be full. Add a pointer to the root in the global hash table, and indicate this
-								// by setting the corresponding fetching flag.
-								shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
-								set_fetching_flag(shared_addr);
-							}
+							shared[OPENTILEOFFSET+shared_addr] = node_index;
 						}
 						else {
 							shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
-							// No need to set the fetching flag, as the kernel will not perform another successor generation iteration.
 						}
 						// Mark the state as old in the hash table.
 						atomicCAS(&(d_q[addr]), compressed_node, mark_old(compressed_node));
@@ -2443,25 +2432,18 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 				{% endif %}
 					{% if not compact_hash_table %}
 						// Try to claim the vector for future work. For this, try to increment the OPENTILECOUNT counter.
-						if (claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
+						// If the given node_index is EMPTY_CACHE_POINTER, the cache has been skipped, since it was considered full. In that case,
+						// we do not try to claim the vector, on the assumption that the full cache already provides sufficient new work.
+						if (node_index != EMPTY_CACHE_POINTER && claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
 							{% if vectorsize > 62 %}
 							// If there is still a next successor generation iteration, store a reference to the root in the work tile.
 							// This is either a pointer to the root in the local cache, or a pointer to the root in the global hash table, depending
 							// on whether or not the cache has been used to store the vectortree.
 							if (ITERATIONS < d_kernel_iters-1) {
-								if (node_index != EMPTY_CACHE_POINTER) {
-									shared[OPENTILEOFFSET+shared_addr] = node_index;
-								}
-								else {
-									// The cache has been bypassed, since it may be full. Add the global address, and indicate this
-									// by setting the corresponding fetching flag.
-									shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
-									set_fetching_flag(shared_addr);
-								}
+								shared[OPENTILEOFFSET+shared_addr] = node_index;
 							}
 							else {
 								shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
-								set_fetching_flag(shared_addr);
 							}
 							{% else %}
 							// Store the node in the work tile.
@@ -2529,7 +2511,7 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 				if (cached_node_is_new_leaf(node_pointers)) {
 					node = combine_halfs(shared[CACHEOFFSET+(i*3)], shared[CACHEOFFSET+(i*3)+1]);
 					// Store node in hash table.
-					addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, node, d_newstate_flags{% if vectorsize > 62 %}, i{% endif %}{% if compact_hash_table %}, false{% endif %}, true);
+					addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, node, d_newstate_flags, i{% if compact_hash_table %}, false{% endif %}, true);
 					if (addr == HASHTABLE_FULL) {
 						CONTINUE = 2;
 					}
@@ -2566,7 +2548,7 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 					// Ready now?
 					if (!vectortree_node_contains_left_gap(node) && !vectortree_node_contains_right_gap(node)) {
 						// Store node in hash table.
-						addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, {% if compact_hash_table %}collapse(node){% else %}node{% endif %}, d_newstate_flags{% if vectorsize > 62 %}, i{% endif %}{% if compact_hash_table %}, is_root(node){% endif %}, true);
+						addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, {% if compact_hash_table %}collapse(node){% else %}node{% endif %}, d_newstate_flags, i{% if compact_hash_table %}, is_root(node){% endif %}, true);
 						if (addr == HASHTABLE_FULL) {
 							CONTINUE = 2;
 						}
@@ -2646,7 +2628,7 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 		node = shared[CACHEOFFSET+i];
 		if (is_new(node)) {
 			// Store node in hash table.
-			addr = FINDORPUT_SINGLE(d_q, node, d_newstate_flags, true);
+			addr = FINDORPUT_SINGLE(d_q, node, d_newstate_flags, i, true);
 			if (addr == HASHTABLE_FULL) {
 				CONTINUE = 2;
 			}

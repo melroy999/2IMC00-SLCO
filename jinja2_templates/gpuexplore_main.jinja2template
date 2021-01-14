@@ -111,9 +111,7 @@ inline __device__ void PREPARE_CACHE() {
 
 	// First we mark the root nodes referred to in the worktile for preparation.
 	for (shared_indextype i = THREAD_ID; i < OPENTILECOUNT; i += BLOCK_SIZE) {
-		if (!requires_fetching(i)) {
-			mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(shared[OPENTILEOFFSET+i]*3)+2]);
-		}
+		mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(shared[OPENTILEOFFSET+i]*3)+2]);
 	}
 
 	while (CONTINUE == 1) {
@@ -213,18 +211,21 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 	uint32_t i;
 	indextype l;
 	{% if vectorsize > 62 %}
-	shared_indextype sh_index;
+	shared_indextype sh_index, opentile_scan_start;
 	{% endif %}
 	compressed_nodetype tmp;
 
-	// Reset the shared variables preceding the cache, set all fetching flags, and reset the cache.
+	// Reset the shared variables preceding the cache and reset the cache.
 	if (THREAD_ID < SH_OFFSET) {
 		shared[THREAD_ID] = 0;
 	}
-	if (THREAD_ID >= SH_OFFSET && THREAD_ID < FETCHFLAGSOFFSET) {
+	{% if deadlock_check %}
+	// Set all deadlock flags for the states in the worktile.
+	if (THREAD_ID >= SH_OFFSET && THREAD_ID < DEADLOCKFLAGSOFFSET) {
 		shared[THREAD_ID] = 0xFFFFFFFF;
 	}
-	for (i = THREAD_ID; i < (d_shared_cache_size - FETCHFLAGSOFFSET); i += BLOCK_SIZE) {
+	{% endif %}
+	for (i = THREAD_ID; i < (d_shared_cache_size - {% if deadlock_check %}DEADLOCKFLAGSOFFSET{% else %}SH_OFFSET{% endif %}); i += BLOCK_SIZE) {
 		shared[SH_OFFSET+i] = EMPTYVECT{% if vectorsize <= 30 or vectorsize > 62 %}32{% else %}64{% endif %};
 	}
 	__syncthreads();
@@ -255,6 +256,13 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 			d_newstate_flags[BLOCK_ID] = 2;
 			SCAN = 1;
 		}
+		// We store the current value of OPENTILECOUNT in opentile_scan_start, to check later whether we have added scanned states
+		// to a non-empty work-tile, and to identify those newly added states for fetching. If this is the first iteration, this is
+		// not relevant, as in that case, all states are newly added and require fetching.
+		opentile_scan_start = 0;
+		if (ITERATIONS > 0) {
+			opentile_scan_start = OPENTILECOUNT;
+		}
 		__syncthreads();
 		// Scan the open set for work; we use OPENTILECOUNT to count retrieved elements.
 		if (SCAN) {
@@ -277,7 +285,6 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 							d_q[loc*WARP_SIZE+LANE] = mark_old(tmp);
 							{% if vectorsize > 62 %}
 							shared[OPENTILEOFFSET+l] = loc*WARP_SIZE+LANE;
-							set_fetching_flag(l);
 							{% else %}
 							shared[OPENTILEOFFSET+l] = tmp;
 							{% endif %}
@@ -314,26 +321,23 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 			}
 		}
 		{% if vectorsize > 62 %}
-		if (OPENTILECOUNT > 0) {
+		if (OPENTILECOUNT > opentile_scan_start) {
 			// Fill the cache with the newly added vector trees referred to in the work tile.
 			// Create a cooperative group within a warp in which the thread resides.
 			thread_block_tile<VECTOR_GROUP_SIZE> gtile = tiled_partition<VECTOR_GROUP_SIZE>(this_thread_block());
 
 			#pragma unroll
-			for (i = VECTOR_GROUP_ID; i < OPENTILECOUNT; i += NR_VECTOR_GROUPS_PER_BLOCK) {
-				if (requires_fetching(i)) {
-					l = FETCH(gtile, d_q{% if compact_hash_table %}, d_q_i{% endif %}, shared[OPENTILEOFFSET+i]);
-					if (l == CACHE_FULL) {
-						// PLAN B?
-					}
-					else {
-						sh_index = (shared_indextype) l;
-					}
-					if (gtile.thread_rank() == 0) {
-						// Store the address to the tree in the cache in the work tile, and reset the corresponding fetching flag.
-						shared[OPENTILEOFFSET+i] = sh_index;
-						reset_fetching_flag(i);
-					}
+			for (i = VECTOR_GROUP_ID; i < (OPENTILECOUNT-opentile_scan_start); i += NR_VECTOR_GROUPS_PER_BLOCK) {
+				l = FETCH(gtile, d_q{% if compact_hash_table %}, d_q_i{% endif %}, shared[OPENTILEOFFSET+opentile_scan_start+i]);
+				if (l == CACHE_FULL) {
+					// PLAN B?
+				}
+				else {
+					sh_index = (shared_indextype) l;
+				}
+				if (gtile.thread_rank() == 0) {
+					// Store the address to the tree in the cache in the work tile, and reset the corresponding fetching flag.
+					shared[OPENTILEOFFSET+opentile_scan_start+i] = sh_index;
 				}
 			}
 		}

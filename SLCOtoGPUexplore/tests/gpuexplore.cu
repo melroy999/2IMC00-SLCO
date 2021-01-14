@@ -104,9 +104,7 @@ inline __device__ void PREPARE_CACHE() {
 
 	// First we mark the root nodes referred to in the worktile for preparation.
 	for (shared_indextype i = THREAD_ID; i < OPENTILECOUNT; i += BLOCK_SIZE) {
-		if (!requires_fetching(i)) {
-			mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(shared[OPENTILEOFFSET+i]*3)+2]);
-		}
+		mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(shared[OPENTILEOFFSET+i]*3)+2]);
 	}
 
 	while (CONTINUE == 1) {
@@ -197,17 +195,14 @@ inline __device__ void PREPARE_CACHE() {
 __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodetype *d_q_i, bool *d_dummy, uint8_t *d_contBFS, uint8_t *d_property_violation, volatile uint8_t *d_newstate_flags, shared_inttype *d_worktiles, const uint8_t scan) {
 	uint32_t i;
 	indextype l;
-	shared_indextype sh_index;
+	shared_indextype sh_index, opentile_scan_start;
 	compressed_nodetype tmp;
 
-	// Reset the shared variables preceding the cache, set all fetching flags, and reset the cache.
+	// Reset the shared variables preceding the cache and reset the cache.
 	if (THREAD_ID < SH_OFFSET) {
 		shared[THREAD_ID] = 0;
 	}
-	if (THREAD_ID >= SH_OFFSET && THREAD_ID < FETCHFLAGSOFFSET) {
-		shared[THREAD_ID] = 0xFFFFFFFF;
-	}
-	for (i = THREAD_ID; i < (d_shared_cache_size - FETCHFLAGSOFFSET); i += BLOCK_SIZE) {
+	for (i = THREAD_ID; i < (d_shared_cache_size - SH_OFFSET); i += BLOCK_SIZE) {
 		shared[SH_OFFSET+i] = EMPTYVECT32;
 	}
 	__syncthreads();
@@ -236,6 +231,13 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodet
 			d_newstate_flags[BLOCK_ID] = 2;
 			SCAN = 1;
 		}
+		// We store the current value of OPENTILECOUNT in opentile_scan_start, to check later whether we have added scanned states
+		// to a non-empty work-tile, and to identify those newly added states for fetching. If this is the first iteration, this is
+		// not relevant, as in that case, all states are newly added and require fetching.
+		opentile_scan_start = 0;
+		if (ITERATIONS > 0) {
+			opentile_scan_start = OPENTILECOUNT;
+		}
 		__syncthreads();
 		// Scan the open set for work; we use OPENTILECOUNT to count retrieved elements.
 		if (SCAN) {
@@ -257,7 +259,6 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodet
 						if (l < OPENTILELEN) {
 							d_q[loc*WARP_SIZE+LANE] = mark_old(tmp);
 							shared[OPENTILEOFFSET+l] = loc*WARP_SIZE+LANE;
-							set_fetching_flag(l);
 						}
 					}
 				}
@@ -290,26 +291,23 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodet
 				WORKSCANRESULT = 0;
 			}
 		}
-		if (OPENTILECOUNT > 0) {
+		if (OPENTILECOUNT > opentile_scan_start) {
 			// Fill the cache with the newly added vector trees referred to in the work tile.
 			// Create a cooperative group within a warp in which the thread resides.
 			thread_block_tile<VECTOR_GROUP_SIZE> gtile = tiled_partition<VECTOR_GROUP_SIZE>(this_thread_block());
 
 			#pragma unroll
-			for (i = VECTOR_GROUP_ID; i < OPENTILECOUNT; i += NR_VECTOR_GROUPS_PER_BLOCK) {
-				if (requires_fetching(i)) {
-					l = FETCH(gtile, d_q, d_q_i, shared[OPENTILEOFFSET+i]);
-					if (l == CACHE_FULL) {
-						// PLAN B?
-					}
-					else {
-						sh_index = (shared_indextype) l;
-					}
-					if (gtile.thread_rank() == 0) {
-						// Store the address to the tree in the cache in the work tile, and reset the corresponding fetching flag.
-						shared[OPENTILEOFFSET+i] = sh_index;
-						reset_fetching_flag(i);
-					}
+			for (i = VECTOR_GROUP_ID; i < (OPENTILECOUNT-opentile_scan_start); i += NR_VECTOR_GROUPS_PER_BLOCK) {
+				l = FETCH(gtile, d_q, d_q_i, shared[OPENTILEOFFSET+opentile_scan_start+i]);
+				if (l == CACHE_FULL) {
+					// PLAN B?
+				}
+				else {
+					sh_index = (shared_indextype) l;
+				}
+				if (gtile.thread_rank() == 0) {
+					// Store the address to the tree in the cache in the work tile, and reset the corresponding fetching flag.
+					shared[OPENTILEOFFSET+opentile_scan_start+i] = sh_index;
 				}
 			}
 		}
@@ -480,7 +478,7 @@ int main(int argc, char** argv) {
 	fprintf (stdout, "Internal global mem hash table size: %lu; Number of entries: %lu\n", internal_hash_table_size*sizeof(nodetype), internal_hash_table_size);
 
 	shared_inttype shared_cache_size = (shared_inttype) prop.sharedMemPerMultiprocessor / sizeof(shared_inttype) / 2;
-	fprintf (stdout, "Shared mem work tile size: 256\n");
+	fprintf (stdout, "Shared mem work tile size: 128\n");
 	fprintf (stdout, "Shared mem cache size: %u; Number of entries: %u\n", (uint32_t) (shared_cache_size*sizeof(shared_inttype)), (uint32_t) shared_cache_size*3);
 	fprintf (stdout, "Nr. of blocks: %d; Block size: 512; Nr. of kernel iterations: %d\n", nblocks, kernel_iters);
 
