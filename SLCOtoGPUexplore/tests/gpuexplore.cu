@@ -478,7 +478,7 @@ int main(int argc, char** argv) {
 	fprintf (stdout, "Internal global mem hash table size: %lu; Number of entries: %lu\n", internal_hash_table_size*sizeof(nodetype), internal_hash_table_size);
 
 	shared_inttype shared_cache_size = (shared_inttype) prop.sharedMemPerMultiprocessor / sizeof(shared_inttype) / 2;
-	fprintf (stdout, "Shared mem work tile size: 128\n");
+	fprintf (stdout, "Shared mem work tile size: 256\n");
 	fprintf (stdout, "Shared mem cache size: %u; Number of entries: %u\n", (uint32_t) (shared_cache_size*sizeof(shared_inttype)), (uint32_t) shared_cache_size*3);
 	fprintf (stdout, "Nr. of blocks: %d; Block size: 512; Nr. of kernel iterations: %d\n", nblocks, kernel_iters);
 
@@ -512,7 +512,7 @@ int main(int argc, char** argv) {
 	while (contBFS == 1) {
 		CUDA_CHECK_RETURN(cudaMemset(d_contBFS, 0, sizeof(uint8_t)));
 		// TODO: change nr of blocks back to nblocks
-		gather<<<1, 512, shared_cache_size * sizeof(shared_inttype)>>>(d_q, d_q_i, d_dummy, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
+		gather<<<nblocks, 512, shared_cache_size * sizeof(shared_inttype)>>>(d_q, d_q_i, d_dummy, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
 
 		// Copy progress result.
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());

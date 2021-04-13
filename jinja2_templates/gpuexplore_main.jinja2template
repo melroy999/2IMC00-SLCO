@@ -310,6 +310,9 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 		if (THREAD_ID == 0) {
 			if (OPENTILECOUNT > 0) {
 				(*d_contBFS) = 1;
+				if (OPENTILECOUNT > OPENTILELEN) {
+					OPENTILECOUNT = OPENTILELEN;
+				}
 			}
 			if (SCAN && WORKSCANRESULT == 0 && d_newstate_flags[BLOCK_ID] == 2) {
 				// Scanning has completed and no new states were found by this block.
@@ -327,7 +330,7 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 			thread_block_tile<VECTOR_GROUP_SIZE> gtile = tiled_partition<VECTOR_GROUP_SIZE>(this_thread_block());
 
 			#pragma unroll
-			for (i = VECTOR_GROUP_ID; i < (OPENTILECOUNT-opentile_scan_start); i += NR_VECTOR_GROUPS_PER_BLOCK) {
+			for (i = VECTOR_GROUP_ID; i < ((OPENTILECOUNT < OPENTILELEN ? OPENTILECOUNT : OPENTILELEN)-opentile_scan_start); i += NR_VECTOR_GROUPS_PER_BLOCK) {
 				l = FETCH(gtile, d_q{% if compact_hash_table %}, d_q_i{% endif %}, shared[OPENTILEOFFSET+opentile_scan_start+i]);
 				if (l == CACHE_FULL) {
 					// PLAN B?
@@ -379,7 +382,7 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = shared[OPENTILEOFFSET+THREAD_ID];
 	}
 	if (THREAD_ID == 0) {
-		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = OPENTILECOUNT;
+		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = (OPENTILECOUNT < OPENTILELEN ? OPENTILECOUNT : OPENTILELEN);
 	}
 }
 
