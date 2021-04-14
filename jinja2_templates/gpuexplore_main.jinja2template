@@ -121,7 +121,7 @@ inline __device__ void PREPARE_CACHE() {
 		}
 		__syncthreads();
 		#pragma unroll
-		for (shared_indextype i = THREAD_ID; (i*3)+2 < d_shared_cache_size - CACHEOFFSET; i += BLOCK_SIZE) {
+		for (shared_indextype i = THREAD_ID; (i*3)+2 < d_shared_size - CACHEOFFSET; i += BLOCK_SIZE) {
 			if (cached_node_is_next_in_preparation(shared[CACHEOFFSET+(i*3)+2])) {
 				node = combine_halfs(shared[CACHEOFFSET+(i*3)], shared[CACHEOFFSET+(i*3)+1]);
 				is_required = false;
@@ -188,7 +188,7 @@ inline __device__ void PREPARE_CACHE() {
 	// Scan the cache one more time, remove non-leaf nodes that are no longer required (alternative: keep them with their global memory addresses)
 	// and reset the 'required' marks of required non-leaf nodes.
 	#pragma unroll
-	for (shared_indextype i = THREAD_ID; (i*3)+2 < d_shared_cache_size - CACHEOFFSET; i += BLOCK_SIZE) {
+	for (shared_indextype i = THREAD_ID; (i*3)+2 < d_shared_size - CACHEOFFSET; i += BLOCK_SIZE) {
 		pointers = shared[CACHEOFFSET+(i*3)+2];
 		if (pointers != EMPTYVECT32) {
 			if (!cached_node_is_leaf_with_global_address(pointers)) {
@@ -225,11 +225,11 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 		shared[THREAD_ID] = 0xFFFFFFFF;
 	}
 	{% endif %}
-	for (i = THREAD_ID; i < (d_shared_cache_size - {% if deadlock_check %}DEADLOCKFLAGSOFFSET{% else %}SH_OFFSET{% endif %}); i += BLOCK_SIZE) {
+	for (i = THREAD_ID; i < (d_shared_size - {% if deadlock_check %}DEADLOCKFLAGSOFFSET{% else %}SH_OFFSET{% endif %}); i += BLOCK_SIZE) {
 		shared[SH_OFFSET+i] = EMPTYVECT{% if vectorsize <= 30 or vectorsize > 62 %}32{% else %}64{% endif %};
 	}
-	__syncthreads();
 	if (scan) {
+		__syncthreads();
 		// Copy the work tile from global memory.
 		if (THREAD_ID < OPENTILELEN + LASTSEARCHLEN) {
 			shared[OPENTILEOFFSET + THREAD_ID] = d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1) * BLOCK_ID + THREAD_ID];
@@ -237,10 +237,6 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 		if (THREAD_ID == 0) {
 			OPENTILECOUNT = d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1) * BLOCK_ID + OPENTILELEN + LASTSEARCHLEN];
 		}
-	}
-	else if (THREAD_ID < OPENTILELEN+LASTSEARCHLEN) {
-		// On first run: initialise the work tile to empty.
-		shared[OPENTILEOFFSET+THREAD_ID] = 0;
 	}
 	__syncthreads();
 	while (ITERATIONS < d_kernel_iters) {
@@ -546,13 +542,22 @@ int main(int argc, char** argv) {
 	fprintf (stdout, "Internal global mem hash table size: %lu; Number of entries: %lu\n", internal_hash_table_size*sizeof(nodetype), internal_hash_table_size);
 	{% endif %}
 
-	shared_inttype shared_cache_size = (shared_inttype) prop.sharedMemPerMultiprocessor / sizeof(shared_inttype) / 2;
+	{% if nr_cache_elements > 0 %}
+	// The size of the shared caches is set to a precomputed value.
+	{% if vectorsize > 62 %}
+	shared_inttype shared_size = {{nr_cache_elements*3}}+CACHEOFFSET;
+	{% else %}
+	shared_inttype shared_size = {{nr_cache_elements}}+CACHEOFFSET;
+	{% endif %}
+	{% else %}
+	shared_inttype shared_size = (shared_inttype) prop.sharedMemPerBlock / sizeof(shared_inttype);
+	{% endif %}
 	fprintf (stdout, "Shared mem work tile size: {{tilesize}}\n");
-	fprintf (stdout, "Shared mem cache size: %u; Number of entries: %u\n", (uint32_t) (shared_cache_size*sizeof(shared_inttype)), (uint32_t) shared_cache_size{% if vectorsize > 62 %}*3{% endif %});
+	fprintf (stdout, "Shared mem size: %u; Number of entries in the cache: %u\n", (uint32_t) (shared_size*sizeof(shared_inttype)), (uint32_t) (shared_size - CACHEOFFSET){% if vectorsize > 62 %}/3{% endif %});
 	fprintf (stdout, "Nr. of blocks: %d; Block size: {{nrthreadsperblock}}; Nr. of kernel iterations: %d\n", nblocks, kernel_iters);
 
 	// Copy symbols.
-	cudaMemcpyToSymbol(d_shared_cache_size, &shared_cache_size, sizeof(shared_inttype));
+	cudaMemcpyToSymbol(d_shared_size, &shared_size, sizeof(shared_inttype));
 	cudaMemcpyToSymbol(d_kernel_iters, &kernel_iters, sizeof(uint32_t));
 	{% if compact_hash_table %}
 	cudaMemcpyToSymbol(d_internal_hash_table_size, &internal_hash_table_size, sizeof(uint64_t));
@@ -564,7 +569,7 @@ int main(int argc, char** argv) {
 	// Initialise the hash table.
 	init_hash_table<<<NR_BLOCKS, {{nrthreadsperblock}}>>>(d_q{% if compact_hash_table %}, d_q_i{% endif %});
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
-	store_initial_state<<<1, {{nrthreadsperblock}}, shared_cache_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags, d_worktiles);
+	store_initial_state<<<1, {{nrthreadsperblock}}, shared_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags, d_worktiles);
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 	compressed_nodetype *q_test;
@@ -589,7 +594,7 @@ int main(int argc, char** argv) {
 	while (contBFS == 1) {
 		CUDA_CHECK_RETURN(cudaMemset(d_contBFS, 0, sizeof(uint8_t)));
 		// TODO: change nr of blocks back to nblocks
-		gather<<<nblocks, {{nrthreadsperblock}}, shared_cache_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
+		gather<<<nblocks, {{nrthreadsperblock}}, shared_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
 
 		// Copy progress result.
 		CUDA_CHECK_RETURN(cudaDeviceSynchronize());

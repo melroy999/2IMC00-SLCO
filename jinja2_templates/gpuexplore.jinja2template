@@ -83,7 +83,7 @@ using namespace cooperative_groups;
 // GPU constants.
 static const int WARP_SIZE = 32;
 __constant__ uint32_t d_kernel_iters;
-__constant__ shared_inttype d_shared_cache_size;
+__constant__ shared_inttype d_shared_size;
 {% if compact_hash_table %}
 __constant__ uint64_t d_hash_table_size;
 __constant__ uint64_t d_internal_hash_table_size;
@@ -217,16 +217,6 @@ extern __shared__ volatile shared_inttype shared[];
 #define VECTOR_SMPARTS			{{smart_vectortree_fetching_bitmask["smstates"]|hexa}}
 {% endif %}
 
-// *** START MATH OPERATIONS ***
-
-// Fast modulo operation.
-inline __host__ __device__ shared_indextype fast_modulo(shared_indextype x, shared_indextype n) {
-	shared_indextype q = x / n;
-	return x - (q * n);
-}
-
-// *** END MATH OPERATIONS ***
-
 // *** START BIT OPERATIONS ***
 
 // Bit right shift function.
@@ -308,21 +298,19 @@ inline __device__ compressed_nodetype mark_old(compressed_nodetype node) {
 }
 
 // Check whether state is new.
-{% if vectorsize <= 62 %}
+{% if not compact_hash_table %}
 // This is the case if the highest two bits are set
 // (if only the highest bit is set, the node is actually empty).
 {% else %}
-// This is the case if the highest bit is set.
+// This is the case if the highest bit is set, and not all bits are set.
 {% endif %}
 inline __device__ bool is_new(compressed_nodetype node) {
 {% if vectorsize <= 30 %}
 	return (node & 0xC0000000) == 0xC0000000;
 {% elif compact_hash_table %}
-	return (node & 0x80000000) == 0x80000000;
-{% elif vectorsize <= 62 %}
-	return (node & 0xC000000000000000) == 0xC000000000000000;
+	return (node != EMPTY_COMPRESSED_NODE && (node & 0x80000000) == 0x80000000);
 {% else %}
-	return (node & 0x8000000000000000) == 0x8000000000000000;
+	return (node & 0xC000000000000000) == 0xC000000000000000;
 {% endif %}
 }
 
@@ -754,7 +742,12 @@ inline __device__ shared_indextype CACHE_HASH(nodetype node) {
 	{{43|cuda_xor_r3(31, 23, 1)}}
 	node1 *= 0xdb4f0ad2012a3801L;
 	{{28|cuda_xor_r(1)}}
-	return (shared_indextype) fast_modulo((node1 & 0x000000000000FFFF), ((d_shared_cache_size-CACHEOFFSET){% if vectorsize > 62 %}/3{% endif %}));
+	// Make sure the resulting address is within the range of the cache.
+	{% if nr_cache_elements == 0 %}
+	return (shared_indextype) (node1 & 0x000000000000FFFF) % ((d_shared_size-CACHEOFFSET){% if vectorsize > 62 %}/3{% endif %});
+	{% else %}
+	return (shared_indextype) (node1 & 0x000000000000FFFF) % {{nr_cache_elements}};
+	{% endif %}
 }
 
 // Store a vectortree node in the cache.
@@ -762,7 +755,7 @@ inline __device__ shared_indextype CACHE_HASH(nodetype node) {
 {% if vectorsize <= 62 %}
 inline __device__ indextype STOREINCACHE(nodetype node) {
 {% else %}
-inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_pointers) {
+inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_pointers, bool is_leaf) {
 {% endif %}
 	uint8_t i = 0;
 	shared_indextype addr;
@@ -773,8 +766,17 @@ inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_poi
 	// Split the node in two.
 	part1 = get_left(node);
 	part2 = get_right(node);
-	{% endif %}
+	// As non-leafs often have the same initial node value (if two non-leafs both have two new child trees, their node values are identical),
+	// we hash on the cache_pointers for non-leafs, which usually are different, as they are related to the reachable leafs.
+	if (is_leaf) {
+		addr = CACHE_HASH(node);
+	}
+	else {
+		addr = CACHE_HASH((nodetype) cache_pointers);
+	}
+	{% else %}
 	addr = CACHE_HASH(node);
+	{% endif %}
 	while (i < CACHERETRYFREQ) {
 		element = atomicCAS((shared_inttype *) &(shared[CACHEOFFSET+{% if vectorsize > 62 %}(addr*3){% else %}addr{% endif %}]), {% if vectorsize > 30 and vectorsize <= 62 %}(unsigned long long) {% endif %}EMPTYVECT{% if vectorsize <= 30 or vectorsize > 62 %}32{% else %}64{% endif %}, {% if vectorsize <= 62 %}node{% else %}part1{% endif %});
 		if (element == EMPTYVECT{% if vectorsize <= 30 or vectorsize > 62 %}32{% else %}64{% endif %} || {% if vectorsize < 63 %}filter_bookkeeping(element){% else %}element{% endif %} == {% if vectorsize < 63 %}filter_bookkeeping(node){% else %}part1{% endif %}) {
@@ -790,8 +792,8 @@ inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_poi
 				}
 				else {
 					// Storage of node after all not successful. Try another address.
-					addr += 3;
-					if (addr+2 >= d_shared_cache_size) {
+					addr++;
+					if ((addr*3)+2 >= (d_shared_size - CACHEOFFSET)) {
 						addr = 0;
 					}
 					i++;
@@ -800,8 +802,8 @@ inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_poi
 			}
 			else {
 				// Storage of node after all not successful. Try another address.
-				addr += 3;
-				if (addr+2 >= d_shared_cache_size) {
+				addr++;
+				if ((addr*3)+2 >= (d_shared_size - CACHEOFFSET)) {
 					addr = 0;
 				}
 				i++;
@@ -813,14 +815,14 @@ inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_poi
 		}
 		else {
 			// Storage of node after all not successful. Try another address.
-			{% if vectorsize < 63 %}
+			{% if vectorsize <= 62 %}
 			addr++;
-			if (addr >= d_shared_cache_size) {
+			if (addr >= (d_shared_size - CACHEOFFSET)) {
 				addr = 0;
 			}
 			{% else %}
-			addr += 3;
-			if (addr+2 >= d_shared_cache_size) {
+			addr++;
+			if ((addr*3)+2 >= (d_shared_size - CACHEOFFSET)) {
 				addr = 0;
 			}
 			{% endif %}
@@ -841,7 +843,7 @@ inline __device__ shared_indextype store_global_address_stub(nodetype node, shar
 	// actually relevant. The node is created to be able to dinstinguish a stub from a non-leaf. To do so, the highest bits of the node
 	// are set to EMPTYVECT32, which is a value those bits can never have when the node is a non-leaf. The lowest bits are set to the
 	// global address, to achieve variation in values. This helps the hashing.
-	shared_indextype addr = STOREINCACHE(combine_halfs(EMPTYVECT32, n), n);
+	shared_indextype addr = STOREINCACHE(combine_halfs(EMPTYVECT32, n), n, true);
 	return addr;
 }
 
@@ -2503,7 +2505,7 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 		__syncthreads();
 		if (work_to_do) {
 			work_to_do = false;
-			for (shared_indextype i = THREAD_ID; (i*3)+2 < (d_shared_cache_size - CACHEOFFSET) && CONTINUE != 2; i += BLOCK_SIZE) {
+			for (shared_indextype i = THREAD_ID; (i*3)+2 < (d_shared_size - CACHEOFFSET) && CONTINUE != 2; i += BLOCK_SIZE) {
 				node_pointers = shared[CACHEOFFSET+(i*3)+2];
 				// Check if node is ready for storage. Only new leafs are ready at this point. We rely on old non-leafs having pointers with the highest
 				// two bits set to '00', new non-leafs having pointers with the highest two bits set to '10', empty entries having pointers set to 0,
@@ -2624,7 +2626,7 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 		__syncthreads();
 	}
 	{% else %}
-	for (shared_indextype i = THREAD_ID; i < (d_shared_cache_size - CACHEOFFSET) && CONTINUE != 2; i += BLOCK_SIZE) {
+	for (shared_indextype i = THREAD_ID; i < (d_shared_size - CACHEOFFSET) && CONTINUE != 2; i += BLOCK_SIZE) {
 		node = shared[CACHEOFFSET+i];
 		if (is_new(node)) {
 			// Store node in hash table.
@@ -2654,7 +2656,7 @@ __global__ void store_initial_state(compressed_nodetype *d_q{% if compact_hash_t
 		ITERATIONS = d_kernel_iters;
 	}
 	#pragma unroll
-	for (uint32_t i = THREAD_ID; i < (d_shared_cache_size - SH_OFFSET); i += BLOCK_SIZE) {
+	for (uint32_t i = THREAD_ID; i < (d_shared_size - SH_OFFSET); i += BLOCK_SIZE) {
 		shared[SH_OFFSET + i] = EMPTYVECT{% if vectorsize <= 30 or vectorsize > 62 %}32{% else %}64{% endif %};
 	}
 	__syncthreads();
@@ -2838,7 +2840,7 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 			// Store the leaf node in the cache. Link the global memory address to it such that it can be retrieved in case of collisions
 			// when generating successors.
 			set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
-			result = STOREINCACHE(leaf_node, cache_pointers);
+			result = STOREINCACHE(leaf_node, cache_pointers, true);
 			if (result == CACHE_FULL) {
 				return CACHE_FULL;
 			}
@@ -2850,7 +2852,7 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 				// Store the leaf node in the cache. Link the global memory address to it such that it can be retrieved in case of collisions
 				// when generating successors.
 				set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
-				result = STOREINCACHE(leaf_node, cache_pointers);
+				result = STOREINCACHE(leaf_node, cache_pointers, true);
 				if (result == CACHE_FULL) {
 					return CACHE_FULL;
 				}
@@ -2881,7 +2883,7 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 		// Store the leaf node in the cache. Link the global memory address to it such that it can be retrieved in case of collisions
 		// when generating successors.
 		set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
-		result = STOREINCACHE(leaf_node, cache_pointers);
+		result = STOREINCACHE(leaf_node, cache_pointers, true);
 		if (result == CACHE_FULL) {
 			return CACHE_FULL;
 		}
@@ -2893,7 +2895,7 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 			// Store the leaf node in the cache. Link the global memory address to it such that it can be retrieved in case of collisions
 			// when generating successors.
 			set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
-			result = STOREINCACHE(leaf_node, cache_pointers);
+			result = STOREINCACHE(leaf_node, cache_pointers, true);
 			if (result == CACHE_FULL) {
 				return CACHE_FULL;
 			}
@@ -2989,7 +2991,7 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 	if ({{i|get_compact_nonleaf_thread_condition}}) {
 		{% if not no_smart_fetching %}
 		if ((smart_fetching_bitmask & get_part_reachability(gid, {{i}})) != 0x0) {
-			result = STOREINCACHE(node, cache_pointers);
+			result = STOREINCACHE(node, cache_pointers, false);
 			if (result == CACHE_FULL) {
 				return CACHE_FULL;
 			}
@@ -2998,7 +3000,7 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 			}
 		}
 		{% else %}
-		result = STOREINCACHE(node, cache_pointers);
+		result = STOREINCACHE(node, cache_pointers, false);
 		if (result == CACHE_FULL) {
 			return CACHE_FULL;
 		}
@@ -3227,7 +3229,7 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 	{% endfor %}
 
 	// Finally, retrieve the index of the tile element of interest for the current thread.
-	uint8_t offset = fast_modulo(wid, OPENTILE_WARP_WIDTH);
+	uint8_t offset = wid % OPENTILE_WARP_WIDTH;
 	{% for i in range(0,regsort_nr_el_per_thread) %}
 	// If the index of the p{{i}} element of the thread is within the range of interest, prepare it for communication.
 	if (LANE/(WARP_SIZE/{{regsort_nr_el_per_thread}}) == offset) {
@@ -3410,7 +3412,7 @@ inline __device__ Storage_mode GENERATE_SUCCESSORS(compressed_nodetype *d_q{% if
 
 	#pragma unroll
 	for (shared_indextype i = WARP_ID; i/OPENTILE_WARP_WIDTH < NR_SMS; i += NR_WARPS_PER_BLOCK) {	
-		entry_id = ((fast_modulo(i, OPENTILE_WARP_WIDTH)) * WARP_SIZE);
+		entry_id = ((i % OPENTILE_WARP_WIDTH) * WARP_SIZE);
 		{% if not no_regsort %}
 		if (entry_id < OPENTILECOUNT) {
 			entry_id = get_sorted_opentile_element(i);

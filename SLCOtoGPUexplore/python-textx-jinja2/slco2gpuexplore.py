@@ -8,6 +8,8 @@ import itertools
 import glob
 import traceback
 import math
+import pycuda.autoinit
+import pycuda.driver as cuda
 
 modelname = ""
 model = ""
@@ -20,6 +22,13 @@ gpuexplore2_succdist = False
 no_regsort = False
 no_smart_fetching = False
 compact_hash_table = True
+
+# Will the GPU be queried, using pycuda, to use GPU properties during code generation? This requires the presence of a CUDA capable GPU
+# in the machine
+gpu_querying = True
+# if GPU querying is enabled, it will be used to pre-determine the size of shared memory caches. This variable will store the number
+# of elements that a cache can contain.
+nr_cache_elements = 0
 
 # number of blocks
 nrblocks = 3120
@@ -1203,7 +1212,12 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 						output += "mark_cached_node_new_nonleaf(&part_cachepointers);\n" + indentspace(ic)
 					else:
 						output += "part_cachepointers = CACHE_POINTERS_NEW_LEAF;\n" + indentspace(ic)
-					output += "bufaddr_" + str(pointer_cnt) + " = STOREINCACHE(part2, part_cachepointers);\n" + indentspace(ic)
+					output += "bufaddr_" + str(pointer_cnt) + " = STOREINCACHE(part2, part_cachepointers"
+					if is_non_leaf(p):
+						output += ", false"
+					else:
+						output += ", true"
+					output += ");\n" + indentspace(ic)
 				else:
 					output += "part2 = mark_new(part2);\n" + indentspace(ic)
 					output += "bufaddr_" + str(pointer_cnt) + " = STOREINCACHE(part2);\n" + indentspace(ic)
@@ -1308,7 +1322,7 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 			if p == 0:
 				output += "mark_root(&part2);\n" + indentspace(ic)
 			output += "mark_cached_node_new_nonleaf(&part_cachepointers);\n" + indentspace(ic)
-			output += "bufaddr_" + str(pointer_cnt) + " = STOREINCACHE(part2, part_cachepointers);\n" + indentspace(ic)
+			output += "bufaddr_" + str(pointer_cnt) + " = STOREINCACHE(part2, part_cachepointers, false);\n" + indentspace(ic)
 			ic += 1
 			output += "if (bufaddr_" + str(pointer_cnt) + " == CACHE_FULL) {\n" + indentspace(ic)
 			output += "// Construct the vector again, and store it directly in the global hash table.\n" + indentspace(ic)
@@ -3270,7 +3284,7 @@ def debug(text):
 
 def preprocess():
 	"""Preprocessing of model"""
-	global model, vectorsize, vectorstructure, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_nr_reachable_state_parts, vectortree_node_thread, vectorstructure_string, smnames, vectorelem_in_structure_map, max_statesize, state_order, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, connected_channel, signalsize, signalnr, alphabet, syncactions, actiontargets, actions, syncreccomm, no_state_constant, no_prio_constant, dynamic_write_arrays, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, tilesize, gpuexplore2_succdist, regsort_nr_el_per_thread, all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask, nr_warps_per_tile, compact_hash_table, elements_strings, nrblocks, nrthreadsperblock, array_in_structure_map, vectorpart_id_dict, vectornode_id_dict, no_smart_fetching, nr_bits_shared_mem_element
+	global model, vectorsize, vectorstructure, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_nr_reachable_state_parts, vectortree_node_thread, vectorstructure_string, smnames, vectorelem_in_structure_map, max_statesize, state_order, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, connected_channel, signalsize, signalnr, alphabet, syncactions, actiontargets, actions, syncreccomm, no_state_constant, no_prio_constant, dynamic_write_arrays, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, tilesize, gpuexplore2_succdist, regsort_nr_el_per_thread, all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask, nr_warps_per_tile, compact_hash_table, elements_strings, nrblocks, nrthreadsperblock, array_in_structure_map, vectorpart_id_dict, vectornode_id_dict, no_smart_fetching, nr_bits_shared_mem_element, nr_cache_elements
 
 	# construct set of statemachine names in the system
 	# also construct a map from names to objects
@@ -3649,7 +3663,7 @@ def preprocess():
 				else:
 					vectortree_new[c-1] = children_new
 			vectortree = vectortree_new
-	print(vectortree)
+	#print(vectortree)
 	# now transpose this tree
 	for v in vectortree.keys():
 		C1 = vectortree[v]
@@ -4012,6 +4026,22 @@ def preprocess():
 		if not no_regsort:
 			# compute the number of elements per thread in intra-warp regsort of tile elements
 			regsort_nr_el_per_thread = int(math.pow(2,math.ceil(math.log(tilesize, 2))) / warpsize)
+	if gpu_querying:
+		# determine the size of shared memory caches (nr of elements)
+		if cuda.Device.count() == 0:
+			print("No CUDA-capable GPUs detected! You can generate code with the '-l' option.")
+			sys.exit(1)
+		else:
+			device = cuda.Device(0)
+			attrs = device.get_attributes()
+			shared_size = int(math.floor(attrs.get(cuda.device_attribute.MAX_SHARED_MEMORY_PER_BLOCK) / (nr_bits_shared_mem_element/8)))
+			offset = int(5+tilesize+(nrthreadsperblock/32))
+			if deadlock_check:
+				offset += int(math.ceil(tilesize/(nr_bits_shared_mem_element/8)))
+			nr_cache_elements = shared_size - offset
+			if vectorsize > 62:
+				nr_cache_elements = int(math.floor(nr_cache_elements / 3))
+			print("Nr. of elements in cache hash table: " + str(nr_cache_elements))
 
 def translate():
 	"""The translation function"""
@@ -4093,14 +4123,14 @@ def translate():
 
 	# load the GPUexplore template
 	template = jinja_env.get_template('gpuexplore.jinja2template')
-	out = template.render(model=model, vectorsize=vectorsize, vectortree_group_size=vectortree_group_size, vectorstructure=vectorstructure, vectorstructure_string=vectorstructure_string, vectortree=vectortree, vectortree_T=vectortree_T, max_statesize=max_statesize, vectorelem_in_structure_map=vectorelem_in_structure_map, array_in_structure_map=array_in_structure_map, state_order=state_order, smnames=smnames, smname_to_object=smname_to_object, state_id=state_id, arraynames=arraynames, max_arrayindexsize=max_arrayindexsize, max_buffer_allocs=max_buffer_allocs, connected_channel=connected_channel, alphabet=alphabet, syncactions=syncactions, actiontargets=actiontargets, syncreccomm=syncreccomm, no_state_constant=no_state_constant, no_prio_constant=no_prio_constant, dynamic_write_arrays=dynamic_write_arrays, signalsize=signalsize, async_channel_vectorpart_buffer_range=async_channel_vectorpart_buffer_range, vectortree_depth=vectortree_depth, vectortree_level_ids=vectortree_level_ids, vectortree_level_nr_of_leaves=vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children=vectortree_level_nr_of_nodes_with_two_children, vectortree_nr_reachable_state_parts=vectortree_nr_reachable_state_parts, vectortree_node_thread=vectortree_node_thread, gpuexplore2_succdist=gpuexplore2_succdist, no_regsort=no_regsort, tilesize=tilesize, regsort_nr_el_per_thread=regsort_nr_el_per_thread, nr_warps_per_tile=nr_warps_per_tile, warpsize=warpsize, all_arrayindex_allocs_sizes=all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask=smart_vectortree_fetching_bitmask, no_smart_fetching=no_smart_fetching, compact_hash_table=compact_hash_table, nr_bits_address_root=nr_bits_address_root(), nr_bits_address_internal=nr_bits_address_internal(), cuda_initial_vector=cudastore_initial_vector(), nrblocks=nrblocks, nrthreadsperblock=nrthreadsperblock, nr_bits_shared_mem_element=nr_bits_shared_mem_element, deadlock_check=deadlock_check)
+	out = template.render(model=model, vectorsize=vectorsize, vectortree_group_size=vectortree_group_size, vectorstructure=vectorstructure, vectorstructure_string=vectorstructure_string, vectortree=vectortree, vectortree_T=vectortree_T, max_statesize=max_statesize, vectorelem_in_structure_map=vectorelem_in_structure_map, array_in_structure_map=array_in_structure_map, state_order=state_order, smnames=smnames, smname_to_object=smname_to_object, state_id=state_id, arraynames=arraynames, max_arrayindexsize=max_arrayindexsize, max_buffer_allocs=max_buffer_allocs, connected_channel=connected_channel, alphabet=alphabet, syncactions=syncactions, actiontargets=actiontargets, syncreccomm=syncreccomm, no_state_constant=no_state_constant, no_prio_constant=no_prio_constant, dynamic_write_arrays=dynamic_write_arrays, signalsize=signalsize, async_channel_vectorpart_buffer_range=async_channel_vectorpart_buffer_range, vectortree_depth=vectortree_depth, vectortree_level_ids=vectortree_level_ids, vectortree_level_nr_of_leaves=vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children=vectortree_level_nr_of_nodes_with_two_children, vectortree_nr_reachable_state_parts=vectortree_nr_reachable_state_parts, vectortree_node_thread=vectortree_node_thread, gpuexplore2_succdist=gpuexplore2_succdist, no_regsort=no_regsort, tilesize=tilesize, regsort_nr_el_per_thread=regsort_nr_el_per_thread, nr_warps_per_tile=nr_warps_per_tile, warpsize=warpsize, all_arrayindex_allocs_sizes=all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask=smart_vectortree_fetching_bitmask, no_smart_fetching=no_smart_fetching, compact_hash_table=compact_hash_table, nr_bits_address_root=nr_bits_address_root(), nr_bits_address_internal=nr_bits_address_internal(), cuda_initial_vector=cudastore_initial_vector(), nrblocks=nrblocks, nrthreadsperblock=nrthreadsperblock, nr_bits_shared_mem_element=nr_bits_shared_mem_element, deadlock_check=deadlock_check, nr_cache_elements=nr_cache_elements)
 	# write new SLCO model
 	outFile.write(out)
 	outFile.close()
 	# create the main file for GPUexplore
 	outFile = open(join(path,"gpuexplore.cu"), 'w')
 	template = jinja_env.get_template('gpuexplore_main.jinja2template')
-	out = template.render(name=name, vectorsize=vectorsize, vectortree_size=vectortree_size, vectortree_group_size=vectortree_group_size, compact_hash_table=compact_hash_table, global_memsize=global_memsize, nrthreadsperblock=nrthreadsperblock, tilesize=tilesize, deadlock_check=deadlock_check)
+	out = template.render(name=name, vectorsize=vectorsize, vectortree_size=vectortree_size, vectortree_group_size=vectortree_group_size, compact_hash_table=compact_hash_table, global_memsize=global_memsize, nrthreadsperblock=nrthreadsperblock, tilesize=tilesize, deadlock_check=deadlock_check, nr_cache_elements=nr_cache_elements)
 	outFile.write(out)
 	outFile.close()
 	# create a Makefile
@@ -4113,7 +4143,7 @@ def translate():
 
 def main(args):
 	"""The main function"""
-	global modelname, model, property_file, deadlock_check, gpuexplore2_succdist, no_regsort, no_smart_fetching, compact_hash_table, global_memsize, nrblocks, nrthreadsperblock, vectorsize
+	global modelname, model, property_file, deadlock_check, gpuexplore2_succdist, no_regsort, no_smart_fetching, compact_hash_table, global_memsize, nrblocks, nrthreadsperblock, vectorsize, gpu_querying
 	if len(args) == 0:
 		print("Missing argument: SLCO model")
 		sys.exit(1)
@@ -4128,6 +4158,7 @@ def main(args):
 			print(" -p                    verify given LTL property")
 			print(" -b                    number of CUDA blocks to run (default 3120)")
 			print(" -t                    number of threads per CUDA block (default 512)")
+			print(" -l                    do not query GPU properties during code generation (default False)")
 			print(" -g2                   apply GPUexplore 2.0 successor generation work distribution (default False)")
 			print(" -noregsort            do not apply regsort for successor generation work distribution (default False)")
 			print(" -nosmartfetching      disable smart fetching of vectortrees from global memory (default False)")
@@ -4145,6 +4176,8 @@ def main(args):
 					i += 1
 				elif args[i] == '-g2':
 					gpuexplore2_succdist = True
+				elif args[i] == '-l':
+					gpu_querying = False
 				elif args[i] == '-noregsort':
 					no_regsort = True
 				elif args[i] == '-nosmartfetch':
