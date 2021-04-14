@@ -391,6 +391,10 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 		}
 		// Ready to start next iteration, if error has not occurred.
 		if (THREAD_ID == 0) {
+			// Fix OPENTILECOUNT if needed.
+			if (OPENTILECOUNT > OPENTILELEN) {
+				OPENTILECOUNT = OPENTILELEN;
+			}
 			if (CONTINUE == 2) {
 				(*d_contBFS) = 2;
 				ITERATIONS = d_kernel_iters;
