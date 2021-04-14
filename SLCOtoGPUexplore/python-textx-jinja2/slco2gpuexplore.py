@@ -8,8 +8,10 @@ import itertools
 import glob
 import traceback
 import math
-import pycuda.autoinit
-import pycuda.driver as cuda
+import importlib
+
+# Variable to bind the pyCUDA library to in case it is needed. If it is not, the dynamic import means that it is not required that pyCUDA is installed.
+cuda = ''
 
 modelname = ""
 model = ""
@@ -4143,7 +4145,7 @@ def translate():
 
 def main(args):
 	"""The main function"""
-	global modelname, model, property_file, deadlock_check, gpuexplore2_succdist, no_regsort, no_smart_fetching, compact_hash_table, global_memsize, nrblocks, nrthreadsperblock, vectorsize, gpu_querying
+	global modelname, model, property_file, deadlock_check, gpuexplore2_succdist, no_regsort, no_smart_fetching, compact_hash_table, global_memsize, nrblocks, nrthreadsperblock, vectorsize, gpu_querying, cuda
 	if len(args) == 0:
 		print("Missing argument: SLCO model")
 		sys.exit(1)
@@ -4196,6 +4198,11 @@ def main(args):
 	# if GPUexplore 2.0 successor generation is applied, regsorting is not.
 	if gpuexplore2_succdist:
 		no_regsort = True
+
+	# if GPU querying is enabled, import pyCUDA
+	if gpu_querying:
+		cudainit = importlib.import_module(pycuda.autoinit)
+		cuda = importlib.import_module(pycuda.driver)
 
 	batch = []
 	if modelname.endswith('.slco'):
