@@ -4201,8 +4201,8 @@ def main(args):
 
 	# if GPU querying is enabled, import pyCUDA
 	if gpu_querying:
-		cudainit = importlib.import_module(pycuda.autoinit)
-		cuda = importlib.import_module(pycuda.driver)
+		cudainit = importlib.import_module("pycuda.autoinit")
+		cuda = importlib.import_module("pycuda.driver")
 
 	batch = []
 	if modelname.endswith('.slco'):
