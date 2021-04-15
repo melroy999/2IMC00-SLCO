@@ -2625,6 +2625,13 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 		}
 		__syncthreads();
 	}
+	if (THREAD_ID == 0) {
+		// Possibly fix OPENTILECOUNT.
+		if (OPENTILECOUNT > OPENTILELEN) {
+			OPENTILECOUNT = OPENTILELEN;
+		}
+	}
+	__syncthreads();
 	{% else %}
 	for (shared_indextype i = THREAD_ID; i < (d_shared_size - CACHEOFFSET) && CONTINUE != 2; i += BLOCK_SIZE) {
 		node = shared[CACHEOFFSET+i];

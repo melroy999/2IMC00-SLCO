@@ -1240,14 +1240,14 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 						output += "mark_root(&part2);\n" + indentspace(ic)
 					if compact_hash_table:
 						if p == 0:
-							output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, true);\n" + indentspace(ic)
+							output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)
 						else:
-							output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);\n" + indentspace(ic)
+							output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)
 					else:
-						output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true);\n" + indentspace(ic)						
+						output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, EMPTY_CACHE_POINTER, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)						
 				else:
 					output += "part2 = mark_new(part2);\n" + indentspace(ic)
-					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true);\n" + indentspace(ic)						
+					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, EMPTY_CACHE_POINTER, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)						
 				ic += 1
 				output += "if (bufaddr_" + str(pointer_cnt) + " == HASHTABLE_FULL) {\n" + indentspace(ic)
 				output += "// Hash table is considered full. Report this back.\n" + indentspace(ic)
@@ -1345,11 +1345,11 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 				output += "mark_root(&part2);\n" + indentspace(ic)
 			if compact_hash_table:
 				if p == 0:
-					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, true);\n" + indentspace(ic)
+					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)
 				else:
-					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);\n" + indentspace(ic)
+					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)
 			else:
-				output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true);\n" + indentspace(ic)						
+				output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, EMPTY_CACHE_POINTER, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)						
 			ic += 1
 			output += "if (bufaddr_" + str(pointer_cnt) + " == HASHTABLE_FULL) {\n" + indentspace(ic)
 			output += "// Hash table is considered full. Report this back.\n" + indentspace(ic)
