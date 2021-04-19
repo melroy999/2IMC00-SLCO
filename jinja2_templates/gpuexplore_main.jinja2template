@@ -126,6 +126,34 @@ __global__ void count_internal_nodes(nodetype *d_q_i, uint64_t *result) {
 	}
 }
 
+{% else %}
+/**
+ * CUDA kernel function to count the number of non-root nodes in the global memory hash table.
+ */
+__global__ void count_internal_nodes(compressed_nodetype *d_q, uint64_t *result) {
+ 	__shared__ uint64_t blockcount;
+
+	if (THREAD_ID == 0) {
+		blockcount = 0;
+	}
+	__syncthreads();
+	uint64_t localResult = 0;
+	for (uint64_t i = GLOBAL_THREAD_ID; i < d_hash_table_size; i += NR_THREADS) {
+		if (!is_root(d_q[i]) && d_q[i] != EMPTY_NODE) {
+			localResult++;
+		}
+	}
+	if (localResult > 0) {
+		atomicAdd((unsigned long long *) &blockcount, (unsigned long long) localResult);
+	}
+	__syncthreads();
+	if (THREAD_ID == 0) {
+		if (blockcount > 0) {
+			atomicAdd((unsigned long long *) result, (unsigned long long) blockcount);
+		}
+	}
+}
+
 {% endif %}
 /**
  * CUDA kernel function to prepare the cache for a new successor generation iteration.
@@ -678,13 +706,13 @@ int main(int argc, char** argv) {
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 	CUDA_CHECK_RETURN(cudaMemcpy(&counted_states, d_counted_states, sizeof(uint64_t), cudaMemcpyDeviceToHost));
 	fprintf(stdout, "Nr. of states in hash table: %lu\n", counted_states);
-	{% if compact_hash_table %}
+	{% if vectorsize > 62 %}
 
 	CUDA_CHECK_RETURN(cudaMemset(d_counted_states, 0, sizeof(uint64_t)));
-	count_internal_nodes<<<((int) prop.multiProcessorCount)*8, 512>>>(d_q_i, d_counted_states);
+	count_internal_nodes<<<((int) prop.multiProcessorCount)*8, 512>>>({% if compact_hashtable %}d_q_i{% else %}d_q{% endif %}, d_counted_states);
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 	CUDA_CHECK_RETURN(cudaMemcpy(&counted_states, d_counted_states, sizeof(uint64_t), cudaMemcpyDeviceToHost));
-	fprintf(stdout, "Nr. of nodes in internal hash table: %lu\n", counted_states);
+	fprintf(stdout, "Nr. of internal nodes: %lu\n", counted_states);
 	{% endif %}
 
 	return 0;
