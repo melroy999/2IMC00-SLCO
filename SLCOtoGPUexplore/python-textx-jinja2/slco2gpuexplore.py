@@ -965,30 +965,30 @@ def cudastore_initial_vector():
 		# mark the root node as being root.
 		nodes[0] = (nodes[0] & 0x3FFFFFFFFFFFFFFF) | 0x4000000000000000;
 	# construct code
-	output = "\tif (GLOBAL_THREAD_ID < " + str(nrnodes) + ") {\n"
-	output += "\t\tswitch (GLOBAL_THREAD_ID) {\n"
+	output = "\t\tif (GLOBAL_THREAD_ID < " + str(nrnodes) + ") {\n"
+	output += "\t\t\tswitch (GLOBAL_THREAD_ID) {\n"
 	for i in range(0, nrnodes):
-		output += "\t\t\tcase " + str(i) + ":\n"
+		output += "\t\t\t\tcase " + str(i) + ":\n"
 		if vectorsize <= 62:
 			addr = str(i)
 		else:
 			addr = "(" + str(i) + "*3)"
-		output += "\t\t\t\tshared[CACHEOFFSET+" + addr + "] = "
+		output += "\t\t\t\t\tshared[CACHEOFFSET+" + addr + "] = "
 		if vectorsize > 62:
 			output += "get_left(" + hexa(nodes[i]) + ");\n"
-			output += "\t\t\t\tshared[CACHEOFFSET+" + addr + "+1] = get_right(" + hexa(nodes[i]) + ");\n"
+			output += "\t\t\t\t\tshared[CACHEOFFSET+" + addr + "+1] = get_right(" + hexa(nodes[i]) + ");\n"
 		else:
 			output += hexa(nodes[i]) + ";\n"
 		if vectorsize > 62:
-			output += "\t\t\t\tshared[CACHEOFFSET+" + addr + "+2] = "
+			output += "\t\t\t\t\tshared[CACHEOFFSET+" + addr + "+2] = "
 			if isinstance(nodes_cachepointers[i], str):
 				output += nodes_cachepointers[i]
 			else:
 				output += hexa(nodes_cachepointers[i])
 			output += ";\n"
-		output += "\t\t\t\tbreak;\n"
-	output += "\t\t}\n"
-	output += "\t}"
+		output += "\t\t\t\t\tbreak;\n"
+	output += "\t\t\t}\n"
+	output += "\t\t}"
 	return output
 
 def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, indent):

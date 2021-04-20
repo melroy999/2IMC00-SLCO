@@ -67,6 +67,21 @@ __global__ void init_hash_table(compressed_nodetype *d_q{% if compact_hash_table
 }
 
 /**
+ * CUDA kernel function to initialise the worktiles in the global memory.
+ */
+__global__ void init_worktiles(shared_inttype *d_worktiles) {
+    if (THREAD_ID == 0) {
+    	d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = 0;
+    }
+    if (THREAD_ID < LASTSEARCHLEN) {
+    	d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + THREAD_ID] = BLOCK_ID*BLOCK_SIZE + THREAD_ID*WARP_SIZE;
+    }
+    for (uint64_t i = THREAD_ID; i < OPENTILELEN; i += NR_THREADS) {
+    	d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = EMPTYVECT32;
+    }
+}
+
+/**
  * CUDA kernel function to count the number of states in the global memory hash table.
  */
 __global__ void count_states(compressed_nodetype *d_q, uint64_t *result) {
@@ -319,42 +334,35 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 		__syncthreads();
 		// Scan the open set for work; we use OPENTILECOUNT to count retrieved elements.
 		if (SCAN) {
-			indextype last_search_location = (indextype) shared[LASTSEARCHOFFSET + WARP_ID];
+			indextype loc = (indextype) shared[LASTSEARCHOFFSET + WARP_ID] + LANE;
 			// This block should be able to find a new state.
 			bool found_new_state = false;
-			for (i = GLOBAL_WARP_ID; i < (d_hash_table_size/WARP_SIZE) && OPENTILECOUNT < OPENTILELEN; i += NR_WARPS) {
-				indextype loc = last_search_location + i;
-				if (loc >= d_hash_table_size/WARP_SIZE) {
-					last_search_location = -i + GLOBAL_WARP_ID;
-					loc = i + last_search_location;
+			for (i = (GLOBAL_WARP_ID*WARP_SIZE); i < d_hash_table_size && OPENTILECOUNT < OPENTILELEN; i += NR_THREADS) {
+				if (loc >= d_hash_table_size) {
+					loc = GLOBAL_THREAD_ID;
 				}
-				if (loc*WARP_SIZE+LANE < d_hash_table_size) {
-					tmp = d_q[loc*WARP_SIZE+LANE];
+				if (loc < d_hash_table_size) {
+					tmp = d_q[loc];
 					if (is_new(tmp)) {
 						found_new_state = true;
 						// Try to increment the OPENTILECOUNT counter. If successful, store a reference to the state.
 						l = atomicAdd((shared_inttype *) &OPENTILECOUNT, 1);
 						if (l < OPENTILELEN) {
-							d_q[loc*WARP_SIZE+LANE] = mark_old(tmp);
+							d_q[loc] = mark_old(tmp);
 							{% if vectorsize > 62 %}
-							shared[OPENTILEOFFSET+l] = loc*WARP_SIZE+LANE;
+							shared[OPENTILEOFFSET+l] = loc;
 							{% else %}
 							shared[OPENTILEOFFSET+l] = tmp;
 							{% endif %}
 						}
 					}
 				}
-			}
-			if (i < (d_hash_table_size/WARP_SIZE)) {
-				last_search_location = i - GLOBAL_WARP_ID;
-			}
-			else {
-				last_search_location = 0;
+				loc += NR_THREADS;
 			}
 			if (LANE == 0) {
-				shared[LASTSEARCHOFFSET + WARP_ID] = last_search_location;
+				shared[LASTSEARCHOFFSET + WARP_ID] = loc;
 			}
-			if (found_new_state || i < (d_hash_table_size/WARP_SIZE)) {
+			if (found_new_state) {
 				WORKSCANRESULT = 1;
 			}
 		}
@@ -560,7 +568,6 @@ int main(int argc, char** argv) {
 	// Set data on the GPU to initial values.
 	CUDA_CHECK_RETURN(cudaMemset(d_contBFS, 1, sizeof(uint8_t)));
 	CUDA_CHECK_RETURN(cudaMemset(d_newstate_flags, 0, nblocks * sizeof(uint8_t)));
-	CUDA_CHECK_RETURN(cudaMemset(d_worktiles, 0, nblocks * (OPENTILELEN + LASTSEARCHLEN + 1) * sizeof(shared_inttype)));
 	CUDA_CHECK_RETURN(cudaMemset(d_counted_states, 0, sizeof(uint64_t)));
 
 	{% if not compact_hash_table %}
@@ -624,9 +631,13 @@ int main(int argc, char** argv) {
 	{% endif %}
 
 	// Initialise the hash table.
-	init_hash_table<<<NR_BLOCKS, {{nrthreadsperblock}}>>>(d_q{% if compact_hash_table %}, d_q_i{% endif %});
+	init_hash_table<<<nblocks, {{nrthreadsperblock}}>>>(d_q{% if compact_hash_table %}, d_q_i{% endif %});
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
-	store_initial_state<<<1, {{nrthreadsperblock}}, shared_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags, d_worktiles);
+	// Initialise the worktiles.
+	init_worktiles<<<nblocks, 512>>>(d_worktiles);
+	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+	// Store the initial state.
+	store_initial_state<<<nblocks, {{nrthreadsperblock}}, shared_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags, d_worktiles);
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 
 	compressed_nodetype *q_test;

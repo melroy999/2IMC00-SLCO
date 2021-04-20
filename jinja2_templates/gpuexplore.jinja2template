@@ -2387,6 +2387,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 					// we do not try to claim the vector, on the assumption that the full cache already provides sufficient new work.
 					if (node_index != EMPTY_CACHE_POINTER && claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
 						// If there is still a next successor generation iteration, store a cache reference to the root in the work tile.
+						// Otherwise, store a reference to the root in the global hash table.
 						if (ITERATIONS < d_kernel_iters-1) {
 							shared[OPENTILEOFFSET+shared_addr] = node_index;
 						}
@@ -2439,9 +2440,8 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 						// we do not try to claim the vector, on the assumption that the full cache already provides sufficient new work.
 						if (node_index != EMPTY_CACHE_POINTER && claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
 							{% if vectorsize > 62 %}
-							// If there is still a next successor generation iteration, store a reference to the root in the work tile.
-							// This is either a pointer to the root in the local cache, or a pointer to the root in the global hash table, depending
-							// on whether or not the cache has been used to store the vectortree.
+							// If there is still a next successor generation iteration, store a cache reference to the root in the work tile.
+							// Otherwise, store a reference to the root in the global hash table.
 							if (ITERATIONS < d_kernel_iters-1) {
 								shared[OPENTILEOFFSET+shared_addr] = node_index;
 							}
@@ -2654,30 +2654,32 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 
 // Kernel to store the initial state in the global memory hash table.
 __global__ void store_initial_state(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, volatile uint8_t *d_newstate_flags, shared_inttype *d_worktiles) {
-	// Reset the shared variables preceding the cache, and reset the cache.
-	if (THREAD_ID < SH_OFFSET) {
-		shared[THREAD_ID] = 0;
-	}
-	// Set ITERATIONS sufficiently high, causing FINDORPUT_SINGLE to store the global memory address of the initial state
-	// in the work tile.
-	if (THREAD_ID == 0) {
-		ITERATIONS = d_kernel_iters;
-	}
-	#pragma unroll
-	for (uint32_t i = THREAD_ID; i < (d_shared_size - SH_OFFSET); i += BLOCK_SIZE) {
-		shared[SH_OFFSET + i] = EMPTYVECT{% if vectorsize <= 30 or vectorsize > 62 %}32{% else %}64{% endif %};
-	}
-	__syncthreads();
+	if (BLOCK_ID == 0) {
+		// Reset the shared variables preceding the cache, and reset the cache.
+		if (THREAD_ID < SH_OFFSET) {
+			shared[THREAD_ID] = 0;
+		}
+		// Set ITERATIONS sufficiently high, causing FINDORPUT_SINGLE to store the global memory address of the initial state
+		// in the work tile.
+		if (THREAD_ID == 0) {
+			ITERATIONS = d_kernel_iters;
+		}
+		#pragma unroll
+		for (uint32_t i = THREAD_ID; i < (d_shared_size - SH_OFFSET); i += BLOCK_SIZE) {
+			shared[SH_OFFSET + i] = EMPTYVECT{% if vectorsize <= 30 or vectorsize > 62 %}32{% else %}64{% endif %};
+		}
+		__syncthreads();
 {{cuda_initial_vector}}
-	__syncthreads();
-	FINDORPUT_MANY(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags);
-	__syncthreads();
-	// Done. Copy the work tile to global memory.
-	if (THREAD_ID < OPENTILELEN+LASTSEARCHLEN) {
-		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = shared[OPENTILEOFFSET+THREAD_ID];
-	}
-	if (THREAD_ID == 0) {
-		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = OPENTILECOUNT;
+		__syncthreads();
+		FINDORPUT_MANY(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags);
+		__syncthreads();
+		// Done. Copy the work tile to global memory.
+		if (THREAD_ID < OPENTILELEN) {
+			d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = shared[OPENTILEOFFSET+THREAD_ID];
+		}
+		if (THREAD_ID == 0) {
+			d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = OPENTILECOUNT;
+		}
 	}
 }
 {% if vectorsize > 62 %}
