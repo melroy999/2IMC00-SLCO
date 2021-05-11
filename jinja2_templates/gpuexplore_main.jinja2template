@@ -280,7 +280,11 @@ inline __device__ void PREPARE_CACHE() {
 
 {% endif %}
 __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, uint8_t *d_contBFS, uint8_t *d_property_violation, volatile uint8_t *d_newstate_flags, shared_inttype *d_worktiles, const uint8_t scan) {
+	{% if compact_hash_table %}
+	uint64_t i;
+	{% else %}
 	uint32_t i;
+	{% endif %}
 	indextype l;
 	{% if vectorsize > 62 %}
 	shared_indextype sh_index, opentile_scan_start;
@@ -321,7 +325,7 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 		{% endif %}
 		if (THREAD_ID == 0 && OPENTILECOUNT < OPENTILELEN && d_newstate_flags[BLOCK_ID] == 1) {
 			// Indicate that we are scanning.
-			d_newstate_flags[BLOCK_ID] = 2;
+			d_newstate_flags[BLOCK_ID] = 0;
 			SCAN = 1;
 		}
 		// We store the current value of OPENTILECOUNT in opentile_scan_start, to check later whether we have added scanned states
@@ -336,7 +340,6 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 		if (SCAN) {
 			indextype loc = (indextype) shared[LASTSEARCHOFFSET + WARP_ID] + LANE;
 			// This block should be able to find a new state.
-			bool found_new_state = false;
 			for (i = (GLOBAL_WARP_ID*WARP_SIZE); i < d_hash_table_size && OPENTILECOUNT < OPENTILELEN; i += NR_THREADS) {
 				if (loc >= d_hash_table_size) {
 					loc = GLOBAL_THREAD_ID;
@@ -344,7 +347,6 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 				if (loc < d_hash_table_size) {
 					tmp = d_q[loc];
 					if (is_new(tmp)) {
-						found_new_state = true;
 						// Try to increment the OPENTILECOUNT counter. If successful, store a reference to the state.
 						l = atomicAdd((shared_inttype *) &OPENTILECOUNT, 1);
 						if (l < OPENTILELEN) {
@@ -362,9 +364,6 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 			if (LANE == 0) {
 				shared[LASTSEARCHOFFSET + WARP_ID] = loc;
 			}
-			if (found_new_state) {
-				WORKSCANRESULT = 1;
-			}
 		}
 		__syncthreads();
 		// If work has been retrieved, indicate this.
@@ -375,13 +374,10 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 					OPENTILECOUNT = OPENTILELEN;
 				}
 			}
-			if (SCAN && WORKSCANRESULT == 0 && d_newstate_flags[BLOCK_ID] == 2) {
-				// Scanning has completed and no new states were found by this block.
-				// Save this information to prevent unnecessary scanning later on.
-				d_newstate_flags[BLOCK_ID] = 0;
-			}
-			else {
-				WORKSCANRESULT = 0;
+			if (SCAN && OPENTILECOUNT == OPENTILELEN) {
+				// Scanning has completed and the open tile has been filled with new states.
+				// There may still be more new states to be retrieved.
+                d_newstate_flags[BLOCK_ID] = 1;
 			}
 		}
 		{% if vectorsize > 62 %}
@@ -720,7 +716,7 @@ int main(int argc, char** argv) {
 	{% if vectorsize > 62 %}
 
 	CUDA_CHECK_RETURN(cudaMemset(d_counted_states, 0, sizeof(uint64_t)));
-	count_internal_nodes<<<((int) prop.multiProcessorCount)*8, 512>>>({% if compact_hashtable %}d_q_i{% else %}d_q{% endif %}, d_counted_states);
+	count_internal_nodes<<<((int) prop.multiProcessorCount)*8, 512>>>({% if compact_hash_table %}d_q_i{% else %}d_q{% endif %}, d_counted_states);
 	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
 	CUDA_CHECK_RETURN(cudaMemcpy(&counted_states, d_counted_states, sizeof(uint64_t), cudaMemcpyDeviceToHost));
 	fprintf(stdout, "Nr. of internal nodes: %lu\n", counted_states);

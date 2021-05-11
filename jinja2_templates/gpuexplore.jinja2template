@@ -158,7 +158,7 @@ const size_t Mb = 1<<20;
 #define LASTSEARCHLEN				({{nrthreadsperblock}}/WARP_SIZE)
 
 // Offsets in shared memory from which loaded data can be read.
-#define SH_OFFSET 5
+#define SH_OFFSET 4
 {% if deadlock_check %}
 #define DEADLOCKFLAGSOFFSET			(SH_OFFSET)
 #define OPENTILEOFFSET 				(SH_OFFSET+DEADLOCKFLAGSLEN)
@@ -188,8 +188,7 @@ const size_t Mb = 1<<20;
 #define ITERATIONS					(shared[0])
 #define CONTINUE					(shared[1])
 #define OPENTILECOUNT				(shared[2])
-#define WORKSCANRESULT				(shared[3])
-#define SCAN						(shared[4])
+#define SCAN						(shared[3])
 
 // The number of state machines in the model.
 #define NR_SMS						{{smnames|length}}
@@ -216,6 +215,32 @@ extern __shared__ volatile shared_inttype shared[];
 // Bitmask to identify parts of the state vector that contain state machine states.
 #define VECTOR_SMPARTS			{{smart_vectortree_fetching_bitmask["smstates"]|hexa}}
 {% endif %}
+
+// *** START ATOMIC FUNCTIONS ***
+
+// Atomic CAS for chars.
+__device__ static inline char atomicCAS(char* address, char expected, char desired) {
+    size_t long_address_modulo = (size_t) address & 3;
+    auto* base_address = (unsigned int*) ((char*) address - long_address_modulo);
+    unsigned int selectors[] = {0x3214, 0x3240, 0x3410, 0x4210};
+
+    unsigned int sel = selectors[long_address_modulo];
+    unsigned int long_old, long_assumed, long_val, replacement;
+    char old;
+
+    long_val = (unsigned int) desired;
+    long_old = *base_address;
+    do {
+        long_assumed = long_old;
+        replacement = __byte_perm(long_old, long_val, sel);
+        long_old = atomicCAS(base_address, long_assumed, replacement);
+        old = (char) ((long_old >> (long_address_modulo * 8)) & 0x000000ff);
+    } while (expected == old && long_assumed != long_old);
+
+    return old;
+}
+
+// *** END ATOMIC FUNCTIONS ***
 
 // *** START BIT OPERATIONS ***
 
