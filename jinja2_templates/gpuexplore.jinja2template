@@ -51,7 +51,7 @@ using namespace cooperative_groups;
 {% endif %}
 // types of data elements.
 #define elem_inttype int32_t
-#define elem_chartype int8_t
+#define elem_chartype uint8_t
 #define elem_booltype bool
 // type for array and channel buffer indexing.
 {% if max_arrayindexsize <= 8 %}
@@ -1001,11 +1001,11 @@ inline __device__ void get_{{vname|replace("[","_")|replace("]","")|replace("'",
 
 {% endfor %}
 {% endif %}
-{% if dynamic_write_arrays != {} %}
+{% if dynamic_access_arrays != {} %}
 // Data retrieval functions to support dynamic array accessing. Retrieve the requested element from a local array buffer, if present, and if not, fetch it and store it in the array buffer.
 // Precondition: if the requested element is not in the buffer, there is still space in the buffer to store it.
-{% for v in dynamic_write_arrays.keys() %}
-{% set vname = dynamic_write_arrays[v][0] %}
+{% for v in dynamic_access_arrays.keys() %}
+{% set vname = dynamic_access_arrays[v][0] %}
 {% set t = arraynames[vname][0] %}
 {% set size = arraynames[vname][1] %}
 {% for n in all_arrayindex_allocs_sizes %}
@@ -1133,16 +1133,16 @@ inline __device__ void set_right_{{s|replace("[","_")|replace("]","")|replace("'
 {% endif %}
 {% endif %}
 {% endfor %}
-{% for x in dynamic_write_arrays.keys() %}
+{% for x in dynamic_access_arrays.keys() %}
 {% if loop.first %}
 // Data update functions for arrays with dynamic indexing, focussed on one specific vector part.
 {% endif %}
-// Auxiliary functions for {{dynamic_write_arrays[x][0]}}.
-inline __device__ bool array_element_is_in_vectorpart_{{dynamic_write_arrays[x][0]|replace("'","_")}}(array_indextype i, vectornode_indextype pid) {
+// Auxiliary functions for {{dynamic_access_arrays[x][0]}}.
+inline __device__ bool array_element_is_in_vectorpart_{{dynamic_access_arrays[x][0]|replace("'","_")}}(array_indextype i, vectornode_indextype pid) {
 	switch (pid) {
-		{% for p in range(dynamic_write_arrays[x][1], dynamic_write_arrays[x][2]+1) %}
+		{% for p in range(dynamic_access_arrays[x][1], dynamic_access_arrays[x][2]+1) %}
 		case {{p}}:
-			return (i >= {{(x|get_array_range_in_vectorpart(dynamic_write_arrays[x][0],p))[0]}} && i <= {{(x|get_array_range_in_vectorpart(dynamic_write_arrays[x][0],p))[1]}});
+			return (i >= {{(x|get_array_range_in_vectorpart(dynamic_access_arrays[x][0],p))[0]}} && i <= {{(x|get_array_range_in_vectorpart(dynamic_access_arrays[x][0],p))[1]}});
 		{% endfor %}
 		default:
 			return false;
@@ -1150,11 +1150,11 @@ inline __device__ bool array_element_is_in_vectorpart_{{dynamic_write_arrays[x][
 }
 
 // Precondition: array element i is (partially) stored in vector part pid.
-inline __device__ bool is_left_vectorpart_for_array_element_{{dynamic_write_arrays[x][0]|replace("'","_")}}(array_indextype i, vectornode_indextype pid) {
+inline __device__ bool is_left_vectorpart_for_array_element_{{dynamic_access_arrays[x][0]|replace("'","_")}}(array_indextype i, vectornode_indextype pid) {
 	switch (pid) {
-		{% for p in range(dynamic_write_arrays[x][1], dynamic_write_arrays[x][2]+1) %}
+		{% for p in range(dynamic_access_arrays[x][1], dynamic_access_arrays[x][2]+1) %}
 		case {{p}}:
-			return (i >{% if loop.first %}= 0{% else %} {{(x|get_array_range_in_vectorpart(dynamic_write_arrays[x][0],p-1))[1]}}{% endif %} && i <= {{(x|get_array_range_in_vectorpart(dynamic_write_arrays[x][0],p))[1]}});
+			return (i >{% if loop.first %}= 0{% else %} {{(x|get_array_range_in_vectorpart(dynamic_access_arrays[x][0],p-1))[1]}}{% endif %} && i <= {{(x|get_array_range_in_vectorpart(dynamic_access_arrays[x][0],p))[1]}});
 		{% endfor %}
 		default:
 			return false;
@@ -3487,7 +3487,7 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q{% if compact_
 			{% endif %}
 			{% endif %}
 			host_get_{{s|replace("[","_")|replace("]","")|replace("'","_")}}({% if s|is_state %}&e_st{% elif size == 1 %}&e_b{% elif size < 32 %}&e_c{% else %}&e_i{% endif %}, *p1, *p2);
-			fprintf(stream, "{{s|vector_element_string_desc}} {{s}}: %u\n", (uint32_t) {% if s|is_state %}e_st{% elif size == 1 %}e_b{% elif size < 32 %}e_c{% else %}e_i{% endif %});
+			fprintf(stream, "{{s|vector_element_string_desc}} {{s}}: {% if size > 1 and size < 32 %}%d{% else %}%u{% endif %}\n", {% if size > 1 and size < 32 %}(uint8_t){% else %}(uint32_t){% endif %} {% if s|is_state %}e_st{% elif size == 1 %}e_b{% elif size < 32 %}e_c{% else %}e_i{% endif %});
 			{% endif %}
 			{% endfor %}
 			{% for x in arraynames %}

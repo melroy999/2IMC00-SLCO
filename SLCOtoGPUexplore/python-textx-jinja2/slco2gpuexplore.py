@@ -141,9 +141,9 @@ syncreccomm = {}
 # dictionary of array names in model (with types and sizes)
 arraynames = {}
 
-# dictionary for arrays that are dynamically written to in the model. For each such array, an item (name,range) is provided, with name the scopename
+# dictionary for arrays that are dynamically accessed in the model. For each such array, an item (name,range) is provided, with name the scopename
 # of the array, and range the range of vector parts in which the array is stored in vectors.
-dynamic_write_arrays = {}
+dynamic_access_arrays = {}
 # dictionary for arrays, providing how the array elements are distributed over the vectorparts. A tuple (p, (i0,j0,s0,z0,r0), (i1,j1,s1,z1,r1), ...) is given,
 # where p is the ID of the first vectorpart containing x[0] and further, and the (ik,jk,sk,zk,rk) tuples indicate that in vectorpart p+k, array elements
 # ik to (at least left part of) jk are stored, with ik being stored at position sk. In case jk is also partly stored in part p+k+1, zk indicates the number
@@ -994,7 +994,7 @@ def cudastore_initial_vector():
 def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, indent):
 	"""Construct CUDA code to produce and store new vectortree nodes. nodes_done is a list containing node ids that have been processed before. nav is a list of nodes still to be processed.
 	   W is a dictionary defining for all vectorparts which values need to be written to it."""
-	global vectortree, vectortree_T, connected_channel, dynamic_write_arrays, state_id, vectorsize, array_in_structure_map
+	global vectortree, vectortree_T, connected_channel, dynamic_access_arrays, state_id, vectorsize, array_in_structure_map
 	ic = indent
 	output = ""
 	if nav != []:
@@ -1119,18 +1119,18 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 								idx_offset = e[2]
 							#output += "set_" + set_methodname + "(&part2, idx_" + o.name + "_" + v.name + ", " + vname + ", " + str(offset) + ", " + str(vectorpart_id(p)) + ");\n" + indentspace(ic)
 							part_id = str(vectorpart_id(p))
-							output += "if (" + part_id + " >= " + str(dynamic_write_arrays[v][1]) + " && " + part_id + " <= " + str(dynamic_write_arrays[v][2]) + ") {\n" + indentspace(ic)
+							output += "if (" + part_id + " >= " + str(dynamic_access_arrays[v][1]) + " && " + part_id + " <= " + str(dynamic_access_arrays[v][2]) + ") {\n" + indentspace(ic)
 							allocs = get_buffer_arrayindex_allocs(s.parent, o)
 							indentnew = "\t"
 							# range over the number of elements that may be stored in the buffer for the current array
 							for i in range(0,allocs[(o,v)]):
 								output += indentnew + "if (idx_" + str(i+idx_offset) + " != EMPTY_INDEX) {\n" + indentspace(ic)
 								indentnew = indentnew + "\t"
-								output += indentnew + "if (array_element_is_in_vectorpart_" + str(dynamic_write_arrays[v][0]).replace("'","_") + "(idx_" + str(i+idx_offset) + ", " + part_id + ")) {\n" + indentspace(ic)
+								output += indentnew + "if (array_element_is_in_vectorpart_" + str(dynamic_access_arrays[v][0]).replace("'","_") + "(idx_" + str(i+idx_offset) + ", " + part_id + ")) {\n" + indentspace(ic)
 								indentnew = indentnew + "\t"
-								output += indentnew + "if (is_left_vectorpart_for_array_element_" + str(dynamic_write_arrays[v][0]).replace("'","_") + "(idx_" + str(i+idx_offset) + ", " + part_id + ")) {\n" + indentspace(ic)
+								output += indentnew + "if (is_left_vectorpart_for_array_element_" + str(dynamic_access_arrays[v][0]).replace("'","_") + "(idx_" + str(i+idx_offset) + ", " + part_id + ")) {\n" + indentspace(ic)
 								indentnew = indentnew + "\t"
-								output += indentnew + "set_left_" + str(dynamic_write_arrays[v][0]).replace("'","_") + "(&part2, idx_" + str(i+idx_offset) + ", " + vname + "_" + str(offset+i) + ", " + part_id + ");\n" + indentspace(ic)
+								output += indentnew + "set_left_" + str(dynamic_access_arrays[v][0]).replace("'","_") + "(&part2, idx_" + str(i+idx_offset) + ", " + vname + "_" + str(offset+i) + ", " + part_id + ");\n" + indentspace(ic)
 								indentnew = indentnew[:-1]
 								output += indentnew + "}\n" + indentspace(ic)
 								arrayname = scopename(v,None,o)
@@ -1138,7 +1138,7 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 								if vectorpart_id(p)-1 >= 0 and vectorpart_id(p)-1 <= arraystructure[0]+(len(arraystructure)-2) and arraystructure[vectorpart_id(p)][3] != 0:
 									output += indentnew + "else {\n" + indentspace(ic)
 									indentnew = indentnew + "\t"
-									output += indentnew + "set_right_" + str(dynamic_write_arrays[v][0]).replace("'","_") + "(&part2, idx_" + str(i+idx_offset) + ", " + vname + "_" + str(offset+i) + ", " + part_id + ");\n" + indentspace(ic)
+									output += indentnew + "set_right_" + str(dynamic_access_arrays[v][0]).replace("'","_") + "(&part2, idx_" + str(i+idx_offset) + ", " + vname + "_" + str(offset+i) + ", " + part_id + ");\n" + indentspace(ic)
 									indentnew = indentnew[:-1]
 									output += indentnew + "}\n" + indentspace(ic)
 							for i in range(0,allocs[(o,v)]):
@@ -3286,7 +3286,7 @@ def debug(text):
 
 def preprocess():
 	"""Preprocessing of model"""
-	global model, vectorsize, vectorstructure, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_nr_reachable_state_parts, vectortree_node_thread, vectorstructure_string, smnames, vectorelem_in_structure_map, max_statesize, state_order, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, connected_channel, signalsize, signalnr, alphabet, syncactions, actiontargets, actions, syncreccomm, no_state_constant, no_prio_constant, dynamic_write_arrays, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, tilesize, gpuexplore2_succdist, regsort_nr_el_per_thread, all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask, nr_warps_per_tile, compact_hash_table, elements_strings, nrblocks, nrthreadsperblock, array_in_structure_map, vectorpart_id_dict, vectornode_id_dict, no_smart_fetching, nr_bits_shared_mem_element, nr_cache_elements
+	global model, vectorsize, vectorstructure, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_nr_reachable_state_parts, vectortree_node_thread, vectorstructure_string, smnames, vectorelem_in_structure_map, max_statesize, state_order, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, connected_channel, signalsize, signalnr, alphabet, syncactions, actiontargets, actions, syncreccomm, no_state_constant, no_prio_constant, dynamic_access_arrays, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, tilesize, gpuexplore2_succdist, regsort_nr_el_per_thread, all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask, nr_warps_per_tile, compact_hash_table, elements_strings, nrblocks, nrthreadsperblock, array_in_structure_map, vectorpart_id_dict, vectornode_id_dict, no_smart_fetching, nr_bits_shared_mem_element, nr_cache_elements
 
 	# construct set of statemachine names in the system
 	# also construct a map from names to objects
@@ -3864,13 +3864,14 @@ def preprocess():
 				if no_prio_constant < t.priority:
 					no_prio_constant = t.priority
 	# construct dynamic write arrays dictionary
-	dynamic_write_arrays = {}
+	dynamic_access_arrays = {}
 	arrays = set([])
 	for o in model.objects:
 		for sm in o.type.statemachines:
 			for t in sm.transitions:
 				for st in t.statements:
 					W = statement_write_varrefs(st, o)
+					W |= statement_read_varrefs(st, o, sm, False)
 					# search for dynamic accesses
 					for (v,i) in W:
 						if i != None:
@@ -3891,7 +3892,7 @@ def preprocess():
 									upper = PIDs[1][0]
 									if len(PIDs) > 2:
 										upper = PIDs[2][0]
-									dynamic_write_arrays[v] = (vname,lower,upper)
+									dynamic_access_arrays[v] = (vname,lower,upper)
 	# construct dictionary for array placement in vectorparts
 	array_in_structure_map = {}
 	for (v,vname) in arrays:
@@ -4125,7 +4126,7 @@ def translate():
 
 	# load the GPUexplore template
 	template = jinja_env.get_template('gpuexplore.jinja2template')
-	out = template.render(model=model, vectorsize=vectorsize, vectortree_group_size=vectortree_group_size, vectorstructure=vectorstructure, vectorstructure_string=vectorstructure_string, vectortree=vectortree, vectortree_T=vectortree_T, max_statesize=max_statesize, vectorelem_in_structure_map=vectorelem_in_structure_map, array_in_structure_map=array_in_structure_map, state_order=state_order, smnames=smnames, smname_to_object=smname_to_object, state_id=state_id, arraynames=arraynames, max_arrayindexsize=max_arrayindexsize, max_buffer_allocs=max_buffer_allocs, connected_channel=connected_channel, alphabet=alphabet, syncactions=syncactions, actiontargets=actiontargets, syncreccomm=syncreccomm, no_state_constant=no_state_constant, no_prio_constant=no_prio_constant, dynamic_write_arrays=dynamic_write_arrays, signalsize=signalsize, async_channel_vectorpart_buffer_range=async_channel_vectorpart_buffer_range, vectortree_depth=vectortree_depth, vectortree_level_ids=vectortree_level_ids, vectortree_level_nr_of_leaves=vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children=vectortree_level_nr_of_nodes_with_two_children, vectortree_nr_reachable_state_parts=vectortree_nr_reachable_state_parts, vectortree_node_thread=vectortree_node_thread, gpuexplore2_succdist=gpuexplore2_succdist, no_regsort=no_regsort, tilesize=tilesize, regsort_nr_el_per_thread=regsort_nr_el_per_thread, nr_warps_per_tile=nr_warps_per_tile, warpsize=warpsize, all_arrayindex_allocs_sizes=all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask=smart_vectortree_fetching_bitmask, no_smart_fetching=no_smart_fetching, compact_hash_table=compact_hash_table, nr_bits_address_root=nr_bits_address_root(), nr_bits_address_internal=nr_bits_address_internal(), cuda_initial_vector=cudastore_initial_vector(), nrblocks=nrblocks, nrthreadsperblock=nrthreadsperblock, nr_bits_shared_mem_element=nr_bits_shared_mem_element, deadlock_check=deadlock_check, nr_cache_elements=nr_cache_elements)
+	out = template.render(model=model, vectorsize=vectorsize, vectortree_group_size=vectortree_group_size, vectorstructure=vectorstructure, vectorstructure_string=vectorstructure_string, vectortree=vectortree, vectortree_T=vectortree_T, max_statesize=max_statesize, vectorelem_in_structure_map=vectorelem_in_structure_map, array_in_structure_map=array_in_structure_map, state_order=state_order, smnames=smnames, smname_to_object=smname_to_object, state_id=state_id, arraynames=arraynames, max_arrayindexsize=max_arrayindexsize, max_buffer_allocs=max_buffer_allocs, connected_channel=connected_channel, alphabet=alphabet, syncactions=syncactions, actiontargets=actiontargets, syncreccomm=syncreccomm, no_state_constant=no_state_constant, no_prio_constant=no_prio_constant, dynamic_access_arrays=dynamic_access_arrays, signalsize=signalsize, async_channel_vectorpart_buffer_range=async_channel_vectorpart_buffer_range, vectortree_depth=vectortree_depth, vectortree_level_ids=vectortree_level_ids, vectortree_level_nr_of_leaves=vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children=vectortree_level_nr_of_nodes_with_two_children, vectortree_nr_reachable_state_parts=vectortree_nr_reachable_state_parts, vectortree_node_thread=vectortree_node_thread, gpuexplore2_succdist=gpuexplore2_succdist, no_regsort=no_regsort, tilesize=tilesize, regsort_nr_el_per_thread=regsort_nr_el_per_thread, nr_warps_per_tile=nr_warps_per_tile, warpsize=warpsize, all_arrayindex_allocs_sizes=all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask=smart_vectortree_fetching_bitmask, no_smart_fetching=no_smart_fetching, compact_hash_table=compact_hash_table, nr_bits_address_root=nr_bits_address_root(), nr_bits_address_internal=nr_bits_address_internal(), cuda_initial_vector=cudastore_initial_vector(), nrblocks=nrblocks, nrthreadsperblock=nrthreadsperblock, nr_bits_shared_mem_element=nr_bits_shared_mem_element, deadlock_check=deadlock_check, nr_cache_elements=nr_cache_elements)
 	# write new SLCO model
 	outFile.write(out)
 	outFile.close()
