@@ -1236,8 +1236,8 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 				output += "else {\n" + indentspace(ic)
 				output += "// Store the node directly in the global hash table.\n" + indentspace(ic)
 				if vectorsize > 62:
-					if p == 0 and not compact_hash_table:
-						output += "mark_root(&part2);\n" + indentspace(ic)
+					#if p == 0 and not compact_hash_table:
+					#	output += "mark_root(&part2);\n" + indentspace(ic)
 					if compact_hash_table:
 						if p == 0:
 							output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)
@@ -1341,8 +1341,8 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 					output += "set_left_in_vectortree_node(&part2, bufaddr_" + str(pointer_cnt) + ");\n" + indentspace(ic)
 				else:
 					output += "set_right_in_vectortree_node(&part2, bufaddr_" + str(pointer_cnt) + ");\n" + indentspace(ic)
-			if p == 0 and not compact_hash_table:
-				output += "mark_root(&part2);\n" + indentspace(ic)
+			#if p == 0 and not compact_hash_table:
+			#	output += "mark_root(&part2);\n" + indentspace(ic)
 			if compact_hash_table:
 				if p == 0:
 					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)
@@ -3863,9 +3863,18 @@ def preprocess():
 			for t in sm.transitions:
 				if no_prio_constant < t.priority:
 					no_prio_constant = t.priority
+	# construct set of array variables
+	arrays = set([])
+	for o in model.objects:
+		for sm in o.type.statemachines:
+			for v in sm.variables:
+				if v.type.size > 0:
+					arrays.add((v,o.name + "'" + sm.name + "'" + v.name))
+		for v in o.type.variables:
+			if v.type.size > 0:
+				arrays.add((v,o.name + "'" + v.name))
 	# construct dynamic write arrays dictionary
 	dynamic_access_arrays = {}
-	arrays = set([])
 	for o in model.objects:
 		for sm in o.type.statemachines:
 			for t in sm.transitions:
@@ -3879,7 +3888,6 @@ def preprocess():
 							if v.parent.__class__.__name__ == "StateMachine":
 								vname += sm.name + "'"
 							vname += v.name
-							arrays.add((v,vname))
 							if not isinstance(i, str):
 								i_str = getinstruction(i,o,{})
 								if not RepresentsInt(i_str):
@@ -3926,6 +3934,7 @@ def preprocess():
 			tmp[4] = PIDs[2][1]
 		L.append(tuple(tmp))
 		array_in_structure_map[vname] = L
+	print(array_in_structure_map)
 	# construct async_channel_vectorpart_buffer_range: for all (asynchronous channel, vectorpart) pairs, provide the range of buffer elements of that channel stored in that vectorpart of a vector.
 	async_channel_vectorpart_buffer_range = {}
 	for c in model.channels:

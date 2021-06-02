@@ -314,6 +314,13 @@ inline __device__ bool is_new(compressed_nodetype node) {
 }
 
 {% if vectorsize > 62 %}
+{% if not compact_hash_table %}
+// Mark a node as non-root.
+inline __device__ void mark_non_root(volatile nodetype *node) {
+	*node = *node & 0x3FFFFFFFFFFFFFFF;
+}
+
+{% endif %}
 // Mark a node as root.
 inline __device__ void mark_root(volatile nodetype *node) {
 	*node = *node | 0x4000000000000000;
@@ -982,7 +989,7 @@ inline __device__ void get_{{vname|replace("[","_")|replace("]","")|replace("'",
 			{% endif %}
 			asm("{\n\t"
 				" .reg .u{% if vectorsize < 31 %}32{% else %}64{% endif %} t1;\n\t"
-				" bfe.u{% if vectorsize < 31 %}32{% else %}64{% endif %} t1, %1, {{array_in_structure_map[vname][i][2]}}, {{array_in_structure_map[vname][i][3]}};\n\t"
+				" bfe.u{% if vectorsize < 31 %}32{% else %}64{% endif %} t1, %1, {{array_in_structure_map[vname][i][4]}}, {{array_in_structure_map[vname][i][3]}};\n\t"
 				" cvt.u{% if (t|gettypesize) < 32 %}16{% else %}32{% endif %}.u{% if vectorsize < 31 %}32{% else %}64{% endif %} %0, t1;\n\t"
 	    		"}" : "={% if (t|gettypesize) < 16 %}h{% else %}r{% endif %}"(t3) : "{% if vectorsize <= 30 %}r{% else %}l{% endif %}"(part));
 	    	{% if (t|gettypesize) < 16 %}
@@ -1095,7 +1102,7 @@ inline void host_get_{{x|replace("[","_")|replace("]","")|replace("'","_")}}({{t
 		if (index == {{array_in_structure_map[x][i][1]}}) {
 			nodetype t2 = part2;
 			// Strip away data beyond the requested data.
-			t2 = t2 & {{((array_in_structure_map[x][i][3]+array_in_structure_map[x][i][4])|pow2-1)|hexa}};
+			t2 = t2 & {{((array_in_structure_map[x][i][3]+array_in_structure_map[x][i][4]-1)|pow2-1)|hexa}};
 			// Right shift to isolate requested data.
 			t2 = t2 >> {{array_in_structure_map[x][i][4]}};
 			// Move to integrate with first part.
@@ -2845,6 +2852,9 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 		{% endif %}
 		if (({% if j == 0 %}VECTOR_SMPARTS{% else %}smart_fetching_bitmask{% endif %} & get_part_reachability(gid, {{i}})) != 0x0) {
 			leaf_node = HT_RETRIEVE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, node_addr{% if compact_hash_table %}, false{% endif %});
+			{% if vectorsize > 62 and not compact_hash_table %}
+			mark_non_root(&leaf_node);
+			{% endif %}
 			{% if vectortree_level_nr_of_leaves[i] == lsize %}
 			// Store the leaf node in the cache. Link the global memory address to it such that it can be retrieved in case of collisions
 			// when generating successors.
@@ -2888,6 +2898,9 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 		}
 		{% else %}
 		leaf_node = HT_RETRIEVE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, node_addr{% if compact_hash_table %}, false{% endif %});
+		{% if vectorsize > 62 and not compact_hash_table %}
+		mark_non_root(&leaf_node);
+		{% endif %}
 		{% if vectortree_level_nr_of_leaves[i] == lsize %}
 		// Store the leaf node in the cache. Link the global memory address to it such that it can be retrieved in case of collisions
 		// when generating successors.
