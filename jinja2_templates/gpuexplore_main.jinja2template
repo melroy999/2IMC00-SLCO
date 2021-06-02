@@ -530,8 +530,8 @@ int main(int argc, char** argv) {
 		}
 		else if (!strcmp(argv[i],"-v")) {
 			verbosity = atoi(argv[i+1]);
-			if (verbosity > 4) {
-				verbosity = 4;
+			if (verbosity > 5) {
+				verbosity = 5;
 			}
 			i += 2;
 		}
@@ -722,21 +722,55 @@ int main(int argc, char** argv) {
 		fprintf(stderr, "ERROR: problem with hash table!\n");
 	}
 
-	CUDA_CHECK_RETURN(cudaMemset(d_counted_states, 0, sizeof(uint64_t)));
-	CUDA_CHECK_RETURN(cudaMemset(d_new_counted_states, 0, sizeof(uint64_t)));
-	count_states<<<((int) prop.multiProcessorCount)*8, 512>>>(d_q, d_counted_states, d_new_counted_states);
-	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
-	CUDA_CHECK_RETURN(cudaMemcpy(&counted_states, d_counted_states, sizeof(uint64_t), cudaMemcpyDeviceToHost));
-	CUDA_CHECK_RETURN(cudaMemcpy(&new_counted_states, d_new_counted_states, sizeof(uint64_t), cudaMemcpyDeviceToHost));
-	fprintf(stdout, "Nr. of states in hash table: %lu, new states: %lu\n", counted_states, new_counted_states);
-	{% if vectorsize > 62 %}
+	if (verbosity == 5) {
+		// Produce a sorted list of states at the end of the state space generation.
+		// First count the number of states.
+		CUDA_CHECK_RETURN(cudaMemset(d_counted_states, 0, sizeof(uint64_t)));
+		CUDA_CHECK_RETURN(cudaMemset(d_new_counted_states, 0, sizeof(uint64_t)));
+		count_states<<<((int) prop.multiProcessorCount)*8, 512>>>(d_q, d_counted_states, d_new_counted_states);
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+		CUDA_CHECK_RETURN(cudaMemcpy(&counted_states, d_counted_states, sizeof(uint64_t), cudaMemcpyDeviceToHost));
+		CUDA_CHECK_RETURN(cudaMemcpy(&new_counted_states, d_new_counted_states, sizeof(uint64_t), cudaMemcpyDeviceToHost));
+		fprintf(stdout, "Nr. of states in hash table: %lu, new states: %lu\n", counted_states, new_counted_states);
+		// Create a vector to store the states in a sorted way.
+		std::vector<systemstate_t> states;
+		states.reserve(counted_states);
+		// Scan the hash table for states.
+		cudaMemcpy(q_test, d_q, hash_table_size * sizeof(compressed_nodetype), cudaMemcpyDeviceToHost);
+		{% if compact_hash_table %}
+		cudaMemcpy(q_i_test, d_q_i, internal_hash_table_size * sizeof(nodetype), cudaMemcpyDeviceToHost);
+		{% endif %}
+		for ({% if compact_hash_table %}uint64_t{% else %}indextype{% endif %} i = 0; i < hash_table_size; i++) {
+			{% if not compact_hash_table and vectorsize > 63 %}
+			if (is_root(q_test[i])) {
+			{% else %}
+			if (q_test[i] != {% if compact_hash_table %}EMPTY_COMPRESSED_NODE{% else %}EMPTY_NODE{% endif %}) {
+			{% endif %}
+				states.push_back(get_systemstate(q_test, i{% if compact_hash_table %}, q_i_test{% endif %}));
+			}
+		}
+		// Sort the states.
+		std::sort(states.begin(), states.end(), systemstates_compare);
+		// Print the states compactly.
+		print_systemstates(stdout, states);
+	}
+	else {
+		CUDA_CHECK_RETURN(cudaMemset(d_counted_states, 0, sizeof(uint64_t)));
+		CUDA_CHECK_RETURN(cudaMemset(d_new_counted_states, 0, sizeof(uint64_t)));
+		count_states<<<((int) prop.multiProcessorCount)*8, 512>>>(d_q, d_counted_states, d_new_counted_states);
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+		CUDA_CHECK_RETURN(cudaMemcpy(&counted_states, d_counted_states, sizeof(uint64_t), cudaMemcpyDeviceToHost));
+		CUDA_CHECK_RETURN(cudaMemcpy(&new_counted_states, d_new_counted_states, sizeof(uint64_t), cudaMemcpyDeviceToHost));
+		fprintf(stdout, "Nr. of states in hash table: %lu, new states: %lu\n", counted_states, new_counted_states);
+		{% if vectorsize > 62 %}
 
-	CUDA_CHECK_RETURN(cudaMemset(d_counted_states, 0, sizeof(uint64_t)));
-	count_internal_nodes<<<((int) prop.multiProcessorCount)*8, 512>>>({% if compact_hash_table %}d_q_i{% else %}d_q{% endif %}, d_counted_states);
-	CUDA_CHECK_RETURN(cudaDeviceSynchronize());
-	CUDA_CHECK_RETURN(cudaMemcpy(&counted_states, d_counted_states, sizeof(uint64_t), cudaMemcpyDeviceToHost));
-	fprintf(stdout, "Nr. of internal nodes: %lu\n", counted_states);
-	{% endif %}
+		CUDA_CHECK_RETURN(cudaMemset(d_counted_states, 0, sizeof(uint64_t)));
+		count_internal_nodes<<<((int) prop.multiProcessorCount)*8, 512>>>({% if compact_hash_table %}d_q_i{% else %}d_q{% endif %}, d_counted_states);
+		CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+		CUDA_CHECK_RETURN(cudaMemcpy(&counted_states, d_counted_states, sizeof(uint64_t), cudaMemcpyDeviceToHost));
+		fprintf(stdout, "Nr. of internal nodes: %lu\n", counted_states);
+		{% endif %}
+	}
 
 	return 0;
 }

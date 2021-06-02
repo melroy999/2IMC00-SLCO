@@ -1,5 +1,7 @@
 #include <stdbool.h>
 #include <cooperative_groups.h>
+#include <vector>
+#include <algorithm>
 using namespace cooperative_groups;
 
 // test macros
@@ -79,6 +81,36 @@ using namespace cooperative_groups;
 {% elif vectortree|length < 2**64 %}
 #define vectornode_indextype uint32_t
 {% endif %}
+
+// A struct to represent a system state (used on the CPU side).
+struct systemstate_t {
+{% for s in vectorelem_in_structure_map.keys() %}
+{% set size = vectorelem_in_structure_map[s][0] %}
+{% if s|is_state %}	statetype{% elif size == 1 %}	elem_booltype{% elif size < 32 %}	elem_chartype{% else %}	elem_inttype{% endif %} {{s|replace("[","_")|replace("]","_")|replace("'","_")}};
+{% endfor %}
+};
+
+// A function to create a system state struct instance with the given values.
+systemstate_t create_systemstate({% for s in vectorelem_in_structure_map.keys() %}{% set size = vectorelem_in_structure_map[s][0] %}{% if s|is_state %}statetype{% elif size == 1 %}elem_booltype{% elif size < 32 %}elem_chartype{% else %}elem_inttype{% endif %} {{s|replace("[","_")|replace("]","_")|replace("'","_")}}{% if not loop.last %}, {% endif %}{% endfor %}
+) {
+	systemstate_t newstate;
+{% for s in vectorelem_in_structure_map.keys() %}
+	newstate.{{s|replace("[","_")|replace("]","_")|replace("'","_")}} = {{s|replace("[","_")|replace("]","_")|replace("'","_")}};
+{% endfor %}
+	return newstate;
+}
+
+// State comparison function for sorting states.
+bool systemstates_compare(systemstate_t s, systemstate_t t) {
+{% for s in vectorelem_in_structure_map.keys() %}
+{% set size = vectorelem_in_structure_map[s][0] %}
+	if (s.{{s|replace("[","_")|replace("]","_")|replace("'","_")}} != t.{{s|replace("[","_")|replace("]","_")|replace("'","_")}}) {
+		return (s.{{s|replace("[","_")|replace("]","_")|replace("'","_")}} < t.{{s|replace("[","_")|replace("]","_")|replace("'","_")}});
+	}
+{% endfor %}	return false;
+}
+
+// *******************************************************************************
 
 // GPU constants.
 static const int WARP_SIZE = 32;
@@ -3455,13 +3487,13 @@ inline __device__ Storage_mode GENERATE_SUCCESSORS(compressed_nodetype *d_q{% if
 	return STORED;
 } 
 
-// *** START PRINT FUNCTIONS ***
+// *** START FUNCTIONS FOR PRINTING ***
 
 void print_content_hash_table(FILE* stream, compressed_nodetype *q{% if compact_hash_table %}, nodetype *q_i, uint64_t q_size, uint64_t q_i_size{% else %}, indextype q_size{% endif %}{% if vectorsize > 62 %}, bool print_pointers{% endif %}) {
 	uint64_t counter = 0;
 	fprintf(stream, "BEGIN HASH TABLE CONTENTS.\n");
 	for ({% if compact_hash_table %}uint64_t{% else %}indextype{% endif %} i = 0; i < q_size; i++) {
-		{% if not compact_hash_table and vectorsize > 63 %}
+		{% if not compact_hash_table and vectorsize > 62 %}
 		if (is_root(q[i])) {
 		{% else %}
 		if (q[i] != {% if compact_hash_table %}EMPTY_COMPRESSED_NODE{% else %}EMPTY_NODE{% endif %}) {
@@ -3537,4 +3569,72 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q{% if compact_
 	fprintf(stream, "NR. OF STATES: %lu.\n", counter);
 }
 
-// *** END PRINT FUNCTIONS ***
+systemstate_t get_systemstate(compressed_nodetype *q{% if compact_hash_table %}, uint64_t index, nodetype *q_i{% else %}, indextype index{% endif %}) {
+	systemstate_t newstate;
+	// Retrieve state vector.
+	nodetype {% if vectorsize > 62 %}root{% else %}part0{% endif %} = HT_RETRIEVE(q{% if compact_hash_table %}, q_i{% endif %}, index{% if compact_hash_table %}, true{% endif %});
+	{% if vectorsize > 62 %}
+	{% for i in range(0,vectorstructure|length) %}
+	nodetype part{{i}} = host_direct_get_vectorpart_{{i}}(q{% if compact_hash_table %}, q_i{% endif %}, root{% if vectorsize > 62 %}, NULL, false{% else %}, false{% endif %});
+	{% endfor %}
+	{% endif %}
+	nodetype *p1, *p2;
+	statetype e_st;
+	elem_booltype e_b;
+	elem_chartype e_c;
+	elem_inttype e_i;
+	{% if vectorsize <= 62 %}
+	p1 = &part0;
+	p2 = &part0;
+	{% endif %}
+	{% for s in vectorelem_in_structure_map.keys() %}
+	{% if (s.split("["))[0] not in arraynames %}
+	{% set size = vectorelem_in_structure_map[s][0] %}
+	{% set PIDs = vectorelem_in_structure_map[s] %}
+	{% if vectorsize > 62 %}
+	p1 = &part{{PIDs[1][0]}};
+	{% if PIDs|length > 2 %}
+	p2 = &part{{PIDs[2][0]}};
+	{% else %}
+	p2 = p1;
+	{% endif %}
+	{% endif %}
+	host_get_{{s|replace("[","_")|replace("]","")|replace("'","_")}}({% if s|is_state %}&e_st{% elif size == 1 %}&e_b{% elif size < 32 %}&e_c{% else %}&e_i{% endif %}, *p1, *p2);
+	newstate.{{s|replace("[","_")|replace("]","")|replace("'","_")}} = {% if s|is_state %}e_st{% elif size == 1 %}e_b{% elif size < 32 %}e_c{% else %}e_i{% endif %};
+	{% endif %}
+	{% endfor %}
+	{% for x in arraynames %}
+	{% set t = arraynames[x][0] %}
+	{% set asize = arraynames[x][1] %}
+	{% set size = t|gettypesize %}
+	{% for i in range(0,asize) %}
+	{% set PIDs = vectorelem_in_structure_map[x + "[" + i|string + "]"] %}
+	{% if vectorsize > 62 %}
+	p1 = &part{{PIDs[1][0]}};
+	{% if PIDs|length > 2 %}
+	p2 = &part{{PIDs[2][0]}};
+	{% else %}
+	p2 = p1;
+	{% endif %}
+	{% endif %}
+	host_get_{{x|replace("[","_")|replace("]","")|replace("'","_")}}({% if size == 1 %}&e_b{% elif size < 32 %}&e_c{% else %}&e_i{% endif %}, *p1, *p2, {{i}});
+	newstate.{{x|replace("[","_")|replace("]","")|replace("'","_")}}_{{i}}_ = {% if s|is_state %}e_st{% elif size == 1 %}e_b{% elif size < 32 %}e_c{% else %}e_i{% endif %};
+	{% endfor %}
+	{% endfor %}
+	return newstate;
+}
+
+void print_systemstates(FILE* stream, std::vector<systemstate_t> states) {
+	fprintf(stream, "GENERATED SYSTEM STATES:\n");
+	for (std::vector<systemstate_t>::iterator it = states.begin(); it != states.end(); ++it) {
+		{% for s in vectorelem_in_structure_map.keys() %}
+		{% set size = vectorelem_in_structure_map[s][0] %}
+		fprintf(stream, "{% if size > 1 and size < 32 %}%d{% else %}%u{% endif %} ", {% if size > 1 and size < 32 %}(uint8_t){% else %}(uint32_t){% endif %} (*it).{{s|replace("[","_")|replace("]","_")|replace("'","_")}});
+		{% endfor %}
+		fprintf(stream, "\n");
+	}
+	fprintf(stream, "END OF STATE LIST.\n");
+	fprintf(stream, "NR. OF STATES: %lu.\n", states.size());
+}
+
+// *** END FUNCTIONS FOR PRINTING ***
