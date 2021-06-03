@@ -120,7 +120,7 @@ eqn sm_index(sm_) = 0;
 
 % *** STATEMENT IDS ***
 
-{% for c in model.classes %}{% set cloop = loop %}{% for stm in c.statemachines %}{% set stmloop = loop %}{% for tr in stm.transitions %}{% if cloop.first and stmloop.first and loop.first %}sort STID' = struct {% else %}| {% endif %}ST'{{tr._tx_position}}{% if cloop.last and stmloop.last and loop.last %}| st_{% if check_onthefly %}{% for c in model.classes %}{% for sm in c.statemachines %} | ST'epsilon'{{sm.name}}(src': State'){% endfor %}{% endfor %}{% endif %};{% else %} {% endif %}{% endfor %}{% endfor %}{% endfor %}
+sort STID' = struct{% for c in model.classes %}{% for stm in c.statemachines %}{% for tr in stm.transitions %} ST'{{tr._tx_position}} |{% endfor %}{% endfor %}{% endfor %} st_{% if check_onthefly %}{% for c in model.classes %}{% for sm in c.statemachines %} | ST'epsilon'{{sm.name}}(src': State'){% endfor %}{% endfor %}{% endif %};
 
 
 % *** VARIABLE NAMES ***
