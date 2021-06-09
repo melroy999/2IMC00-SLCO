@@ -157,7 +157,11 @@ const size_t Mb = 1<<20;
 
 // CONSTANTS FOR SHARED MEMORY CACHES
 // Offsets calculations for shared memory arrays
+{% if vectorsize > 62 %}
+#define OPENTILELEN					{{tilesize*2}}
+{% else %}
 #define OPENTILELEN					{{tilesize}}
+{% endif %}
 {% if deadlock_check %}
 #define DEADLOCKFLAGSLEN			{{(tilesize/nr_bits_shared_mem_element)|round(0, 'ceil')|int}}
 {% endif %}
