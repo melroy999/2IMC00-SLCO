@@ -436,6 +436,12 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 				(*d_contBFS) = 2;
 				ITERATIONS = d_kernel_iters;
 			}
+			{% if compact_hash_table %}
+			else if (CONTINUE == 3) {
+				(*d_contBFS) = 3;
+				ITERATIONS = d_kernel_iters;
+			}
+			{% endif %}
 			else {
 				ITERATIONS++;
 			}
@@ -530,8 +536,8 @@ int main(int argc, char** argv) {
 		}
 		else if (!strcmp(argv[i],"-v")) {
 			verbosity = atoi(argv[i+1]);
-			if (verbosity > 5) {
-				verbosity = 5;
+			if (verbosity > 6) {
+				verbosity = 6;
 			}
 			i += 2;
 		}
@@ -659,6 +665,8 @@ int main(int argc, char** argv) {
 		q_i_test = (nodetype*) malloc(sizeof(nodetype)*internal_hash_table_size);
 		{% endif %}
 	}
+	// Create a vector to store the states in a sorted way (for verbosity levels >= 5).
+	std::vector<systemstate_t> states;
 
 	uint32_t iterations_counter = 0;
 	uint8_t scan = 1;
@@ -670,6 +678,7 @@ int main(int argc, char** argv) {
 
 	while (contBFS == 1) {
 		CUDA_CHECK_RETURN(cudaMemset(d_contBFS, 0, sizeof(uint8_t)));
+		// To investigate: changing the size of the shared mem: cudaFuncSetAttribute(gather, cudaFuncAttributeMaxDynamicSharedMemorySize, 65536);
 		gather<<<nblocks, {{nrthreadsperblock}}, shared_size * sizeof(shared_inttype)>>>(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_contBFS, d_property_violation, d_newstate_flags, d_worktiles, scan);
 
 		// Copy progress result.
@@ -704,6 +713,30 @@ int main(int argc, char** argv) {
 				{% endif %}
 				print_content_hash_table(stdout, q_test{% if compact_hash_table %}, q_i_test{% endif %}, hash_table_size{% if compact_hash_table %}, internal_hash_table_size{% endif %}{% if vectorsize > 62 %}, true{% endif %});
 			}
+			else if (verbosity == 5) {
+				// Produce a sorted list of states at the end of the state space generation.
+				// First count the number of states.
+				CUDA_CHECK_RETURN(cudaMemset(d_counted_states, 0, sizeof(uint64_t)));
+				CUDA_CHECK_RETURN(cudaMemset(d_new_counted_states, 0, sizeof(uint64_t)));
+				count_states<<<((int) prop.multiProcessorCount)*8, 512>>>(d_q, d_counted_states, d_new_counted_states);
+				CUDA_CHECK_RETURN(cudaDeviceSynchronize());
+				CUDA_CHECK_RETURN(cudaMemcpy(&counted_states, d_counted_states, sizeof(uint64_t), cudaMemcpyDeviceToHost));
+				CUDA_CHECK_RETURN(cudaMemcpy(&new_counted_states, d_new_counted_states, sizeof(uint64_t), cudaMemcpyDeviceToHost));
+				fprintf(stdout, "Nr. of states in hash table: %lu, new states: %lu\n", counted_states, new_counted_states);
+				states.clear();
+				states.reserve(counted_states);
+				// Scan the hash table for states.
+				cudaMemcpy(q_test, d_q, hash_table_size * sizeof(compressed_nodetype), cudaMemcpyDeviceToHost);
+				for (indextype i = 0; i < hash_table_size; i++) {
+					if (is_root(q_test[i]) && is_new(q_test[i])) {
+						states.push_back(get_systemstate(q_test, i{% if compact_hash_table %}, q_i_test{% endif %}));
+					}
+				}
+				// Sort the states.
+				std::sort(states.begin(), states.end(), systemstates_compare);
+				// Print the states compactly.
+				print_systemstates(stdout, states);
+			}
 		}
 		scan = 1;
 	}
@@ -718,11 +751,20 @@ int main(int argc, char** argv) {
 	// TODO: Property violation report
 
 	// Report hash table error if required.
+	{% if compact_hash_table %}
 	if (contBFS == 2) {
-		fprintf(stderr, "ERROR: problem with hash table!\n");
+		fprintf(stderr, "ERROR: root hash table considered full!\n");
 	}
+	else if (contBFS == 3) {
+		fprintf(stderr, "ERROR: internal hash table considered full!\n");
+	}
+	{% else %}
+	if (contBFS == 2) {
+		fprintf(stderr, "ERROR: hash table considered full!\n");
+	}
+	{% endif %}
 
-	if (verbosity == 5) {
+	if (verbosity == 6) {
 		// Produce a sorted list of states at the end of the state space generation.
 		// First count the number of states.
 		CUDA_CHECK_RETURN(cudaMemset(d_counted_states, 0, sizeof(uint64_t)));

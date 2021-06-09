@@ -82,34 +82,6 @@ using namespace cooperative_groups;
 #define vectornode_indextype uint32_t
 {% endif %}
 
-// A struct to represent a system state (used on the CPU side).
-struct systemstate_t {
-{% for s in vectorelem_in_structure_map.keys() %}
-{% set size = vectorelem_in_structure_map[s][0] %}
-{% if s|is_state %}	statetype{% elif size == 1 %}	elem_booltype{% elif size < 32 %}	elem_chartype{% else %}	elem_inttype{% endif %} {{s|replace("[","_")|replace("]","_")|replace("'","_")}};
-{% endfor %}
-};
-
-// A function to create a system state struct instance with the given values.
-systemstate_t create_systemstate({% for s in vectorelem_in_structure_map.keys() %}{% set size = vectorelem_in_structure_map[s][0] %}{% if s|is_state %}statetype{% elif size == 1 %}elem_booltype{% elif size < 32 %}elem_chartype{% else %}elem_inttype{% endif %} {{s|replace("[","_")|replace("]","_")|replace("'","_")}}{% if not loop.last %}, {% endif %}{% endfor %}
-) {
-	systemstate_t newstate;
-{% for s in vectorelem_in_structure_map.keys() %}
-	newstate.{{s|replace("[","_")|replace("]","_")|replace("'","_")}} = {{s|replace("[","_")|replace("]","_")|replace("'","_")}};
-{% endfor %}
-	return newstate;
-}
-
-// State comparison function for sorting states.
-bool systemstates_compare(systemstate_t s, systemstate_t t) {
-{% for s in vectorelem_in_structure_map.keys() %}
-{% set size = vectorelem_in_structure_map[s][0] %}
-	if (s.{{s|replace("[","_")|replace("]","_")|replace("'","_")}} != t.{{s|replace("[","_")|replace("]","_")|replace("'","_")}}) {
-		return (s.{{s|replace("[","_")|replace("]","_")|replace("'","_")}} < t.{{s|replace("[","_")|replace("]","_")|replace("'","_")}});
-	}
-{% endfor %}	return false;
-}
-
 // *******************************************************************************
 
 // GPU constants.
@@ -170,8 +142,10 @@ static const int NR_BLOCKS = {{nrblocks}};
 #define EMPTY_HASH_POINTER 			0xFFFFFFFFFFFFFFFF
 {% endif %}
 
-// Retry constant to determine number of retries for element insertion.
-#define RETRYFREQ 7
+{% if compact_hash_table %}
+// Evict constant to determine number of allowed evictions for element insertion.
+#define EVICTFREQ 7
+{% endif %}
 #define NR_HASH_FUNCTIONS 32
 // Number of retries in local cache.
 #define CACHERETRYFREQ 40
@@ -187,7 +161,7 @@ const size_t Mb = 1<<20;
 {% if deadlock_check %}
 #define DEADLOCKFLAGSLEN			{{(tilesize/nr_bits_shared_mem_element)|round(0, 'ceil')|int}}
 {% endif %}
-#define LASTSEARCHLEN				({{nrthreadsperblock}}/WARP_SIZE)
+#define LASTSEARCHLEN				{{(nrthreadsperblock/32)|int}} // (GATHER KERNEL BLOCK_SIZE/WARP_SIZE)
 
 // Offsets in shared memory from which loaded data can be read.
 #define SH_OFFSET 4
@@ -335,7 +309,7 @@ inline __device__ compressed_nodetype mark_old(compressed_nodetype node) {
 {% else %}
 // This is the case if the highest bit is set, and not all bits are set.
 {% endif %}
-inline __device__ bool is_new(compressed_nodetype node) {
+inline __host__ __device__ bool is_new(compressed_nodetype node) {
 {% if vectorsize <= 30 %}
 	return (node & 0xC0000000) == 0xC0000000;
 {% elif compact_hash_table %}
@@ -1399,14 +1373,14 @@ inline __device__ statetype get_target_{{sm.name}}_{{a}}(statetype src, statetyp
 // *** START KERNELS AND FUNCTIONS FOR {% if vectorsize > 62 %}VECTOR TREE {% endif %}NODE STORAGE AND RETRIEVAL TO/FROM THE GLOBAL MEMORY HASH TABLE ***
 
 // Initial bitmixer function.
-inline __device__ uint64_t {% if compact_hash_table %}U{% endif %}HASH_INIT(nodetype node) {
+inline __host__ __device__ uint64_t {% if compact_hash_table %}U{% endif %}HASH_INIT(nodetype node) {
 	uint64_t node1 = xor_shft2_64((uint64_t) node, 38, 14);
 	node1 ^= 0xD1B54A32D192ED03L;
 	node1 *= 0xAEF17502108EF2D9L;
 	return node1;
 }
 
-inline __device__ {% if compact_hash_table %}nodetype U{% else %}indextype {% endif %}HASH(uint8_t id, uint64_t node) {
+inline __host__ __device__ {% if compact_hash_table %}nodetype U{% else %}indextype {% endif %}HASH(uint8_t id, uint64_t node) {
 	uint64_t node1 = node;
 	switch (id) {
 		case 0:
@@ -1753,7 +1727,7 @@ inline __device__ {% if compact_hash_table %}nodetype U{% else %}indextype {% en
 
 {% if compact_hash_table %}
 // Initial bitmixer functions.
-inline __device__ nodetype RHASH_INIT(nodetype node) {
+inline __host__ __device__ nodetype RHASH_INIT(nodetype node) {
 	nodetype node1 = xor_shft2_{{nr_bits_address_internal*2}}(node, 38, 20);
 	node1 = xor_shft2_{{nr_bits_address_internal*2}}(node1, 14, 44);
 	node1 ^= 0x01b54a32d192ed03L;
@@ -1771,7 +1745,7 @@ inline __host__ __device__ nodetype RHASH_INIT_INVERSE(nodetype node) {
 	return node1;
 }
 
-inline __device__ nodetype HASH_INIT(nodetype node, bool is_root) {
+inline __host__ __device__ nodetype HASH_INIT(nodetype node, bool is_root) {
 	if (is_root) {
 		return RHASH_INIT(node);
 	}
@@ -1780,7 +1754,7 @@ inline __device__ nodetype HASH_INIT(nodetype node, bool is_root) {
 	}
 }
 
-inline __device__ nodetype RHASH(uint8_t id, nodetype node) {
+inline __host__ __device__ nodetype RHASH(uint8_t id, nodetype node) {
 	nodetype node1 = node;
 	switch (id) {
 		case 0:
@@ -2309,7 +2283,7 @@ inline __host__ __device__ nodetype RHASH_INVERSE(uint8_t id, nodetype node) {
 }
 
 // Hash functions.
-inline __device__ nodetype HASH(uint8_t id, nodetype node, bool is_root) {
+inline __host__ __device__ nodetype HASH(uint8_t id, nodetype node, bool is_root) {
 	if (is_root) {
 		return RHASH(id, node);
 	}
@@ -2347,7 +2321,7 @@ inline __host__ __device__ nodetype get_uncompressed_node_root(compressed_nodety
 }
 
 // Extract a global memory root hash table index from a given hash.
-inline __device__ indextype get_index_root(nodetype h) {
+inline __host__ __device__ indextype get_index_root(nodetype h) {
 	return (indextype) (h >> {{2*nr_bits_address_internal - nr_bits_address_root}});
 }
 
@@ -2554,7 +2528,12 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 					// Store node in hash table.
 					addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, node, d_newstate_flags, i{% if compact_hash_table %}, false{% endif %}, true);
 					if (addr == HASHTABLE_FULL) {
+						{% if compact_hash_table %}
+						// Error: internal hash table is full.
+						CONTINUE = 3;
+						{% else %}
 						CONTINUE = 2;
+						{% endif %}
 					}
 					else {
 						// Store global memory address in cache.
@@ -2591,7 +2570,16 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 						// Store node in hash table.
 						addr = FINDORPUT_SINGLE(d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, {% if compact_hash_table %}collapse(node){% else %}node{% endif %}, d_newstate_flags, i{% if compact_hash_table %}, is_root(node){% endif %}, true);
 						if (addr == HASHTABLE_FULL) {
+							{% if compact_hash_table %}
+							if (is_root(node)) {
+								CONTINUE = 2;
+							}
+							else {
+								CONTINUE = 3;
+							}
+							{% else %}
 							CONTINUE = 2;
+							{% endif %}
 						}
 						else if (!is_root(node)) {
 							// Will there be a next successor generation iteration in the current gather kernel launch?
@@ -3211,6 +3199,9 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 		else {
 			s{{i}} = NO_STATE;
 		}
+		{% if vectorsize > 62 %}
+		p{{i}} = {{i*warpsize}}+LANE;
+		{% endif %}
 	}
 	else {
 		p{{i}} = EMPTYVECT16;
@@ -3487,7 +3478,35 @@ inline __device__ Storage_mode GENERATE_SUCCESSORS(compressed_nodetype *d_q{% if
 	return STORED;
 } 
 
-// *** START FUNCTIONS FOR PRINTING ***
+// *** START STRUCT AND FUNCTIONS FOR PRINTING ***
+
+// A struct to represent a system state (used on the CPU side).
+struct systemstate_t {
+{% for s in vectorelem_in_structure_map.keys() %}
+{% set size = vectorelem_in_structure_map[s][0] %}
+{% if s|is_state %}	statetype{% elif size == 1 %}	elem_booltype{% elif size < 32 %}	elem_chartype{% else %}	elem_inttype{% endif %} {{s|replace("[","_")|replace("]","_")|replace("'","_")}};
+{% endfor %}
+};
+
+// A function to create a system state struct instance with the given values.
+systemstate_t create_systemstate({% for s in vectorelem_in_structure_map.keys() %}{% set size = vectorelem_in_structure_map[s][0] %}{% if s|is_state %}statetype{% elif size == 1 %}elem_booltype{% elif size < 32 %}elem_chartype{% else %}elem_inttype{% endif %} {{s|replace("[","_")|replace("]","_")|replace("'","_")}}{% if not loop.last %}, {% endif %}{% endfor %}
+) {
+	systemstate_t newstate;
+{% for s in vectorelem_in_structure_map.keys() %}
+	newstate.{{s|replace("[","_")|replace("]","_")|replace("'","_")}} = {{s|replace("[","_")|replace("]","_")|replace("'","_")}};
+{% endfor %}
+	return newstate;
+}
+
+// State comparison function for sorting states.
+bool systemstates_compare(systemstate_t s, systemstate_t t) {
+{% for s in vectorelem_in_structure_map.keys() %}
+{% set size = vectorelem_in_structure_map[s][0] %}
+	if (s.{{s|replace("[","_")|replace("]","_")|replace("'","_")}} != t.{{s|replace("[","_")|replace("]","_")|replace("'","_")}}) {
+		return (s.{{s|replace("[","_")|replace("]","_")|replace("'","_")}} < t.{{s|replace("[","_")|replace("]","_")|replace("'","_")}});
+	}
+{% endfor %}	return false;
+}
 
 void print_content_hash_table(FILE* stream, compressed_nodetype *q{% if compact_hash_table %}, nodetype *q_i, uint64_t q_size, uint64_t q_i_size{% else %}, indextype q_size{% endif %}{% if vectorsize > 62 %}, bool print_pointers{% endif %}) {
 	uint64_t counter = 0;
@@ -3624,17 +3643,21 @@ systemstate_t get_systemstate(compressed_nodetype *q{% if compact_hash_table %},
 	return newstate;
 }
 
+void print_systemstate(FILE* stream, systemstate_t s) {
+	{% for s in vectorelem_in_structure_map.keys() %}
+	{% set size = vectorelem_in_structure_map[s][0] %}
+	fprintf(stream, "{% if size > 1 and size < 32 %}%d{% else %}%u{% endif %} ", {% if size > 1 and size < 32 %}(uint8_t){% else %}(uint32_t){% endif %} s.{{s|replace("[","_")|replace("]","_")|replace("'","_")}});
+	{% endfor %}
+	fprintf(stream, "\n");	
+}
+
 void print_systemstates(FILE* stream, std::vector<systemstate_t> states) {
 	fprintf(stream, "GENERATED SYSTEM STATES:\n");
 	for (std::vector<systemstate_t>::iterator it = states.begin(); it != states.end(); ++it) {
-		{% for s in vectorelem_in_structure_map.keys() %}
-		{% set size = vectorelem_in_structure_map[s][0] %}
-		fprintf(stream, "{% if size > 1 and size < 32 %}%d{% else %}%u{% endif %} ", {% if size > 1 and size < 32 %}(uint8_t){% else %}(uint32_t){% endif %} (*it).{{s|replace("[","_")|replace("]","_")|replace("'","_")}});
-		{% endfor %}
-		fprintf(stream, "\n");
+		print_systemstate(stream, (*it));
 	}
 	fprintf(stream, "END OF STATE LIST.\n");
 	fprintf(stream, "NR. OF STATES: %lu.\n", states.size());
 }
 
-// *** END FUNCTIONS FOR PRINTING ***
+// *** END STRUCT AND FUNCTIONS FOR PRINTING ***

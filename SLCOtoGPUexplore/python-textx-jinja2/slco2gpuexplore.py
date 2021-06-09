@@ -372,7 +372,7 @@ def vectorpart_is_combined_with_nonleaf_node(p):
 		# 	return vectorstructure_part_size(vectorstructure[p]) <= nr_bits_address_internal()
 		# else:
 		# 	return vectorstructure_part_size(vectorstructure[p]) <= (64-1-nr_bits_address_internal())
-		return vectorstructure_part_size(vectorstructure[p]) <= nr_bits_address_internal()
+		return vectorstructure_part_size(vectorstructure[p]) < nr_bits_address_internal()
 	elif vectorsize > 62:
 		return vectorstructure_part_size(vectorstructure[p]) < 31
 	else:
@@ -3565,9 +3565,9 @@ def preprocess():
 				else:
 					newpos = 0
 					if compact_hash_table:
-						newpos = 58-nr_bits_address_internal()-(63-PIDs[i][1])
+						newpos = nr_bits_address_internal()-1-(63-PIDs[i][1])
 					else:
-						newpos = 62-nr_bits_address_root()-(62-PIDs[i][1])
+						newpos = nr_bits_address_root()-1-(62-PIDs[i][1])
 					newPIDslist.append((PIDs[i][0], newpos, PIDs[i][2]))
 			vectorelem_in_structure_map[vname] = newPIDslist
 	# number of vector parts with state machine states
