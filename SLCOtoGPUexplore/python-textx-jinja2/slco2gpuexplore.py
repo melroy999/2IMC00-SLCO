@@ -4060,6 +4060,17 @@ def preprocess():
 			if vectorsize > 62:
 				nr_cache_elements = int(math.floor(nr_cache_elements / 3))
 			print("Nr. of elements in cache hash table: " + str(nr_cache_elements))
+	print("System state vector size: " + str(vectorsize))
+	if vectorsize <= 30;
+		print("Running in 32-bit state vector mode")
+	elif vectorsize <= 62;
+		print("Running in 64-bit state vector mode")
+	elif compact_hash_table:
+		print("Running in compact hash table mode")
+	else:
+		print("Running in non-compact hash table mode")
+	if with_cuckoo:
+		print("Cuckoo hashing enabled")
 
 def translate():
 	"""The translation function"""
@@ -4232,25 +4243,9 @@ def main(args):
 	if not with_cuckoo:
 		max_evictions = 0
 
-	batch = []
-	if modelname.endswith('.slco'):
-		batch = [modelname]
+	if not modelname.endswith('.slco'):
+		print("please provide an SLCO model to be verified.")
 	else:
-		batch = glob.glob(join(this_folder, modelname, "*.slco"))
-
-	if not batch:
-		exit(1)
-
-	#gen_dir = "generated_mcrl2"
-	#dir = dirname(batch[0])
-	#gen_folder = join(dir, gen_dir)
-	#if exists(gen_folder):
-	#	rmtree(gen_folder)
-	#mkdir(gen_folder)
-
-	for file in batch:
-		# read model
-		modelname = file
 		model = read_SLCO_model(file)
 		print("processing model %s" % basename(file))
 		try:
