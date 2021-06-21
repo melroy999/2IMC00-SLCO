@@ -4236,7 +4236,7 @@ def main(args):
 
 	# Cuckoo hashing is disabled for non-compact state storage.
 	# NOTE: for vectors in size <= 62, Cuckoo hashing currently leads to a deadlock.
-	if not compact_hash_table or vectorsize <= 62:
+	if (not compact_hash_table) or vectorsize <= 62:
 		with_cuckoo = False
 
 	# if Cuckoo hashing is disabled, the number of allowed evictions is 0.
