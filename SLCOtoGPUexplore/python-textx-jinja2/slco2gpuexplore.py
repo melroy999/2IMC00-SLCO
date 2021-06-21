@@ -3290,7 +3290,7 @@ def debug(text):
 
 def preprocess():
 	"""Preprocessing of model"""
-	global model, vectorsize, vectorstructure, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_nr_reachable_state_parts, vectortree_node_thread, vectorstructure_string, smnames, vectorelem_in_structure_map, max_statesize, state_order, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, connected_channel, signalsize, signalnr, alphabet, syncactions, actiontargets, actions, syncreccomm, no_state_constant, no_prio_constant, dynamic_access_arrays, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, tilesize, gpuexplore2_succdist, regsort_nr_el_per_thread, all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask, nr_warps_per_tile, compact_hash_table, elements_strings, nrblocks, nrthreadsperblock, array_in_structure_map, vectorpart_id_dict, vectornode_id_dict, no_smart_fetching, nr_bits_shared_mem_element, nr_cache_elements, with_cuckoo
+	global model, vectorsize, vectorstructure, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_nr_reachable_state_parts, vectortree_node_thread, vectorstructure_string, smnames, vectorelem_in_structure_map, max_statesize, state_order, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, connected_channel, signalsize, signalnr, alphabet, syncactions, actiontargets, actions, syncreccomm, no_state_constant, no_prio_constant, dynamic_access_arrays, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, tilesize, gpuexplore2_succdist, regsort_nr_el_per_thread, all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask, nr_warps_per_tile, compact_hash_table, elements_strings, nrblocks, nrthreadsperblock, array_in_structure_map, vectorpart_id_dict, vectornode_id_dict, no_smart_fetching, nr_bits_shared_mem_element, nr_cache_elements, with_cuckoo, max_evictions
 
 	# construct set of statemachine names in the system
 	# also construct a map from names to objects
@@ -4060,6 +4060,16 @@ def preprocess():
 			if vectorsize > 62:
 				nr_cache_elements = int(math.floor(nr_cache_elements / 3))
 			print("Nr. of elements in cache hash table: " + str(nr_cache_elements))
+
+	# Cuckoo hashing is disabled for non-compact state storage.
+	# NOTE: for vectors in size <= 62, Cuckoo hashing currently leads to a deadlock.
+	if (not compact_hash_table) or vectorsize <= 62:
+		with_cuckoo = False
+
+	# if Cuckoo hashing is disabled, the number of allowed evictions is 0.
+	if not with_cuckoo:
+		max_evictions = 0
+
 	print("System state vector size: " + str(vectorsize))
 	if vectorsize <= 30:
 		print("Running in 32-bit state vector mode")
@@ -4233,19 +4243,6 @@ def main(args):
 	if gpu_querying:
 		cudainit = importlib.import_module("pycuda.autoinit")
 		cuda = importlib.import_module("pycuda.driver")
-
-	print(with_cuckoo)
-
-	# Cuckoo hashing is disabled for non-compact state storage.
-	# NOTE: for vectors in size <= 62, Cuckoo hashing currently leads to a deadlock.
-	if (not compact_hash_table) or vectorsize <= 62:
-		with_cuckoo = False
-
-	print(with_cuckoo)
-
-	# if Cuckoo hashing is disabled, the number of allowed evictions is 0.
-	if not with_cuckoo:
-		max_evictions = 0
 
 	if not modelname.endswith('.slco'):
 		print("please provide an SLCO model to be verified.")
