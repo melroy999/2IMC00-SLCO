@@ -1749,15 +1749,6 @@ inline __host__ __device__ nodetype RHASH_INIT_INVERSE(nodetype node) {
 	return node1;
 }
 
-inline __host__ __device__ nodetype HASH_INIT(nodetype node, bool is_root) {
-	if (is_root) {
-		return RHASH_INIT(node);
-	}
-	else {
-		return UHASH_INIT(node);
-	}
-}
-
 inline __host__ __device__ nodetype RHASH(uint8_t id, nodetype node) {
 	nodetype node1 = node;
 	switch (id) {
@@ -2286,16 +2277,6 @@ inline {% if compact_hash_table %}__host__ {% endif %}__device__ nodetype RHASH_
 	return node1;
 }
 
-// Hash functions.
-inline {% if compact_hash_table %}__host__ {% endif %}__device__ nodetype HASH(uint8_t id, nodetype node, bool is_root) {
-	if (is_root) {
-		return RHASH(id, node);
-	}
-	else {
-		return UHASH(id, node);
-	}
-}
-
 {% endif %}
 {% if compact_hash_table %}
 // Retrieve ID of used hash function from a compressed root vectortree node.
@@ -2381,11 +2362,11 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 	uint8_t hash_start = (is_new_node & 0x7F);
 	{% endif %}
 	is_new_node = is_new_node >> 7;
-	e1 = HASH_INIT({% if compact_hash_table %}e2{% else %}filter_bookkeeping(e2){% endif %}{% if compact_hash_table %}, true{% endif %});
+	e1 = {% if compact_hash_table %}R{% endif %}HASH_INIT({% if compact_hash_table %}e2{% else %}filter_bookkeeping(e2){% endif %});
 	#pragma unroll
 	for (uint8_t i = {% if not compact_hash_table %}0{% else %}hash_start{% endif %}; i < NR_HASH_FUNCTIONS; i++) {
 		{% if compact_hash_table %}
-		element = HASH(i, e1, true);
+		element = RHASH(i, e1);
 		compressed_node = get_compressed_node_root(element, i);
 		if (is_new_node) {
 			compressed_node = mark_new(compressed_node);
@@ -2464,7 +2445,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 	if (min_hashes == NR_HASH_FUNCTIONS) {
 		min_hash_id = 0;
 	}
-	element = HASH(min_hash_id, e1, true);
+	element = RHASH(min_hash_id, e1);
 	compressed_node = get_compressed_node_root(element, min_hash_id);
 	if (is_new_node) {
 		compressed_node = mark_new(compressed_node);
@@ -2505,7 +2486,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 	// Prepare the evicted node for storage.
 	{% if compact_hash_table %}
 	element = get_uncompressed_node_root(compressed_element, addr);
-	e1 = HASH_INIT(element, true);
+	e1 = RHASH_INIT(element);
 	*result = get_hash_id_root(compressed_element) + 1;
 	// Set highest bit in result in case the element is new.
 	if (is_new(compressed_element)) {
@@ -2556,7 +2537,15 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 	{% if not with_cuckoo %}
 	shared_inttype shared_addr;
 	{% endif %}
-	e1 = HASH_INIT({% if compact_hash_table %}node{% else %}filter_bookkeeping(node){% endif %}{% if compact_hash_table %}{% if with_cuckoo %}, false{% else %}, is_root{% endif %}{% endif %});
+	{% if compact_hash_table %}
+	{% if with_cuckoo %}
+	e1 = UHASH_INIT(node);
+	{% else %}
+	e1 = (is_root ? RHASH_INIT(node) : UHASH_INIT(node));
+	{% endif %}
+	{% else %}
+	e1 = HASH_INIT(filter_bookkeeping(node));
+	{% endif %}
 	{% if vectorsize > 62 and not compact_hash_table %}
 	if (is_root(node)) {
 		node = mark_new(node);
@@ -2566,7 +2555,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 	for (uint8_t i = 0; i < NR_HASH_FUNCTIONS; i++) {
 		{% if compact_hash_table and not with_cuckoo %}
 		if (is_root) {
-			e2 = HASH(i, e1, true);
+			e2 = RHASH(i, e1);
 			compressed_node = get_compressed_node_root(e2, i);
 			compressed_node = mark_new(compressed_node);
 			// Special case: if the compressed node coincides with the value for an empty compressed node, continue.
@@ -2610,7 +2599,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 		else {
 		{% endif %}
 		{% if compact_hash_table %}
-			e2 = HASH(i, e1, false);
+			e2 = UHASH(i, e1);
 			addr = get_index_internal(e2);
 		{% else %}
 			addr = HASH(i, e1);
