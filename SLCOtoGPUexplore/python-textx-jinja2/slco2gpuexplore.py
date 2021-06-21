@@ -20,10 +20,14 @@ model = ""
 # - no_regsort disables warp-based in register sorting, thereby reducing the amount of expected regularity in successor generation.
 # - no_smart_fetching disables smart fetching of vectortrees from the global memory hash table.
 # - compact_hash_table enables compact storage of states in the global memory hash table.
+# - with_cuckoo enables Cuckoo hashing.
 gpuexplore2_succdist = False
 no_regsort = False
 no_smart_fetching = False
 compact_hash_table = True
+with_cuckoo = True
+# The maximum number of allowed Cuckoo hashing evictions in one chain.
+max_evictions = 10
 
 # Will the GPU be queried, using pycuda, to use GPU properties during code generation? This requires the presence of a CUDA capable GPU
 # in the machine
@@ -4046,7 +4050,10 @@ def preprocess():
 			device = cuda.Device(0)
 			attrs = device.get_attributes()
 			shared_size = int(math.floor(attrs.get(cuda.device_attribute.MAX_SHARED_MEMORY_PER_BLOCK) / (nr_bits_shared_mem_element/8)))
-			offset = int(5+tilesize+(nrthreadsperblock/32))
+			if vectorsize > 62:
+				offset = int(5+(2*tilesize)+(nrthreadsperblock/32))
+			else:
+				offset = int(5+tilesize+(nrthreadsperblock/32))
 			if deadlock_check:
 				offset += int(math.ceil(tilesize/(nr_bits_shared_mem_element/8)))
 			nr_cache_elements = shared_size - offset
@@ -4056,7 +4063,7 @@ def preprocess():
 
 def translate():
 	"""The translation function"""
-	global modelname, model, vectorstructure, vectorstructure_string, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, vectortree_nr_reachable_state_parts, vectorelem_in_structure_map, vectortree_node_thread, state_order, max_statesize, smnames, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, signalsize, connected_channel, alphabet, syncactions, actiontargets, no_state_constant, no_prio_constant, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, gpuexplore2_succdist, no_regsort, tilesize, regsort_nr_el_per_thread, warpsize, all_arrayindex_allocs_sizes, no_smart_fetching, compact_hash_table, nrblocks, nrthreadsperblock, array_in_structure_map, nr_bits_shared_mem_element, deadlock_check
+	global modelname, model, vectorstructure, vectorstructure_string, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, vectortree_nr_reachable_state_parts, vectorelem_in_structure_map, vectortree_node_thread, state_order, max_statesize, smnames, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, signalsize, connected_channel, alphabet, syncactions, actiontargets, no_state_constant, no_prio_constant, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, gpuexplore2_succdist, no_regsort, tilesize, regsort_nr_el_per_thread, warpsize, all_arrayindex_allocs_sizes, no_smart_fetching, compact_hash_table, nrblocks, nrthreadsperblock, array_in_structure_map, nr_bits_shared_mem_element, deadlock_check, with_cuckoo, max_evictions
 	
 	path, name = split(modelname)
 	if name.endswith('.slco'):
@@ -4134,7 +4141,7 @@ def translate():
 
 	# load the GPUexplore template
 	template = jinja_env.get_template('gpuexplore.jinja2template')
-	out = template.render(model=model, vectorsize=vectorsize, vectortree_group_size=vectortree_group_size, vectorstructure=vectorstructure, vectorstructure_string=vectorstructure_string, vectortree=vectortree, vectortree_T=vectortree_T, max_statesize=max_statesize, vectorelem_in_structure_map=vectorelem_in_structure_map, array_in_structure_map=array_in_structure_map, state_order=state_order, smnames=smnames, smname_to_object=smname_to_object, state_id=state_id, arraynames=arraynames, max_arrayindexsize=max_arrayindexsize, max_buffer_allocs=max_buffer_allocs, connected_channel=connected_channel, alphabet=alphabet, syncactions=syncactions, actiontargets=actiontargets, syncreccomm=syncreccomm, no_state_constant=no_state_constant, no_prio_constant=no_prio_constant, dynamic_access_arrays=dynamic_access_arrays, signalsize=signalsize, async_channel_vectorpart_buffer_range=async_channel_vectorpart_buffer_range, vectortree_depth=vectortree_depth, vectortree_level_ids=vectortree_level_ids, vectortree_level_nr_of_leaves=vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children=vectortree_level_nr_of_nodes_with_two_children, vectortree_nr_reachable_state_parts=vectortree_nr_reachable_state_parts, vectortree_node_thread=vectortree_node_thread, gpuexplore2_succdist=gpuexplore2_succdist, no_regsort=no_regsort, tilesize=tilesize, regsort_nr_el_per_thread=regsort_nr_el_per_thread, nr_warps_per_tile=nr_warps_per_tile, warpsize=warpsize, all_arrayindex_allocs_sizes=all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask=smart_vectortree_fetching_bitmask, no_smart_fetching=no_smart_fetching, compact_hash_table=compact_hash_table, nr_bits_address_root=nr_bits_address_root(), nr_bits_address_internal=nr_bits_address_internal(), cuda_initial_vector=cudastore_initial_vector(), nrblocks=nrblocks, nrthreadsperblock=nrthreadsperblock, nr_bits_shared_mem_element=nr_bits_shared_mem_element, deadlock_check=deadlock_check, nr_cache_elements=nr_cache_elements)
+	out = template.render(model=model, vectorsize=vectorsize, vectortree_group_size=vectortree_group_size, vectorstructure=vectorstructure, vectorstructure_string=vectorstructure_string, vectortree=vectortree, vectortree_T=vectortree_T, max_statesize=max_statesize, vectorelem_in_structure_map=vectorelem_in_structure_map, array_in_structure_map=array_in_structure_map, state_order=state_order, smnames=smnames, smname_to_object=smname_to_object, state_id=state_id, arraynames=arraynames, max_arrayindexsize=max_arrayindexsize, max_buffer_allocs=max_buffer_allocs, connected_channel=connected_channel, alphabet=alphabet, syncactions=syncactions, actiontargets=actiontargets, syncreccomm=syncreccomm, no_state_constant=no_state_constant, no_prio_constant=no_prio_constant, dynamic_access_arrays=dynamic_access_arrays, signalsize=signalsize, async_channel_vectorpart_buffer_range=async_channel_vectorpart_buffer_range, vectortree_depth=vectortree_depth, vectortree_level_ids=vectortree_level_ids, vectortree_level_nr_of_leaves=vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children=vectortree_level_nr_of_nodes_with_two_children, vectortree_nr_reachable_state_parts=vectortree_nr_reachable_state_parts, vectortree_node_thread=vectortree_node_thread, gpuexplore2_succdist=gpuexplore2_succdist, no_regsort=no_regsort, tilesize=tilesize, regsort_nr_el_per_thread=regsort_nr_el_per_thread, nr_warps_per_tile=nr_warps_per_tile, warpsize=warpsize, all_arrayindex_allocs_sizes=all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask=smart_vectortree_fetching_bitmask, no_smart_fetching=no_smart_fetching, compact_hash_table=compact_hash_table, nr_bits_address_root=nr_bits_address_root(), nr_bits_address_internal=nr_bits_address_internal(), cuda_initial_vector=cudastore_initial_vector(), nrblocks=nrblocks, nrthreadsperblock=nrthreadsperblock, nr_bits_shared_mem_element=nr_bits_shared_mem_element, deadlock_check=deadlock_check, nr_cache_elements=nr_cache_elements, with_cuckoo=with_cuckoo, max_evictions=max_evictions)
 	# write new SLCO model
 	outFile.write(out)
 	outFile.close()
@@ -4154,7 +4161,7 @@ def translate():
 
 def main(args):
 	"""The main function"""
-	global modelname, model, property_file, deadlock_check, gpuexplore2_succdist, no_regsort, no_smart_fetching, compact_hash_table, global_memsize, nrblocks, nrthreadsperblock, vectorsize, gpu_querying, cuda
+	global modelname, model, property_file, deadlock_check, gpuexplore2_succdist, no_regsort, no_smart_fetching, compact_hash_table, with_cuckoo, max_evictions, global_memsize, nrblocks, nrthreadsperblock, vectorsize, gpu_querying, cuda
 	if len(args) == 0:
 		print("Missing argument: SLCO model")
 		sys.exit(1)
@@ -4174,6 +4181,7 @@ def main(args):
 			print(" -noregsort            do not apply regsort for successor generation work distribution (default False)")
 			print(" -nosmartfetching      disable smart fetching of vectortrees from global memory (default False)")
 			print(" -nocompacthashtable   disable compact storage in global memory hash table (default False)")
+			print(" -nocuckoo             disable Cuckoo hashing (default False)")
 			sys.exit(0)
 		else:
 			for i in range(0,len(args)):
@@ -4195,6 +4203,8 @@ def main(args):
 					no_smart_fetching = True
 				elif args[i] == '-nocompacthashtable':
 					compact_hash_table = False
+				elif args[i] == '-nocuckoo':
+					with_cuckoo = False
 				elif args[i] == '-b':
 					nrblocks = int(args[i+1])
 					i += 1
@@ -4212,6 +4222,15 @@ def main(args):
 	if gpu_querying:
 		cudainit = importlib.import_module("pycuda.autoinit")
 		cuda = importlib.import_module("pycuda.driver")
+
+	# Cuckoo hashing is disabled for non-compact state storage.
+	# NOTE: for vectors in size <= 62, Cuckoo hashing currently leads to a deadlock.
+	if not compact_hash_table or vectorsize <= 62:
+		with_cuckoo = False
+
+	# if Cuckoo hashing is disabled, the number of allowed evictions is 0.
+	if not with_cuckoo:
+		max_evictions = 0
 
 	batch = []
 	if modelname.endswith('.slco'):

@@ -1,5 +1,7 @@
 #include <stdbool.h>
 #include <cooperative_groups.h>
+#include <vector>
+#include <algorithm>
 using namespace cooperative_groups;
 
 // test macros
@@ -7,8 +9,10 @@ using namespace cooperative_groups;
 #define PRINTTHREAD(j, i)					{printf("%d: Seen by thread %d: %d\n", (j), (blockIdx.x*blockDim.x)+threadIdx.x, (i));}
 
 // Structure of the state vector:
-// [ one bit reserved, state globalObject'a1: 2 bit(s), state globalObject'a2: 2 bit(s), variable globalObject'c: 32 bit(s), variable globalObject'x2: 27 bit(s) ],
-// [ one bit reserved, variable globalObject'x2: 5 bit(s), variable globalObject'x1: 32 bit(s) ]
+// [ one bit reserved, state globalObject'P_2: 3 bit(s), state globalObject'P_1: 3 bit(s), state globalObject'P_0: 3 bit(s), variable globalObject'P_0'myplace: 8 bit(s), 
+//   variable globalObject'next: 8 bit(s), variable globalObject'Slot[0]: 8 bit(s), variable globalObject'Slot[1]: 8 bit(s), variable globalObject'Slot[2]: 8 bit(s), variable globalObject'P_2'myplace: 8 bit(s), 
+//   variable globalObject'P_1'myplace: 6 bit(s) ],
+// Combined with a non-leaf vector tree node: [ variable globalObject'P_1'myplace: 2 bit(s) ]
 
 // type of vectortree nodes used.
 #define nodetype uint64_t
@@ -23,7 +27,7 @@ using namespace cooperative_groups;
 #define statetype uint8_t
 // types of data elements.
 #define elem_inttype int32_t
-#define elem_chartype int8_t
+#define elem_chartype uint8_t
 #define elem_booltype bool
 // type for array and channel buffer indexing.
 #define array_indextype int8_t
@@ -32,10 +36,12 @@ using namespace cooperative_groups;
 // type for vector node IDs.
 #define vectornode_indextype uint8_t
 
+// *******************************************************************************
+
 // GPU constants.
 static const int WARP_SIZE = 32;
 __constant__ uint32_t d_kernel_iters;
-__constant__ shared_inttype d_shared_cache_size;
+__constant__ shared_inttype d_shared_size;
 __constant__ uint64_t d_hash_table_size;
 __constant__ uint64_t d_internal_hash_table_size;
 
@@ -56,14 +62,14 @@ static const int NR_BLOCKS = 3120;
 #define NR_WARPS_PER_BLOCK			(BLOCK_SIZE / WARP_SIZE)
 #define NR_WARPS					(NR_WARPS_PER_BLOCK * GRID_SIZE)
 #define LANE						(THREAD_ID & 0x0000001F)
-#define VECTOR_GROUP_SIZE			2
+#define VECTOR_GROUP_SIZE			1
 #define VECTOR_GROUP_ID				(THREAD_ID / VECTOR_GROUP_SIZE)
 #define NR_VECTOR_GROUPS_PER_BLOCK	(BLOCK_SIZE / VECTOR_GROUP_SIZE)
 
 // Constant representing empty array index entry.
 #define EMPTY_INDEX -1
 // Constant used to initialise state variables.
-#define NO_STATE 3
+#define NO_STATE 5
 #define EMPTYVECT32					0x3FFFFFFF
 #define EMPTYVECT16					0xFFFF
 #define CACHE_POINTERS_NEW_LEAF		0x1FFFFFFF
@@ -71,8 +77,8 @@ static const int NR_BLOCKS = 3120;
 #define EMPTY_CACHE_POINTER			0x7FFF
 #define EMPTY_HASH_POINTER 			0xFFFFFFFF
 
-// Retry constant to determine number of retries for element insertion.
-#define RETRYFREQ 7
+// Evict constant to determine number of allowed evictions for element insertion.
+#define EVICTFREQ 7
 #define NR_HASH_FUNCTIONS 32
 // Number of retries in local cache.
 #define CACHERETRYFREQ 40
@@ -84,17 +90,17 @@ const size_t Mb = 1<<20;
 
 // CONSTANTS FOR SHARED MEMORY CACHES
 // Offsets calculations for shared memory arrays
-#define OPENTILELEN					256
-#define LASTSEARCHLEN				(512/WARP_SIZE)
+#define OPENTILELEN					170
+#define LASTSEARCHLEN				16 // (GATHER KERNEL BLOCK_SIZE/WARP_SIZE)
 
 // Offsets in shared memory from which loaded data can be read.
-#define SH_OFFSET 5
+#define SH_OFFSET 4
 #define OPENTILEOFFSET 				(SH_OFFSET)
-#define LASTSEARCHOFFSET			(OPENTILEOFFSET+OPENTILELEN)
+#define LASTSEARCHOFFSET			(OPENTILEOFFSET+OPENTILELEN+OPENTILELEN)
 #define CACHEOFFSET 				(LASTSEARCHOFFSET+LASTSEARCHLEN)
 
 // Shared memory work tile size in nr. of warps
-#define OPENTILE_WARP_WIDTH			8
+#define OPENTILE_WARP_WIDTH			6
 
 // Error value to indicate a full global hash table.
 #define HASHTABLE_FULL 				0xFFFFFFFF
@@ -105,11 +111,10 @@ const size_t Mb = 1<<20;
 #define ITERATIONS					(shared[0])
 #define CONTINUE					(shared[1])
 #define OPENTILECOUNT				(shared[2])
-#define WORKSCANRESULT				(shared[3])
-#define SCAN						(shared[4])
+#define SCAN						(shared[3])
 
 // The number of state machines in the model.
-#define NR_SMS						2
+#define NR_SMS						3
 
 // CONSTANTS FOR GLOBAL MEMORY HASH TABLE
 // Empty root hash table element
@@ -122,16 +127,6 @@ extern __shared__ volatile shared_inttype shared[];
 
 // Bitmask to identify parts of the state vector that contain state machine states.
 #define VECTOR_SMPARTS			0x80000000
-
-// *** START MATH OPERATIONS ***
-
-// Fast modulo operation.
-inline __host__ __device__ shared_indextype fast_modulo(shared_indextype x, shared_indextype n) {
-	shared_indextype q = x / n;
-	return x - (q * n);
-}
-
-// *** END MATH OPERATIONS ***
 
 // *** START BIT OPERATIONS ***
 
@@ -186,9 +181,9 @@ inline __device__ compressed_nodetype mark_old(compressed_nodetype node) {
 }
 
 // Check whether state is new.
-// This is the case if the highest bit is set.
-inline __device__ bool is_new(compressed_nodetype node) {
-	return (node & 0x80000000) == 0x80000000;
+// This is the case if the highest bit is set, and not all bits are set.
+inline __host__ __device__ bool is_new(compressed_nodetype node) {
+	return (node != EMPTY_COMPRESSED_NODE && (node & 0x80000000) == 0x80000000);
 }
 
 // Mark a node as root.
@@ -369,12 +364,10 @@ inline __device__ nodetype get_vectorpart_0(shared_indextype node_index) {
 }
 
 inline __device__ nodetype get_vectorpart_1(shared_indextype node_index) {
-	shared_indextype index = node_index;
-	index = sv_step(index, true);
 	nodetype part;
 	asm("{\n\t"
 		" mov.b64 %0,{ %1, %2 };\n\t"
-		"}" : "=l"(part) : "r"(shared[CACHEOFFSET+(index*3)+1]), "r"(shared[CACHEOFFSET+(index*3)]));
+		"}" : "=l"(part) : "r"(shared[CACHEOFFSET+(node_index*3)+1]), "r"(shared[CACHEOFFSET+(node_index*3)]));
 	return part;
 }
 
@@ -407,15 +400,6 @@ inline __device__ void get_vectortree_node_1(nodetype *node, shared_inttype *d_c
 	*d_cachepointers = shared[CACHEOFFSET+(index*3)+2];
 }
 
-inline __device__ void get_vectortree_node_2(nodetype *node, shared_inttype *d_cachepointers, shared_indextype node_index) {
-	shared_indextype index = node_index;
-	index = sv_step(index, true);
-	asm("{\n\t"
-		" mov.b64 %0,{ %1, %2 };\n\t"
-		"}" : "=l"(*node) : "r"(shared[CACHEOFFSET+(index*3)+1]), "r"(shared[CACHEOFFSET+(index*3)]));
-	*d_cachepointers = shared[CACHEOFFSET+(index*3)+2];
-}
-
 // Retrieval functions for vector tree nodes from shared memory, including shared memory node pointers (cache pointers).
 inline __device__ void get_vectortree_node(nodetype *node, shared_inttype *d_cachepointers, shared_indextype node_index, vectornode_indextype i) {
 	switch (i) {
@@ -424,9 +408,6 @@ inline __device__ void get_vectortree_node(nodetype *node, shared_inttype *d_cac
 	  	break;
 	  case 1:
 	  	get_vectortree_node_1(node, d_cachepointers, node_index);
-	  	break;
-	  case 2:
-	  	get_vectortree_node_2(node, d_cachepointers, node_index);
 	  	break;
 	  default:
 	  	return;
@@ -545,9 +526,7 @@ inline __device__ nodetype direct_get_vectorpart_0(compressed_nodetype *d_q, nod
 }
 
 inline __device__ nodetype direct_get_vectorpart_1(compressed_nodetype *d_q, nodetype *d_q_i, nodetype node) {
-	nodetype tmp = node;
-	tmp = direct_sv_step(d_q, d_q_i, tmp, true);
-	return tmp;
+	return node;
 }
 
 // Functions to retrieve vector parts from host memory.
@@ -558,9 +537,7 @@ inline __host__ nodetype host_direct_get_vectorpart_0(compressed_nodetype *q, no
 }
 
 inline __host__ nodetype host_direct_get_vectorpart_1(compressed_nodetype *q, nodetype *q_i, nodetype node, FILE* stream, bool print_pointers) {
-	nodetype tmp = node;
-	tmp = host_direct_sv_step(q, q_i, tmp, true, stream, print_pointers);
-	return tmp;
+	return node;
 }
 
 // Vectornode check for a left or right pointer gap.
@@ -585,12 +562,13 @@ inline __device__ shared_indextype CACHE_HASH(nodetype node) {
 	node1 ^= rshft(node1, 23);
 	node1 *= 0xdb4f0ad2012a3801L;
 	node1 ^= rshft(node1, 28);
-	return (shared_indextype) fast_modulo((node1 & 0x000000000000FFFF), ((d_shared_cache_size-CACHEOFFSET)/3));
+	// Make sure the resulting address is within the range of the cache.
+	return (shared_indextype) (node1 & 0x000000000000FFFF) % 3975;
 }
 
 // Store a vectortree node in the cache.
 // Return address if successful, HASHTABLE_FULL if cache is full.
-inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_pointers) {
+inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_pointers, bool is_leaf) {
 	uint8_t i = 0;
 	shared_indextype addr;
 	shared_inttype element;
@@ -599,7 +577,14 @@ inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_poi
 	// Split the node in two.
 	part1 = get_left(node);
 	part2 = get_right(node);
-	addr = CACHE_HASH(node);
+	// As non-leafs often have the same initial node value (if two non-leafs both have two new child trees, their node values are identical),
+	// we hash on the cache_pointers for non-leafs, which usually are different, as they are related to the reachable leafs.
+	if (is_leaf) {
+		addr = CACHE_HASH(node);
+	}
+	else {
+		addr = CACHE_HASH((nodetype) cache_pointers);
+	}
 	while (i < CACHERETRYFREQ) {
 		element = atomicCAS((shared_inttype *) &(shared[CACHEOFFSET+(addr*3)]), EMPTYVECT32, part1);
 		if (element == EMPTYVECT32 || element == part1) {
@@ -614,8 +599,8 @@ inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_poi
 				}
 				else {
 					// Storage of node after all not successful. Try another address.
-					addr += 3;
-					if (addr+2 >= d_shared_cache_size) {
+					addr++;
+					if ((addr*3)+2 >= (d_shared_size - CACHEOFFSET)) {
 						addr = 0;
 					}
 					i++;
@@ -624,8 +609,8 @@ inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_poi
 			}
 			else {
 				// Storage of node after all not successful. Try another address.
-				addr += 3;
-				if (addr+2 >= d_shared_cache_size) {
+				addr++;
+				if ((addr*3)+2 >= (d_shared_size - CACHEOFFSET)) {
 					addr = 0;
 				}
 				i++;
@@ -634,8 +619,8 @@ inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_poi
 		}
 		else {
 			// Storage of node after all not successful. Try another address.
-			addr += 3;
-			if (addr+2 >= d_shared_cache_size) {
+			addr++;
+			if ((addr*3)+2 >= (d_shared_size - CACHEOFFSET)) {
 				addr = 0;
 			}
 			i++;		
@@ -654,7 +639,7 @@ inline __device__ shared_indextype store_global_address_stub(nodetype node, shar
 	// actually relevant. The node is created to be able to dinstinguish a stub from a non-leaf. To do so, the highest bits of the node
 	// are set to EMPTYVECT32, which is a value those bits can never have when the node is a non-leaf. The lowest bits are set to the
 	// global address, to achieve variation in values. This helps the hashing.
-	shared_indextype addr = STOREINCACHE(combine_halfs(EMPTYVECT32, n), n);
+	shared_indextype addr = STOREINCACHE(combine_halfs(EMPTYVECT32, n), n, true);
 	return addr;
 }
 
@@ -662,51 +647,143 @@ inline __device__ shared_indextype store_global_address_stub(nodetype node, shar
 
 // *** START FUNCTIONS FOR MODEL DATA RETRIEVAL AND STORAGE ***
 
+// Auxiliary functions to check for and obtain/store an array element with an index equal to the given expression e.
+// There are functions for the various buffer sizes required to interpret the model.
+
+// Store the given value v under index e. Check for presence of e in the index buffer. If not present, store e and v.
+// Precondition: if e is not already present, there is space in the buffer to store it.
+template<class T>
+inline __device__ void A_STR_1(array_indextype *idx_0, T *v_0, array_indextype e, T v) {
+	if (((array_indextype) e) == *idx_0) {
+		*v_0 = v;
+		return;
+	}
+	else if (*idx_0 == EMPTY_INDEX) {
+		*idx_0 = (array_indextype) e;
+		*v_0 = v;
+		return;
+	}
+}
+
+// Return the value stored at index e.
+// Precondition: provided array contains the requested element.
+template<class T>
+inline __device__ T A_LD_1(array_indextype idx_0, T v_0, array_indextype e) {
+	if (((array_indextype) e) == idx_0) {
+		return v_0;
+	}
+	return T();
+}
+
+// Check whether the given array index e is stored in the given array index buffer.
+inline __device__ bool A_IEX_1(array_indextype idx_0, array_indextype e) {
+	if (((array_indextype) e) == idx_0) {
+		return true;
+	}
+	return false;
+}
+
 // GPU data retrieval functions. Retrieve particular state info from the given state vector part(s).
 // Precondition: the given parts indeed contain the requested info.
-inline __device__ void get_globalObject_a1(statetype *b, nodetype part1, nodetype part2) {
+inline __device__ void get_globalObject_P_2(statetype *b, nodetype part1, nodetype part2) {
 	uint16_t t2;
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
-		" bfe.u64 t1, %1, 61, 2;\n\t"
+		" bfe.u64 t1, %1, 60, 3;\n\t"
 		" cvt.u16.u64 %0, t1;\n\t"
 	    "}" : "=h"(t2) : "l"(part1), "l"(part2));
 	*b = (statetype) t2;
 }
 
-inline __device__ void get_globalObject_a2(statetype *b, nodetype part1, nodetype part2) {
+inline __device__ void get_globalObject_P_1(statetype *b, nodetype part1, nodetype part2) {
 	uint16_t t2;
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
-		" bfe.u64 t1, %1, 59, 2;\n\t"
+		" bfe.u64 t1, %1, 57, 3;\n\t"
 		" cvt.u16.u64 %0, t1;\n\t"
 	    "}" : "=h"(t2) : "l"(part1), "l"(part2));
 	*b = (statetype) t2;
 }
 
-inline __device__ void get_globalObject_c(elem_inttype *b, nodetype part1, nodetype part2) {
+inline __device__ void get_globalObject_P_0(statetype *b, nodetype part1, nodetype part2) {
+	uint16_t t2;
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
-		" bfe.u64 t1, %1, 27, 32;\n\t"
-		" cvt.u32.u64 %0, t1;\n\t"
-	    "}" : "=r"(*b) : "l"(part1), "l"(part2));
+		" bfe.u64 t1, %1, 54, 3;\n\t"
+		" cvt.u16.u64 %0, t1;\n\t"
+	    "}" : "=h"(t2) : "l"(part1), "l"(part2));
+	*b = (statetype) t2;
 }
 
-inline __device__ void get_globalObject_x2(elem_inttype *b, nodetype part1, nodetype part2) {
+inline __device__ void get_globalObject_P_0_myplace(elem_chartype *b, nodetype part1, nodetype part2) {
+	uint16_t t2;
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
-		" bfe.u64 t1, %2, 58, 5;\n\t"
-		" bfi.b64 t1, %1, t1, 5, 27;\n\t"
-		" cvt.u32.u64 %0, t1;\n\t"
-	    "}" : "=r"(*b) : "l"(part1), "l"(part2));
+		" bfe.u64 t1, %1, 46, 8;\n\t"
+		" cvt.u16.u64 %0, t1;\n\t"
+	    "}" : "=h"(t2) : "l"(part1), "l"(part2));
+	*b = (elem_chartype) t2;
 }
 
-inline __device__ void get_globalObject_x1(elem_inttype *b, nodetype part1, nodetype part2) {
+inline __device__ void get_globalObject_next(elem_chartype *b, nodetype part1, nodetype part2) {
+	uint16_t t2;
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
-		" bfe.u64 t1, %1, 26, 32;\n\t"
-		" cvt.u32.u64 %0, t1;\n\t"
-	    "}" : "=r"(*b) : "l"(part1), "l"(part2));
+		" bfe.u64 t1, %1, 38, 8;\n\t"
+		" cvt.u16.u64 %0, t1;\n\t"
+	    "}" : "=h"(t2) : "l"(part1), "l"(part2));
+	*b = (elem_chartype) t2;
+}
+
+inline __device__ void get_globalObject_P_2_myplace(elem_chartype *b, nodetype part1, nodetype part2) {
+	uint16_t t2;
+	asm("{\n\t"
+		" .reg .u64 t1;\n\t"
+		" bfe.u64 t1, %1, 6, 8;\n\t"
+		" cvt.u16.u64 %0, t1;\n\t"
+	    "}" : "=h"(t2) : "l"(part1), "l"(part2));
+	*b = (elem_chartype) t2;
+}
+
+inline __device__ void get_globalObject_P_1_myplace(elem_chartype *b, nodetype part1, nodetype part2) {
+	uint16_t t2;
+	asm("{\n\t"
+		" .reg .u64 t1;\n\t"
+		" bfe.u64 t1, %2, 26, 2;\n\t"
+		" bfi.b64 t1, %1, t1, 2, 6;\n\t"
+		" cvt.u16.u64 %0, t1;\n\t"
+	    "}" : "=h"(t2) : "l"(part1), "l"(part2));
+	*b = (elem_chartype) t2;
+}
+
+// Data retrieval functions for array elements, including the fetching of required vector parts.
+inline __device__ void get_globalObject_Slot(shared_indextype node_index, elem_chartype *b, array_indextype index) {
+	nodetype part;
+	uint16_t t2;
+	if (index <= 2) {
+		part = get_vectorpart_0(node_index);
+
+		asm("{\n\t"
+			" .reg .u64 t1;\n\t"
+			" bfe.u64 t1, %1, %2, %3;\n\t"
+			" cvt.u16.u64 %0, t1;\n\t"
+	    	"}" : "=h"(t2) : "l"(part), "r"(30-(index-0)*8), "r"(8));
+		*b = (elem_chartype) t2;
+	}
+}
+
+// Data retrieval functions to support dynamic array accessing. Retrieve the requested element from a local array buffer, if present, and if not, fetch it and store it in the array buffer.
+// Precondition: if the requested element is not in the buffer, there is still space in the buffer to store it.
+inline __device__ elem_chartype globalObject_Slot(shared_indextype node_index, array_indextype *idx_0, elem_chartype *v_0, array_indextype e) {
+	if (!A_IEX_1(*idx_0, e)) {
+		// Fetch and store value.
+		get_globalObject_Slot(node_index, v_0, e);
+		A_STR_1(idx_0, v_0, (array_indextype) e, *v_0);
+		return *v_0;
+	}
+	else {
+		return A_LD_1(*idx_0, *v_0, e);
+	}
 }
 
 // Retrieval of current state of state machine at position i in state vector.
@@ -717,12 +794,17 @@ inline __device__ void get_current_state(statetype *b, shared_indextype node_ind
 		case 0:
 			part1 = get_vectorpart_0(node_index);
 			part2 = part1;
-			get_globalObject_a1(b, part1, part2);
+			get_globalObject_P_2(b, part1, part2);
 			break;
 		case 1:
 			part1 = get_vectorpart_0(node_index);
 			part2 = part1;
-			get_globalObject_a2(b, part1, part2);
+			get_globalObject_P_1(b, part1, part2);
+			break;
+		case 2:
+			part1 = get_vectorpart_0(node_index);
+			part2 = part1;
+			get_globalObject_P_0(b, part1, part2);
 			break;
 		default:
 			break;
@@ -731,101 +813,189 @@ inline __device__ void get_current_state(statetype *b, shared_indextype node_ind
 
 // CPU data retrieval functions. Retrieve particular state info from the given state vector part(s).
 // Precondition: the given parts indeed contain the requested info.
-inline void host_get_globalObject_a1(statetype *b, nodetype part1, nodetype part2) {
+inline void host_get_globalObject_P_2(statetype *b, nodetype part1, nodetype part2) {
 	nodetype t1 = part1;
 	// Strip away data beyond the requested data.
 	t1 = t1 & 0x7fffffffffffffff;
 	// Right shift to isolate requested data.
-	t1 = t1 >> 61;
+	t1 = t1 >> 60;
 	*b = (statetype) t1;
 }
 
-inline void host_get_globalObject_a2(statetype *b, nodetype part1, nodetype part2) {
+inline void host_get_globalObject_P_1(statetype *b, nodetype part1, nodetype part2) {
 	nodetype t1 = part1;
 	// Strip away data beyond the requested data.
-	t1 = t1 & 0x1fffffffffffffff;
+	t1 = t1 & 0xfffffffffffffff;
 	// Right shift to isolate requested data.
-	t1 = t1 >> 59;
+	t1 = t1 >> 57;
 	*b = (statetype) t1;
 }
 
-inline void host_get_globalObject_c(elem_inttype *b, nodetype part1, nodetype part2) {
+inline void host_get_globalObject_P_0(statetype *b, nodetype part1, nodetype part2) {
 	nodetype t1 = part1;
 	// Strip away data beyond the requested data.
-	t1 = t1 & 0x7ffffffffffffff;
+	t1 = t1 & 0x1ffffffffffffff;
 	// Right shift to isolate requested data.
-	t1 = t1 >> 27;
-	*b = (elem_inttype) t1;
+	t1 = t1 >> 54;
+	*b = (statetype) t1;
 }
 
-inline void host_get_globalObject_x2(elem_inttype *b, nodetype part1, nodetype part2) {
+inline void host_get_globalObject_P_0_myplace(elem_chartype *b, nodetype part1, nodetype part2) {
+	nodetype t1 = part1;
+	// Strip away data beyond the requested data.
+	t1 = t1 & 0x3fffffffffffff;
+	// Right shift to isolate requested data.
+	t1 = t1 >> 46;
+	*b = (elem_chartype) t1;
+}
+
+inline void host_get_globalObject_next(elem_chartype *b, nodetype part1, nodetype part2) {
+	nodetype t1 = part1;
+	// Strip away data beyond the requested data.
+	t1 = t1 & 0x3fffffffffff;
+	// Right shift to isolate requested data.
+	t1 = t1 >> 38;
+	*b = (elem_chartype) t1;
+}
+
+inline void host_get_globalObject_P_2_myplace(elem_chartype *b, nodetype part1, nodetype part2) {
+	nodetype t1 = part1;
+	// Strip away data beyond the requested data.
+	t1 = t1 & 0x3fff;
+	// Right shift to isolate requested data.
+	t1 = t1 >> 6;
+	*b = (elem_chartype) t1;
+}
+
+inline void host_get_globalObject_P_1_myplace(elem_chartype *b, nodetype part1, nodetype part2) {
 	nodetype t1 = part1;
 	nodetype t2 = part2;
 	// Strip away data beyond the requested data.
-	t2 = t2 & 0x7fffffffffffffff;
+	t2 = t2 & 0xfffffff;
 	// Right shift to isolate requested data.
-	t2 = t2 >> 58;
+	t2 = t2 >> 26;
 	// Isolate requested data.
-	t1 = t1 & 0x7ffffff;
+	t1 = t1 & 0x3f;
 	// Move to integrate with first part.
-	t1 = t1 << 5;
+	t1 = t1 << 2;
 	t1 = t1 | t2;
-	*b = (elem_inttype) t1;
-}
-
-inline void host_get_globalObject_x1(elem_inttype *b, nodetype part1, nodetype part2) {
-	nodetype t1 = part1;
-	// Strip away data beyond the requested data.
-	t1 = t1 & 0x3ffffffffffffff;
-	// Right shift to isolate requested data.
-	t1 = t1 >> 26;
-	*b = (elem_inttype) t1;
+	*b = (elem_chartype) t1;
 }
 
 // CPU data retrieval functions for arrays.
+inline void host_get_globalObject_Slot(elem_chartype *b, nodetype part1, nodetype part2, array_indextype index) {
+	nodetype t1 = part1;
+	if (index <= 2) {
+		// Right shift to isolate requested data.
+		t1 = t1 >> (30 - ((index - 0)*8));
+		// Strip away data beyond the requested data.
+		t1 = t1 & 0xff;
+		*b = (elem_chartype) t1;
+	}
+}
 
 // GPU data update functions. Update particular state info in the given state vector part(s).
 // Precondition: the given part indeed needs to contain the indicated fragment (left or right in case the info is split over two parts) of the updated info.
-inline __device__ void set_left_globalObject_a1(nodetype *part, elem_chartype x) {
+inline __device__ void set_left_globalObject_P_2(nodetype *part, elem_chartype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
-		" bfi.b64 %0, %1, %0, 61, 2;\n\t"
+		" bfi.b64 %0, %1, %0, 60, 3;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_left_globalObject_a2(nodetype *part, elem_chartype x) {
+inline __device__ void set_left_globalObject_P_1(nodetype *part, elem_chartype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
-		" bfi.b64 %0, %1, %0, 59, 2;\n\t"
+		" bfi.b64 %0, %1, %0, 57, 3;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_left_globalObject_c(nodetype *part, elem_inttype x) {
+inline __device__ void set_left_globalObject_P_0(nodetype *part, elem_chartype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
-		" bfi.b64 %0, %1, %0, 27, 32;\n\t"
+		" bfi.b64 %0, %1, %0, 54, 3;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_left_globalObject_x2(nodetype *part, elem_inttype x) {
-	nodetype t1 = (nodetype) x >> 5;
+inline __device__ void set_left_globalObject_P_0_myplace(nodetype *part, elem_chartype x) {
+	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
-		" bfi.b64 %0, %1, %0, 0, 27;\n\t"
+		" bfi.b64 %0, %1, %0, 46, 8;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_right_globalObject_x2(nodetype *part, elem_inttype x) {
+inline __device__ void set_left_globalObject_next(nodetype *part, elem_chartype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
-		" bfi.b64 %0, %1, %0, 58, 5;\n\t"
+		" bfi.b64 %0, %1, %0, 38, 8;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
 }
 
-inline __device__ void set_left_globalObject_x1(nodetype *part, elem_inttype x) {
+inline __device__ void set_left_globalObject_P_2_myplace(nodetype *part, elem_chartype x) {
 	nodetype t1 = (nodetype) x;
 	asm("{\n\t"
-		" bfi.b64 %0, %1, %0, 26, 32;\n\t"
+		" bfi.b64 %0, %1, %0, 6, 8;\n\t"
 		"}" : "+l"(*part) : "l"(t1));
+}
+
+inline __device__ void set_left_globalObject_P_1_myplace(nodetype *part, elem_chartype x) {
+	nodetype t1 = (nodetype) x >> 2;
+	asm("{\n\t"
+		" bfi.b64 %0, %1, %0, 0, 6;\n\t"
+		"}" : "+l"(*part) : "l"(t1));
+}
+
+inline __device__ void set_right_globalObject_P_1_myplace(nodetype *part, elem_chartype x) {
+	nodetype t1 = (nodetype) x;
+	asm("{\n\t"
+		" bfi.b64 %0, %1, %0, 26, 2;\n\t"
+		"}" : "+l"(*part) : "l"(t1));
+}
+
+// Data update functions for arrays with dynamic indexing, focussed on one specific vector part.
+// Auxiliary functions for globalObject'Slot.
+inline __device__ bool array_element_is_in_vectorpart_globalObject_Slot(array_indextype i, vectornode_indextype pid) {
+	switch (pid) {
+		case 0:
+			return (i >= 0 && i <= 2);
+		default:
+			return false;
+	}
+}
+
+// Precondition: array element i is (partially) stored in vector part pid.
+inline __device__ bool is_left_vectorpart_for_array_element_globalObject_Slot(array_indextype i, vectornode_indextype pid) {
+	switch (pid) {
+		case 0:
+			return (i >= 0 && i <= 2);
+		default:
+			return false;
+	}	
+}
+
+// Left data update function for array globalObject'Slot.
+// Precondition: the left part of the array element at the given index is stored in the vector part with the given ID pid
+inline __device__ void set_left_globalObject_Slot(nodetype *part, array_indextype index, elem_chartype buf, uint8_t pid) {
+	nodetype t1 = (nodetype) buf;
+	switch (pid) {
+		case 0:
+			asm("{\n\t"
+			" bfi.b64 %0, %1, %0, %2, %3;\n\t"
+			"}" : "+l"(*part) : "l"(t1), "r"(30-(index-0)*8), "r"(8));
+			break;
+		default:
+			break;
+	}
+}
+
+// Right data update function for array globalObject'Slot.
+// Precondition: the right part of the array element at the given index is stored in the vector part with the given ID pid
+inline __device__ void set_right_globalObject_Slot(nodetype *part, array_indextype index, elem_chartype buf, uint8_t pid) {
+	nodetype t1 = (nodetype) buf;
+	switch (pid) {
+		default:
+			break;
+	}
 }
 
 // *** END FUNCTIONS FOR MODEL DATA RETRIEVAL AND STORAGE ***
@@ -833,14 +1003,14 @@ inline __device__ void set_left_globalObject_x1(nodetype *part, elem_inttype x) 
 // *** START KERNELS AND FUNCTIONS FOR VECTOR TREE NODE STORAGE AND RETRIEVAL TO/FROM THE GLOBAL MEMORY HASH TABLE ***
 
 // Initial bitmixer function.
-inline __device__ uint64_t UHASH_INIT(nodetype node) {
+inline __host__ __device__ uint64_t UHASH_INIT(nodetype node) {
 	uint64_t node1 = xor_shft2_64((uint64_t) node, 38, 14);
 	node1 ^= 0xD1B54A32D192ED03L;
 	node1 *= 0xAEF17502108EF2D9L;
 	return node1;
 }
 
-inline __device__ nodetype UHASH(uint8_t id, uint64_t node) {
+inline __host__ __device__ nodetype UHASH(uint8_t id, uint64_t node) {
 	uint64_t node1 = node;
 	switch (id) {
 		case 0:
@@ -1210,7 +1380,7 @@ inline __device__ nodetype UHASH(uint8_t id, uint64_t node) {
 }
 
 // Initial bitmixer functions.
-inline __device__ nodetype RHASH_INIT(nodetype node) {
+inline __host__ __device__ nodetype RHASH_INIT(nodetype node) {
 	nodetype node1 = xor_shft2_58(node, 38, 20);
 	node1 = xor_shft2_58(node1, 14, 44);
 	node1 ^= 0x01b54a32d192ed03L;
@@ -1244,7 +1414,7 @@ inline __host__ __device__ nodetype RHASH_INIT_INVERSE(nodetype node) {
 	return node1;
 }
 
-inline __device__ nodetype HASH_INIT(nodetype node, bool is_root) {
+inline __host__ __device__ nodetype HASH_INIT(nodetype node, bool is_root) {
 	if (is_root) {
 		return RHASH_INIT(node);
 	}
@@ -1253,7 +1423,7 @@ inline __device__ nodetype HASH_INIT(nodetype node, bool is_root) {
 	}
 }
 
-inline __device__ nodetype RHASH(uint8_t id, nodetype node) {
+inline __host__ __device__ nodetype RHASH(uint8_t id, nodetype node) {
 	nodetype node1 = node;
 	switch (id) {
 		case 0:
@@ -2849,7 +3019,7 @@ inline __host__ __device__ nodetype RHASH_INVERSE(uint8_t id, nodetype node) {
 }
 
 // Hash functions.
-inline __device__ nodetype HASH(uint8_t id, nodetype node, bool is_root) {
+inline __host__ __device__ nodetype HASH(uint8_t id, nodetype node, bool is_root) {
 	if (is_root) {
 		return RHASH(id, node);
 	}
@@ -2917,7 +3087,7 @@ inline __host__ __device__ nodetype HT_RETRIEVE(compressed_nodetype *d_q, nodety
 }
 
 // Find or put a given vectortree node in the global hash table.
-// Precondition: the given node is collapsed.
+// Precondition: the given node is collapsed if it is a root node.
 inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *d_q_i, bool *d_dummy, nodetype node, volatile uint8_t *d_newstate_flags, shared_indextype node_index, bool is_root, bool claim_work) {
 	nodetype e1;
 	nodetype e2;
@@ -2927,67 +3097,131 @@ inline __device__ uint64_t FINDORPUT_SINGLE(compressed_nodetype *d_q, nodetype *
 	nodetype element;
 	shared_inttype shared_addr;
 	e1 = HASH_INIT(node, is_root);
-	#pragma unroll
-	for (int i = 0; i < NR_HASH_FUNCTIONS; i++) {
-		if (is_root) {
-			e2 = HASH(i, e1, true);
-			compressed_node = get_compressed_node_root(e2, i);
-			compressed_node = mark_new(compressed_node);
-			// Special case: if the compressed node coincides with the value for an empty compressed node, continue.
-			if (compressed_node == EMPTY_COMPRESSED_NODE) {
-				continue;
-			}
-			addr = get_index_root(e2);
-			compressed_element = d_q[addr];
-			if (compressed_element == EMPTY_COMPRESSED_NODE) {
-				compressed_element = atomicCAS(&(d_q[addr]), EMPTY_COMPRESSED_NODE, compressed_node);
+	int hash_start = 0;
+	uint8_t min_hashes;
+	uint8_t min_hash_id;
+	bool is_new_node = true;
+	for (uint8_t evictions = 0; evictions < EVICTFREQ; evictions++) {
+		min_hashes = NR_HASH_FUNCTIONS;
+		min_hash_id = 0;
+		for (int i = hash_start; i < NR_HASH_FUNCTIONS; i++) {
+			if (is_root) {
+				e2 = HASH(i, e1, true);
+				compressed_node = get_compressed_node_root(e2, i);
+				if (is_new_node) {
+					compressed_node = mark_new(compressed_node);
+				}
+				// Special case: if the compressed node coincides with the value for an empty compressed node, continue.
+				if (compressed_node == EMPTY_COMPRESSED_NODE) {
+					continue;
+				}
+				addr = get_index_root(e2);
+				compressed_element = d_q[addr];
 				if (compressed_element == EMPTY_COMPRESSED_NODE) {
-					// Successfully stored the node.
-					// Try to claim the vector for future work. For this, try to increment the OPENTILECOUNT counter.
-					// If the given node_index is EMPTY_CACHE_POINTER, the cache has been skipped, since it was considered full. In that case,
-					// we do not try to claim the vector, on the assumption that the full cache already provides sufficient new work.
-					if (node_index != EMPTY_CACHE_POINTER && claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
-						// If there is still a next successor generation iteration, store a cache reference to the root in the work tile.
-						if (ITERATIONS < d_kernel_iters-1) {
-							shared[OPENTILEOFFSET+shared_addr] = node_index;
+					compressed_element = atomicCAS(&(d_q[addr]), EMPTY_COMPRESSED_NODE, compressed_node);
+					if (compressed_element == EMPTY_COMPRESSED_NODE) {
+						// Successfully stored the node.
+						// Try to claim the vector for future work. For this, try to increment the OPENTILECOUNT counter.
+						// If the given node_index is EMPTY_CACHE_POINTER, the cache has been skipped, since it was considered full. In that case,
+						// we do not try to claim the vector, on the assumption that the full cache already provides sufficient new work.
+						if (evictions == 0 && node_index != EMPTY_CACHE_POINTER && claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
+							// If there is still a next successor generation iteration, store a cache reference to the root in the work tile.
+							// Otherwise, store the root itself.
+							if (ITERATIONS < d_kernel_iters-1) {
+								shared[OPENTILEOFFSET+(2*shared_addr)+1] = node_index;
+							}
+							else {
+								shared[OPENTILEOFFSET+(2*shared_addr)] = get_left(node);
+								shared[OPENTILEOFFSET+(2*shared_addr)+1] = get_right(node);
+							}
+							// Mark the state as old in the hash table.
+							atomicCAS(&(d_q[addr]), compressed_node, mark_old(compressed_node));
 						}
 						else {
-							shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
+							if (is_new_node) {
+								// There is work available for some block.
+								d_newstate_flags[(addr / BLOCK_SIZE) % GRID_SIZE] = 1;
+							}
 						}
-						// Mark the state as old in the hash table.
-						atomicCAS(&(d_q[addr]), compressed_node, mark_old(compressed_node));
+						return addr;
+					}
+				}
+				if (filter_compressed_bookkeeping(compressed_element) == filter_compressed_bookkeeping(compressed_node)) {
+					// The node is already stored.
+					return addr;
+				}
+				else {
+					// Another node is stored at this address. Remember the hash function id if the number of hashes applied to the
+					// encountered node is the minimum number so far.
+					if (get_hash_id_root(compressed_element) < min_hashes) {
+						min_hashes = get_hash_id_root(compressed_element);
+						min_hash_id = i;
+					}
+				}
+			}
+			else {
+				e2 = HASH(i, e1, false);
+				addr = get_index_internal(e2);
+				element = d_q_i[addr];
+				if (element == EMPTY_NODE) {
+					element = atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node);
+					if (element == EMPTY_NODE) {
+						// This write is performed to fix a problem that causes the program to hang (!)
+						(*d_dummy) = true;
+						// Successfully stored the node.
+						return addr;
+					}
+				}
+				if (element == node) {
+					// This write is performed to fix a problem that causes the program to hang (!)
+					(*d_dummy) = true;
+					// The node is already stored.
+					return addr;
+				}
+			}
+		}
+		if (is_root) {
+			// Store the node to the recorded position, evict the node currently stored there and continue storing the latter node.
+			// Note: eventually, if all nodes can be stored, FINDORPUT_SINGLE returns the address of the node stored last, NOT of the one
+			// for which FINDORPUT_SINGLE was originally called.
+			if (min_hashes < NR_HASH_FUNCTIONS) {
+				e2 = HASH(min_hash_id, e1, true);
+				compressed_node = get_compressed_node_root(e2, min_hash_id);
+				if (is_new_node) {
+					compressed_node = mark_new(compressed_node);
+				}
+				addr = get_index_root(e2);
+				compressed_element = atomicExch(&(d_q[addr]), compressed_node);
+				// Try to claim the vector for future work.
+				if (evictions == 0 && is_new_node && node_index != EMPTY_CACHE_POINTER && claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
+					// If there is still a next successor generation iteration, store a cache reference to the root in the work tile.
+					// Otherwise, store the root itself.
+					if (ITERATIONS < d_kernel_iters-1) {
+						shared[OPENTILEOFFSET+(2*shared_addr)+1] = node_index;
 					}
 					else {
+						shared[OPENTILEOFFSET+(2*shared_addr)] = get_left(node);
+						shared[OPENTILEOFFSET+(2*shared_addr)+1] = get_right(node);
+					}
+					// Mark the state as old in the hash table.
+					atomicCAS(&(d_q[addr]), compressed_node, mark_old(compressed_node));
+				}
+				else {
+					if (is_new_node) {
 						// There is work available for some block.
 						d_newstate_flags[(addr / BLOCK_SIZE) % GRID_SIZE] = 1;
 					}
-					return addr;
 				}
-			}
-			if (filter_compressed_bookkeeping(compressed_element) == filter_compressed_bookkeeping(compressed_node)) {
-				// The node is already stored.
-				return addr;
+				// Prepare the evicted node for storage.
+				e1 = get_uncompressed_node_root(compressed_element, addr);
+				e1 = HASH_INIT(e1, true);
+				hash_start = get_hash_id_root(compressed_element);
+				is_new_node = is_new(compressed_element);
+				break;
 			}
 		}
-		else {
-			e2 = HASH(i, e1, false);
-			addr = get_index_internal(e2);
-			element = d_q_i[addr];
-			if (element == EMPTY_NODE) {
-				if (atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node) == EMPTY_NODE) {
-					// This write is performed to fix a problem that causes the program to hang (!)
-					(*d_dummy) = true;
-					// Successfully stored the node.
-					return addr;
-				}
-			}
-			if (element == node) {
-				// This write is performed to fix a problem that causes the program to hang (!)
-				(*d_dummy) = true;
-				// The node is already stored.
-				return addr;
-			}
-		}
+		// Error: hash table considered full.
+		return HASHTABLE_FULL;
 	}
 	// Error: hash table considered full.
 	return HASHTABLE_FULL;
@@ -3014,7 +3248,7 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q, nodetype *d_q_i, bool *
 		__syncthreads();
 		if (work_to_do) {
 			work_to_do = false;
-			for (shared_indextype i = THREAD_ID; (i*3)+2 < (d_shared_cache_size - CACHEOFFSET) && CONTINUE != 2; i += BLOCK_SIZE) {
+			for (shared_indextype i = THREAD_ID; (i*3)+2 < (d_shared_size - CACHEOFFSET) && CONTINUE != 2; i += BLOCK_SIZE) {
 				node_pointers = shared[CACHEOFFSET+(i*3)+2];
 				// Check if node is ready for storage. Only new leafs are ready at this point. We rely on old non-leafs having pointers with the highest
 				// two bits set to '00', new non-leafs having pointers with the highest two bits set to '10', empty entries having pointers set to 0,
@@ -3024,7 +3258,8 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q, nodetype *d_q_i, bool *
 					// Store node in hash table.
 					addr = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, node, d_newstate_flags, i, false, true);
 					if (addr == HASHTABLE_FULL) {
-						CONTINUE = 2;
+						// Error: internal hash table is full.
+						CONTINUE = 3;
 					}
 					else {
 						// Store global memory address in cache.
@@ -3061,7 +3296,12 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q, nodetype *d_q_i, bool *
 						// Store node in hash table.
 						addr = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, collapse(node), d_newstate_flags, i, is_root(node), true);
 						if (addr == HASHTABLE_FULL) {
-							CONTINUE = 2;
+							if (is_root(node)) {
+								CONTINUE = 2;
+							}
+							else {
+								CONTINUE = 3;
+							}
 						}
 						else if (!is_root(node)) {
 							// Will there be a next successor generation iteration in the current gather kernel launch?
@@ -3128,52 +3368,56 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q, nodetype *d_q_i, bool *
 		}
 		__syncthreads();
 	}
-}
-
-// Kernel to store the initial state in the global memory hash table.
-__global__ void store_initial_state(compressed_nodetype *d_q, nodetype *d_q_i, bool *d_dummy, volatile uint8_t *d_newstate_flags, shared_inttype *d_worktiles) {
-	// Reset the shared variables preceding the cache, and reset the cache.
-	if (THREAD_ID < SH_OFFSET) {
-		shared[THREAD_ID] = 0;
-	}
-	// Set ITERATIONS sufficiently high, causing FINDORPUT_SINGLE to store the global memory address of the initial state
-	// in the work tile.
 	if (THREAD_ID == 0) {
-		ITERATIONS = d_kernel_iters;
-	}
-	#pragma unroll
-	for (uint32_t i = THREAD_ID; i < (d_shared_cache_size - SH_OFFSET); i += BLOCK_SIZE) {
-		shared[SH_OFFSET + i] = EMPTYVECT32;
-	}
-	__syncthreads();
-	if (GLOBAL_THREAD_ID < 3) {
-		switch (GLOBAL_THREAD_ID) {
-			case 0:
-				shared[CACHEOFFSET+(0*3)] = get_left(0x7fffffffffffffff);
-				shared[CACHEOFFSET+(0*3)+1] = get_right(0x7fffffffffffffff);
-				shared[CACHEOFFSET+(0*3)+2] = 0x80008002;
-				break;
-			case 1:
-				shared[CACHEOFFSET+(1*3)] = get_left(0x8000000);
-				shared[CACHEOFFSET+(1*3)+1] = get_right(0x8000000);
-				shared[CACHEOFFSET+(1*3)+2] = CACHE_POINTERS_NEW_LEAF;
-				break;
-			case 2:
-				shared[CACHEOFFSET+(2*3)] = get_left(0x0);
-				shared[CACHEOFFSET+(2*3)+1] = get_right(0x0);
-				shared[CACHEOFFSET+(2*3)+2] = CACHE_POINTERS_NEW_LEAF;
-				break;
+		// Possibly fix OPENTILECOUNT.
+		if (OPENTILECOUNT > OPENTILELEN) {
+			OPENTILECOUNT = OPENTILELEN;
 		}
 	}
 	__syncthreads();
-	FINDORPUT_MANY(d_q, d_q_i, d_dummy, d_newstate_flags);
-	__syncthreads();
-	// Done. Copy the work tile to global memory.
-	if (THREAD_ID < OPENTILELEN+LASTSEARCHLEN) {
-		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = shared[OPENTILEOFFSET+THREAD_ID];
-	}
-	if (THREAD_ID == 0) {
-		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = OPENTILECOUNT;
+}
+
+// Kernel to store the initial state in the global memory hash table.
+__global__ void store_initial_state(compressed_nodetype *d_q, nodetype *d_q_i, bool *d_dummy, volatile uint8_t *d_newstate_flags, nodetype *d_worktiles) {
+	if (BLOCK_ID == 0) {
+		// Reset the shared variables preceding the cache, and reset the cache.
+		if (THREAD_ID < SH_OFFSET) {
+			shared[THREAD_ID] = 0;
+		}
+		// Set ITERATIONS sufficiently high, causing FINDORPUT_SINGLE to store the global memory address of the initial state
+		// in the work tile.
+		if (THREAD_ID == 0) {
+			ITERATIONS = d_kernel_iters;
+		}
+		#pragma unroll
+		for (uint32_t i = THREAD_ID; i < (d_shared_size - SH_OFFSET); i += BLOCK_SIZE) {
+			shared[SH_OFFSET + i] = EMPTYVECT32;
+		}
+		__syncthreads();
+		if (GLOBAL_THREAD_ID < 2) {
+			switch (GLOBAL_THREAD_ID) {
+				case 0:
+					shared[CACHEOFFSET+(0*3)] = get_left(0x7fffffff80000000);
+					shared[CACHEOFFSET+(0*3)+1] = get_right(0x7fffffff80000000);
+					shared[CACHEOFFSET+(0*3)+2] = 0x8000ffff;
+					break;
+				case 1:
+					shared[CACHEOFFSET+(1*3)] = get_left(0x40000000);
+					shared[CACHEOFFSET+(1*3)+1] = get_right(0x40000000);
+					shared[CACHEOFFSET+(1*3)+2] = CACHE_POINTERS_NEW_LEAF;
+					break;
+			}
+		}
+		__syncthreads();
+		FINDORPUT_MANY(d_q, d_q_i, d_dummy, d_newstate_flags);
+		__syncthreads();
+		// Done. Copy the work tile to global memory.
+		if (THREAD_ID < OPENTILELEN) {
+			d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = combine_halfs(shared[OPENTILEOFFSET+(2*THREAD_ID)], shared[OPENTILEOFFSET+(2*THREAD_ID)+1]);
+		}
+		if (THREAD_ID == 0) {
+			d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = OPENTILECOUNT;
+		}
 	}
 }
 
@@ -3186,16 +3430,13 @@ inline __device__ uint8_t get_vectortree_node_parent_thread(uint8_t tid, uint8_t
 				case 0:
 					return 0;
 					break;
-				case 1:
-					return 0;
-					break;
 				default:
-					return 3;
+					return 2;
 					break;
 			}
 			break;
 		default:
-			return 3;
+			return 2;
 			break;		
 	}
 }
@@ -3206,18 +3447,15 @@ inline __device__ uint8_t get_vectortree_nonleaf_left_child_thread(uint8_t tid) 
 			return 0;
 			break;
 		default:
-			return 3;
+			return 2;
 			break;
 	}
 }
 
 inline __device__ uint8_t get_vectortree_nonleaf_right_child_thread(uint8_t tid) {
 	switch (tid) {
-		case 0:
-			return 1;
-			break;
 		default:
-			return 3;
+			return 2;
 			break;
 	}
 }
@@ -3238,8 +3476,6 @@ inline __device__ uint32_t get_part_reachability(uint8_t tid, uint8_t level) {
 			switch (tid) {
 				case 0:
 					return 0x80000000;
-				case 1:
-					return 0x40000000;
 				default:
 					return 0x0;
 			}
@@ -3250,26 +3486,50 @@ inline __device__ uint32_t get_part_reachability(uint8_t tid, uint8_t level) {
 
 // Functions to obtain a bitmask for a given state machine state that indicates which vectorparts are of interest to process outgoing transitions
 // of that state.
-inline __device__ uint32_t get_part_bitmask_globalObject_a1(statetype sid) {
+inline __device__ uint32_t get_part_bitmask_globalObject_P_2(statetype sid) {
+	switch (sid) {
+		case 0:
+			return 0x80000000;
+		case 1:
+			return 0x80000000;
+		case 2:
+			return 0x80000000;
+		case 3:
+			return 0x80000000;
+		case 4:
+			return 0x80000000;
+		default:
+			return 0;
+	}
+}
+inline __device__ uint32_t get_part_bitmask_globalObject_P_1(statetype sid) {
 	switch (sid) {
 		case 0:
 			return 0xc0000000;
 		case 1:
 			return 0xc0000000;
 		case 2:
+			return 0xc0000000;
+		case 3:
+			return 0xc0000000;
+		case 4:
 			return 0xc0000000;
 		default:
 			return 0;
 	}
 }
-inline __device__ uint32_t get_part_bitmask_globalObject_a2(statetype sid) {
+inline __device__ uint32_t get_part_bitmask_globalObject_P_0(statetype sid) {
 	switch (sid) {
 		case 0:
-			return 0xc0000000;
+			return 0x80000000;
 		case 1:
-			return 0xc0000000;
+			return 0x80000000;
 		case 2:
-			return 0xc0000000;
+			return 0x80000000;
+		case 3:
+			return 0x80000000;
+		case 4:
+			return 0x80000000;
 		default:
 			return 0;
 	}
@@ -3281,10 +3541,12 @@ inline __device__ uint32_t get_part_bitmask_for_states_in_vectorpart(uint8_t pid
 	statetype s;
 	switch (pid) {
 		case 0:
-			get_globalObject_a1(&s, part1, part2);
-			result = result | get_part_bitmask_globalObject_a1(s);
-			get_globalObject_a2(&s, part1, part2);
-			result = result | get_part_bitmask_globalObject_a2(s);
+			get_globalObject_P_2(&s, part1, part2);
+			result = result | get_part_bitmask_globalObject_P_2(s);
+			get_globalObject_P_1(&s, part1, part2);
+			result = result | get_part_bitmask_globalObject_P_1(s);
+			get_globalObject_P_0(&s, part1, part2);
+			result = result | get_part_bitmask_globalObject_P_0(s);
 			return result;
 		case 1:
 			return result;
@@ -3311,28 +3573,28 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 	uint32_t smart_fetching_bitmask = 0x0;
 	
 	if (gid == 0) {
-		node = HT_RETRIEVE(d_q, d_q_i, rootref, true);
+		node = combine_halfs(shared[OPENTILEOFFSET+(2*rootref)], shared[OPENTILEOFFSET+(2*rootref)+1]);
 		// Expand the node from 58 bits to 64 bits.
 		node = expand(node);
 	}
 	// Obtain node from vectortree parent.
 	node_tmp_1 = node;
-	target_thread_id = 3;
-	if (gid <= 1) {
+	target_thread_id = 2;
+	if (gid == 0) {
 		target_thread_id = get_vectortree_node_parent_thread(gid, 1);
 	}
 	treegroup.sync();
 	node_tmp_2 = treegroup.shfl(node_tmp_1, target_thread_id);
 	// Process the received node, if applicable.
-	if (target_thread_id != 3 && node_tmp_2 != EMPTY_NODE) {
-		node_addr = get_pointer_from_vectortree_node(node_tmp_2, false || gid == 1);	
+	if (target_thread_id != 2 && node_tmp_2 != EMPTY_NODE) {
+		node_addr = get_pointer_from_vectortree_node(node_tmp_2, false);	
 		// Smart fetching: first only fetch state vector nodes that can reach parts containing statemachine states.
 		if ((VECTOR_SMPARTS & get_part_reachability(gid, 1)) != 0x0) {
 			leaf_node = HT_RETRIEVE(d_q, d_q_i, node_addr, false);
 			// Store the leaf node in the cache. Link the global memory address to it such that it can be retrieved in case of collisions
 			// when generating successors.
 			set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
-			result = STOREINCACHE(leaf_node, cache_pointers);
+			result = STOREINCACHE(leaf_node, cache_pointers, true);
 			if (result == CACHE_FULL) {
 				return CACHE_FULL;
 			}
@@ -3359,22 +3621,22 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 	smart_fetching_bitmask = smart_fetching_bitmask & ~(VECTOR_SMPARTS);
 	// Obtain node from vectortree parent.
 	node_tmp_1 = node;
-	target_thread_id = 3;
-	if (gid <= 1) {
+	target_thread_id = 2;
+	if (gid == 0) {
 		target_thread_id = get_vectortree_node_parent_thread(gid, 1);
 	}
 	treegroup.sync();
 	node_tmp_2 = treegroup.shfl(node_tmp_1, target_thread_id);
 	// Process the received node, if applicable.
-	if (target_thread_id != 3 && node_tmp_2 != EMPTY_NODE) {
-		node_addr = get_pointer_from_vectortree_node(node_tmp_2, false || gid == 1);	
+	if (target_thread_id != 2 && node_tmp_2 != EMPTY_NODE) {
+		node_addr = get_pointer_from_vectortree_node(node_tmp_2, false);	
 		// Smart fetching: only fetch vector nodes that are required for successor generation.
 		if ((smart_fetching_bitmask & get_part_reachability(gid, 1)) != 0x0) {
 			leaf_node = HT_RETRIEVE(d_q, d_q_i, node_addr, false);
 			// Store the leaf node in the cache. Link the global memory address to it such that it can be retrieved in case of collisions
 			// when generating successors.
 			set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
-			result = STOREINCACHE(leaf_node, cache_pointers);
+			result = STOREINCACHE(leaf_node, cache_pointers, true);
 			if (result == CACHE_FULL) {
 				return CACHE_FULL;
 			}
@@ -3387,7 +3649,7 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 	smart_fetching_bitmask = smart_fetching_bitmask | VECTOR_SMPARTS;
 	cache_pointers = EMPTYVECT32;
 	// Obtain cache address for left child.
-	target_thread_id = 3;
+	target_thread_id = 2;
 	if (gid == 0) {
 		if ((smart_fetching_bitmask & get_part_reachability(gid, 0)) != 0x0) {
 			target_thread_id = get_vectortree_nonleaf_left_child_thread(gid);
@@ -3397,27 +3659,13 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 	cache_addr_child = EMPTY_CACHE_POINTER;
 	cache_addr_child = treegroup.shfl(cache_addr, target_thread_id);
 	// Set the received cache pointer.
-	if (target_thread_id != 3 && cache_addr_child != EMPTY_CACHE_POINTER) {
+	if (target_thread_id != 2 && cache_addr_child != EMPTY_CACHE_POINTER) {
 		set_left_cache_pointer(&cache_pointers, cache_addr_child);
-	}
-	// Obtain cache address for right child.
-	target_thread_id = 3;
-	if (gid == 0) {
-		if ((smart_fetching_bitmask & get_part_reachability(gid, 0)) != 0x0) {
-			target_thread_id = get_vectortree_nonleaf_right_child_thread(gid);
-		}
-	}
-	treegroup.sync();
-	cache_addr_child = EMPTY_CACHE_POINTER;
-	cache_addr_child = treegroup.shfl(cache_addr, target_thread_id);
-	// Set the received cache pointer.
-	if (target_thread_id != 3 && cache_addr_child != EMPTY_CACHE_POINTER) {
-		set_right_cache_pointer(&cache_pointers, cache_addr_child);
 	}
 	// Store the non-leaf node in the cache.
 	if (gid == 0) {
 		if ((smart_fetching_bitmask & get_part_reachability(gid, 0)) != 0x0) {
-			result = STOREINCACHE(node, cache_pointers);
+			result = STOREINCACHE(node, cache_pointers, false);
 			if (result == CACHE_FULL) {
 				return CACHE_FULL;
 			}
@@ -3593,7 +3841,7 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 	// Load the tile indices.
 	asm("{\n\t"
 		" cvt.u16.u32 %0, %1;\n\t"
-		"}" : "=h"(p0) : "r"(shared[OPENTILEOFFSET+0+LANE]));
+		"}" : "=h"(p0) : "r"(shared[OPENTILEOFFSET+2*(0+LANE)+1]));
 	if (p0 != EMPTYVECT16) {
 		// Retrieve corresponding state value.
 		get_current_state(&s0, p0, wid / OPENTILE_WARP_WIDTH);
@@ -3604,7 +3852,7 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 	p0 = 0+LANE;
 	asm("{\n\t"
 		" cvt.u16.u32 %0, %1;\n\t"
-		"}" : "=h"(p1) : "r"(shared[OPENTILEOFFSET+32+LANE]));
+		"}" : "=h"(p1) : "r"(shared[OPENTILEOFFSET+2*(32+LANE)+1]));
 	if (p1 != EMPTYVECT16) {
 		// Retrieve corresponding state value.
 		get_current_state(&s1, p1, wid / OPENTILE_WARP_WIDTH);
@@ -3615,7 +3863,7 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 	p1 = 32+LANE;
 	asm("{\n\t"
 		" cvt.u16.u32 %0, %1;\n\t"
-		"}" : "=h"(p2) : "r"(shared[OPENTILEOFFSET+64+LANE]));
+		"}" : "=h"(p2) : "r"(shared[OPENTILEOFFSET+2*(64+LANE)+1]));
 	if (p2 != EMPTYVECT16) {
 		// Retrieve corresponding state value.
 		get_current_state(&s2, p2, wid / OPENTILE_WARP_WIDTH);
@@ -3626,7 +3874,7 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 	p2 = 64+LANE;
 	asm("{\n\t"
 		" cvt.u16.u32 %0, %1;\n\t"
-		"}" : "=h"(p3) : "r"(shared[OPENTILEOFFSET+96+LANE]));
+		"}" : "=h"(p3) : "r"(shared[OPENTILEOFFSET+2*(96+LANE)+1]));
 	if (p3 != EMPTYVECT16) {
 		// Retrieve corresponding state value.
 		get_current_state(&s3, p3, wid / OPENTILE_WARP_WIDTH);
@@ -3637,7 +3885,7 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 	p3 = 96+LANE;
 	asm("{\n\t"
 		" cvt.u16.u32 %0, %1;\n\t"
-		"}" : "=h"(p4) : "r"(shared[OPENTILEOFFSET+128+LANE]));
+		"}" : "=h"(p4) : "r"(shared[OPENTILEOFFSET+2*(128+LANE)+1]));
 	if (p4 != EMPTYVECT16) {
 		// Retrieve corresponding state value.
 		get_current_state(&s4, p4, wid / OPENTILE_WARP_WIDTH);
@@ -3646,39 +3894,27 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 		s4 = NO_STATE;
 	}
 	p4 = 128+LANE;
-	asm("{\n\t"
-		" cvt.u16.u32 %0, %1;\n\t"
-		"}" : "=h"(p5) : "r"(shared[OPENTILEOFFSET+160+LANE]));
-	if (p5 != EMPTYVECT16) {
-		// Retrieve corresponding state value.
-		get_current_state(&s5, p5, wid / OPENTILE_WARP_WIDTH);
+	if (160+LANE < OPENTILELEN) {
+		asm("{\n\t"
+			" cvt.u16.u32 %0, %1;\n\t"
+			"}" : "=h"(p5) : "r"(shared[OPENTILEOFFSET+2*(160+LANE)+1]));
+		if (p5 != EMPTYVECT16) {
+			// Retrieve corresponding state value.
+			get_current_state(&s5, p5, wid / OPENTILE_WARP_WIDTH);
+		}
+		else {
+			s5 = NO_STATE;
+		}
+		p5 = 160+LANE;
 	}
 	else {
+		p5 = EMPTYVECT16;
 		s5 = NO_STATE;
 	}
-	p5 = 160+LANE;
-	asm("{\n\t"
-		" cvt.u16.u32 %0, %1;\n\t"
-		"}" : "=h"(p6) : "r"(shared[OPENTILEOFFSET+192+LANE]));
-	if (p6 != EMPTYVECT16) {
-		// Retrieve corresponding state value.
-		get_current_state(&s6, p6, wid / OPENTILE_WARP_WIDTH);
-	}
-	else {
-		s6 = NO_STATE;
-	}
-	p6 = 192+LANE;
-	asm("{\n\t"
-		" cvt.u16.u32 %0, %1;\n\t"
-		"}" : "=h"(p7) : "r"(shared[OPENTILEOFFSET+224+LANE]));
-	if (p7 != EMPTYVECT16) {
-		// Retrieve corresponding state value.
-		get_current_state(&s7, p7, wid / OPENTILE_WARP_WIDTH);
-	}
-	else {
-		s7 = NO_STATE;
-	}
-	p7 = 224+LANE;
+	p6 = EMPTYVECT16;
+	s6 = NO_STATE;
+	p7 = EMPTYVECT16;
+	s7 = NO_STATE;
 	__syncwarp();
 	// Perform the sorting.
 	// exch_local intxn.
@@ -3803,7 +4039,7 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 	CMP_SWP(&s6, &s7, &p6, &p7);
 
 	// Finally, retrieve the index of the tile element of interest for the current thread.
-	uint8_t offset = fast_modulo(wid, OPENTILE_WARP_WIDTH);
+	uint8_t offset = wid % OPENTILE_WARP_WIDTH;
 	// If the index of the p0 element of the thread is within the range of interest, prepare it for communication.
 	if (LANE/(WARP_SIZE/8) == offset) {
 		p_tmp1 = p0;
@@ -3906,7 +4142,7 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 //*** END FUNCTIONS FOR INTRA-WARP BITONIC MERGESORT ***
 
 // Exploration functions to traverse outgoing transitions of the various states.
-inline __device__ Storage_mode explore_globalObject_a1(shared_indextype node_index, compressed_nodetype *d_q, nodetype *d_q_i, bool *d_dummy, volatile uint8_t *d_newstate_flags) {
+inline __device__ Storage_mode explore_globalObject_P_2(shared_indextype node_index, compressed_nodetype *d_q, nodetype *d_q_i, bool *d_dummy, volatile uint8_t *d_newstate_flags) {
 	// Fetch the current state of the state machine.
 	statetype current;
 	get_current_state(&current, node_index, 0);
@@ -3919,273 +4155,35 @@ inline __device__ Storage_mode explore_globalObject_a1(shared_indextype node_ind
 		case 0:
 			{
 			// Allocate register memory to process transition(s).
-			elem_inttype buf32_0, buf32_1;
-			indextype bufaddr_0, bufaddr_1;
-			
-			// Q --{ [ c < 20; x1 := c ] }--> R
-			
-			mode = STORED;
-			// Fetch values of unguarded variables.
-			part1 = get_vectorpart(node_index, 0);
-			part2 = part1;
-			get_globalObject_c(&buf32_0, part1, part2);
-			
-			// Statement computation.
-			if (buf32_0 < 20) {
-				target = 1;
-				buf32_1 = buf32_0;
-				mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
-				while (mode != STORED && mode != GLOBAL_STORED) {
-					// Store new state vector in the cache or the global hash table.
-					get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
-					// Store new values.
-					part2 = part1;
-					set_left_globalObject_a1(&part2, (statetype) target);
-					if (part2 != part1) {
-						// This part has been altered. Store it and remember address of new part.
-						if (mode == TO_CACHE) {
-							part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-							bufaddr_0 = STOREINCACHE(part2, part_cachepointers);
-							if (bufaddr_0 == CACHE_FULL) {
-								// Construct the vector again, and store it directly in the global hash table.
-								mode = TO_GLOBAL;
-								continue;
-							}
-						}
-						else {
-							// Store the node directly in the global hash table.
-							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);
-							if (bufaddr_0 == HASHTABLE_FULL) {
-								// Hash table is considered full. Report this back.
-								return HASH_TABLE_FULL;
-							}
-						}
-					}
-					else {
-						bufaddr_0 = EMPTY_HASH_POINTER;
-					}
-					get_vectortree_node(&part1, &part_cachepointers, node_index, 2);
-					// Store new values.
-					part2 = part1;
-					set_left_globalObject_x1(&part2, buf32_1);
-					if (part2 != part1) {
-						// This part has been altered. Store it and remember address of new part.
-						if (mode == TO_CACHE) {
-							part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-							bufaddr_1 = STOREINCACHE(part2, part_cachepointers);
-							if (bufaddr_1 == CACHE_FULL) {
-								// Construct the vector again, and store it directly in the global hash table.
-								mode = TO_GLOBAL;
-								continue;
-							}
-						}
-						else {
-							// Store the node directly in the global hash table.
-							bufaddr_1 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);
-							if (bufaddr_1 == HASHTABLE_FULL) {
-								// Hash table is considered full. Report this back.
-								return HASH_TABLE_FULL;
-							}
-						}
-					}
-					else {
-						bufaddr_1 = EMPTY_HASH_POINTER;
-					}
-					if (bufaddr_0 != EMPTY_HASH_POINTER || bufaddr_1 != EMPTY_HASH_POINTER) {
-						get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
-						part2 = part1;
-						if (bufaddr_0 != EMPTY_HASH_POINTER) {
-							if (mode == TO_CACHE) {
-								set_left_cache_pointer(&part_cachepointers, bufaddr_0);
-								reset_left_in_vectortree_node(&part2);
-							}
-							else {
-								set_left_in_vectortree_node(&part2, bufaddr_0);
-							}
-						}
-						if (bufaddr_1 != EMPTY_HASH_POINTER) {
-							if (mode == TO_CACHE) {
-								set_right_cache_pointer(&part_cachepointers, bufaddr_1);
-								reset_right_in_vectortree_node(&part2);
-							}
-							else {
-								set_right_in_vectortree_node(&part2, bufaddr_1);
-							}
-						}
-						if (mode == TO_CACHE) {
-							// This part has been altered. Store it and remember address of new part.
-							mark_root(&part2);
-							mark_cached_node_new_nonleaf(&part_cachepointers);
-							bufaddr_0 = STOREINCACHE(part2, part_cachepointers);
-							if (bufaddr_0 == CACHE_FULL) {
-								// Construct the vector again, and store it directly in the global hash table.
-								mode = TO_GLOBAL;
-								continue;
-							}
-						}
-						else {
-							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, true);
-							if (bufaddr_0 == HASHTABLE_FULL) {
-								// Hash table is considered full. Report this back.
-								return HASH_TABLE_FULL;
-							}
-						}
-					}
-					mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
-				}
-			}
-			}
-			return STORED;
-		case 1:
-			{
-			// Allocate register memory to process transition(s).
-			elem_inttype buf32_0, buf32_1;
-			indextype bufaddr_0, bufaddr_1;
-			
-			// R --{ [ x1 := x1 + c ] }--> S
-			
-			mode = STORED;
-			// Fetch values of unguarded variables.
-			part1 = get_vectorpart(node_index, 0);
-			part2 = get_vectorpart(node_index, 1);
-			get_globalObject_c(&buf32_0, part1, part2);
-			part1 = part2;
-			get_globalObject_x1(&buf32_1, part1, part2);
-			
-			// Statement computation.
-			target = 2;
-			buf32_1 = buf32_1 + buf32_0;
-			mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
-			while (mode != STORED && mode != GLOBAL_STORED) {
-				// Store new state vector in the cache or the global hash table.
-				get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
-				// Store new values.
-				part2 = part1;
-				set_left_globalObject_a1(&part2, (statetype) target);
-				if (part2 != part1) {
-					// This part has been altered. Store it and remember address of new part.
-					if (mode == TO_CACHE) {
-						part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-						bufaddr_0 = STOREINCACHE(part2, part_cachepointers);
-						if (bufaddr_0 == CACHE_FULL) {
-							// Construct the vector again, and store it directly in the global hash table.
-							mode = TO_GLOBAL;
-							continue;
-						}
-					}
-					else {
-						// Store the node directly in the global hash table.
-						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);
-						if (bufaddr_0 == HASHTABLE_FULL) {
-							// Hash table is considered full. Report this back.
-							return HASH_TABLE_FULL;
-						}
-					}
-				}
-				else {
-					bufaddr_0 = EMPTY_HASH_POINTER;
-				}
-				get_vectortree_node(&part1, &part_cachepointers, node_index, 2);
-				// Store new values.
-				part2 = part1;
-				set_left_globalObject_x1(&part2, buf32_1);
-				if (part2 != part1) {
-					// This part has been altered. Store it and remember address of new part.
-					if (mode == TO_CACHE) {
-						part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-						bufaddr_1 = STOREINCACHE(part2, part_cachepointers);
-						if (bufaddr_1 == CACHE_FULL) {
-							// Construct the vector again, and store it directly in the global hash table.
-							mode = TO_GLOBAL;
-							continue;
-						}
-					}
-					else {
-						// Store the node directly in the global hash table.
-						bufaddr_1 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);
-						if (bufaddr_1 == HASHTABLE_FULL) {
-							// Hash table is considered full. Report this back.
-							return HASH_TABLE_FULL;
-						}
-					}
-				}
-				else {
-					bufaddr_1 = EMPTY_HASH_POINTER;
-				}
-				if (bufaddr_0 != EMPTY_HASH_POINTER || bufaddr_1 != EMPTY_HASH_POINTER) {
-					get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
-					part2 = part1;
-					if (bufaddr_0 != EMPTY_HASH_POINTER) {
-						if (mode == TO_CACHE) {
-							set_left_cache_pointer(&part_cachepointers, bufaddr_0);
-							reset_left_in_vectortree_node(&part2);
-						}
-						else {
-							set_left_in_vectortree_node(&part2, bufaddr_0);
-						}
-					}
-					if (bufaddr_1 != EMPTY_HASH_POINTER) {
-						if (mode == TO_CACHE) {
-							set_right_cache_pointer(&part_cachepointers, bufaddr_1);
-							reset_right_in_vectortree_node(&part2);
-						}
-						else {
-							set_right_in_vectortree_node(&part2, bufaddr_1);
-						}
-					}
-					if (mode == TO_CACHE) {
-						// This part has been altered. Store it and remember address of new part.
-						mark_root(&part2);
-						mark_cached_node_new_nonleaf(&part_cachepointers);
-						bufaddr_0 = STOREINCACHE(part2, part_cachepointers);
-						if (bufaddr_0 == CACHE_FULL) {
-							// Construct the vector again, and store it directly in the global hash table.
-							mode = TO_GLOBAL;
-							continue;
-						}
-					}
-					else {
-						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, true);
-						if (bufaddr_0 == HASHTABLE_FULL) {
-							// Hash table is considered full. Report this back.
-							return HASH_TABLE_FULL;
-						}
-					}
-				}
-				mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
-			}
-			}
-			return STORED;
-		case 2:
-			{
-			// Allocate register memory to process transition(s).
-			elem_inttype buf32_0, buf32_1;
 			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
 			
-			// S --{ [ c := x1 ] }--> Q
+			// NCS --{ [ myplace := next; next := next + 1 ] }--> p1
 			
 			mode = STORED;
 			// Fetch values of unguarded variables.
-			part1 = get_vectorpart(node_index, 1);
+			part1 = get_vectorpart(node_index, 0);
 			part2 = part1;
-			get_globalObject_x1(&buf32_1, part1, part2);
+			get_globalObject_next(&buf8_0, part1, part2);
 			
 			// Statement computation.
-			target = 0;
-			buf32_0 = buf32_1;
+			target = 1;
+			buf8_1 = (elem_chartype) (buf8_0);
+			buf8_0 = (elem_chartype) (buf8_0 + 1);
 			mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
 			while (mode != STORED && mode != GLOBAL_STORED) {
 				// Store new state vector in the cache or the global hash table.
 				get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
 				// Store new values.
 				part2 = part1;
-				set_left_globalObject_c(&part2, buf32_0);
-				set_left_globalObject_a1(&part2, (statetype) target);
+				set_left_globalObject_next(&part2, buf8_0);
+				set_left_globalObject_P_2(&part2, (statetype) target);
+				set_left_globalObject_P_2_myplace(&part2, buf8_1);
 				if (part2 != part1) {
 					// This part has been altered. Store it and remember address of new part.
 					if (mode == TO_CACHE) {
 						part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-						bufaddr_0 = STOREINCACHE(part2, part_cachepointers);
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
 						if (bufaddr_0 == CACHE_FULL) {
 							// Construct the vector again, and store it directly in the global hash table.
 							mode = TO_GLOBAL;
@@ -4194,7 +4192,7 @@ inline __device__ Storage_mode explore_globalObject_a1(shared_indextype node_ind
 					}
 					else {
 						// Store the node directly in the global hash table.
-						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
 						if (bufaddr_0 == HASHTABLE_FULL) {
 							// Hash table is considered full. Report this back.
 							return HASH_TABLE_FULL;
@@ -4210,9 +4208,15 @@ inline __device__ Storage_mode explore_globalObject_a1(shared_indextype node_ind
 					if (mode == TO_CACHE) {
 						set_left_cache_pointer(&part_cachepointers, bufaddr_0);
 						reset_left_in_vectortree_node(&part2);
+						}
+					else {
+						set_left_in_vectortree_node(&part2, bufaddr_0);
+					}
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
 						mark_root(&part2);
 						mark_cached_node_new_nonleaf(&part_cachepointers);
-						bufaddr_0 = STOREINCACHE(part2, part_cachepointers);
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
 						if (bufaddr_0 == CACHE_FULL) {
 							// Construct the vector again, and store it directly in the global hash table.
 							mode = TO_GLOBAL;
@@ -4220,8 +4224,447 @@ inline __device__ Storage_mode explore_globalObject_a1(shared_indextype node_ind
 						}
 					}
 					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+			}
+			}
+			return STORED;
+		case 1:
+			{
+			// Allocate register memory to process transition(s).
+			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
+			
+			// p1 --{ [ myplace = 3 - 1; next := next - 3 ] }--> p2
+			
+			mode = STORED;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = part1;
+			get_globalObject_P_2_myplace(&buf8_1, part1, part2);
+			part2 = part1;
+			get_globalObject_next(&buf8_0, part1, part2);
+			
+			// Statement computation.
+			if (buf8_1 == 3 - 1) {
+				target = 2;
+				buf8_0 = (elem_chartype) (buf8_0 - 3);
+				mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+				while (mode != STORED && mode != GLOBAL_STORED) {
+					// Store new state vector in the cache or the global hash table.
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+					// Store new values.
+					part2 = part1;
+					set_left_globalObject_next(&part2, buf8_0);
+					set_left_globalObject_P_2(&part2, (statetype) target);
+					if (part2 != part1) {
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					else {
+						bufaddr_0 = EMPTY_HASH_POINTER;
+					}
+					if (bufaddr_0 != EMPTY_HASH_POINTER) {
+						get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+						part2 = part1;
+						if (mode == TO_CACHE) {
+							set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+							reset_left_in_vectortree_node(&part2);
+							}
+						else {
+							set_left_in_vectortree_node(&part2, bufaddr_0);
+						}
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							mark_root(&part2);
+							mark_cached_node_new_nonleaf(&part_cachepointers);
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+				}
+			}
+			
+			// p1 --{ [ myplace <> 3 - 1; myplace := myplace % 3 ] }--> p2
+			
+			mode = STORED;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = part1;
+			get_globalObject_P_2_myplace(&buf8_0, part1, part2);
+			
+			// Statement computation.
+			if (buf8_0 != 3 - 1) {
+				target = 2;
+				buf8_0 = (elem_chartype) (buf8_0 % 3);
+				mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+				while (mode != STORED && mode != GLOBAL_STORED) {
+					// Store new state vector in the cache or the global hash table.
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+					// Store new values.
+					part2 = part1;
+					set_left_globalObject_P_2(&part2, (statetype) target);
+					set_left_globalObject_P_2_myplace(&part2, buf8_0);
+					if (part2 != part1) {
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					else {
+						bufaddr_0 = EMPTY_HASH_POINTER;
+					}
+					if (bufaddr_0 != EMPTY_HASH_POINTER) {
+						get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+						part2 = part1;
+						if (mode == TO_CACHE) {
+							set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+							reset_left_in_vectortree_node(&part2);
+							}
+						else {
+							set_left_in_vectortree_node(&part2, bufaddr_0);
+						}
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							mark_root(&part2);
+							mark_cached_node_new_nonleaf(&part_cachepointers);
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+				}
+			}
+			}
+			return STORED;
+		case 2:
+			{
+			// Allocate register memory to process transition(s).
+			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
+			// Allocate register memory for dynamic array indexing.
+			array_indextype idx_0;
+			
+			// p2 --{ Slot[myplace] = 1 }--> p3
+			
+			mode = STORED;
+			// Reset storage of array indices.
+			idx_0 = EMPTY_INDEX;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = part1;
+			get_globalObject_P_2_myplace(&buf8_1, part1, part2);
+			
+			// Statement computation.
+			if (globalObject_Slot(node_index, &idx_0, &buf8_0, buf8_1) == 1) {
+				target = 3;
+				mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+				while (mode != STORED && mode != GLOBAL_STORED) {
+					// Store new state vector in the cache or the global hash table.
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+					// Store new values.
+					part2 = part1;
+					set_left_globalObject_P_2(&part2, (statetype) target);
+					if (part2 != part1) {
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					else {
+						bufaddr_0 = EMPTY_HASH_POINTER;
+					}
+					if (bufaddr_0 != EMPTY_HASH_POINTER) {
+						get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+						part2 = part1;
+						if (mode == TO_CACHE) {
+							set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+							reset_left_in_vectortree_node(&part2);
+							}
+						else {
+							set_left_in_vectortree_node(&part2, bufaddr_0);
+						}
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							mark_root(&part2);
+							mark_cached_node_new_nonleaf(&part_cachepointers);
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+				}
+			}
+			}
+			return STORED;
+		case 3:
+			{
+			// Allocate register memory to process transition(s).
+			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
+			// Allocate register memory for dynamic array indexing.
+			array_indextype idx_0;
+			
+			// p3 --{ [ Slot[(myplace + 3 - 1) % 3] := 0 ] }--> CS
+			
+			mode = STORED;
+			// Reset storage of array indices.
+			idx_0 = EMPTY_INDEX;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = part1;
+			get_globalObject_P_2_myplace(&buf8_1, part1, part2);
+			
+			// Statement computation.
+			target = 4;
+			A_STR_1(&idx_0, &buf8_0, (array_indextype) (buf8_1 + 3 - 1) % 3, (elem_chartype) 0);
+			mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+			while (mode != STORED && mode != GLOBAL_STORED) {
+				// Store new state vector in the cache or the global hash table.
+				get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+				// Store new values.
+				part2 = part1;
+				// Write array buffer content.
+				if (0 >= 0 && 0 <= 0) {
+					if (idx_0 != EMPTY_INDEX) {
+						if (array_element_is_in_vectorpart_globalObject_Slot(idx_0, 0)) {
+							if (is_left_vectorpart_for_array_element_globalObject_Slot(idx_0, 0)) {
+								set_left_globalObject_Slot(&part2, idx_0, buf8_0, 0);
+							}
+						}
+					}
+				}
+				set_left_globalObject_P_2(&part2, (statetype) target);
+				if (part2 != part1) {
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				else {
+					bufaddr_0 = EMPTY_HASH_POINTER;
+				}
+				if (bufaddr_0 != EMPTY_HASH_POINTER) {
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+					part2 = part1;
+					if (mode == TO_CACHE) {
+						set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+						reset_left_in_vectortree_node(&part2);
+						}
+					else {
 						set_left_in_vectortree_node(&part2, bufaddr_0);
-						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, true);
+					}
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						mark_root(&part2);
+						mark_cached_node_new_nonleaf(&part_cachepointers);
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+			}
+			}
+			return STORED;
+		case 4:
+			{
+			// Allocate register memory to process transition(s).
+			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
+			// Allocate register memory for dynamic array indexing.
+			array_indextype idx_0;
+			
+			// CS --{ [ Slot[(myplace + 1) % 3] := 1 ] }--> NCS
+			
+			mode = STORED;
+			// Reset storage of array indices.
+			idx_0 = EMPTY_INDEX;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = part1;
+			get_globalObject_P_2_myplace(&buf8_1, part1, part2);
+			
+			// Statement computation.
+			target = 0;
+			A_STR_1(&idx_0, &buf8_0, (array_indextype) (buf8_1 + 1) % 3, (elem_chartype) 1);
+			mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+			while (mode != STORED && mode != GLOBAL_STORED) {
+				// Store new state vector in the cache or the global hash table.
+				get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+				// Store new values.
+				part2 = part1;
+				// Write array buffer content.
+				if (0 >= 0 && 0 <= 0) {
+					if (idx_0 != EMPTY_INDEX) {
+						if (array_element_is_in_vectorpart_globalObject_Slot(idx_0, 0)) {
+							if (is_left_vectorpart_for_array_element_globalObject_Slot(idx_0, 0)) {
+								set_left_globalObject_Slot(&part2, idx_0, buf8_0, 0);
+							}
+						}
+					}
+				}
+				set_left_globalObject_P_2(&part2, (statetype) target);
+				if (part2 != part1) {
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				else {
+					bufaddr_0 = EMPTY_HASH_POINTER;
+				}
+				if (bufaddr_0 != EMPTY_HASH_POINTER) {
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+					part2 = part1;
+					if (mode == TO_CACHE) {
+						set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+						reset_left_in_vectortree_node(&part2);
+						}
+					else {
+						set_left_in_vectortree_node(&part2, bufaddr_0);
+					}
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						mark_root(&part2);
+						mark_cached_node_new_nonleaf(&part_cachepointers);
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
 						if (bufaddr_0 == HASHTABLE_FULL) {
 							// Hash table is considered full. Report this back.
 							return HASH_TABLE_FULL;
@@ -4237,7 +4680,7 @@ inline __device__ Storage_mode explore_globalObject_a1(shared_indextype node_ind
 	}
 }
 
-inline __device__ Storage_mode explore_globalObject_a2(shared_indextype node_index, compressed_nodetype *d_q, nodetype *d_q_i, bool *d_dummy, volatile uint8_t *d_newstate_flags) {
+inline __device__ Storage_mode explore_globalObject_P_1(shared_indextype node_index, compressed_nodetype *d_q, nodetype *d_q_i, bool *d_dummy, volatile uint8_t *d_newstate_flags) {
 	// Fetch the current state of the state machine.
 	statetype current;
 	get_current_state(&current, node_index, 1);
@@ -4250,34 +4693,123 @@ inline __device__ Storage_mode explore_globalObject_a2(shared_indextype node_ind
 		case 0:
 			{
 			// Allocate register memory to process transition(s).
-			elem_inttype buf32_0, buf32_1;
-			indextype bufaddr_0, bufaddr_1;
+			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
 			
-			// Q --{ [ c < 20; x2 := c ] }--> R
+			// NCS --{ [ myplace := next; next := next + 1 ] }--> p1
 			
 			mode = STORED;
 			// Fetch values of unguarded variables.
 			part1 = get_vectorpart(node_index, 0);
 			part2 = part1;
-			get_globalObject_c(&buf32_0, part1, part2);
+			get_globalObject_next(&buf8_0, part1, part2);
 			
 			// Statement computation.
-			if (buf32_0 < 20) {
-				target = 1;
-				buf32_1 = buf32_0;
+			target = 1;
+			buf8_1 = (elem_chartype) (buf8_0);
+			buf8_0 = (elem_chartype) (buf8_0 + 1);
+			mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+			while (mode != STORED && mode != GLOBAL_STORED) {
+				// Store new state vector in the cache or the global hash table.
+				get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+				// Store new values.
+				part2 = part1;
+				set_left_globalObject_next(&part2, buf8_0);
+				set_left_globalObject_P_1_myplace(&part2, buf8_1);
+				set_left_globalObject_P_1(&part2, (statetype) target);
+				if (part2 != part1) {
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				else {
+					bufaddr_0 = EMPTY_HASH_POINTER;
+				}
+				get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+				// Store new values.
+				part2 = part1;
+				set_right_globalObject_P_1_myplace(&part2, buf8_1);
+				if (bufaddr_0 != EMPTY_HASH_POINTER) {
+					if (mode == TO_CACHE) {
+						set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+						reset_left_in_vectortree_node(&part2);
+						}
+					else {
+						set_left_in_vectortree_node(&part2, bufaddr_0);
+					}
+				}
+				if (part2 != part1) {
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						mark_root(&part2);
+						mark_cached_node_new_nonleaf(&part_cachepointers);
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+			}
+			}
+			return STORED;
+		case 1:
+			{
+			// Allocate register memory to process transition(s).
+			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
+			
+			// p1 --{ [ myplace = 3 - 1; next := next - 3 ] }--> p2
+			
+			mode = STORED;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = get_vectorpart(node_index, 1);
+			get_globalObject_P_1_myplace(&buf8_1, part1, part2);
+			get_globalObject_next(&buf8_0, part1, part2);
+			
+			// Statement computation.
+			if (buf8_1 == 3 - 1) {
+				target = 2;
+				buf8_0 = (elem_chartype) (buf8_0 - 3);
 				mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
 				while (mode != STORED && mode != GLOBAL_STORED) {
 					// Store new state vector in the cache or the global hash table.
 					get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
 					// Store new values.
 					part2 = part1;
-					set_left_globalObject_a2(&part2, (statetype) target);
-					set_left_globalObject_x2(&part2, buf32_1);
+					set_left_globalObject_next(&part2, buf8_0);
+					set_left_globalObject_P_1(&part2, (statetype) target);
 					if (part2 != part1) {
 						// This part has been altered. Store it and remember address of new part.
 						if (mode == TO_CACHE) {
 							part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-							bufaddr_0 = STOREINCACHE(part2, part_cachepointers);
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
 							if (bufaddr_0 == CACHE_FULL) {
 								// Construct the vector again, and store it directly in the global hash table.
 								mode = TO_GLOBAL;
@@ -4286,7 +4818,7 @@ inline __device__ Storage_mode explore_globalObject_a2(shared_indextype node_ind
 						}
 						else {
 							// Store the node directly in the global hash table.
-							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
 							if (bufaddr_0 == HASHTABLE_FULL) {
 								// Hash table is considered full. Report this back.
 								return HASH_TABLE_FULL;
@@ -4296,59 +4828,21 @@ inline __device__ Storage_mode explore_globalObject_a2(shared_indextype node_ind
 					else {
 						bufaddr_0 = EMPTY_HASH_POINTER;
 					}
-					get_vectortree_node(&part1, &part_cachepointers, node_index, 2);
-					// Store new values.
-					part2 = part1;
-					set_right_globalObject_x2(&part2, buf32_1);
-					if (part2 != part1) {
-						// This part has been altered. Store it and remember address of new part.
-						if (mode == TO_CACHE) {
-							part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-							bufaddr_1 = STOREINCACHE(part2, part_cachepointers);
-							if (bufaddr_1 == CACHE_FULL) {
-								// Construct the vector again, and store it directly in the global hash table.
-								mode = TO_GLOBAL;
-								continue;
-							}
-						}
-						else {
-							// Store the node directly in the global hash table.
-							bufaddr_1 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);
-							if (bufaddr_1 == HASHTABLE_FULL) {
-								// Hash table is considered full. Report this back.
-								return HASH_TABLE_FULL;
-							}
-						}
-					}
-					else {
-						bufaddr_1 = EMPTY_HASH_POINTER;
-					}
-					if (bufaddr_0 != EMPTY_HASH_POINTER || bufaddr_1 != EMPTY_HASH_POINTER) {
+					if (bufaddr_0 != EMPTY_HASH_POINTER) {
 						get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
 						part2 = part1;
-						if (bufaddr_0 != EMPTY_HASH_POINTER) {
-							if (mode == TO_CACHE) {
-								set_left_cache_pointer(&part_cachepointers, bufaddr_0);
-								reset_left_in_vectortree_node(&part2);
-							}
-							else {
-								set_left_in_vectortree_node(&part2, bufaddr_0);
-							}
-						}
-						if (bufaddr_1 != EMPTY_HASH_POINTER) {
-							if (mode == TO_CACHE) {
-								set_right_cache_pointer(&part_cachepointers, bufaddr_1);
-								reset_right_in_vectortree_node(&part2);
-							}
-							else {
-								set_right_in_vectortree_node(&part2, bufaddr_1);
-							}
-						}
 						if (mode == TO_CACHE) {
-							// This part has been altered. Store it and remember address of new part.
+							set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+							reset_left_in_vectortree_node(&part2);
+							}
+						else {
+							set_left_in_vectortree_node(&part2, bufaddr_0);
+						}
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
 							mark_root(&part2);
 							mark_cached_node_new_nonleaf(&part_cachepointers);
-							bufaddr_0 = STOREINCACHE(part2, part_cachepointers);
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
 							if (bufaddr_0 == CACHE_FULL) {
 								// Construct the vector again, and store it directly in the global hash table.
 								mode = TO_GLOBAL;
@@ -4356,7 +4850,89 @@ inline __device__ Storage_mode explore_globalObject_a2(shared_indextype node_ind
 							}
 						}
 						else {
-							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, true);
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+				}
+			}
+			
+			// p1 --{ [ myplace <> 3 - 1; myplace := myplace % 3 ] }--> p2
+			
+			mode = STORED;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = get_vectorpart(node_index, 1);
+			get_globalObject_P_1_myplace(&buf8_0, part1, part2);
+			
+			// Statement computation.
+			if (buf8_0 != 3 - 1) {
+				target = 2;
+				buf8_0 = (elem_chartype) (buf8_0 % 3);
+				mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+				while (mode != STORED && mode != GLOBAL_STORED) {
+					// Store new state vector in the cache or the global hash table.
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+					// Store new values.
+					part2 = part1;
+					set_left_globalObject_P_1_myplace(&part2, buf8_0);
+					set_left_globalObject_P_1(&part2, (statetype) target);
+					if (part2 != part1) {
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					else {
+						bufaddr_0 = EMPTY_HASH_POINTER;
+					}
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+					// Store new values.
+					part2 = part1;
+					set_right_globalObject_P_1_myplace(&part2, buf8_0);
+					if (bufaddr_0 != EMPTY_HASH_POINTER) {
+						if (mode == TO_CACHE) {
+							set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+							reset_left_in_vectortree_node(&part2);
+							}
+						else {
+							set_left_in_vectortree_node(&part2, bufaddr_0);
+						}
+					}
+					if (part2 != part1) {
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							mark_root(&part2);
+							mark_cached_node_new_nonleaf(&part_cachepointers);
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
 							if (bufaddr_0 == HASHTABLE_FULL) {
 								// Hash table is considered full. Report this back.
 								return HASH_TABLE_FULL;
@@ -4368,156 +4944,135 @@ inline __device__ Storage_mode explore_globalObject_a2(shared_indextype node_ind
 			}
 			}
 			return STORED;
-		case 1:
-			{
-			// Allocate register memory to process transition(s).
-			elem_inttype buf32_0, buf32_1;
-			indextype bufaddr_0, bufaddr_1;
-			
-			// R --{ [ x2 := x2 + c ] }--> S
-			
-			mode = STORED;
-			// Fetch values of unguarded variables.
-			part1 = get_vectorpart(node_index, 0);
-			part2 = get_vectorpart(node_index, 1);
-			get_globalObject_c(&buf32_0, part1, part2);
-			get_globalObject_x2(&buf32_1, part1, part2);
-			
-			// Statement computation.
-			target = 2;
-			buf32_1 = buf32_1 + buf32_0;
-			mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
-			while (mode != STORED && mode != GLOBAL_STORED) {
-				// Store new state vector in the cache or the global hash table.
-				get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
-				// Store new values.
-				part2 = part1;
-				set_left_globalObject_a2(&part2, (statetype) target);
-				set_left_globalObject_x2(&part2, buf32_1);
-				if (part2 != part1) {
-					// This part has been altered. Store it and remember address of new part.
-					if (mode == TO_CACHE) {
-						part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-						bufaddr_0 = STOREINCACHE(part2, part_cachepointers);
-						if (bufaddr_0 == CACHE_FULL) {
-							// Construct the vector again, and store it directly in the global hash table.
-							mode = TO_GLOBAL;
-							continue;
-						}
-					}
-					else {
-						// Store the node directly in the global hash table.
-						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);
-						if (bufaddr_0 == HASHTABLE_FULL) {
-							// Hash table is considered full. Report this back.
-							return HASH_TABLE_FULL;
-						}
-					}
-				}
-				else {
-					bufaddr_0 = EMPTY_HASH_POINTER;
-				}
-				get_vectortree_node(&part1, &part_cachepointers, node_index, 2);
-				// Store new values.
-				part2 = part1;
-				set_right_globalObject_x2(&part2, buf32_1);
-				if (part2 != part1) {
-					// This part has been altered. Store it and remember address of new part.
-					if (mode == TO_CACHE) {
-						part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-						bufaddr_1 = STOREINCACHE(part2, part_cachepointers);
-						if (bufaddr_1 == CACHE_FULL) {
-							// Construct the vector again, and store it directly in the global hash table.
-							mode = TO_GLOBAL;
-							continue;
-						}
-					}
-					else {
-						// Store the node directly in the global hash table.
-						bufaddr_1 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);
-						if (bufaddr_1 == HASHTABLE_FULL) {
-							// Hash table is considered full. Report this back.
-							return HASH_TABLE_FULL;
-						}
-					}
-				}
-				else {
-					bufaddr_1 = EMPTY_HASH_POINTER;
-				}
-				if (bufaddr_0 != EMPTY_HASH_POINTER || bufaddr_1 != EMPTY_HASH_POINTER) {
-					get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
-					part2 = part1;
-					if (bufaddr_0 != EMPTY_HASH_POINTER) {
-						if (mode == TO_CACHE) {
-							set_left_cache_pointer(&part_cachepointers, bufaddr_0);
-							reset_left_in_vectortree_node(&part2);
-						}
-						else {
-							set_left_in_vectortree_node(&part2, bufaddr_0);
-						}
-					}
-					if (bufaddr_1 != EMPTY_HASH_POINTER) {
-						if (mode == TO_CACHE) {
-							set_right_cache_pointer(&part_cachepointers, bufaddr_1);
-							reset_right_in_vectortree_node(&part2);
-						}
-						else {
-							set_right_in_vectortree_node(&part2, bufaddr_1);
-						}
-					}
-					if (mode == TO_CACHE) {
-						// This part has been altered. Store it and remember address of new part.
-						mark_root(&part2);
-						mark_cached_node_new_nonleaf(&part_cachepointers);
-						bufaddr_0 = STOREINCACHE(part2, part_cachepointers);
-						if (bufaddr_0 == CACHE_FULL) {
-							// Construct the vector again, and store it directly in the global hash table.
-							mode = TO_GLOBAL;
-							continue;
-						}
-					}
-					else {
-						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, true);
-						if (bufaddr_0 == HASHTABLE_FULL) {
-							// Hash table is considered full. Report this back.
-							return HASH_TABLE_FULL;
-						}
-					}
-				}
-				mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
-			}
-			}
-			return STORED;
 		case 2:
 			{
 			// Allocate register memory to process transition(s).
-			elem_inttype buf32_0, buf32_1;
 			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
+			// Allocate register memory for dynamic array indexing.
+			array_indextype idx_0;
 			
-			// S --{ [ c := x2 ] }--> Q
+			// p2 --{ Slot[myplace] = 1 }--> p3
 			
 			mode = STORED;
+			// Reset storage of array indices.
+			idx_0 = EMPTY_INDEX;
 			// Fetch values of unguarded variables.
 			part1 = get_vectorpart(node_index, 0);
 			part2 = get_vectorpart(node_index, 1);
-			get_globalObject_x2(&buf32_1, part1, part2);
+			get_globalObject_P_1_myplace(&buf8_1, part1, part2);
 			
 			// Statement computation.
-			target = 0;
-			buf32_0 = buf32_1;
+			if (globalObject_Slot(node_index, &idx_0, &buf8_0, buf8_1) == 1) {
+				target = 3;
+				mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+				while (mode != STORED && mode != GLOBAL_STORED) {
+					// Store new state vector in the cache or the global hash table.
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+					// Store new values.
+					part2 = part1;
+					set_left_globalObject_P_1(&part2, (statetype) target);
+					if (part2 != part1) {
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					else {
+						bufaddr_0 = EMPTY_HASH_POINTER;
+					}
+					if (bufaddr_0 != EMPTY_HASH_POINTER) {
+						get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+						part2 = part1;
+						if (mode == TO_CACHE) {
+							set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+							reset_left_in_vectortree_node(&part2);
+							}
+						else {
+							set_left_in_vectortree_node(&part2, bufaddr_0);
+						}
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							mark_root(&part2);
+							mark_cached_node_new_nonleaf(&part_cachepointers);
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+				}
+			}
+			}
+			return STORED;
+		case 3:
+			{
+			// Allocate register memory to process transition(s).
+			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
+			// Allocate register memory for dynamic array indexing.
+			array_indextype idx_0;
+			
+			// p3 --{ [ Slot[(myplace + 3 - 1) % 3] := 0 ] }--> CS
+			
+			mode = STORED;
+			// Reset storage of array indices.
+			idx_0 = EMPTY_INDEX;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = get_vectorpart(node_index, 1);
+			get_globalObject_P_1_myplace(&buf8_0, part1, part2);
+			
+			// Statement computation.
+			target = 4;
+			A_STR_1(&idx_0, &buf8_1, (array_indextype) (buf8_0 + 3 - 1) % 3, (elem_chartype) 0);
 			mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
 			while (mode != STORED && mode != GLOBAL_STORED) {
 				// Store new state vector in the cache or the global hash table.
 				get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
 				// Store new values.
 				part2 = part1;
-				set_left_globalObject_a2(&part2, (statetype) target);
-				set_left_globalObject_c(&part2, buf32_0);
+				// Write array buffer content.
+				if (0 >= 0 && 0 <= 0) {
+					if (idx_0 != EMPTY_INDEX) {
+						if (array_element_is_in_vectorpart_globalObject_Slot(idx_0, 0)) {
+							if (is_left_vectorpart_for_array_element_globalObject_Slot(idx_0, 0)) {
+								set_left_globalObject_Slot(&part2, idx_0, buf8_1, 0);
+							}
+						}
+					}
+				}
+				set_left_globalObject_P_1(&part2, (statetype) target);
 				if (part2 != part1) {
 					// This part has been altered. Store it and remember address of new part.
 					if (mode == TO_CACHE) {
 						part_cachepointers = CACHE_POINTERS_NEW_LEAF;
-						bufaddr_0 = STOREINCACHE(part2, part_cachepointers);
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
 						if (bufaddr_0 == CACHE_FULL) {
 							// Construct the vector again, and store it directly in the global hash table.
 							mode = TO_GLOBAL;
@@ -4526,7 +5081,7 @@ inline __device__ Storage_mode explore_globalObject_a2(shared_indextype node_ind
 					}
 					else {
 						// Store the node directly in the global hash table.
-						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, true);
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
 						if (bufaddr_0 == HASHTABLE_FULL) {
 							// Hash table is considered full. Report this back.
 							return HASH_TABLE_FULL;
@@ -4542,9 +5097,15 @@ inline __device__ Storage_mode explore_globalObject_a2(shared_indextype node_ind
 					if (mode == TO_CACHE) {
 						set_left_cache_pointer(&part_cachepointers, bufaddr_0);
 						reset_left_in_vectortree_node(&part2);
+						}
+					else {
+						set_left_in_vectortree_node(&part2, bufaddr_0);
+					}
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
 						mark_root(&part2);
 						mark_cached_node_new_nonleaf(&part_cachepointers);
-						bufaddr_0 = STOREINCACHE(part2, part_cachepointers);
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
 						if (bufaddr_0 == CACHE_FULL) {
 							// Construct the vector again, and store it directly in the global hash table.
 							mode = TO_GLOBAL;
@@ -4552,8 +5113,641 @@ inline __device__ Storage_mode explore_globalObject_a2(shared_indextype node_ind
 						}
 					}
 					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+			}
+			}
+			return STORED;
+		case 4:
+			{
+			// Allocate register memory to process transition(s).
+			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
+			// Allocate register memory for dynamic array indexing.
+			array_indextype idx_0;
+			
+			// CS --{ [ Slot[(myplace + 1) % 3] := 1 ] }--> NCS
+			
+			mode = STORED;
+			// Reset storage of array indices.
+			idx_0 = EMPTY_INDEX;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = get_vectorpart(node_index, 1);
+			get_globalObject_P_1_myplace(&buf8_1, part1, part2);
+			
+			// Statement computation.
+			target = 0;
+			A_STR_1(&idx_0, &buf8_0, (array_indextype) (buf8_1 + 1) % 3, (elem_chartype) 1);
+			mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+			while (mode != STORED && mode != GLOBAL_STORED) {
+				// Store new state vector in the cache or the global hash table.
+				get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+				// Store new values.
+				part2 = part1;
+				// Write array buffer content.
+				if (0 >= 0 && 0 <= 0) {
+					if (idx_0 != EMPTY_INDEX) {
+						if (array_element_is_in_vectorpart_globalObject_Slot(idx_0, 0)) {
+							if (is_left_vectorpart_for_array_element_globalObject_Slot(idx_0, 0)) {
+								set_left_globalObject_Slot(&part2, idx_0, buf8_0, 0);
+							}
+						}
+					}
+				}
+				set_left_globalObject_P_1(&part2, (statetype) target);
+				if (part2 != part1) {
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				else {
+					bufaddr_0 = EMPTY_HASH_POINTER;
+				}
+				if (bufaddr_0 != EMPTY_HASH_POINTER) {
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+					part2 = part1;
+					if (mode == TO_CACHE) {
+						set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+						reset_left_in_vectortree_node(&part2);
+						}
+					else {
 						set_left_in_vectortree_node(&part2, bufaddr_0);
-						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, true);
+					}
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						mark_root(&part2);
+						mark_cached_node_new_nonleaf(&part_cachepointers);
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+			}
+			}
+			return STORED;
+		default:
+			return STORED;
+	}
+}
+
+inline __device__ Storage_mode explore_globalObject_P_0(shared_indextype node_index, compressed_nodetype *d_q, nodetype *d_q_i, bool *d_dummy, volatile uint8_t *d_newstate_flags) {
+	// Fetch the current state of the state machine.
+	statetype current;
+	get_current_state(&current, node_index, 2);
+	statetype target = NO_STATE;
+	nodetype part1, part2;
+	// Storage mode to determine where to store the node(s).
+	Storage_mode mode;
+	shared_inttype part_cachepointers;
+	switch (current) {
+		case 0:
+			{
+			// Allocate register memory to process transition(s).
+			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
+			
+			// NCS --{ [ myplace := next; next := next + 1 ] }--> p1
+			
+			mode = STORED;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = part1;
+			get_globalObject_next(&buf8_0, part1, part2);
+			
+			// Statement computation.
+			target = 1;
+			buf8_1 = (elem_chartype) (buf8_0);
+			buf8_0 = (elem_chartype) (buf8_0 + 1);
+			mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+			while (mode != STORED && mode != GLOBAL_STORED) {
+				// Store new state vector in the cache or the global hash table.
+				get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+				// Store new values.
+				part2 = part1;
+				set_left_globalObject_next(&part2, buf8_0);
+				set_left_globalObject_P_0_myplace(&part2, buf8_1);
+				set_left_globalObject_P_0(&part2, (statetype) target);
+				if (part2 != part1) {
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				else {
+					bufaddr_0 = EMPTY_HASH_POINTER;
+				}
+				if (bufaddr_0 != EMPTY_HASH_POINTER) {
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+					part2 = part1;
+					if (mode == TO_CACHE) {
+						set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+						reset_left_in_vectortree_node(&part2);
+						}
+					else {
+						set_left_in_vectortree_node(&part2, bufaddr_0);
+					}
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						mark_root(&part2);
+						mark_cached_node_new_nonleaf(&part_cachepointers);
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+			}
+			}
+			return STORED;
+		case 1:
+			{
+			// Allocate register memory to process transition(s).
+			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
+			
+			// p1 --{ [ myplace = 3 - 1; next := next - 3 ] }--> p2
+			
+			mode = STORED;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = part1;
+			get_globalObject_P_0_myplace(&buf8_1, part1, part2);
+			part2 = part1;
+			get_globalObject_next(&buf8_0, part1, part2);
+			
+			// Statement computation.
+			if (buf8_1 == 3 - 1) {
+				target = 2;
+				buf8_0 = (elem_chartype) (buf8_0 - 3);
+				mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+				while (mode != STORED && mode != GLOBAL_STORED) {
+					// Store new state vector in the cache or the global hash table.
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+					// Store new values.
+					part2 = part1;
+					set_left_globalObject_next(&part2, buf8_0);
+					set_left_globalObject_P_0(&part2, (statetype) target);
+					if (part2 != part1) {
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					else {
+						bufaddr_0 = EMPTY_HASH_POINTER;
+					}
+					if (bufaddr_0 != EMPTY_HASH_POINTER) {
+						get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+						part2 = part1;
+						if (mode == TO_CACHE) {
+							set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+							reset_left_in_vectortree_node(&part2);
+							}
+						else {
+							set_left_in_vectortree_node(&part2, bufaddr_0);
+						}
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							mark_root(&part2);
+							mark_cached_node_new_nonleaf(&part_cachepointers);
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+				}
+			}
+			
+			// p1 --{ [ myplace <> 3 - 1; myplace := myplace % 3 ] }--> p2
+			
+			mode = STORED;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = part1;
+			get_globalObject_P_0_myplace(&buf8_0, part1, part2);
+			
+			// Statement computation.
+			if (buf8_0 != 3 - 1) {
+				target = 2;
+				buf8_0 = (elem_chartype) (buf8_0 % 3);
+				mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+				while (mode != STORED && mode != GLOBAL_STORED) {
+					// Store new state vector in the cache or the global hash table.
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+					// Store new values.
+					part2 = part1;
+					set_left_globalObject_P_0_myplace(&part2, buf8_0);
+					set_left_globalObject_P_0(&part2, (statetype) target);
+					if (part2 != part1) {
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					else {
+						bufaddr_0 = EMPTY_HASH_POINTER;
+					}
+					if (bufaddr_0 != EMPTY_HASH_POINTER) {
+						get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+						part2 = part1;
+						if (mode == TO_CACHE) {
+							set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+							reset_left_in_vectortree_node(&part2);
+							}
+						else {
+							set_left_in_vectortree_node(&part2, bufaddr_0);
+						}
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							mark_root(&part2);
+							mark_cached_node_new_nonleaf(&part_cachepointers);
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+				}
+			}
+			}
+			return STORED;
+		case 2:
+			{
+			// Allocate register memory to process transition(s).
+			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
+			// Allocate register memory for dynamic array indexing.
+			array_indextype idx_0;
+			
+			// p2 --{ Slot[myplace] = 1 }--> p3
+			
+			mode = STORED;
+			// Reset storage of array indices.
+			idx_0 = EMPTY_INDEX;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = part1;
+			get_globalObject_P_0_myplace(&buf8_1, part1, part2);
+			
+			// Statement computation.
+			if (globalObject_Slot(node_index, &idx_0, &buf8_0, buf8_1) == 1) {
+				target = 3;
+				mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+				while (mode != STORED && mode != GLOBAL_STORED) {
+					// Store new state vector in the cache or the global hash table.
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+					// Store new values.
+					part2 = part1;
+					set_left_globalObject_P_0(&part2, (statetype) target);
+					if (part2 != part1) {
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					else {
+						bufaddr_0 = EMPTY_HASH_POINTER;
+					}
+					if (bufaddr_0 != EMPTY_HASH_POINTER) {
+						get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+						part2 = part1;
+						if (mode == TO_CACHE) {
+							set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+							reset_left_in_vectortree_node(&part2);
+							}
+						else {
+							set_left_in_vectortree_node(&part2, bufaddr_0);
+						}
+						// This part has been altered. Store it and remember address of new part.
+						if (mode == TO_CACHE) {
+							mark_root(&part2);
+							mark_cached_node_new_nonleaf(&part_cachepointers);
+							bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+							if (bufaddr_0 == CACHE_FULL) {
+								// Construct the vector again, and store it directly in the global hash table.
+								mode = TO_GLOBAL;
+								continue;
+							}
+						}
+						else {
+							// Store the node directly in the global hash table.
+							bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+							if (bufaddr_0 == HASHTABLE_FULL) {
+								// Hash table is considered full. Report this back.
+								return HASH_TABLE_FULL;
+							}
+						}
+					}
+					mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+				}
+			}
+			}
+			return STORED;
+		case 3:
+			{
+			// Allocate register memory to process transition(s).
+			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
+			// Allocate register memory for dynamic array indexing.
+			array_indextype idx_0;
+			
+			// p3 --{ [ Slot[(myplace + 3 - 1) % 3] := 0 ] }--> CS
+			
+			mode = STORED;
+			// Reset storage of array indices.
+			idx_0 = EMPTY_INDEX;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = part1;
+			get_globalObject_P_0_myplace(&buf8_0, part1, part2);
+			
+			// Statement computation.
+			target = 4;
+			A_STR_1(&idx_0, &buf8_1, (array_indextype) (buf8_0 + 3 - 1) % 3, (elem_chartype) 0);
+			mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+			while (mode != STORED && mode != GLOBAL_STORED) {
+				// Store new state vector in the cache or the global hash table.
+				get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+				// Store new values.
+				part2 = part1;
+				// Write array buffer content.
+				if (0 >= 0 && 0 <= 0) {
+					if (idx_0 != EMPTY_INDEX) {
+						if (array_element_is_in_vectorpart_globalObject_Slot(idx_0, 0)) {
+							if (is_left_vectorpart_for_array_element_globalObject_Slot(idx_0, 0)) {
+								set_left_globalObject_Slot(&part2, idx_0, buf8_1, 0);
+							}
+						}
+					}
+				}
+				set_left_globalObject_P_0(&part2, (statetype) target);
+				if (part2 != part1) {
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				else {
+					bufaddr_0 = EMPTY_HASH_POINTER;
+				}
+				if (bufaddr_0 != EMPTY_HASH_POINTER) {
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+					part2 = part1;
+					if (mode == TO_CACHE) {
+						set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+						reset_left_in_vectortree_node(&part2);
+						}
+					else {
+						set_left_in_vectortree_node(&part2, bufaddr_0);
+					}
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						mark_root(&part2);
+						mark_cached_node_new_nonleaf(&part_cachepointers);
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				mode = (mode == TO_CACHE ? STORED : GLOBAL_STORED);
+			}
+			}
+			return STORED;
+		case 4:
+			{
+			// Allocate register memory to process transition(s).
+			indextype bufaddr_0;
+			elem_chartype buf8_0, buf8_1;
+			// Allocate register memory for dynamic array indexing.
+			array_indextype idx_0;
+			
+			// CS --{ [ Slot[(myplace + 1) % 3] := 1 ] }--> NCS
+			
+			mode = STORED;
+			// Reset storage of array indices.
+			idx_0 = EMPTY_INDEX;
+			// Fetch values of unguarded variables.
+			part1 = get_vectorpart(node_index, 0);
+			part2 = part1;
+			get_globalObject_P_0_myplace(&buf8_0, part1, part2);
+			
+			// Statement computation.
+			target = 0;
+			A_STR_1(&idx_0, &buf8_1, (array_indextype) (buf8_0 + 1) % 3, (elem_chartype) 1);
+			mode = (mode == STORED ? TO_CACHE : TO_GLOBAL);
+			while (mode != STORED && mode != GLOBAL_STORED) {
+				// Store new state vector in the cache or the global hash table.
+				get_vectortree_node(&part1, &part_cachepointers, node_index, 1);
+				// Store new values.
+				part2 = part1;
+				// Write array buffer content.
+				if (0 >= 0 && 0 <= 0) {
+					if (idx_0 != EMPTY_INDEX) {
+						if (array_element_is_in_vectorpart_globalObject_Slot(idx_0, 0)) {
+							if (is_left_vectorpart_for_array_element_globalObject_Slot(idx_0, 0)) {
+								set_left_globalObject_Slot(&part2, idx_0, buf8_1, 0);
+							}
+						}
+					}
+				}
+				set_left_globalObject_P_0(&part2, (statetype) target);
+				if (part2 != part1) {
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, true);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));
+						if (bufaddr_0 == HASHTABLE_FULL) {
+							// Hash table is considered full. Report this back.
+							return HASH_TABLE_FULL;
+						}
+					}
+				}
+				else {
+					bufaddr_0 = EMPTY_HASH_POINTER;
+				}
+				if (bufaddr_0 != EMPTY_HASH_POINTER) {
+					get_vectortree_node(&part1, &part_cachepointers, node_index, 0);
+					part2 = part1;
+					if (mode == TO_CACHE) {
+						set_left_cache_pointer(&part_cachepointers, bufaddr_0);
+						reset_left_in_vectortree_node(&part2);
+						}
+					else {
+						set_left_in_vectortree_node(&part2, bufaddr_0);
+					}
+					// This part has been altered. Store it and remember address of new part.
+					if (mode == TO_CACHE) {
+						mark_root(&part2);
+						mark_cached_node_new_nonleaf(&part_cachepointers);
+						bufaddr_0 = STOREINCACHE(part2, part_cachepointers, false);
+						if (bufaddr_0 == CACHE_FULL) {
+							// Construct the vector again, and store it directly in the global hash table.
+							mode = TO_GLOBAL;
+							continue;
+						}
+					}
+					else {
+						// Store the node directly in the global hash table.
+						bufaddr_0 = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));
 						if (bufaddr_0 == HASHTABLE_FULL) {
 							// Hash table is considered full. Report this back.
 							return HASH_TABLE_FULL;
@@ -4575,9 +5769,11 @@ inline __device__ Storage_mode get_successors_of_sm(shared_indextype node_index,
 	// explore the outgoing transitions of the current state of the state machine assigned to vgtid.
 	switch (vgtid) {
 		case 0:
-			return explore_globalObject_a1(node_index, d_q, d_q_i, d_dummy, d_newstate_flags);
+			return explore_globalObject_P_2(node_index, d_q, d_q_i, d_dummy, d_newstate_flags);
 		case 1:
-			return explore_globalObject_a2(node_index, d_q, d_q_i, d_dummy, d_newstate_flags);
+			return explore_globalObject_P_1(node_index, d_q, d_q_i, d_dummy, d_newstate_flags);
+		case 2:
+			return explore_globalObject_P_0(node_index, d_q, d_q_i, d_dummy, d_newstate_flags);
 		default:
 			return STORED;
 	}
@@ -4592,12 +5788,12 @@ inline __device__ Storage_mode GENERATE_SUCCESSORS(compressed_nodetype *d_q, nod
 
 	#pragma unroll
 	for (shared_indextype i = WARP_ID; i/OPENTILE_WARP_WIDTH < NR_SMS; i += NR_WARPS_PER_BLOCK) {	
-		entry_id = ((fast_modulo(i, OPENTILE_WARP_WIDTH)) * WARP_SIZE);
+		entry_id = ((i % OPENTILE_WARP_WIDTH) * WARP_SIZE);
 		if (entry_id < OPENTILECOUNT) {
 			entry_id = get_sorted_opentile_element(i);
 		}
 		if (entry_id < OPENTILECOUNT) {
-			src_state = shared[OPENTILEOFFSET+entry_id];
+			src_state = shared[OPENTILEOFFSET+(2*entry_id)+1];
 			if (get_successors_of_sm((shared_indextype) src_state, i/OPENTILE_WARP_WIDTH, d_q, d_q_i, d_dummy, d_newstate_flags) == HASH_TABLE_FULL) {
 				return HASH_TABLE_FULL;
 			}
@@ -4606,7 +5802,72 @@ inline __device__ Storage_mode GENERATE_SUCCESSORS(compressed_nodetype *d_q, nod
 	return STORED;
 } 
 
-// *** START PRINT FUNCTIONS ***
+// *** START STRUCT AND FUNCTIONS FOR PRINTING ***
+
+// A struct to represent a system state (used on the CPU side).
+struct systemstate_t {
+	statetype globalObject_P_2;
+	statetype globalObject_P_1;
+	statetype globalObject_P_0;
+	elem_chartype globalObject_P_0_myplace;
+	elem_chartype globalObject_next;
+	elem_chartype globalObject_Slot_0_;
+	elem_chartype globalObject_Slot_1_;
+	elem_chartype globalObject_Slot_2_;
+	elem_chartype globalObject_P_2_myplace;
+	elem_chartype globalObject_P_1_myplace;
+};
+
+// A function to create a system state struct instance with the given values.
+systemstate_t create_systemstate(statetype globalObject_P_2, statetype globalObject_P_1, statetype globalObject_P_0, elem_chartype globalObject_P_0_myplace, elem_chartype globalObject_next, elem_chartype globalObject_Slot_0_, elem_chartype globalObject_Slot_1_, elem_chartype globalObject_Slot_2_, elem_chartype globalObject_P_2_myplace, elem_chartype globalObject_P_1_myplace) {
+	systemstate_t newstate;
+	newstate.globalObject_P_2 = globalObject_P_2;
+	newstate.globalObject_P_1 = globalObject_P_1;
+	newstate.globalObject_P_0 = globalObject_P_0;
+	newstate.globalObject_P_0_myplace = globalObject_P_0_myplace;
+	newstate.globalObject_next = globalObject_next;
+	newstate.globalObject_Slot_0_ = globalObject_Slot_0_;
+	newstate.globalObject_Slot_1_ = globalObject_Slot_1_;
+	newstate.globalObject_Slot_2_ = globalObject_Slot_2_;
+	newstate.globalObject_P_2_myplace = globalObject_P_2_myplace;
+	newstate.globalObject_P_1_myplace = globalObject_P_1_myplace;
+	return newstate;
+}
+
+// State comparison function for sorting states.
+bool systemstates_compare(systemstate_t s, systemstate_t t) {
+	if (s.globalObject_P_2 != t.globalObject_P_2) {
+		return (s.globalObject_P_2 < t.globalObject_P_2);
+	}
+	if (s.globalObject_P_1 != t.globalObject_P_1) {
+		return (s.globalObject_P_1 < t.globalObject_P_1);
+	}
+	if (s.globalObject_P_0 != t.globalObject_P_0) {
+		return (s.globalObject_P_0 < t.globalObject_P_0);
+	}
+	if (s.globalObject_P_0_myplace != t.globalObject_P_0_myplace) {
+		return (s.globalObject_P_0_myplace < t.globalObject_P_0_myplace);
+	}
+	if (s.globalObject_next != t.globalObject_next) {
+		return (s.globalObject_next < t.globalObject_next);
+	}
+	if (s.globalObject_Slot_0_ != t.globalObject_Slot_0_) {
+		return (s.globalObject_Slot_0_ < t.globalObject_Slot_0_);
+	}
+	if (s.globalObject_Slot_1_ != t.globalObject_Slot_1_) {
+		return (s.globalObject_Slot_1_ < t.globalObject_Slot_1_);
+	}
+	if (s.globalObject_Slot_2_ != t.globalObject_Slot_2_) {
+		return (s.globalObject_Slot_2_ < t.globalObject_Slot_2_);
+	}
+	if (s.globalObject_P_2_myplace != t.globalObject_P_2_myplace) {
+		return (s.globalObject_P_2_myplace < t.globalObject_P_2_myplace);
+	}
+	if (s.globalObject_P_1_myplace != t.globalObject_P_1_myplace) {
+		return (s.globalObject_P_1_myplace < t.globalObject_P_1_myplace);
+	}
+	return false;
+}
 
 void print_content_hash_table(FILE* stream, compressed_nodetype *q, nodetype *q_i, uint64_t q_size, uint64_t q_i_size, bool print_pointers) {
 	uint64_t counter = 0;
@@ -4629,24 +5890,44 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q, nodetype *q_
 			fprintf(stream, "At index %lu:\n", i);
 			p1 = &part0;
 			p2 = p1;
-			host_get_globalObject_a1(&e_st, *p1, *p2);
-			fprintf(stream, "state globalObject'a1: %u\n", (uint32_t) e_st);
+			host_get_globalObject_P_2(&e_st, *p1, *p2);
+			fprintf(stream, "state globalObject'P_2: %d\n", (uint8_t) e_st);
 			p1 = &part0;
 			p2 = p1;
-			host_get_globalObject_a2(&e_st, *p1, *p2);
-			fprintf(stream, "state globalObject'a2: %u\n", (uint32_t) e_st);
+			host_get_globalObject_P_1(&e_st, *p1, *p2);
+			fprintf(stream, "state globalObject'P_1: %d\n", (uint8_t) e_st);
 			p1 = &part0;
 			p2 = p1;
-			host_get_globalObject_c(&e_i, *p1, *p2);
-			fprintf(stream, "variable globalObject'c: %u\n", (uint32_t) e_i);
+			host_get_globalObject_P_0(&e_st, *p1, *p2);
+			fprintf(stream, "state globalObject'P_0: %d\n", (uint8_t) e_st);
+			p1 = &part0;
+			p2 = p1;
+			host_get_globalObject_P_0_myplace(&e_c, *p1, *p2);
+			fprintf(stream, "variable globalObject'P_0'myplace: %d\n", (uint8_t) e_c);
+			p1 = &part0;
+			p2 = p1;
+			host_get_globalObject_next(&e_c, *p1, *p2);
+			fprintf(stream, "variable globalObject'next: %d\n", (uint8_t) e_c);
+			p1 = &part0;
+			p2 = p1;
+			host_get_globalObject_P_2_myplace(&e_c, *p1, *p2);
+			fprintf(stream, "variable globalObject'P_2'myplace: %d\n", (uint8_t) e_c);
 			p1 = &part0;
 			p2 = &part1;
-			host_get_globalObject_x2(&e_i, *p1, *p2);
-			fprintf(stream, "variable globalObject'x2: %u\n", (uint32_t) e_i);
-			p1 = &part1;
+			host_get_globalObject_P_1_myplace(&e_c, *p1, *p2);
+			fprintf(stream, "variable globalObject'P_1'myplace: %d\n", (uint8_t) e_c);
+			p1 = &part0;
 			p2 = p1;
-			host_get_globalObject_x1(&e_i, *p1, *p2);
-			fprintf(stream, "variable globalObject'x1: %u\n", (uint32_t) e_i);
+			host_get_globalObject_Slot(&e_c, *p1, *p2, 0);
+			fprintf(stream, "array element globalObject'Slot[0]: %u\n", (uint32_t) e_c);
+			p1 = &part0;
+			p2 = p1;
+			host_get_globalObject_Slot(&e_c, *p1, *p2, 1);
+			fprintf(stream, "array element globalObject'Slot[1]: %u\n", (uint32_t) e_c);
+			p1 = &part0;
+			p2 = p1;
+			host_get_globalObject_Slot(&e_c, *p1, *p2, 2);
+			fprintf(stream, "array element globalObject'Slot[2]: %u\n", (uint32_t) e_c);
 			fprintf(stream, "-----\n");
 		}
 	}
@@ -4661,4 +5942,81 @@ void print_content_hash_table(FILE* stream, compressed_nodetype *q, nodetype *q_
 	fprintf(stream, "NR. OF STATES: %lu.\n", counter);
 }
 
-// *** END PRINT FUNCTIONS ***
+systemstate_t get_systemstate(compressed_nodetype *q, uint64_t index, nodetype *q_i) {
+	systemstate_t newstate;
+	// Retrieve state vector.
+	nodetype root = HT_RETRIEVE(q, q_i, index, true);
+	nodetype part0 = host_direct_get_vectorpart_0(q, q_i, root, NULL, false);
+	nodetype part1 = host_direct_get_vectorpart_1(q, q_i, root, NULL, false);
+	nodetype *p1, *p2;
+	statetype e_st;
+	elem_booltype e_b;
+	elem_chartype e_c;
+	elem_inttype e_i;
+	p1 = &part0;
+	p2 = p1;
+	host_get_globalObject_P_2(&e_st, *p1, *p2);
+	newstate.globalObject_P_2 = e_st;
+	p1 = &part0;
+	p2 = p1;
+	host_get_globalObject_P_1(&e_st, *p1, *p2);
+	newstate.globalObject_P_1 = e_st;
+	p1 = &part0;
+	p2 = p1;
+	host_get_globalObject_P_0(&e_st, *p1, *p2);
+	newstate.globalObject_P_0 = e_st;
+	p1 = &part0;
+	p2 = p1;
+	host_get_globalObject_P_0_myplace(&e_c, *p1, *p2);
+	newstate.globalObject_P_0_myplace = e_c;
+	p1 = &part0;
+	p2 = p1;
+	host_get_globalObject_next(&e_c, *p1, *p2);
+	newstate.globalObject_next = e_c;
+	p1 = &part0;
+	p2 = p1;
+	host_get_globalObject_P_2_myplace(&e_c, *p1, *p2);
+	newstate.globalObject_P_2_myplace = e_c;
+	p1 = &part0;
+	p2 = &part1;
+	host_get_globalObject_P_1_myplace(&e_c, *p1, *p2);
+	newstate.globalObject_P_1_myplace = e_c;
+	p1 = &part0;
+	p2 = p1;
+	host_get_globalObject_Slot(&e_c, *p1, *p2, 0);
+	newstate.globalObject_Slot_0_ = e_c;
+	p1 = &part0;
+	p2 = p1;
+	host_get_globalObject_Slot(&e_c, *p1, *p2, 1);
+	newstate.globalObject_Slot_1_ = e_c;
+	p1 = &part0;
+	p2 = p1;
+	host_get_globalObject_Slot(&e_c, *p1, *p2, 2);
+	newstate.globalObject_Slot_2_ = e_c;
+	return newstate;
+}
+
+void print_systemstate(FILE* stream, systemstate_t s) {
+	fprintf(stream, "%d ", (uint8_t) s.globalObject_P_2);
+	fprintf(stream, "%d ", (uint8_t) s.globalObject_P_1);
+	fprintf(stream, "%d ", (uint8_t) s.globalObject_P_0);
+	fprintf(stream, "%d ", (uint8_t) s.globalObject_P_0_myplace);
+	fprintf(stream, "%d ", (uint8_t) s.globalObject_next);
+	fprintf(stream, "%d ", (uint8_t) s.globalObject_Slot_0_);
+	fprintf(stream, "%d ", (uint8_t) s.globalObject_Slot_1_);
+	fprintf(stream, "%d ", (uint8_t) s.globalObject_Slot_2_);
+	fprintf(stream, "%d ", (uint8_t) s.globalObject_P_2_myplace);
+	fprintf(stream, "%d ", (uint8_t) s.globalObject_P_1_myplace);
+	fprintf(stream, "\n");	
+}
+
+void print_systemstates(FILE* stream, std::vector<systemstate_t> states) {
+	fprintf(stream, "GENERATED SYSTEM STATES:\n");
+	for (std::vector<systemstate_t>::iterator it = states.begin(); it != states.end(); ++it) {
+		print_systemstate(stream, (*it));
+	}
+	fprintf(stream, "END OF STATE LIST.\n");
+	fprintf(stream, "NR. OF STATES: %lu.\n", states.size());
+}
+
+// *** END STRUCT AND FUNCTIONS FOR PRINTING ***

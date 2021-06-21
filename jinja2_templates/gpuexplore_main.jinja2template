@@ -69,7 +69,7 @@ __global__ void init_hash_table(compressed_nodetype *d_q{% if compact_hash_table
 /**
  * CUDA kernel function to initialise the worktiles in the global memory.
  */
-__global__ void init_worktiles(shared_inttype *d_worktiles) {
+__global__ void init_worktiles(nodetype *d_worktiles) {
     if (THREAD_ID == 0) {
     	d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = 0;
     }
@@ -194,7 +194,7 @@ inline __device__ void PREPARE_CACHE() {
 
 	// First we mark the root nodes referred to in the worktile for preparation.
 	for (shared_indextype i = THREAD_ID; i < OPENTILECOUNT; i += BLOCK_SIZE) {
-		mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(shared[OPENTILEOFFSET+i]*3)+2]);
+		mark_cached_node_as_next_in_preparation(&shared[CACHEOFFSET+(shared[OPENTILEOFFSET+(2*i)+1]*3)+2]);
 	}
 
 	while (CONTINUE == 1) {
@@ -290,13 +290,15 @@ inline __device__ void PREPARE_CACHE() {
 }
 
 {% endif %}
-__global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, uint8_t *d_contBFS, uint8_t *d_property_violation, volatile uint8_t *d_newstate_flags, shared_inttype *d_worktiles, const uint8_t scan) {
+__global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, uint8_t *d_contBFS, uint8_t *d_property_violation, volatile uint8_t *d_newstate_flags, nodetype *d_worktiles, const uint8_t scan) {
 	uint64_t i;
 	indextype l;
 	{% if vectorsize > 62 %}
 	shared_indextype sh_index, opentile_scan_start;
-	{% endif %}
+	nodetype tmp;
+	{% else %}
 	compressed_nodetype tmp;
+	{% endif %}
 
 	// Reset the shared variables preceding the cache and reset the cache.
 	if (THREAD_ID < SH_OFFSET) {
@@ -314,11 +316,24 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 	if (scan) {
 		__syncthreads();
 		// Copy the work tile from global memory.
-		if (THREAD_ID < OPENTILELEN + LASTSEARCHLEN) {
-			shared[OPENTILEOFFSET + THREAD_ID] = d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1) * BLOCK_ID + THREAD_ID];
-		}
-		if (THREAD_ID == 0) {
-			OPENTILECOUNT = d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1) * BLOCK_ID + OPENTILELEN + LASTSEARCHLEN];
+		if (THREAD_ID < OPENTILELEN + LASTSEARCHLEN + 1) {
+			i = d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1) * BLOCK_ID + THREAD_ID];
+			{% if vectorsize > 62 %}
+			if (THREAD_ID < OPENTILELEN) {
+				shared[OPENTILEOFFSET + (2*THREAD_ID)] = get_left(i);
+				shared[OPENTILEOFFSET + (2*THREAD_ID) + 1] = get_right(i);
+			}
+			else if (THREAD_ID < OPENTILELEN + LASTSEARCHLEN) {
+				shared[LASTSEARCHOFFSET + THREAD_ID - OPENTILELEN] = (shared_inttype) i;				
+			}
+			{% else %}
+			if (THREAD_ID < OPENTILELEN + LASTSEARCHLEN) {
+				shared[OPENTILEOFFSET + THREAD_ID] = i;
+			}
+			{% endif %}
+			else {
+				OPENTILECOUNT = (shared_inttype) i;
+			}
 		}
 	}
 	__syncthreads();
@@ -327,8 +342,8 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 		if (ITERATIONS > 0) {
 			// Prepare the cache for the next iteration.
 			PREPARE_CACHE();
+			__syncthreads();
 		}
-		__syncthreads();
 		{% endif %}
 		if (THREAD_ID == 0 && OPENTILECOUNT < OPENTILELEN && d_newstate_flags[BLOCK_ID] == 1) {
 			// Indicate that we are scanning.
@@ -358,7 +373,9 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 						if (l < OPENTILELEN) {
 							d_q[loc] = mark_old(tmp);
 							{% if vectorsize > 62 %}
-							shared[OPENTILEOFFSET+l] = loc;
+							tmp = get_uncompressed_node_root(tmp, loc);
+							shared[OPENTILEOFFSET+(2*l)] = get_left(tmp);
+							shared[OPENTILEOFFSET+(2*l)+1] = get_right(tmp);
 							{% else %}
 							shared[OPENTILEOFFSET+l] = tmp;
 							{% endif %}
@@ -397,7 +414,7 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 
 			#pragma unroll
 			for (i = VECTOR_GROUP_ID; i < (OPENTILECOUNT-opentile_scan_start); i += NR_VECTOR_GROUPS_PER_BLOCK) {
-				l = FETCH(gtile, d_q{% if compact_hash_table %}, d_q_i{% endif %}, shared[OPENTILEOFFSET+opentile_scan_start+i]);
+				l = FETCH(gtile, d_q{% if compact_hash_table %}, d_q_i{% endif %}, opentile_scan_start+i);
 				if (l == CACHE_FULL) {
 					// PLAN B?
 				}
@@ -405,8 +422,9 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 					sh_index = (shared_indextype) l;
 				}
 				if (gtile.thread_rank() == 0) {
-					// Store the address to the tree in the cache in the work tile, and reset the corresponding fetching flag.
-					shared[OPENTILEOFFSET+opentile_scan_start+i] = sh_index;
+					// Store the address to the tree in the cache in the work tile.
+					shared[OPENTILEOFFSET+2*(opentile_scan_start+i)] = 0;
+					shared[OPENTILEOFFSET+2*(opentile_scan_start+i)+1] = sh_index;
 				}
 			}
 		}
@@ -427,8 +445,13 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 		}
 		__syncthreads();
 		// Write 'empty' pointers to unused part of the work tile.
+		{% if vectorsize > 62 %}
+		if (THREAD_ID < 2*(OPENTILELEN - OPENTILECOUNT)) {
+			shared[OPENTILEOFFSET+2*(OPENTILECOUNT)+THREAD_ID] = EMPTYVECT32;
+		{% else %}
 		if (THREAD_ID < OPENTILELEN - OPENTILECOUNT) {
-			shared[OPENTILEOFFSET+OPENTILECOUNT+THREAD_ID] = EMPTYVECT{% if vectorsize <= 30 or vectorsize > 62 %}32{% else %}64{% endif %};
+			shared[OPENTILEOFFSET+OPENTILECOUNT+THREAD_ID] = EMPTYVECT{% if vectorsize <= 30 %}32{% else %}64{% endif %};
+		{% endif %}
 		}
 		// Ready to start next iteration, if error has not occurred.
 		if (THREAD_ID == 0) {
@@ -450,11 +473,23 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if c
 		__syncthreads();
 	}
 	// Done. Copy the work tile to global memory.
-	if (THREAD_ID < OPENTILELEN+LASTSEARCHLEN) {
-		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = shared[OPENTILEOFFSET+THREAD_ID];
-	}
-	if (THREAD_ID == 0) {
-		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = OPENTILECOUNT;
+	if (THREAD_ID < OPENTILELEN+LASTSEARCHLEN+1) {
+		{% if vectorsize > 62 %}
+		if (THREAD_ID < OPENTILELEN) {
+			i = combine_halfs(shared[OPENTILEOFFSET+(2*THREAD_ID)], shared[OPENTILEOFFSET+(2*THREAD_ID)+1]);
+		}
+		else if (THREAD_ID < OPENTILELEN + LASTSEARCHLEN) {
+			i = shared[LASTSEARCHOFFSET+THREAD_ID-OPENTILELEN];			
+		}
+		{% else %}
+		if (THREAD_ID < OPENTILELEN + LASTSEARCHLEN) {
+			i = shared[OPENTILEOFFSET+THREAD_ID];
+		}
+		{% endif %}
+		else {
+			i = OPENTILECOUNT;
+		}
+		d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = i;
 	}
 }
 
@@ -495,7 +530,7 @@ int main(int argc, char** argv) {
 	// Integer to store the amount of new states counted in the hash table.
 	uint64_t new_counted_states, *d_new_counted_states;
 	// Space to temporarily store work tiles.
-	shared_inttype *d_worktiles;
+	nodetype *d_worktiles;
 
 	// Global hash table.
 	compressed_nodetype *d_q;
@@ -574,7 +609,7 @@ int main(int argc, char** argv) {
 	cudaMallocCount((void **) &d_counted_states, sizeof(uint64_t));
 	cudaMallocCount((void **) &d_new_counted_states, sizeof(uint64_t));
 	cudaMallocCount((void **) &d_newstate_flags, nblocks * sizeof(uint8_t));
-	cudaMallocCount((void **) &d_worktiles, nblocks * (OPENTILELEN+LASTSEARCHLEN+1) * sizeof(shared_inttype));
+	cudaMallocCount((void **) &d_worktiles, nblocks * (OPENTILELEN+LASTSEARCHLEN+1) * sizeof(nodetype));
 	{% if compact_hash_table %}
 	cudaMallocCount((void **) &d_dummy, sizeof(bool));
 	{% endif %}
@@ -728,7 +763,11 @@ int main(int argc, char** argv) {
 				// Scan the hash table for states.
 				cudaMemcpy(q_test, d_q, hash_table_size * sizeof(compressed_nodetype), cudaMemcpyDeviceToHost);
 				for (indextype i = 0; i < hash_table_size; i++) {
+				{% if vectorsize > 62 and not compact_hash_table %}
 					if (is_root(q_test[i]) && is_new(q_test[i])) {
+				{% else %}
+					if (is_new(q_test[i])) {
+				{% endif %}
 						states.push_back(get_systemstate(q_test, i{% if compact_hash_table %}, q_i_test{% endif %}));
 					}
 				}

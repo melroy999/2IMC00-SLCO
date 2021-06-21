@@ -144,7 +144,7 @@ static const int NR_BLOCKS = {{nrblocks}};
 
 {% if compact_hash_table %}
 // Evict constant to determine number of allowed evictions for element insertion.
-#define EVICTFREQ 7
+#define EVICTFREQ 10
 {% endif %}
 #define NR_HASH_FUNCTIONS 32
 // Number of retries in local cache.
@@ -157,11 +157,7 @@ const size_t Mb = 1<<20;
 
 // CONSTANTS FOR SHARED MEMORY CACHES
 // Offsets calculations for shared memory arrays
-{% if vectorsize > 62 %}
-#define OPENTILELEN					{{tilesize*2}}
-{% else %}
 #define OPENTILELEN					{{tilesize}}
-{% endif %}
 {% if deadlock_check %}
 #define DEADLOCKFLAGSLEN			{{(tilesize/nr_bits_shared_mem_element)|round(0, 'ceil')|int}}
 {% endif %}
@@ -175,7 +171,11 @@ const size_t Mb = 1<<20;
 {% else %}
 #define OPENTILEOFFSET 				(SH_OFFSET)
 {% endif %}
+{% if vectorsize > 62 %}
+#define LASTSEARCHOFFSET			(OPENTILEOFFSET+OPENTILELEN+OPENTILELEN)
+{% else %}
 #define LASTSEARCHOFFSET			(OPENTILEOFFSET+OPENTILELEN)
+{% endif %}
 #define CACHEOFFSET 				(LASTSEARCHOFFSET+LASTSEARCHLEN)
 
 // Shared memory work tile size in nr. of warps
@@ -1377,14 +1377,14 @@ inline __device__ statetype get_target_{{sm.name}}_{{a}}(statetype src, statetyp
 // *** START KERNELS AND FUNCTIONS FOR {% if vectorsize > 62 %}VECTOR TREE {% endif %}NODE STORAGE AND RETRIEVAL TO/FROM THE GLOBAL MEMORY HASH TABLE ***
 
 // Initial bitmixer function.
-inline __host__ __device__ uint64_t {% if compact_hash_table %}U{% endif %}HASH_INIT(nodetype node) {
+inline {% if compact_hash_table %}__host__ {% endif %}__device__ uint64_t {% if compact_hash_table %}U{% endif %}HASH_INIT(nodetype node) {
 	uint64_t node1 = xor_shft2_64((uint64_t) node, 38, 14);
 	node1 ^= 0xD1B54A32D192ED03L;
 	node1 *= 0xAEF17502108EF2D9L;
 	return node1;
 }
 
-inline __host__ __device__ {% if compact_hash_table %}nodetype U{% else %}indextype {% endif %}HASH(uint8_t id, uint64_t node) {
+inline {% if compact_hash_table %}__host__ {% endif %}__device__ {% if compact_hash_table %}nodetype U{% else %}indextype {% endif %}HASH(uint8_t id, uint64_t node) {
 	uint64_t node1 = node;
 	switch (id) {
 		case 0:
@@ -2022,7 +2022,7 @@ inline __host__ __device__ nodetype RHASH(uint8_t id, nodetype node) {
 }
 
 // Inverse hash functions.
-inline __host__ __device__ nodetype RHASH_INVERSE(uint8_t id, nodetype node) {
+inline {% if compact_hash_table %}__host__ {% endif %}__device__ nodetype RHASH_INVERSE(uint8_t id, nodetype node) {
 	nodetype node1 = node;
 	nodetype node2;
 	switch (id) {
@@ -2287,7 +2287,7 @@ inline __host__ __device__ nodetype RHASH_INVERSE(uint8_t id, nodetype node) {
 }
 
 // Hash functions.
-inline __host__ __device__ nodetype HASH(uint8_t id, nodetype node, bool is_root) {
+inline {% if compact_hash_table %}__host__ {% endif %}__device__ nodetype HASH(uint8_t id, nodetype node, bool is_root) {
 	if (is_root) {
 		return RHASH(id, node);
 	}
@@ -2325,7 +2325,7 @@ inline __host__ __device__ nodetype get_uncompressed_node_root(compressed_nodety
 }
 
 // Extract a global memory root hash table index from a given hash.
-inline __host__ __device__ indextype get_index_root(nodetype h) {
+inline __device__ indextype get_index_root(nodetype h) {
 	return (indextype) (h >> {{2*nr_bits_address_internal - nr_bits_address_root}});
 }
 
@@ -2361,29 +2361,210 @@ inline __host__ __device__ nodetype HT_RETRIEVE(compressed_nodetype *d_q{% if co
 	{% endif %}
 }
 
-// Find or put a given vectortree node in the global hash table.
-{% if compact_hash_table %}
-// Precondition: the given node is collapsed.
-{% endif %}
-inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{% endif %} FINDORPUT_SINGLE(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, nodetype node, volatile uint8_t *d_newstate_flags, shared_indextype node_index{% if compact_hash_table %}, bool is_root{% endif %}, bool claim_work) {
+{% if with_cuckoo %}
+// Find or put a given vectortree node in the global hash table (with Cuckoo hashing).
+// First the insertion of a single node.
+inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{% endif %} FINDORPUT_SINGLE_CUCKOO_NODE_INSERTION(compressed_nodetype *d_q, volatile uint8_t *d_newstate_flags, shared_indextype node_index, bool claim_work, nodetype e2, uint8_t *result) {
 	nodetype e1;
 	{% if compact_hash_table %}
-	nodetype e2;
 	compressed_nodetype compressed_node;
 	compressed_nodetype compressed_element;
+	uint8_t min_hashes = NR_HASH_FUNCTIONS;
+	uint8_t min_hash_id = 0;
 	{% endif %}
 	indextype addr;
 	nodetype element;
 	shared_inttype shared_addr;
-	e1 = HASH_INIT({% if compact_hash_table %}node{% else %}filter_bookkeeping(node){% endif %}{% if compact_hash_table %}, is_root{% endif %});
+	// Extract information from result.
+	uint8_t is_new_node = *result;
+	{% if compact_hash_table %}
+	uint8_t hash_start = (is_new_node & 0x7F);
+	{% endif %}
+	is_new_node = is_new_node >> 7;
+	e1 = HASH_INIT({% if compact_hash_table %}e2{% else %}filter_bookkeeping(e2){% endif %}{% if compact_hash_table %}, true{% endif %});
+	#pragma unroll
+	for (uint8_t i = {% if not compact_hash_table %}0{% else %}hash_start{% endif %}; i < NR_HASH_FUNCTIONS; i++) {
+		{% if compact_hash_table %}
+		element = HASH(i, e1, true);
+		compressed_node = get_compressed_node_root(element, i);
+		if (is_new_node) {
+			compressed_node = mark_new(compressed_node);
+		}
+		// Special case: if the compressed node coincides with the value for an empty compressed node, continue.
+		if (compressed_node == EMPTY_COMPRESSED_NODE) {
+			continue;
+		}
+		addr = get_index_root(element);
+		compressed_element = d_q[addr];
+		{% else %}
+		addr = HASH(i, e1);
+		element = d_q[addr];
+		{% endif %}
+		if ({% if compact_hash_table %}compressed_element == EMPTY_COMPRESSED_NODE{% else %}element == EMPTY_NODE{% endif %}) {
+			{% if compact_hash_table %}
+			compressed_element = atomicCAS(&(d_q[addr]), EMPTY_COMPRESSED_NODE, compressed_node);
+			{% else %}
+			element = atomicCAS({% if vectorsize > 30 %}(unsigned long long *) {% endif %}&(d_q[addr]), {% if vectorsize > 30 %}(unsigned long long) {% endif %}element, {% if vectorsize > 30 %}(unsigned long long) {% endif %}e2);
+			{% endif %}
+			if ({% if compact_hash_table %}compressed_element == EMPTY_COMPRESSED_NODE{% else %}element == EMPTY_NODE{% endif %}) {
+				// Successfully stored the node.
+				// Try to claim the vector for future work. For this, try to increment the OPENTILECOUNT counter.
+				// If the given node_index is EMPTY_CACHE_POINTER, the cache has been skipped, since it was considered full. In that case,
+				// we do not try to claim the vector, on the assumption that the full cache already provides sufficient new work.
+				if (is_new_node && node_index != EMPTY_CACHE_POINTER && claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
+					{% if compact_hash_table %}
+					// If there is still a next successor generation iteration, store a cache reference to the root in the work tile.
+					// Otherwise, store the root itself.
+					if (ITERATIONS < d_kernel_iters-1) {
+						shared[OPENTILEOFFSET+(2*shared_addr)+1] = node_index;
+					}
+					else {
+						shared[OPENTILEOFFSET+(2*shared_addr)] = get_left(e2);
+						shared[OPENTILEOFFSET+(2*shared_addr)+1] = get_right(e2);
+					}
+					// Mark the state as old in the hash table.
+					atomicCAS(&(d_q[addr]), compressed_node, mark_old(compressed_node));
+					{% else %}
+					// Store the node in the work tile.
+					shared[OPENTILEOFFSET+shared_addr] = e2;
+					// Mark the state as old in the hash table.
+					atomicCAS({% if vectorsize > 30 %}(unsigned long long *) {% endif %}&(d_q[addr]), {% if vectorsize > 30 %}(unsigned long long) {% endif %}e2, {% if vectorsize > 30 %}(unsigned long long) {% endif %}mark_old(e2));
+					{% endif %}
+				}
+				else {
+					if (is_new_node) {
+						// There is work available for some block.
+						d_newstate_flags[(addr / BLOCK_SIZE) % GRID_SIZE] = 1;
+					}
+				}
+				*result = 0;
+				return addr;
+			}
+		}
+		if (filter_{% if compact_hash_table %}compressed_{% endif %}bookkeeping({% if compact_hash_table %}compressed_{% endif %}element) == filter_{% if compact_hash_table %}compressed_{% endif %}bookkeeping({% if compact_hash_table %}compressed_node{% else %}e2{% endif %})) {
+			// The node is already stored.
+			*result = 0;
+			return addr;
+		}
+		{% if compact_hash_table %}
+		else {
+			// Another node is stored at this address. Remember the hash function id if the number of hashes applied to the
+			// encountered node is the minimum number so far.
+			if (get_hash_id_root(compressed_element) < min_hashes) {
+				min_hashes = get_hash_id_root(compressed_element);
+				min_hash_id = i;
+			}
+		}
+		{% endif %}
+	}
+	// Store the node in the {% if compact_hash_table %}recorded{% else %}first{% endif %} position, evict the node currently stored there and continue storing the latter node.
+	// Note: eventually, if all nodes can be stored, FINDORPUT_SINGLE returns the address of the node stored last, NOT of the one
+	// for which FINDORPUT_SINGLE was originally called.
+	{% if compact_hash_table %}
+	if (min_hashes == NR_HASH_FUNCTIONS) {
+		min_hash_id = 0;
+	}
+	element = HASH(min_hash_id, e1, true);
+	compressed_node = get_compressed_node_root(element, min_hash_id);
+	if (is_new_node) {
+		compressed_node = mark_new(compressed_node);
+	}
+	addr = get_index_root(element);
+	compressed_element = atomicExch(&(d_q[addr]), compressed_node);
+	{% else %}
+	addr = HASH(0, e1);
+	element = atomicExch({% if vectorsize > 30 %}(unsigned long long *) {% endif %}&(d_q[addr]), {% if vectorsize > 30 %}(unsigned long long) {% endif %}e2);
+	{% endif %}
+	// Try to claim the vector for future work.
+	if (is_new_node && node_index != EMPTY_CACHE_POINTER && claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
+		{% if compact_hash_table %}
+		// If there is still a next successor generation iteration, store a cache reference to the root in the work tile.
+		// Otherwise, store the root itself.
+		if (ITERATIONS < d_kernel_iters-1) {
+			shared[OPENTILEOFFSET+(2*shared_addr)+1] = node_index;
+		}
+		else {
+			shared[OPENTILEOFFSET+(2*shared_addr)] = get_left(e2);
+			shared[OPENTILEOFFSET+(2*shared_addr)+1] = get_right(e2);
+		}
+		// Mark the state as old in the hash table.
+		atomicCAS(&(d_q[addr]), compressed_node, mark_old(compressed_node));
+		{% else %}
+		// Store the node in the work tile.
+		shared[OPENTILEOFFSET+shared_addr] = e2;
+		// Mark the state as old in the hash table.
+		atomicCAS({% if vectorsize > 30 %}(unsigned long long *) {% endif %}&(d_q[addr]), {% if vectorsize > 30 %}(unsigned long long) {% endif %}e2, {% if vectorsize > 30 %}(unsigned long long) {% endif %}mark_old(e2));
+		{% endif %}
+	}
+	else {
+		if (is_new_node) {
+			// There is work available for some block.
+			d_newstate_flags[(addr / BLOCK_SIZE) % GRID_SIZE] = 1;
+		}
+	}
+	// Prepare the evicted node for storage.
+	{% if compact_hash_table %}
+	element = get_uncompressed_node_root(compressed_element, addr);
+	e1 = HASH_INIT(element, true);
+	*result = get_hash_id_root(compressed_element) + 1;
+	// Set highest bit in result in case the element is new.
+	if (is_new(compressed_element)) {
+		*result |= 0x80;
+	}
+	{% else %}
+	*result = 1;
+	if (is_new(element)) {
+		*result |= 0x80;
+	}
+	{% endif %}
+	return element;
+}
+
+// Main FINDORPUT_SINGLE_CUCKOO method, implementing node insertion with evictions.
+{% if compact_hash_table %}
+// Precondition: the given node is collapsed if it is a root node.
+{% endif %}
+inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{% endif %} FINDORPUT_SINGLE_CUCKOO(compressed_nodetype *d_q, nodetype node, volatile uint8_t *d_newstate_flags, shared_indextype node_index, bool claim_work) {
+	nodetype e = node;
+	uint8_t result = 0x80;
+	e = FINDORPUT_SINGLE_CUCKOO_NODE_INSERTION(d_q, d_newstate_flags, node_index, {% if compact_hash_table %}{% if ev == 0 %}claim_work{% else %}(ITERATIONS == d_kernel_iters-1){% endif %}{% else %}claim_work{% endif %}, e, &result);
+	if (result != 0) {
+		for (uint8_t i = 0; i < {{max_evictions}} && result != 0; i++) {
+			e = FINDORPUT_SINGLE_CUCKOO_NODE_INSERTION(d_q, d_newstate_flags, node_index, {% if compact_hash_table %}{% if ev == 0 %}claim_work{% else %}(ITERATIONS == d_kernel_iters-1){% endif %}{% else %}claim_work{% endif %}, e, &result);
+		}
+	}
+	return (result == 0 ? e : HASHTABLE_FULL);
+}
+
+{% endif %}
+{% if compact_hash_table or not with_cuckoo %}
+// Find or put a given vectortree node in the global hash table (no Cuckoo hashing).
+{% if compact_hash_table %}
+// Precondition: the given node is collapsed if it is a root node.
+{% endif %}
+inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{% endif %} FINDORPUT_SINGLE{% if with_cuckoo %}_NO_CUCKOO{% endif %}(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, nodetype node, volatile uint8_t *d_newstate_flags, shared_indextype node_index{% if compact_hash_table and not with_cuckoo %}, bool is_root{% endif %}{% if not (compact_hash_table and with_cuckoo) %}, bool claim_work{% endif %}) {
+	nodetype e1;
+	{% if compact_hash_table %}
+	nodetype e2;
+	{% if not with_cuckoo %}
+	compressed_nodetype compressed_node;
+	compressed_nodetype compressed_element;
+	{% endif %}
+	{% endif %}
+	indextype addr;
+	nodetype element;
+	{% if not with_cuckoo %}
+	shared_inttype shared_addr;
+	{% endif %}
+	e1 = HASH_INIT({% if compact_hash_table %}node{% else %}filter_bookkeeping(node){% endif %}{% if compact_hash_table %}{% if with_cuckoo %}, false{% else %}, is_root{% endif %}{% endif %});
 	{% if vectorsize > 62 and not compact_hash_table %}
 	if (is_root(node)) {
 		node = mark_new(node);
 	}
 	{% endif %}
 	#pragma unroll
-	for (int i = 0; i < NR_HASH_FUNCTIONS; i++) {
-		{% if compact_hash_table %}
+	for (uint8_t i = 0; i < NR_HASH_FUNCTIONS; i++) {
+		{% if compact_hash_table and not with_cuckoo %}
 		if (is_root) {
 			e2 = HASH(i, e1, true);
 			compressed_node = get_compressed_node_root(e2, i);
@@ -2403,12 +2584,13 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 					// we do not try to claim the vector, on the assumption that the full cache already provides sufficient new work.
 					if (node_index != EMPTY_CACHE_POINTER && claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
 						// If there is still a next successor generation iteration, store a cache reference to the root in the work tile.
-						// Otherwise, store a reference to the root in the global hash table.
+						// Otherwise, store the root itself.
 						if (ITERATIONS < d_kernel_iters-1) {
-							shared[OPENTILEOFFSET+shared_addr] = node_index;
+							shared[OPENTILEOFFSET+(2*shared_addr)+1] = node_index;
 						}
 						else {
-							shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
+							shared[OPENTILEOFFSET+(2*shared_addr)] = get_left(node);
+							shared[OPENTILEOFFSET+(2*shared_addr)+1] = get_right(node);
 						}
 						// Mark the state as old in the hash table.
 						atomicCAS(&(d_q[addr]), compressed_node, mark_old(compressed_node));
@@ -2426,6 +2608,8 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 			}
 		}
 		else {
+		{% endif %}
+		{% if compact_hash_table %}
 			e2 = HASH(i, e1, false);
 			addr = get_index_internal(e2);
 		{% else %}
@@ -2457,19 +2641,20 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 						if (node_index != EMPTY_CACHE_POINTER && claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
 							{% if vectorsize > 62 %}
 							// If there is still a next successor generation iteration, store a cache reference to the root in the work tile.
-							// Otherwise, store a reference to the root in the global hash table.
+							// Otherwise, store the root itself.
 							if (ITERATIONS < d_kernel_iters-1) {
-								shared[OPENTILEOFFSET+shared_addr] = node_index;
+								shared[OPENTILEOFFSET+(2*shared_addr)+1] = node_index;
 							}
 							else {
-								shared[OPENTILEOFFSET+shared_addr] = (shared_inttype) addr;
+								shared[OPENTILEOFFSET+(2*shared_addr)] = get_left(node);
+								shared[OPENTILEOFFSET+(2*shared_addr)+1] = get_right(node);
 							}
 							{% else %}
 							// Store the node in the work tile.
 							shared[OPENTILEOFFSET+shared_addr] = node;
 							{% endif %}
 							// Mark the state as old in the hash table.
-							atomicCAS({% if vectorsize > 30 %}(unsigned long long *) {% endif %}&(d_q[{% if compact_hash_table %}offset+{% endif %}addr]), {% if vectorsize > 30 %}(unsigned long long) {% endif %}node, {% if vectorsize > 30 %}(unsigned long long) {% endif %}mark_old(node));
+							atomicCAS({% if vectorsize > 30 %}(unsigned long long *) {% endif %}&(d_q[addr]), {% if vectorsize > 30 %}(unsigned long long) {% endif %}node, {% if vectorsize > 30 %}(unsigned long long) {% endif %}mark_old(node));
 						}
 						else {
 							// There is work available for some block.
@@ -2490,7 +2675,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 				// The node is already stored.
 				return addr;
 			}
-		{% if compact_hash_table %}
+		{% if compact_hash_table and not with_cuckoo %}
 		}
 		{% endif %}
 	}
@@ -2498,6 +2683,23 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 	return HASHTABLE_FULL;
 }
 
+{% endif %}
+{% if with_cuckoo %}
+// Main FINDORPUT_SINGLE method, making sure that Cuckoo hashing is performed when appropriate.
+inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{% endif %} FINDORPUT_SINGLE(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, nodetype node, volatile uint8_t *d_newstate_flags, shared_indextype node_index{% if compact_hash_table %}, bool is_root{% endif %}, bool claim_work) {
+	{% if compact_hash_table %}
+	if (is_root) {
+		return FINDORPUT_SINGLE_CUCKOO(d_q, node, d_newstate_flags, node_index, claim_work);
+	}
+	else {
+		return FINDORPUT_SINGLE_NO_CUCKOO(d_q, d_q_i, d_dummy, node, d_newstate_flags, node_index);
+	}
+	{% else %}
+	return FINDORPUT_SINGLE_CUCKOO(d_q, node, d_newstate_flags, node_index, claim_work);
+	{% endif %}
+}
+
+{% endif %}
 // Find or put all new vectortree nodes stored in the shared memory cache into the global memory hash table.
 __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, volatile uint8_t *d_newstate_flags) {
 	nodetype node;
@@ -2522,7 +2724,7 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 		__syncthreads();
 		if (work_to_do) {
 			work_to_do = false;
-			for (shared_indextype i = THREAD_ID; (i*3)+2 < (d_shared_size - CACHEOFFSET) && CONTINUE != 2; i += BLOCK_SIZE) {
+			for (shared_indextype i = THREAD_ID; (i*3)+2 < (d_shared_size - CACHEOFFSET) && CONTINUE < 2; i += BLOCK_SIZE) {
 				node_pointers = shared[CACHEOFFSET+(i*3)+2];
 				// Check if node is ready for storage. Only new leafs are ready at this point. We rely on old non-leafs having pointers with the highest
 				// two bits set to '00', new non-leafs having pointers with the highest two bits set to '10', empty entries having pointers set to 0,
@@ -2683,7 +2885,7 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 }
 
 // Kernel to store the initial state in the global memory hash table.
-__global__ void store_initial_state(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, volatile uint8_t *d_newstate_flags, shared_inttype *d_worktiles) {
+__global__ void store_initial_state(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, volatile uint8_t *d_newstate_flags, nodetype *d_worktiles) {
 	if (BLOCK_ID == 0) {
 		// Reset the shared variables preceding the cache, and reset the cache.
 		if (THREAD_ID < SH_OFFSET) {
@@ -2705,7 +2907,11 @@ __global__ void store_initial_state(compressed_nodetype *d_q{% if compact_hash_t
 		__syncthreads();
 		// Done. Copy the work tile to global memory.
 		if (THREAD_ID < OPENTILELEN) {
+			{% if vectorsize > 62 %}
+			d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = combine_halfs(shared[OPENTILEOFFSET+(2*THREAD_ID)], shared[OPENTILEOFFSET+(2*THREAD_ID)+1]);
+			{% else %}
 			d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + THREAD_ID] = shared[OPENTILEOFFSET+THREAD_ID];
+			{% endif %}
 		}
 		if (THREAD_ID == 0) {
 			d_worktiles[(OPENTILELEN+LASTSEARCHLEN+1)*BLOCK_ID + OPENTILELEN + LASTSEARCHLEN] = OPENTILECOUNT;
@@ -2846,7 +3052,7 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 	{% endif %}
 	
 	if (gid == 0) {
-		node = HT_RETRIEVE(d_q{% if compact_hash_table %}, d_q_i{% endif %}, rootref{% if compact_hash_table %}, true{% endif %});
+		node = combine_halfs(shared[OPENTILEOFFSET+(2*rootref)], shared[OPENTILEOFFSET+(2*rootref)+1]);
 		{% if compact_hash_table %}
 		// Expand the node from {{2*nr_bits_address_internal}} bits to 64 bits.
 		node = expand(node);
@@ -3191,7 +3397,7 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 		{% if vectorsize > 62 %}
 		asm("{\n\t"
 			" cvt.u16.u32 %0, %1;\n\t"
-			"}" : "=h"(p{{i}}) : "r"(shared[OPENTILEOFFSET+{{i*warpsize}}+LANE]));
+			"}" : "=h"(p{{i}}) : "r"(shared[OPENTILEOFFSET+2*({{i*warpsize}}+LANE)+1]));
 		if (p{{i}} != EMPTYVECT16) {
 		{% else %}
 		p{{i}} = {{i*warpsize}}+LANE;
@@ -3215,7 +3421,7 @@ __device__ shared_indextype get_sorted_opentile_element(uint8_t wid) {
 	{% if vectorsize > 62 %}
 	asm("{\n\t"
 		" cvt.u16.u32 %0, %1;\n\t"
-		"}" : "=h"(p{{i}}) : "r"(shared[OPENTILEOFFSET+{{i*warpsize}}+LANE]));
+		"}" : "=h"(p{{i}}) : "r"(shared[OPENTILEOFFSET+2*({{i*warpsize}}+LANE)+1]));
 	if (p{{i}} != EMPTYVECT16) {
 	{% else %}
 	p{{i}} = {{i*warpsize}}+LANE;
@@ -3450,9 +3656,7 @@ inline __device__ Storage_mode GENERATE_SUCCESSORS(compressed_nodetype *d_q{% if
 	for (shared_indextype i = THREAD_ID; i < (OPENTILECOUNT * NR_SMS); i += BLOCK_SIZE) {
 		entry_id = i / NR_SMS;
 		entry_state_id = i - (entry_id * NR_SMS);
-		{% if vectorsize > 62 %}
-		src_state = shared[OPENTILEOFFSET+entry_id];
-		{% endif %}
+		src_state = shared[OPENTILEOFFSET+(2*entry_id)+1];
 		if (get_successors_of_sm({% if vectorsize > 62 %}(shared_indextype) src_state{% else %}entry_id{% endif %}, entry_state_id, d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags) == HASH_TABLE_FULL) {
 			return HASH_TABLE_FULL;
 		}
@@ -3471,7 +3675,7 @@ inline __device__ Storage_mode GENERATE_SUCCESSORS(compressed_nodetype *d_q{% if
 		{% endif %}
 		if (entry_id < OPENTILECOUNT) {
 			{% if vectorsize > 62 %}
-			src_state = shared[OPENTILEOFFSET+entry_id];
+			src_state = shared[OPENTILEOFFSET+(2*entry_id)+1];
 			{% endif %}
 			if (get_successors_of_sm({% if vectorsize > 62 %}(shared_indextype) src_state{% else %}entry_id{% endif %}, i/OPENTILE_WARP_WIDTH, d_q{% if compact_hash_table %}, d_q_i, d_dummy{% endif %}, d_newstate_flags) == HASH_TABLE_FULL) {
 				return HASH_TABLE_FULL;
