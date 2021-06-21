@@ -4234,10 +4234,14 @@ def main(args):
 		cudainit = importlib.import_module("pycuda.autoinit")
 		cuda = importlib.import_module("pycuda.driver")
 
+	print(with_cuckoo)
+
 	# Cuckoo hashing is disabled for non-compact state storage.
 	# NOTE: for vectors in size <= 62, Cuckoo hashing currently leads to a deadlock.
 	if (not compact_hash_table) or vectorsize <= 62:
 		with_cuckoo = False
+
+	print(with_cuckoo)
 
 	# if Cuckoo hashing is disabled, the number of allowed evictions is 0.
 	if not with_cuckoo:
