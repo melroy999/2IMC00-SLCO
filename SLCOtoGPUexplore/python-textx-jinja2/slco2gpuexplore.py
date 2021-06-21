@@ -4061,9 +4061,9 @@ def preprocess():
 				nr_cache_elements = int(math.floor(nr_cache_elements / 3))
 			print("Nr. of elements in cache hash table: " + str(nr_cache_elements))
 	print("System state vector size: " + str(vectorsize))
-	if vectorsize <= 30;
+	if vectorsize <= 30:
 		print("Running in 32-bit state vector mode")
-	elif vectorsize <= 62;
+	elif vectorsize <= 62:
 		print("Running in 64-bit state vector mode")
 	elif compact_hash_table:
 		print("Running in compact hash table mode")
