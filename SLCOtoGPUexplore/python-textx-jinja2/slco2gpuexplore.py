@@ -4246,14 +4246,14 @@ def main(args):
 	if not modelname.endswith('.slco'):
 		print("please provide an SLCO model to be verified.")
 	else:
-		model = read_SLCO_model(file)
-		print("processing model %s" % basename(file))
+		model = read_SLCO_model(modelname)
+		print("processing model %s" % basename(modelname))
 		try:
 			preprocess()
 			# translate
 			translate()
 		except Exception:
-			print("failed to process model %s" % basename(file))
+			print("failed to process model %s" % basename(modelname))
 			print(traceback.format_exc())
 
 if __name__ == '__main__':
