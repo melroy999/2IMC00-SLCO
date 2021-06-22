@@ -3290,7 +3290,7 @@ def debug(text):
 
 def preprocess():
 	"""Preprocessing of model"""
-	global model, vectorsize, vectorstructure, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_nr_reachable_state_parts, vectortree_node_thread, vectorstructure_string, smnames, vectorelem_in_structure_map, max_statesize, state_order, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, connected_channel, signalsize, signalnr, alphabet, syncactions, actiontargets, actions, syncreccomm, no_state_constant, no_prio_constant, dynamic_access_arrays, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, tilesize, gpuexplore2_succdist, regsort_nr_el_per_thread, all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask, nr_warps_per_tile, compact_hash_table, elements_strings, nrblocks, nrthreadsperblock, array_in_structure_map, vectorpart_id_dict, vectornode_id_dict, no_smart_fetching, nr_bits_shared_mem_element, nr_cache_elements
+	global model, vectorsize, vectorstructure, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_nr_reachable_state_parts, vectortree_node_thread, vectorstructure_string, smnames, vectorelem_in_structure_map, max_statesize, state_order, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, connected_channel, signalsize, signalnr, alphabet, syncactions, actiontargets, actions, syncreccomm, no_state_constant, no_prio_constant, dynamic_access_arrays, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, tilesize, gpuexplore2_succdist, regsort_nr_el_per_thread, all_arrayindex_allocs_sizes, smart_vectortree_fetching_bitmask, nr_warps_per_tile, compact_hash_table, elements_strings, nrblocks, nrthreadsperblock, array_in_structure_map, vectorpart_id_dict, vectornode_id_dict, no_smart_fetching, nr_bits_shared_mem_element, nr_cache_elements, with_cuckoo, max_evictions
 
 	# construct set of statemachine names in the system
 	# also construct a map from names to objects
@@ -4061,6 +4061,27 @@ def preprocess():
 				nr_cache_elements = int(math.floor(nr_cache_elements / 3))
 			print("Nr. of elements in cache hash table: " + str(nr_cache_elements))
 
+	# Cuckoo hashing is disabled for non-compact state storage.
+	# NOTE: for vectors in size <= 62, Cuckoo hashing currently leads to a deadlock.
+	if (not compact_hash_table) or vectorsize <= 62:
+		with_cuckoo = False
+
+	# if Cuckoo hashing is disabled, the number of allowed evictions is 0.
+	if not with_cuckoo:
+		max_evictions = 0
+
+	print("System state vector size: " + str(vectorsize))
+	if vectorsize <= 30:
+		print("Running in 32-bit state vector mode")
+	elif vectorsize <= 62:
+		print("Running in 64-bit state vector mode")
+	elif compact_hash_table:
+		print("Running in compact hash table mode")
+	else:
+		print("Running in non-compact hash table mode")
+	if with_cuckoo:
+		print("Cuckoo hashing enabled")
+
 def translate():
 	"""The translation function"""
 	global modelname, model, vectorstructure, vectorstructure_string, vectortree, vectortree_T, vectortree_group_size, vectortree_level_ids, vectortree_level_nr_of_leaves, vectortree_level_nr_of_nodes_with_two_children, vectortree_nr_reachable_state_parts, vectorelem_in_structure_map, vectortree_node_thread, state_order, max_statesize, smnames, smname_to_object, state_id, arraynames, max_arrayindexsize, max_buffer_allocs, signalsize, connected_channel, alphabet, syncactions, actiontargets, no_state_constant, no_prio_constant, async_channel_vectorpart_buffer_range, vectortree_size, vectortree_depth, gpuexplore2_succdist, no_regsort, tilesize, regsort_nr_el_per_thread, warpsize, all_arrayindex_allocs_sizes, no_smart_fetching, compact_hash_table, nrblocks, nrthreadsperblock, array_in_structure_map, nr_bits_shared_mem_element, deadlock_check, with_cuckoo, max_evictions
@@ -4157,6 +4178,8 @@ def translate():
 	outFile.write('\tnvcc -arch=sm_75 -lcudart -o gpuexplore gpuexplore.cu\n')
 	outFile.write('debug:\n')
 	outFile.write('\tnvcc -arch=sm_75 -g -G -Xcompiler -rdynamic -lcudart -o gpuexplore gpuexplore.cu\n')
+	outFile.write('lineinfo:\n')
+	outFile.write('\tnvcc -arch=sm_75 -lineinfo -lcudart -o gpuexplore gpuexplore.cu\n')	
 	outFile.close()
 
 def main(args):
@@ -4223,42 +4246,17 @@ def main(args):
 		cudainit = importlib.import_module("pycuda.autoinit")
 		cuda = importlib.import_module("pycuda.driver")
 
-	# Cuckoo hashing is disabled for non-compact state storage.
-	# NOTE: for vectors in size <= 62, Cuckoo hashing currently leads to a deadlock.
-	if not compact_hash_table or vectorsize <= 62:
-		with_cuckoo = False
-
-	# if Cuckoo hashing is disabled, the number of allowed evictions is 0.
-	if not with_cuckoo:
-		max_evictions = 0
-
-	batch = []
-	if modelname.endswith('.slco'):
-		batch = [modelname]
+	if not modelname.endswith('.slco'):
+		print("please provide an SLCO model to be verified.")
 	else:
-		batch = glob.glob(join(this_folder, modelname, "*.slco"))
-
-	if not batch:
-		exit(1)
-
-	#gen_dir = "generated_mcrl2"
-	#dir = dirname(batch[0])
-	#gen_folder = join(dir, gen_dir)
-	#if exists(gen_folder):
-	#	rmtree(gen_folder)
-	#mkdir(gen_folder)
-
-	for file in batch:
-		# read model
-		modelname = file
-		model = read_SLCO_model(file)
-		print("processing model %s" % basename(file))
+		model = read_SLCO_model(modelname)
+		print("processing model %s" % basename(modelname))
 		try:
 			preprocess()
 			# translate
 			translate()
 		except Exception:
-			print("failed to process model %s" % basename(file))
+			print("failed to process model %s" % basename(modelname))
 			print(traceback.format_exc())
 
 if __name__ == '__main__':
