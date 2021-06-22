@@ -153,8 +153,10 @@ static const int NR_BLOCKS = {{nrblocks}};
 // Enum type to indicate node storage mode (see the 'explore_' functions).
 enum Storage_mode {TO_CACHE, TO_GLOBAL, STORED, GLOBAL_STORED, HASH_TABLE_FULL};
 
+{% if vectorsize <= 62 %}
 const size_t Mb = 1<<20;
 
+{% endif %}
 // CONSTANTS FOR SHARED MEMORY CACHES
 // Offsets calculations for shared memory arrays
 #define OPENTILELEN					{{tilesize}}
