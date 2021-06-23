@@ -4175,11 +4175,11 @@ def translate():
 	# create a Makefile
 	outFile = open(join(path,"Makefile"), 'w')
 	outFile.write('all:\n')
-	outFile.write('\tnvcc -arch=sm_75 -lcudart -o gpuexplore gpuexplore.cu\n')
+	outFile.write('\tnvcc -arch=sm_75 -o gpuexplore gpuexplore.cu\n')
 	outFile.write('debug:\n')
-	outFile.write('\tnvcc -arch=sm_75 -g -G -Xcompiler -rdynamic -lcudart -o gpuexplore gpuexplore.cu\n')
+	outFile.write('\tnvcc -arch=sm_75 -g -G -Xcompiler -rdynamic -o gpuexplore gpuexplore.cu\n')
 	outFile.write('lineinfo:\n')
-	outFile.write('\tnvcc -arch=sm_75 -lineinfo -lcudart -o gpuexplore gpuexplore.cu\n')	
+	outFile.write('\tnvcc -arch=sm_75 -lineinfo -o gpuexplore gpuexplore.cu\n')	
 	outFile.close()
 
 def main(args):
