@@ -2676,7 +2676,7 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 	// The node could not be stored with the hash functions. Try to do it with linear probing w.r.t. the last hash value.
 	#pragma unroll
 	for (uint8_t i = 0; i < LINEARPROBINGFREQ; i++) {
-		addr++;
+		addr += 10;
 		if (addr >= {% if compact_hash_table %}d_internal_hash_table_size{% else %}d_hash_table_size{% endif %}) {
 			addr = 0;
 		}
