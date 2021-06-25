@@ -2672,13 +2672,16 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 		}
 		{% endif %}
 	}
-	{% if vectorsize > 62 %}
+	{% if vectorsize > 62 and not with_cuckoo %}
 	// The node could not be stored with the hash functions. Try to do it with linear probing w.r.t. the last hash value.
+	// Obtain a jump size for the probing.
+	e2 = {% if compact_hash_table %}U{% endif %}HASH(0, e1);
+	e2 = (e2 & 0xFF);
 	#pragma unroll
 	for (uint8_t i = 0; i < LINEARPROBINGFREQ; i++) {
-		addr += 10;
+		addr += e2;
 		if (addr >= {% if compact_hash_table %}d_internal_hash_table_size{% else %}d_hash_table_size{% endif %}) {
-			addr = 0;
+			addr -= {% if compact_hash_table %}d_internal_hash_table_size{% else %}d_hash_table_size{% endif %};
 		}
 		{% if compact_hash_table %}
 		element = d_q_i[addr];
