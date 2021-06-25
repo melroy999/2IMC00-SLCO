@@ -146,6 +146,8 @@ static const int NR_BLOCKS = {{nrblocks}};
 // Evict constant to determine number of allowed evictions for element insertion.
 #define EVICTFREQ 10
 {% endif %}
+// Linear probing parameter: number of probing attempts before the hash table is considered full.
+#define LINEARPROBINGFREQ 20
 #define NR_HASH_FUNCTIONS 32
 // Number of retries in local cache.
 #define CACHERETRYFREQ 40
@@ -2670,6 +2672,64 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 		}
 		{% endif %}
 	}
+	{% if vectorsize > 62 %}
+	// The node could not be stored with the hash functions. Try to do it with linear probing w.r.t. the last hash value.
+	#pragma unroll
+	for (uint8_t i = 0; i < LINEARPROBINGFREQ; i++) {
+		addr++;
+		{% if compact_hash_table %}
+		element = d_q_i[addr];
+		{% else %}
+		element = d_q[addr];
+		{% endif %}
+		if (element == EMPTY_NODE{% if not compact_hash_table %} || (filter_bookkeeping(node) == filter_bookkeeping(element) && is_root(node) && !is_root(element)){% endif %}) {
+			{% if not compact_hash_table %}
+			element = atomicCAS((unsigned long long *) &(d_q[addr]), (unsigned long long) element, (unsigned long long) node);
+			if (element == EMPTY_NODE || (filter_bookkeeping(node) == filter_bookkeeping(element) && !is_root(element))) {
+			{% else %}
+			element = atomicCAS((unsigned long long *) &(d_q_i[addr]), (unsigned long long) element, (unsigned long long) node);
+			if (element == EMPTY_NODE) {
+				// This write is performed to fix a problem that causes the program to hang (!)
+				(*d_dummy) = true;
+			{% endif %}
+				// Successfully stored the node.
+			{% if not compact_hash_table %}
+				if (is_root(node)) {
+					// Try to claim the vector for future work. For this, try to increment the OPENTILECOUNT counter.
+					// If the given node_index is EMPTY_CACHE_POINTER, the cache has been skipped, since it was considered full. In that case,
+					// we do not try to claim the vector, on the assumption that the full cache already provides sufficient new work.
+					if (node_index != EMPTY_CACHE_POINTER && claim_work && (shared_addr = atomicAdd((unsigned int*) &OPENTILECOUNT, 1)) < OPENTILELEN) {
+						// If there is still a next successor generation iteration, store a cache reference to the root in the work tile.
+						// Otherwise, store the root itself.
+						if (ITERATIONS < d_kernel_iters-1) {
+							shared[OPENTILEOFFSET+(2*shared_addr)+1] = node_index;
+						}
+						else {
+							shared[OPENTILEOFFSET+(2*shared_addr)] = get_left(node);
+							shared[OPENTILEOFFSET+(2*shared_addr)+1] = get_right(node);
+						}
+						// Mark the state as old in the hash table.
+						atomicCAS((unsigned long long *) &(d_q[addr]), (unsigned long long) node, (unsigned long long) mark_old(node));
+					}
+					else {
+						// There is work available for some block.
+						d_newstate_flags[(addr / BLOCK_SIZE) % GRID_SIZE] = 1;
+					}
+				}
+			{% endif %}
+				return addr;
+			}
+		}
+		if ({% if not compact_hash_table %}filter_bookkeeping({% endif %}element{% if not compact_hash_table %}){% endif %} == {% if not compact_hash_table %}filter_bookkeeping({% endif %}node{% if not compact_hash_table %}){% endif %}) {
+			{% if compact_hash_table %}
+			// This write is performed to fix a problem that causes the program to hang (!)
+			(*d_dummy) = true;
+			{% endif %}
+			// The node is already stored.
+			return addr;
+		}
+	}
+	{% endif %}
 	// Error: hash table considered full.
 	return HASHTABLE_FULL;
 }
@@ -2842,9 +2902,14 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 					}
 					else {
 						work_to_do = true;
-						CONTINUE = 1;
 					}
 				}
+			}
+		}
+		__syncthreads();
+		if (work_to_do) {
+			if (CONTINUE == 0) {
+				CONTINUE = 1;
 			}
 		}
 		__syncthreads();
