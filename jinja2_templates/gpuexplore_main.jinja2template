@@ -290,7 +290,7 @@ inline __device__ void PREPARE_CACHE() {
 }
 
 {% endif %}
-__global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, uint8_t *d_contBFS, uint8_t *d_property_violation, volatile uint8_t *d_newstate_flags, nodetype *d_worktiles, const uint8_t scan) {
+__global__ void __launch_bounds__({{nrthreadsperblock}}, 2) gather(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, uint8_t *d_contBFS, uint8_t *d_property_violation, volatile uint8_t *d_newstate_flags, nodetype *d_worktiles, const uint8_t scan) {
 	uint64_t i;
 	indextype l;
 	{% if vectorsize > 62 %}

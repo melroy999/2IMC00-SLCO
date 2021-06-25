@@ -369,7 +369,7 @@ inline __device__ bool cached_node_is_new_leaf(shared_inttype pointers) {
 // when storing non-leaf nodes in the global hash table, the original cache pointers are stored in the first half of the
 // node itself, to allow efficient follow-up iterations in the successor generation procedure. Reconstructing the node
 // by means of cache pointers (see PREPARE_CACHE()) is faster than having to reconstruct cache pointers.
-inline __device__ void set_cache_pointers_to_global_address(volatile shared_inttype *pointers, nodetype addr, bool is_leaf) {
+inline __device__ void set_cache_pointers_to_global_address(volatile shared_inttype *pointers, indextype addr, bool is_leaf) {
 	// The highest two bits in pointers are set to indicate that it now stores a global memory address.
 	if (is_leaf) {
 		*pointers = (addr & 0x3FFFFFFF) | 0x40000000;
@@ -2718,8 +2718,8 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 			for (shared_indextype i = THREAD_ID; (i*3)+2 < (d_shared_size - CACHEOFFSET) && CONTINUE < 2; i += BLOCK_SIZE) {
 				node_pointers = shared[CACHEOFFSET+(i*3)+2];
 				// Check if node is ready for storage. Only new leafs are ready at this point. We rely on old non-leafs having pointers with the highest
-				// two bits set to '00', new non-leafs having pointers with the highest two bits set to '10', empty entries having pointers set to 0,
-				// old leafs having pointers with the highest two bits set to '01', and new leafs having pointers set to 0x40000000.
+				// two bits set to '00', new non-leafs having pointers with the highest two bits set to '10', empty entries having pointers set to EMPTYVECT32,
+				// old leafs having pointers with the highest two bits set to '01', and new leafs having pointers set to CACHE_POINTERS_NEW_LEAF.
 				if (cached_node_is_new_leaf(node_pointers)) {
 					node = combine_halfs(shared[CACHEOFFSET+(i*3)], shared[CACHEOFFSET+(i*3)+1]);
 					// Store node in hash table.

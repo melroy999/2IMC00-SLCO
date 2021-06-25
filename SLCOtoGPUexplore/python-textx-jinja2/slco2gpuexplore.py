@@ -4061,6 +4061,7 @@ def preprocess():
 				nr_cache_elements = int(math.floor(nr_cache_elements / 3))
 			print("Nr. of elements in cache hash table: " + str(nr_cache_elements))
 
+
 	# Cuckoo hashing is disabled for non-compact state storage.
 	# NOTE: for vectors in size <= 62, Cuckoo hashing currently leads to a deadlock.
 	if (not compact_hash_table) or vectorsize <= 62:
@@ -4175,7 +4176,7 @@ def translate():
 	# create a Makefile
 	outFile = open(join(path,"Makefile"), 'w')
 	outFile.write('all:\n')
-	outFile.write('\tnvcc -arch=sm_75 -o gpuexplore gpuexplore.cu\n')
+	outFile.write('\tnvcc -arch=sm_75 -maxrregcount=64 -o gpuexplore gpuexplore.cu\n')
 	outFile.write('debug:\n')
 	outFile.write('\tnvcc -arch=sm_75 -g -G -Xcompiler -rdynamic -o gpuexplore gpuexplore.cu\n')
 	outFile.write('lineinfo:\n')
