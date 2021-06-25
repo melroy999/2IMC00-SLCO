@@ -2677,6 +2677,9 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 	#pragma unroll
 	for (uint8_t i = 0; i < LINEARPROBINGFREQ; i++) {
 		addr++;
+		if (addr >= {% if compact_hash_table %}d_internal_hash_table_size{% else %}d_hash_table_size{% endif %}) {
+			addr = 0;
+		}
 		{% if compact_hash_table %}
 		element = d_q_i[addr];
 		{% else %}
