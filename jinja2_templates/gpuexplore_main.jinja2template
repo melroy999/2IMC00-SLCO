@@ -373,7 +373,9 @@ __global__ void __launch_bounds__({{nrthreadsperblock}}, 2) gather(compressed_no
 						if (l < OPENTILELEN) {
 							d_q[loc] = mark_old(tmp);
 							{% if vectorsize > 62 %}
+							{% if compact_hash_table %}
 							tmp = get_uncompressed_node_root(tmp, loc);
+							{% endif %}
 							shared[OPENTILEOFFSET+(2*l)] = get_left(tmp);
 							shared[OPENTILEOFFSET+(2*l)+1] = get_right(tmp);
 							{% else %}
