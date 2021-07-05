@@ -538,8 +538,8 @@ int main(int argc, char** argv) {
 	fprintf (stdout, "Internal global mem hash table size: %lu; Number of entries: %lu\n", internal_hash_table_size*sizeof(nodetype), internal_hash_table_size);
 
 	// The size of the shared caches is set to a precomputed value.
-	shared_inttype shared_size = 11925+CACHEOFFSET;
-	fprintf (stdout, "Shared mem work tile size: 170\n");
+	shared_inttype shared_size = 12063+CACHEOFFSET;
+	fprintf (stdout, "Shared mem work tile size: 102\n");
 	fprintf (stdout, "Shared mem size: %u; Number of entries in the cache: %u\n", (uint32_t) (shared_size*sizeof(shared_inttype)), (uint32_t) (shared_size - CACHEOFFSET)/3);
 	fprintf (stdout, "Nr. of blocks: %d; Block size: 512; Nr. of kernel iterations: %d\n", nblocks, kernel_iters);
 

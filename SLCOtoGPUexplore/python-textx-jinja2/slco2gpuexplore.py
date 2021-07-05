@@ -174,7 +174,7 @@ def nr_bits_address_root():
 	global global_memsize, compact_hash_table, vectorsize
 	if not compact_hash_table:
 		if vectorsize > 62:
-			return 31
+			return 30
 		else:
 			if global_memsize <= 24:
 				if vectorsize <= 31:
@@ -192,7 +192,7 @@ def nr_bits_address_internal():
 	global global_memsize, compact_hash_table
 	if not compact_hash_table:
 		if vectorsize > 62:
-			return 31
+			return 30
 		else:
 			if global_memsize <= 24:
 				if vectorsize <= 31:
@@ -1202,72 +1202,36 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 					# output += "}\n" + indentspace(ic)
 					if refs != []:
 						output += "}\n" + indentspace(ic)
-						ic += 1
-						output += "if (part2 != part1) {\n" + indentspace(ic)
-			elif refs != []:
-				ic += 1
-				output += "if (part2 != part1) {\n" + indentspace(ic)
+#						ic += 1
+#						output += "if (part2 != part1) {\n" + indentspace(ic)
+#			elif refs != []:
+#				ic += 1
+#				output += "if (part2 != part1) {\n" + indentspace(ic)
 			if is_non_leaf(p) or refs != []:
-				output += "// This part has been altered. Store it and remember address of new part.\n" + indentspace(ic)
-				ic += 1
-				output += "if (mode == TO_CACHE) {\n" + indentspace(ic)
+				output += "bufaddr_" + str(pointer_cnt) + " = STORENODE(mode, d_q"
+				if compact_hash_table:
+					output += ", d_q_i, d_dummy"
+				if refs == []:
+					output += ", NULL"
+				else:
+					output += ", part1"
+				output += ", &part2"
 				if vectorsize > 62:
+					output += ", &part_cachepointers"
 					if p == 0:
-						output += "mark_root(&part2);\n" + indentspace(ic)
-					if is_non_leaf(p):
-						output += "mark_cached_node_new_nonleaf(&part_cachepointers);\n" + indentspace(ic)
-					else:
-						output += "part_cachepointers = CACHE_POINTERS_NEW_LEAF;\n" + indentspace(ic)
-					output += "bufaddr_" + str(pointer_cnt) + " = STOREINCACHE(part2, part_cachepointers"
-					if is_non_leaf(p):
-						output += ", false"
-					else:
 						output += ", true"
-					output += ");\n" + indentspace(ic)
-				else:
-					output += "part2 = mark_new(part2);\n" + indentspace(ic)
-					output += "bufaddr_" + str(pointer_cnt) + " = STOREINCACHE(part2);\n" + indentspace(ic)
-				ic += 1
-				output += "if (bufaddr_" + str(pointer_cnt) + " == CACHE_FULL) {\n" + indentspace(ic)
-				output += "// Construct the vector again, and store it directly in the global hash table.\n" + indentspace(ic)
-				output += "mode = TO_GLOBAL;\n" + indentspace(ic)
-				ic -= 1
-				output += "continue;\n" + indentspace(ic)
-				ic -= 1
-				output += "}\n" + indentspace(ic)
-				output += "}\n"  + indentspace(ic)
-				ic += 1
-				output += "else {\n" + indentspace(ic)
-				output += "// Store the node directly in the global hash table.\n" + indentspace(ic)
-				if vectorsize > 62:
-					#if p == 0 and not compact_hash_table:
-					#	output += "mark_root(&part2);\n" + indentspace(ic)
-					if compact_hash_table:
-						if p == 0:
-							output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)
-						else:
-							output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)
 					else:
-						output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, EMPTY_CACHE_POINTER, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)						
-				else:
-					output += "part2 = mark_new(part2);\n" + indentspace(ic)
-					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, EMPTY_CACHE_POINTER, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)						
-				ic += 1
-				output += "if (bufaddr_" + str(pointer_cnt) + " == HASHTABLE_FULL) {\n" + indentspace(ic)
-				output += "// Hash table is considered full. Report this back.\n" + indentspace(ic)
-				ic -= 1
-				output += "return HASH_TABLE_FULL;\n" + indentspace(ic)
-				ic -= 1
-				output += "}\n" + indentspace(ic)
-				ic -= 1
-				output += "}\n" + indentspace(ic)
-				output += "}\n"  + indentspace(ic)
-				ic += 1
-				if nav != []:
-					output += "else {\n" + indentspace(ic)
+						output += ", false"
+					if is_non_leaf(p):
+						output += ", true"
+					else:
+						output += ", false"
+				output += ", d_newstate_flags);\n" + indentspace(ic)
+				if refs == []:
 					ic -= 1
-					output += "bufaddr_" + str(pointer_cnt) + " = EMPTY_HASH_POINTER;\n" + indentspace(ic)
-					output += "}\n"  + indentspace(ic)
+				output += "if (bufaddr_" + str(pointer_cnt) + " == HASHTABLE_FULL) if (mode == TO_CACHE) {mode = TO_GLOBAL; continue;} else {return HASH_TABLE_FULL;}\n\n" + indentspace(ic)
+				if refs == []:
+					output += "}\n" + indentspace(ic)
 			if nav != [] and not is_non_leaf(nav[0][0]):
 				pointer_cnt += 1
 			output += cudastore_new_vectortree_nodes(nodes_done + [p], nav, pointer_cnt, W, s, o, D, ic)
@@ -1324,52 +1288,37 @@ def cudastore_new_vectortree_nodes(nodes_done, nav, pointer_cnt, W, s, o, D, ind
 				ic += 1
 				output += "if (mode == TO_CACHE) {\n" + indentspace(ic)
 				pointer_cnt -= 1
-				output += "// This part has been altered. Store it and remember address of new part.\n" + indentspace(ic)
 			if p == 0:
 				output += "mark_root(&part2);\n" + indentspace(ic)
+			ic -= 1
 			output += "mark_cached_node_new_nonleaf(&part_cachepointers);\n" + indentspace(ic)
-			output += "bufaddr_" + str(pointer_cnt) + " = STOREINCACHE(part2, part_cachepointers, false);\n" + indentspace(ic)
-			ic += 1
-			output += "if (bufaddr_" + str(pointer_cnt) + " == CACHE_FULL) {\n" + indentspace(ic)
-			output += "// Construct the vector again, and store it directly in the global hash table.\n" + indentspace(ic)
-			output += "mode = TO_GLOBAL;\n" + indentspace(ic)
-			ic -= 1
-			output += "continue;\n" + indentspace(ic)
-			ic -= 1
 			output += "}\n" + indentspace(ic)
-			output += "}\n" + indentspace(ic)
-			ic += 1
-			output += "else {\n" + indentspace(ic)
 			if not f:
+				ic += 1
+				output += "else {\n" + indentspace(ic)
+				ic -= 1
 				if nodes_done[len(nodes_done)-1] == children[0]:
 					output += "set_left_in_vectortree_node(&part2, bufaddr_" + str(pointer_cnt) + ");\n" + indentspace(ic)
 				else:
 					output += "set_right_in_vectortree_node(&part2, bufaddr_" + str(pointer_cnt) + ");\n" + indentspace(ic)
+				output += "}\n" + indentspace(ic)
 			#if p == 0 and not compact_hash_table:
 			#	output += "mark_root(&part2);\n" + indentspace(ic)
+			output += "bufaddr_" + str(pointer_cnt) + " = STORENODE(mode, d_q"
 			if compact_hash_table:
+				output += ", d_q_i, d_dummy"
+			output += ", NULL, &part2"
+			if vectorsize > 62:
+				output += ", &part_cachepointers"
 				if p == 0:
-					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, true, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)
+					output += ", true"
 				else:
-					output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, part2, d_newstate_flags, EMPTY_CACHE_POINTER, false, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)
-			else:
-				output += "bufaddr_" + str(pointer_cnt) + " = FINDORPUT_SINGLE(d_q, part2, d_newstate_flags, EMPTY_CACHE_POINTER, (ITERATIONS == d_kernel_iters-1));\n" + indentspace(ic)						
-			ic += 1
-			output += "if (bufaddr_" + str(pointer_cnt) + " == HASHTABLE_FULL) {\n" + indentspace(ic)
-			output += "// Hash table is considered full. Report this back.\n" + indentspace(ic)
+					output += ", false"
+				output += ", true"
+			output += ", d_newstate_flags);\n" + indentspace(ic)
 			ic -= 1
-			output += "return HASH_TABLE_FULL;\n" + indentspace(ic)
-			ic -= 1
+			output += "if (bufaddr_" + str(pointer_cnt) + " == HASHTABLE_FULL) if (mode == TO_CACHE) {mode = TO_GLOBAL; continue;} else {return HASH_TABLE_FULL;}\n\n" + indentspace(ic)
 			output += "}\n" + indentspace(ic)
-			ic -= 1
-			output += "}\n" + indentspace(ic)
-			output += "}\n" + indentspace(ic)
-			if nav != []:
-				ic += 1
-				output += "else {\n" + indentspace(ic)
-				ic -= 1
-				output += "bufaddr_" + str(pointer_cnt) + " = EMPTY_HASH_POINTER;\n" + indentspace(ic)
-				output += "}\n"  + indentspace(ic)
 			if nav != [] and not is_non_leaf(nav[0][0]):
 				pointer_cnt += 1
 			output += cudastore_new_vectortree_nodes(nodes_done + [p], nav, pointer_cnt, W, s, o, D, ic)
@@ -4223,7 +4172,7 @@ def main(args):
 					gpu_querying = False
 				elif args[i] == '-noregsort':
 					no_regsort = True
-				elif args[i] == '-nosmartfetch':
+				elif args[i] == '-nosmartfetching':
 					no_smart_fetching = True
 				elif args[i] == '-nocompacthashtable':
 					compact_hash_table = False

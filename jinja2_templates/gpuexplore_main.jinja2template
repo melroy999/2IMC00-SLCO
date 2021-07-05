@@ -417,7 +417,7 @@ __global__ void __launch_bounds__({{nrthreadsperblock}}, 2) gather(compressed_no
 			#pragma unroll
 			for (i = VECTOR_GROUP_ID; i < (OPENTILECOUNT-opentile_scan_start); i += NR_VECTOR_GROUPS_PER_BLOCK) {
 				l = FETCH(gtile, d_q{% if compact_hash_table %}, d_q_i{% endif %}, opentile_scan_start+i);
-				if (l == CACHE_FULL) {
+				if (l == HASHTABLE_FULL) {
 					// PLAN B?
 				}
 				else {

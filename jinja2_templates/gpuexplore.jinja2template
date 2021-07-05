@@ -137,9 +137,9 @@ static const int NR_BLOCKS = {{nrblocks}};
 // A cache never contains 2^16-1 or more elements, hence 2^16-1 is available for the constant.
 #define EMPTY_CACHE_POINTER			0x7FFF
 {% if nr_bits_address_root <= 32 %}
-#define EMPTY_HASH_POINTER 			0xFFFFFFFF
+#define EMPTY_HASH_POINTER 			0xFFFFFFFE
 {% else %}
-#define EMPTY_HASH_POINTER 			0xFFFFFFFFFFFFFFFF
+#define EMPTY_HASH_POINTER 			0xFFFFFFFFFFFFFFFE
 {% endif %}
 
 {% if compact_hash_table %}
@@ -190,12 +190,6 @@ const size_t Mb = 1<<20;
 #define HASHTABLE_FULL 				0xFFFFFFFF
 {% else %}
 #define HASHTABLE_FULL 				0xFFFFFFFFFFFFFFFF
-{% endif %}
-// Error value to indicate that a shared memory cache is full.
-{% if nr_bits_address_root <= 32 %}
-#define CACHE_FULL 				0xFFFFFFFF
-{% else %}
-#define CACHE_FULL 				0xFFFFFFFFFFFFFFFF
 {% endif %}
 
 // Shared memory local progress flags
@@ -624,7 +618,7 @@ inline __device__ indextype get_pointer_from_vectortree_node(nodetype node, bool
 	indextype result;
 	asm("{\n\t"
 		" .reg .u64 t1;\n\t"
-		" bfe.u64 t1, %1, %2, 31;\n\t"
+		" bfe.u64 t1, %1, %2, {{nr_bits_address_internal}};\n\t"
 		" cvt.u32.u64 %0, t1;\n\t"
 		"}" : "=r"(result) : "l"(node), "r"((1-(choice ? 1 : 0))*31));
 	return result;
@@ -850,7 +844,7 @@ inline __device__ indextype STOREINCACHE(nodetype node, shared_inttype cache_poi
 		}
 	}
 	// Storage of node not successful. We conclude that the cache is full.
-	return CACHE_FULL;
+	return HASHTABLE_FULL;
 }
 
 {% if not no_smart_fetching %}
@@ -2555,7 +2549,11 @@ inline __device__ {% if nr_bits_address_root < 32 %}indextype{% else %}uint64_t{
 		node = mark_new(node);
 	}
 	{% endif %}
+	{% if compact_hash_table %}
 	#pragma unroll
+	{% else %}
+	// pragma unroll here causes long compilation time!
+	{% endif %}
 	for (uint8_t i = 0; i < NR_HASH_FUNCTIONS; i++) {
 		{% if compact_hash_table and not with_cuckoo %}
 		if (is_root) {
@@ -2946,6 +2944,48 @@ __device__ void FINDORPUT_MANY(compressed_nodetype *d_q{% if compact_hash_table 
 	{% endif %}
 }
 
+// Function to store a node, either in the cache or the global hash table.
+inline __device__ indextype STORENODE(uint8_t mode, compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, nodetype part1, nodetype *part2{% if vectorsize > 62 %}, shared_inttype *part_cachepointers, bool is_root, bool is_non_leaf{% endif %}, volatile uint8_t *d_newstate_flags) {
+	if (part1 != *part2) {
+		if (mode == TO_CACHE) {
+			{% if vectorsize > 62 %}
+			if (is_root) {
+				mark_root(part2);
+			}
+			if (is_non_leaf) {
+				mark_cached_node_new_nonleaf(part_cachepointers);
+			}
+			else {
+				*part_cachepointers = CACHE_POINTERS_NEW_LEAF;
+			}
+			return STOREINCACHE(*part2, *part_cachepointers, !is_non_leaf);
+			{% else %}
+			*part2 = mark_new(*part2);
+			return STOREINCACHE(*part2);
+			{% endif %}
+		}
+		else {
+			// Store the node directly in the global hash table.
+			{% if vectorsize > 62 %}
+			{% if not compact_hash_table %}
+			if (is_root) {
+				mark_root(part2);
+			}
+			return FINDORPUT_SINGLE(d_q, *part2, d_newstate_flags, EMPTY_CACHE_POINTER, (ITERATIONS == d_kernel_iters-1));				
+			{% else %}
+			return FINDORPUT_SINGLE(d_q, d_q_i, d_dummy, *part2, d_newstate_flags, EMPTY_CACHE_POINTER, is_root, (ITERATIONS == d_kernel_iters-1));
+			{% endif %}
+			{% else %}
+			*part2 = mark_new(*part2);
+			return FINDORPUT_SINGLE(d_q, *part2, d_newstate_flags, EMPTY_CACHE_POINTER, (ITERATIONS == d_kernel_iters-1));
+			{% endif %}
+		}
+	}
+	else {
+		return EMPTY_HASH_POINTER;
+	}
+}
+
 // Kernel to store the initial state in the global memory hash table.
 __global__ void store_initial_state(compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i, bool *d_dummy{% endif %}, volatile uint8_t *d_newstate_flags, nodetype *d_worktiles) {
 	if (BLOCK_ID == 0) {
@@ -3096,7 +3136,7 @@ inline __device__ uint32_t get_part_bitmask_for_states_in_vectorpart(uint8_t pid
 
 // Retrieve a vectortree from the global hash table and store it in the cache. This is performed in a warp-centric way.
 // Address rootref points to the root of the requested vectortree.
-// The function returns the address of the root of the vectortree in the cache, or CACHE_FULL in the case the cache is full.
+// The function returns the address of the root of the vectortree in the cache, or HASHTABLE_FULL in the case the cache is full.
 inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup, compressed_nodetype *d_q{% if compact_hash_table %}, nodetype *d_q_i{% endif %}, indextype rootref) {
 	nodetype node = EMPTY_NODE;
 	nodetype leaf_node = EMPTY_NODE;
@@ -3152,8 +3192,8 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 			// when generating successors.
 			set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
 			result = STOREINCACHE(leaf_node, cache_pointers, true);
-			if (result == CACHE_FULL) {
-				return CACHE_FULL;
+			if (result == HASHTABLE_FULL) {
+				return HASHTABLE_FULL;
 			}
 			else {
 				cache_addr = result;
@@ -3164,8 +3204,8 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 				// when generating successors.
 				set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
 				result = STOREINCACHE(leaf_node, cache_pointers, true);
-				if (result == CACHE_FULL) {
-					return CACHE_FULL;
+				if (result == HASHTABLE_FULL) {
+					return HASHTABLE_FULL;
 				}
 				else {
 					cache_addr = result;
@@ -3198,8 +3238,8 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 		// when generating successors.
 		set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
 		result = STOREINCACHE(leaf_node, cache_pointers, true);
-		if (result == CACHE_FULL) {
-			return CACHE_FULL;
+		if (result == HASHTABLE_FULL) {
+			return HASHTABLE_FULL;
 		}
 		else {
 			cache_addr = result;
@@ -3210,8 +3250,8 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 			// when generating successors.
 			set_cache_pointers_to_global_address(&cache_pointers, node_addr, true);
 			result = STOREINCACHE(leaf_node, cache_pointers, true);
-			if (result == CACHE_FULL) {
-				return CACHE_FULL;
+			if (result == HASHTABLE_FULL) {
+				return HASHTABLE_FULL;
 			}
 			else {
 				cache_addr = result;
@@ -3306,8 +3346,8 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 		{% if not no_smart_fetching %}
 		if ((smart_fetching_bitmask & get_part_reachability(gid, {{i}})) != 0x0) {
 			result = STOREINCACHE(node, cache_pointers, false);
-			if (result == CACHE_FULL) {
-				return CACHE_FULL;
+			if (result == HASHTABLE_FULL) {
+				return HASHTABLE_FULL;
 			}
 			else {
 				cache_addr = result;
@@ -3315,8 +3355,8 @@ inline __device__ indextype FETCH(thread_block_tile<VECTOR_GROUP_SIZE> treegroup
 		}
 		{% else %}
 		result = STOREINCACHE(node, cache_pointers, false);
-		if (result == CACHE_FULL) {
-			return CACHE_FULL;
+		if (result == HASHTABLE_FULL) {
+			return HASHTABLE_FULL;
 		}
 		else {
 			cache_addr = result;
