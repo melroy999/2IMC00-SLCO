@@ -408,6 +408,7 @@ __global__ void __launch_bounds__({{nrthreadsperblock}}, 2) gather(compressed_no
                 d_newstate_flags[BLOCK_ID] = 1;
 			}
 		}
+		__syncthreads();
 		{% if vectorsize > 62 %}
 		if (OPENTILECOUNT > opentile_scan_start) {
 			// Fill the cache with the newly added vector trees referred to in the work tile.
