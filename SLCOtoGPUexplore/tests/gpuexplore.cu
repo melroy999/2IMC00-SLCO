@@ -337,6 +337,7 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodet
                 d_newstate_flags[BLOCK_ID] = 1;
 			}
 		}
+		__syncthreads();
 		if (OPENTILECOUNT > opentile_scan_start) {
 			// Fill the cache with the newly added vector trees referred to in the work tile.
 			// Create a cooperative group within a warp in which the thread resides.
@@ -345,7 +346,7 @@ __global__ void __launch_bounds__(512, 2) gather(compressed_nodetype *d_q, nodet
 			#pragma unroll
 			for (i = VECTOR_GROUP_ID; i < (OPENTILECOUNT-opentile_scan_start); i += NR_VECTOR_GROUPS_PER_BLOCK) {
 				l = FETCH(gtile, d_q, d_q_i, opentile_scan_start+i);
-				if (l == CACHE_FULL) {
+				if (l == HASHTABLE_FULL) {
 					// PLAN B?
 				}
 				else {
@@ -538,8 +539,8 @@ int main(int argc, char** argv) {
 	fprintf (stdout, "Internal global mem hash table size: %lu; Number of entries: %lu\n", internal_hash_table_size*sizeof(nodetype), internal_hash_table_size);
 
 	// The size of the shared caches is set to a precomputed value.
-	shared_inttype shared_size = 12063+CACHEOFFSET;
-	fprintf (stdout, "Shared mem work tile size: 102\n");
+	shared_inttype shared_size = 11925+CACHEOFFSET;
+	fprintf (stdout, "Shared mem work tile size: 170\n");
 	fprintf (stdout, "Shared mem size: %u; Number of entries in the cache: %u\n", (uint32_t) (shared_size*sizeof(shared_inttype)), (uint32_t) (shared_size - CACHEOFFSET)/3);
 	fprintf (stdout, "Nr. of blocks: %d; Block size: 512; Nr. of kernel iterations: %d\n", nblocks, kernel_iters);
 
@@ -623,7 +624,7 @@ int main(int argc, char** argv) {
 				states.reserve(counted_states);
 				// Scan the hash table for states.
 				cudaMemcpy(q_test, d_q, hash_table_size * sizeof(compressed_nodetype), cudaMemcpyDeviceToHost);
-				for (indextype i = 0; i < hash_table_size; i++) {
+				for (uint64_t i = 0; i < hash_table_size; i++) {
 					if (is_new(q_test[i])) {
 						states.push_back(get_systemstate(q_test, i, q_i_test));
 					}

@@ -556,6 +556,8 @@ int main(int argc, char** argv) {
 		"                      2 - print number of states in the global hash table after each kernel launch.\n"
 		"                      3 - print global hash table content after each kernel launch.\n"
 		"                      4 - print global hash table content, with pointer info, after each kernel launch.\n"
+		"                      5 - print sorted list of states in the global hash table after each kernel launch.\n"
+		"                      6 - print sorted list of states in the global hash table after state space generation.\n"
 		"  -h, --help, -?   Show this help message.\n";
 
 	int i = 1;
@@ -752,7 +754,7 @@ int main(int argc, char** argv) {
 				print_content_hash_table(stdout, q_test{% if compact_hash_table %}, q_i_test{% endif %}, hash_table_size{% if compact_hash_table %}, internal_hash_table_size{% endif %}{% if vectorsize > 62 %}, true{% endif %});
 			}
 			else if (verbosity == 5) {
-				// Produce a sorted list of states at the end of the state space generation.
+				// Produce a sorted list of states after each state space generation round.
 				// First count the number of states.
 				CUDA_CHECK_RETURN(cudaMemset(d_counted_states, 0, sizeof(uint64_t)));
 				CUDA_CHECK_RETURN(cudaMemset(d_new_counted_states, 0, sizeof(uint64_t)));
@@ -765,7 +767,7 @@ int main(int argc, char** argv) {
 				states.reserve(counted_states);
 				// Scan the hash table for states.
 				cudaMemcpy(q_test, d_q, hash_table_size * sizeof(compressed_nodetype), cudaMemcpyDeviceToHost);
-				for (indextype i = 0; i < hash_table_size; i++) {
+				for ({% if compact_hash_table %}uint64_t{% else %}indextype{% endif %} i = 0; i < hash_table_size; i++) {
 				{% if vectorsize > 62 and not compact_hash_table %}
 					if (is_root(q_test[i]) && is_new(q_test[i])) {
 				{% else %}
