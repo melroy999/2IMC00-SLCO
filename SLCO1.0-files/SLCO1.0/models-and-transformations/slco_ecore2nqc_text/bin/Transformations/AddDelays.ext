@@ -1,0 +1,45 @@
+import slco;
+import delays;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension Libraries::Equality;
+extension Libraries::CreationSLCO;
+extension Libraries::ModifyModel;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// These functions add a Deadline to the Transitions provided as input.
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+slco::Model modifyModelDelays(
+   slco::Model model, delays::TransitionList transitions
+) :
+   transitions.transitions.addDelay(model)
+-> model.setName(
+      model.name + "_time"
+   )
+-> model
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addDelay(delays::Transition transition, slco::Model model) :
+   model.classes.stateMachines.transitions.selectFirst(
+      t
+   |
+      t.transitionEqualsTransition(transition.transition)
+   ).addDelay(transition.delay)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addDelay(slco::Transition transition, Integer delay) :
+   transition.setStatements(
+      {createDelay(delay)}.addAll(
+         transition.statements
+      ).toList()
+   )
+;

@@ -1,0 +1,236 @@
+model dve_anderson_8 {
+classes
+	GlobalClass {
+		variables
+			Byte[7] Slot := [1,0,0,0,0,0,0]
+			Byte next := 0
+		state machines
+			P_0 {
+				variables
+					Byte myplace
+				initial NCS
+				states  p1 p2 p3 CS
+				transitions
+					from NCS to p1 {
+						[myplace := next;next := next+1]
+					}
+
+					from p1 to p2 {
+						[myplace = 7-1; next := next-7]
+					}
+
+					from p1 to p2 {
+						[myplace <> 7-1; myplace := myplace%7]
+					}
+
+					from p2 to p3 {
+						Slot[myplace] = 1
+					}
+
+					from p3 to CS {
+						[Slot[myplace] := 0]
+					}
+
+					from CS to NCS {
+						[Slot[(myplace+1)%7] := 1]
+					}
+
+				}
+	
+			P_1 {
+				variables
+					Byte myplace
+				initial NCS
+				states  p1 p2 p3 CS
+				transitions
+					from NCS to p1 {
+						[myplace := next;next := next+1]
+					}
+
+					from p1 to p2 {
+						[myplace = 7-1; next := next-7]
+					}
+
+					from p1 to p2 {
+						[myplace <> 7-1; myplace := myplace%7]
+					}
+
+					from p2 to p3 {
+						Slot[myplace] = 1
+					}
+
+					from p3 to CS {
+						[Slot[myplace] := 0]
+					}
+
+					from CS to NCS {
+						[Slot[(myplace+1)%7] := 1]
+					}
+
+				}
+	
+			P_2 {
+				variables
+					Byte myplace
+				initial NCS
+				states  p1 p2 p3 CS
+				transitions
+					from NCS to p1 {
+						[myplace := next;next := next+1]
+					}
+
+					from p1 to p2 {
+						[myplace = 7-1; next := next-7]
+					}
+
+					from p1 to p2 {
+						[myplace <> 7-1; myplace := myplace%7]
+					}
+
+					from p2 to p3 {
+						Slot[myplace] = 1
+					}
+
+					from p3 to CS {
+						[Slot[myplace] := 0]
+					}
+
+					from CS to NCS {
+						[Slot[(myplace+1)%7] := 1]
+					}
+
+				}
+	
+			P_3 {
+				variables
+					Byte myplace
+				initial NCS
+				states  p1 p2 p3 CS
+				transitions
+					from NCS to p1 {
+						[myplace := next;next := next+1]
+					}
+
+					from p1 to p2 {
+						[myplace = 7-1; next := next-7]
+					}
+
+					from p1 to p2 {
+						[myplace <> 7-1; myplace := myplace%7]
+					}
+
+					from p2 to p3 {
+						Slot[myplace] = 1
+					}
+
+					from p3 to CS {
+						[Slot[myplace] := 0]
+					}
+
+					from CS to NCS {
+						[Slot[(myplace+1)%7] := 1]
+					}
+
+				}
+	
+			P_4 {
+				variables
+					Byte myplace
+				initial NCS
+				states  p1 p2 p3 CS
+				transitions
+					from NCS to p1 {
+						[myplace := next;next := next+1]
+					}
+
+					from p1 to p2 {
+						[myplace = 7-1; next := next-7]
+					}
+
+					from p1 to p2 {
+						[myplace <> 7-1; myplace := myplace%7]
+					}
+
+					from p2 to p3 {
+						Slot[myplace] = 1
+					}
+
+					from p3 to CS {
+						[Slot[myplace] := 0]
+					}
+
+					from CS to NCS {
+						[Slot[(myplace+1)%7] := 1]
+					}
+
+				}
+	
+			P_5 {
+				variables
+					Byte myplace
+				initial NCS
+				states  p1 p2 p3 CS
+				transitions
+					from NCS to p1 {
+						[myplace := next;next := next+1]
+					}
+
+					from p1 to p2 {
+						[myplace = 7-1; next := next-7]
+					}
+
+					from p1 to p2 {
+						[myplace <> 7-1; myplace := myplace%7]
+					}
+
+					from p2 to p3 {
+						Slot[myplace] = 1
+					}
+
+					from p3 to CS {
+						[Slot[myplace] := 0]
+					}
+
+					from CS to NCS {
+						[Slot[(myplace+1)%7] := 1]
+					}
+
+				}
+	
+			P_6 {
+				variables
+					Byte myplace
+				initial NCS
+				states  p1 p2 p3 CS
+				transitions
+					from NCS to p1 {
+						[myplace := next;next := next+1]
+					}
+
+					from p1 to p2 {
+						[myplace = 7-1; next := next-7]
+					}
+
+					from p1 to p2 {
+						[myplace <> 7-1; myplace := myplace%7]
+					}
+
+					from p2 to p3 {
+						Slot[myplace] = 1
+					}
+
+					from p3 to CS {
+						[Slot[myplace] := 0]
+					}
+
+					from CS to NCS {
+						[Slot[(myplace+1)%7] := 1]
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

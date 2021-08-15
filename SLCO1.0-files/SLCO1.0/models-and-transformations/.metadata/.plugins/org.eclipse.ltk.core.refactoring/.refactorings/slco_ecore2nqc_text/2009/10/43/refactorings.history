@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 1 elements(s) to &apos;slco2nqcv2.oaw&apos;&#x0D;&#x0A;- Original project: &apos;slco2nqcv2&apos;&#x0D;&#x0A;- Destination element: &apos;slco2nqcv2.oaw&apos;&#x0D;&#x0A;- Original element: &apos;slco2nqcv2.oaw&apos;" description="Copy file" element1="src/slco2nqcv2.oaw" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1255955247958" target="/slco2nqcv2/src/slco2nqcv2.oaw" units="0" version="1.0"/>
+</session>

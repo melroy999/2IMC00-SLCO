@@ -1,0 +1,24 @@
+
+digraph Sync2Async2_as {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_a{
+    label = "a: A";
+    node [shape = box];
+    a_In[label = In]
+    a_Out[label = Out]
+  }
+
+  subgraph cluster_b{
+    label = "b: B";
+    node [shape = box];
+    b_In[label = In]
+    b_Out[label = Out]
+  }
+
+  
+ a_Out -> b_In [label = "CA()", dir = both, style=dashed];
+
+ b_Out -> a_In [label = "CB()", dir = both, style=dashed];
+
+}

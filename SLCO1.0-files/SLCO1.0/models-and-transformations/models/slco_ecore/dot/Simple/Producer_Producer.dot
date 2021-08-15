@@ -1,0 +1,11 @@
+digraph Producer {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] State_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] State State_extra -> State
+
+
+
+
+State -> State [label = "send Bericht() to C"];
+
+}

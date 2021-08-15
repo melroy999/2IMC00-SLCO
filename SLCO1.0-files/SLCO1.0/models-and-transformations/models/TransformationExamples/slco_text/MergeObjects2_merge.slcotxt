@@ -1,0 +1,71 @@
+model MergeObjects2_merge {
+  classes
+    a_b {
+      variables
+        Integer C_abl = 0
+        String C_name
+
+      state machines
+        a_A {
+          variables
+            Boolean v
+
+          initial
+            Initial
+
+          state
+            Initial_s_S_abl_InitialToFinalSend
+
+          final
+            Final
+
+          transitions
+            InitialToFinalSend from Initial to Initial_s_S_abl_InitialToFinalSend {
+              v := true;
+              C_name := "S";
+              C_abl := 1
+            }
+
+            InitialToFinalSkip from Initial to Final {
+
+            }
+
+            Initial_s_S_abl_InitialToFinalSend_to_Final from Initial_s_S_abl_InitialToFinalSend to Final {
+              (C_abl == 2);
+              C_abl := 3;
+              (C_abl == 0)
+            }
+        }
+
+        b_B {
+          initial
+            Initial
+
+          state
+            Initial_r_S_rbl_InitialToFinal
+
+          final
+            Final
+
+          transitions
+            Initial_to_Initial_r_S_rbl_InitialToFinal from Initial to Initial_r_S_rbl_InitialToFinal {
+              ((C_abl == 1) && (C_name == "S"));
+              C_abl := 2
+            }
+
+            Initial_r_S_rbl_InitialToFinal_to_Final from Initial_r_S_rbl_InitialToFinal to Final {
+              (C_abl == 3);
+              C_abl := 0
+            }
+
+            Initial_r_S_rbl_InitialToFinal_to_Initial from Initial_r_S_rbl_InitialToFinal to Initial {
+              (C_abl == 0)
+            }
+        }
+    }
+
+  objects
+    a_b: a_b
+
+  channels
+}

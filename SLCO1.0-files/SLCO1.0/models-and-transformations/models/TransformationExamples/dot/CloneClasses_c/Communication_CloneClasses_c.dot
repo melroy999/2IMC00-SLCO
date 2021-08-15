@@ -1,0 +1,36 @@
+
+digraph CloneClasses {
+  graph [rankdir = "LR"];
+
+  subgraph cluster_c{
+    label = "c: C";
+    node [shape = box];
+    c_In[label = In]
+  }
+    
+  subgraph cluster_a1{
+    label = "a1: A_c";
+    node [shape = box];
+    a1_Out[label = Out]
+  }
+
+  subgraph cluster_a2{
+    label = "a2: A";
+    node [shape = box];
+    a2_Out[label = Out]
+  }
+
+  subgraph cluster_b{
+    label = "b: B_c";
+    node [shape = box];
+    b_In[label = In]
+  }
+
+
+
+a2_Out -> c_In [label = "c2()"];
+
+ a1_Out -> b_In [label = "c1()"];
+
+
+}

@@ -1,0 +1,138 @@
+«IMPORT promela»
+
+«DEFINE generateSpec FOR spec»«FILE this.name»«IF this.utypes.size > 0»«EXPAND generateUtype FOREACH this.utypes»
+
+«ENDIF»«IF this.mtypes.size > 0»«EXPAND generateMtypes FOR this.mtypes»
+
+«ENDIF»«IF this.one_decls.size > 0»«EXPAND generateOne_decl FOREACH this.one_decls SEPARATOR "; 
+"»
+
+«ENDIF»«IF this.proctypes.size > 0»«EXPAND generateProcType FOREACH this.proctypes SEPARATOR "
+
+"»
+«ENDIF»
+«IF this.inits.size > 0»«EXPAND generateInit FOREACH this.inits SEPARATOR "
+"»
+«ENDIF»
+«IF this.nevers.size > 0»«EXPAND generateNever FOREACH this.nevers SEPARATOR "
+"»
+«ENDIF»
+«IF this.traces.size > 0»«EXPAND generateTrace FOREACH this.traces SEPARATOR "
+"»
+«ENDIF»
+«ENDFILE»«ENDDEFINE»
+
+«DEFINE generateUtype FOR utype»typedef «this.name» { «EXPAND generateOne_decl FOREACH this.one_decls SEPARATOR "; "» }«ENDDEFINE»
+
+«DEFINE generateMtypes FOR List[mtype]»«IF this.size > 0»mtype {«EXPAND generateMtype FOREACH this SEPARATOR ", "»}«ENDIF»«ENDDEFINE»
+«DEFINE generateMtype FOR mtype»«this.name»«ENDDEFINE»
+
+«DEFINE generateOne_decl FOR one_decl»«EXPAND generateTypename FOR this.typename»«EXPAND generateIvars FOR this.ivars»«ENDDEFINE»
+
+«DEFINE generateTypename FOR typename»generateTypename: no rule for «this.toString()»«ENDDEFINE»
+«DEFINE generateTypename FOR primitivetype»«EXPAND generatePrimitivetypeenum FOR this.primitivetype»«ENDDEFINE»
+«DEFINE generatePrimitivetypeenum FOR primitivetypeenum»«this.toString().toLowerCase()» «ENDDEFINE»
+«DEFINE generateTypename FOR uname»«this.name»«ENDDEFINE»
+
+«DEFINE generateIvars FOR List[ivar]»«EXPAND generateIvar FOREACH this»«ENDDEFINE»
+«DEFINE generateIvar FOR ivar»«this.name»«IF this.any_expr_or_ch_init != null» = «EXPAND generateAny_expr_or_ch_init FOR this.any_expr_or_ch_init»«ENDIF»«ENDDEFINE»
+
+«DEFINE generateAny_expr_or_ch_init FOR any_expr_or_ch_init»generateAny_expr_or_ch_init: no rule for «this.toString()»«ENDDEFINE»
+«DEFINE generateAny_expr_or_ch_init FOR ch_init»[«this.constant.toString()»] of { «EXPAND generateTypename FOREACH this.typenames SEPARATOR ", "» }«ENDDEFINE»
+«DEFINE generateAny_expr_or_ch_init FOR num_const»«EXPAND generateConstant FOR this»«ENDDEFINE»
+«DEFINE generateAny_expr_or_ch_init FOR enum_const»«EXPAND generateConstant FOR this»«ENDDEFINE»
+
+«DEFINE generateConstant FOR constant»generateConstant: no rule for «this.toString()»«ENDDEFINE»
+«DEFINE generateConstant FOR num_const»«this.number.toString()»«ENDDEFINE»
+«DEFINE generateConstant FOR enum_const»«EXPAND generateConst_enum FOR this.const_enum»«ENDDEFINE»
+«DEFINE generateConst_enum FOR constenum»«this.toString().toLowerCase()»«ENDDEFINE»
+«DEFINE generateConstant FOR mtype_const»«this.mtype.name»«ENDDEFINE»
+
+«DEFINE generateProcType FOR proctype»«IF this.active > 0»active [«this.active»] «ENDIF»proctype «this.name»(«IF this.one_decls.size > 0»«EXPAND generateOne_decl FOREACH this.one_decls SEPARATOR "; "»«ENDIF») {«IF this.priority > 0»priority «this.priority.toString()»«ENDIF»
+«IF this.enabler != null»provided «EXPAND generateExpr FOR this.enabler»
+«ENDIF»
+«EXPAND generateStep FOREACH this.sequence SEPARATOR "
+"»
+}«ENDDEFINE»
+
+
+«DEFINE generateInit FOR init»init «IF this.priority > 0»priority «this.priority.toString()» «ENDIF»{ «EXPAND generateStep FOREACH this.sequence SEPARATOR ";
+"» }«ENDDEFINE»
+
+«DEFINE generateNever FOR never»never { «EXPAND generateStep FOREACH this.sequence SEPARATOR ";
+"» }«ENDDEFINE»
+
+«DEFINE generateTrace FOR trace»trace { «EXPAND generateStep FOREACH this.sequence SEPARATOR ";
+"» }«ENDDEFINE»
+
+«DEFINE generateStep FOR step»generateStep: no rule for «this.toString()»«ENDDEFINE»
+«DEFINE generateStep FOR stmnt»«EXPAND generateStmnt FOR this»;«ENDDEFINE»
+«DEFINE generateStep FOR one_decl»«EXPAND generateOne_decl FOR this»;«ENDDEFINE»
+
+«DEFINE generateStmnt FOR stmnt»generateStmnt: no rule for «this.toString()»«ENDDEFINE»
+«DEFINE generateStmnt FOR if_stmnt»«IF this.label != null»«this.label»: «ENDIF»
+ if
+ «EXPAND generateOptions FOR this.options»
+ fi«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR do_stmnt»«IF this.label != null»«this.label»: «ENDIF»
+ do
+ «EXPAND generateOptions FOR this.options»
+ od«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR atomic_stmnt»«IF this.label != null»«this.label»: «ENDIF»atomic{«EXPAND generateStep FOREACH this.sequence»}«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR d_step_stmnt»«IF this.label != null»«this.label»: «ENDIF»d_step{«EXPAND generateStep FOREACH this.sequence»}«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR block_stmnt»«IF this.label != null»«this.label»: «ENDIF»{«EXPAND generateStep FOREACH this.sequence SEPARATOR "
+"»«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»
+}«ENDDEFINE»
+«DEFINE generateStmnt FOR else_stmnt»«IF this.label != null»«this.label»: «ENDIF»else«ENDDEFINE»
+«DEFINE generateStmnt FOR break_stmnt»«IF this.label != null»«this.label»: «ENDIF»break«ENDDEFINE»
+«DEFINE generateStmnt FOR goto_stmnt»«IF this.label != null»«this.label»: «ENDIF»goto «this.stmnt.label»«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR send»«IF this.label != null»«this.label»: «ENDIF»«EXPAND generateVarref FOR this.varref»«IF this.sendtype == sendtypeenum::normal_fifo»!«ELSEIF sendtype == sendtypeenum::sorted»!!«ELSE»Something is wrong here, wrong sendtype: «this.sendtype.toString()»«ENDIF»«EXPAND generateAny_expr FOREACH this.send_args SEPARATOR ","»«ENDDEFINE» 
+«DEFINE generateStmnt FOR receive»«IF this.label != null»«this.label»: «ENDIF»«EXPAND generateVarref FOR this.varref»«IF this.receivetype == receivetypeenum::normal»?«ELSEIF this.receivetype == receivetypeenum::random»??«ELSEIF this.receivetype == receivetypeenum::normal_poll_side_effect»?<«ELSEIF this.receivetype == receivetypeenum::random_poll_side_effect»??<«ELSE»Something is wrong here, wrong receveivetype: «this.receivetype.toString()»«ENDIF»«EXPAND generateRecv_arg FOREACH this.recv_args SEPARATOR ","»«IF this.receivetype == receivetypeenum::normal_poll_side_effect || this.receivetype == receivetypeenum::random_poll_side_effect»>«ENDIF»«ENDDEFINE» 
+«DEFINE generateStmnt FOR assign»generateStmnt (assign): no rule for «this.toString()»«ENDDEFINE»
+«DEFINE generateStmnt FOR assign_std»«IF this.label != null»«this.label»: «ENDIF»«EXPAND generateVarref FOR this.varref» = «EXPAND generateAny_expr FOR this.any_expr»«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR assign_inc»«IF this.label != null»«this.label»: «ENDIF»«EXPAND generateVarref FOR this.varref»++«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR assign_dec»«IF this.label != null»«this.label»: «ENDIF»«EXPAND generateVarref FOR this.varref»--«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR print_stmnt»«IF this.label != null»«this.label»: «ENDIF»printf(«this.string»)«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«REM»TODO: add transformation of arg_lst«ENDREM»
+«DEFINE generateStmnt FOR assert_stmnt»«IF this.label != null»«this.label»: «ENDIF»assert «EXPAND generateExpr FOR this.expr»«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR c_code»«IF this.label != null»«this.label»: «ENDIF»c_code{ «this.embedded_c_code» }«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR c_expr»«IF this.label != null»«this.label»: «ENDIF»c_expr{ «this.embedded_c_code» }«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR c_decl»«IF this.label != null»«this.label»: «ENDIF»c_decl{ «this.embedded_c_code» }«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR c_track»«IF this.label != null»«this.label»: «ENDIF»c_track{ «this.embedded_c_code» }«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR c_state»«IF this.label != null»«this.label»: «ENDIF»c_state{ «this.embedded_c_code» }«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+«DEFINE generateStmnt FOR expr»«IF this.label != null»«this.label»: «ENDIF»«EXPAND generateExpr FOR this»«IF this.unless != null» unless «EXPAND generateStmnt FOR this.unless»«ENDIF»«ENDDEFINE»
+
+«DEFINE generateOptions FOR options»::«EXPAND generateStep FOREACH this.sequence SEPARATOR "
+::"»«ENDDEFINE»
+
+«DEFINE generateExpr FOR expr»generateExpr: no rule for «this.toString()»«ENDDEFINE»
+«DEFINE generateExpr FOR andor_expr»«EXPAND generateExpr FOR this.operand1»«EXPAND generateAndor FOR this.operator»«EXPAND generateExpr FOR this.operand2»«ENDDEFINE»
+«DEFINE generateAndor FOR andor»«IF this == andor::AND»&&«ELSEIF this == andor::OR»||«ENDIF»«ENDDEFINE»
+«DEFINE generateExpr FOR chanpoll_expr»«EXPAND generateChanpoll FOR this.chan_poll» «EXPAND generateVarref FOR this.varref»«ENDDEFINE»
+«DEFINE generateChanpoll FOR chanpoll»«this.toString().toLowerCase()»«ENDDEFINE»
+«DEFINE generateExpr FOR any_expr»«EXPAND generateAny_expr FOR this»«ENDDEFINE»
+«DEFINE generateAny_expr FOR any_expr»generateAny_expr: no rule for «this.toString()»«ENDDEFINE»
+«DEFINE generateAny_expr FOR bin_expr»«EXPAND generateAny_expr FOR this.operand1» «EXPAND generateBinarop FOR this.operator» «EXPAND generateAny_expr FOR this.operand2»«ENDDEFINE»
+«DEFINE generateAny_expr FOR un_expr»«EXPAND generateUnarop FOR this.operator» «EXPAND generateAny_expr FOR this.operand»«ENDDEFINE»
+«DEFINE generateAny_expr FOR cond_expr»( «EXPAND generateAny_expr FOR this.expr1» -> «EXPAND generateAny_expr FOR this.expr2» : «EXPAND generateAny_expr FOR this.expr3» )«ENDDEFINE»
+«DEFINE generateAny_expr FOR len_expr»len( «EXPAND generateVarref FOR this.varref» )«ENDDEFINE»
+«DEFINE generateAny_expr FOR poll»«EXPAND generateVarref FOR this.varref»«IF this.polltype == polltypeenum::normal_poll_no_side_effect»?«ELSEIF this.polltype == polltypeenum::random_poll_no_side_effect»??«ELSE»Something is wrong here, wrong polltype: «this.polltype.toString()»[«ENDIF»«EXPAND generateRecv_arg FOREACH this.recv_args SEPARATOR ","»]«ENDDEFINE»
+«DEFINE generateAny_expr FOR varref»«EXPAND generateVarref FOR this»«ENDDEFINE»
+«DEFINE generateAny_expr FOR constant»«EXPAND generateConstant FOR this»«ENDDEFINE»
+«DEFINE generateAny_expr FOR timeout_expr»timeout«ENDDEFINE»
+«DEFINE generateAny_expr FOR np__expr»np_«ENDDEFINE»
+«DEFINE generateAny_expr FOR enabled_expr»enabled( «EXPAND generateAny_expr FOR this.any_expr» )«ENDDEFINE»
+«DEFINE generateAny_expr FOR pc_value_expr»pc_value( «EXPAND generateAny_expr FOR this.any_expr» )«ENDDEFINE»
+«DEFINE generateAny_expr FOR name_expr»«this.name» [ «EXPAND generateAny_expr FOR this.any_expr» ] @ «this.at_name»«ENDDEFINE»
+«DEFINE generateAny_expr FOR run_expr»run «this.proc.name» ( «IF this.arg_lst.size > 0»«EXPAND generateAny_expr FOREACH this.arg_lst SEPARATOR ","»«ENDIF» ) «IF this.priority > 0»priority «this.priority.toString()»«ENDIF»«ENDDEFINE»
+
+«DEFINE generateBinarop FOR binarop»«IF this == binarop::PLUS»+«ELSEIF this == binarop::MINUS»-«ELSEIF this == binarop::TIMES»*«ELSEIF this == binarop::DIV»/«ELSEIF this == binarop::MOD»%«ELSEIF this == binarop::AMPERSAND»&«ELSEIF this == binarop::CARET»^«ELSEIF this == binarop::BAR»|«ELSEIF this == binarop::GREATER»>«ELSEIF this == binarop::SMALLER»<«ELSEIF this == binarop::GEQ»>=«ELSEIF this == binarop::LEQ»<=«ELSEIF this == binarop::EQUALS»==«ELSEIF this == binarop::DIFFERS»!=«ELSEIF this == binarop::SHIFT_RIGHT»<<«ELSEIF this == binarop::SHIFT_LEFT»>>«ELSEIF this == binarop::AND»&&«ELSEIF this == binarop::OR»||«ENDIF»«ENDDEFINE»
+«DEFINE generateUnarop FOR unarop»«IF this == unarop::NOT»~«ELSEIF this == unarop::NEG»-«ELSEIF this == unarop::NOT1»!«ENDIF»«ENDDEFINE»
+
+«DEFINE generateVarref FOR varref»«this.var_name»«IF this.any_expr != null» «EXPAND generateAny_expr FOR this.any_expr»«ENDIF»«IF this.varref != null».«EXPAND generateVarref FOR this.varref»«ENDIF»«ENDDEFINE»
+
+«DEFINE generateRecv_arg FOR recv_arg»generateRecv_arg: no rule for «this.toString()»«ENDDEFINE»
+«DEFINE generateRecv_arg FOR recv_arg_varref»«EXPAND generateVarref FOR this.varref»«ENDDEFINE»
+«DEFINE generateRecv_arg FOR recv_arg_eval_expr»eval( «EXPAND generateAny_expr FOR this.expr» )«ENDDEFINE»
+«DEFINE generateRecv_arg FOR num_const»«EXPAND generateConstant FOR this»«ENDDEFINE»
+«DEFINE generateRecv_arg FOR mtype_const»«EXPAND generateConstant FOR this»«ENDDEFINE»

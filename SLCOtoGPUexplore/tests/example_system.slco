@@ -1,0 +1,23 @@
+model Test {
+  actions a
+  classes
+  P {
+    variables
+			Integer[7] x
+
+    state machines
+    REC1 {
+      
+      initial R0 states R1
+
+      transitions
+      R0 -> R1 {
+        x[6] := 3
+      }
+      R1 -> R0 {
+        x[6] := 5
+      }
+    }
+  }
+  objects p: P()
+}

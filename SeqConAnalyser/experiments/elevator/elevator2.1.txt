@@ -1,0 +1,74 @@
+int req[4] = {0,0,0,0};
+int t = 0;
+int p = 0;
+int v = 0;
+
+proctype cabin {
+int tmp;
+int tmp1;
+do
+:: true ->
+	if
+	:: load(v,1) -> skip;
+	fi;
+	do
+	:: true ->
+		tmp = loadval(t);
+		tmp1 = loadval(p);
+		if
+		:: tmp < tmp1 ->
+			store(p,tmp1-1);
+		:: tmp > tmp1 ->
+			store(p,tmp1+1);
+		:: tmp == tmp1 && tmp1 >= 0 && tmp1 < 4 ->
+			store(req[tmp1],0);
+			store(v,0);
+			break;
+		:: tmp == tmp1 && (tmp1 < 0 || tmp1 >= 4) ->
+			skip;
+		fi;
+	od;
+od;
+}
+
+proctype environment {
+do
+:: true ->
+	if
+	:: load(req[0],0) -> store(req[0],1);
+	:: load(req[1],0) -> store(req[1],1);
+	:: load(req[2],0) -> store(req[2],1);
+	:: load(req[3],0) -> store(req[3],1);
+	fi;
+od;
+}
+
+proctype controller {
+int ldir = 0;
+int tmp;
+do
+:: true ->
+	if
+	:: load(v,0) -> skip;
+	fi;
+	tmp = loadval(t);
+	store(t,tmp+(2*ldir)-1);
+	do
+	:: true ->
+		tmp = loadval(t);
+		if
+		:: tmp < 0 || tmp == 4 ->
+			ldir = 1-ldir;
+			break;
+		:: tmp >= 0 && tmp < 4 ->
+			if
+			:: load(req[tmp],1) ->
+				store(v,1);
+				break;
+			:: load(req[tmp],0) ->
+				store(t,tmp+(2*ldir)-1);
+			fi;
+		fi;
+	od;
+od;	
+}

@@ -1,0 +1,29 @@
+model TestA {
+  classes
+  P {
+		variables Integer x y z
+    state machines
+    SM0 {
+      initial S0
+			transitions
+      from S0 to S0 {
+        [x=0; y := x]
+      }
+    }
+    SM1 {
+      initial S0
+      transitions
+      from S0 to S0 {
+        z := y
+      }
+    }
+    SM2 {
+      initial S0
+      transitions
+      from S0 to S0 {
+        x := y
+      }
+    }
+  }
+  objects p: P()
+}

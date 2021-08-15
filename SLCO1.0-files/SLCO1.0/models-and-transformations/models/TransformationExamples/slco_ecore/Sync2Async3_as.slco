@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="ASCII"?>
+<slco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:slco="slco" name="Sync2Async3_as">
+  <classes name="A">
+    <stateMachines name="A">
+      <vertices xsi:type="slco:Initial" name="Initial" incoming="//@classes.0/@stateMachines.0/@transitions.1 //@classes.0/@stateMachines.0/@transitions.3" outgoing="//@classes.0/@stateMachines.0/@transitions.0 //@classes.0/@stateMachines.0/@transitions.1"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.0/@stateMachines.0/@transitions.2"/>
+      <vertices xsi:type="slco:State" name="Initial_1_0_A_1" incoming="//@classes.0/@stateMachines.0/@transitions.0" outgoing="//@classes.0/@stateMachines.0/@transitions.2 //@classes.0/@stateMachines.0/@transitions.3"/>
+      <transitions name="InitialToInitial_1_0_A_1" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.2">
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.0" signalName="A">
+          <arguments xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="InitialToInitial" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@stateMachines.0/@variables.0">
+          <expression xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.0/@variables.0"/>
+        </statements>
+      </transitions>
+      <transitions name="Initial_1_0_A_1ToFinal" source="//@classes.0/@stateMachines.0/@vertices.2" target="//@classes.0/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.0" signalName="A">
+          <arguments xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="Initial_1_0_A_1ToInitial" source="//@classes.0/@stateMachines.0/@vertices.2" target="//@classes.0/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.0" signalName="A">
+          <arguments xsi:type="slco:IntegerConstantExpression" value="4"/>
+        </statements>
+      </transitions>
+      <variables name="v">
+        <initialValue xsi:type="slco:IntegerConstantExpression"/>
+      </variables>
+    </stateMachines>
+    <stateMachines name="A_reader">
+      <vertices xsi:type="slco:Initial" name="A_reader_is" incoming="//@classes.0/@stateMachines.1/@transitions.0" outgoing="//@classes.0/@stateMachines.1/@transitions.0"/>
+      <transitions name="A_Out" source="//@classes.0/@stateMachines.1/@vertices.0" target="//@classes.0/@stateMachines.1/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.0/@ports.0" signalName="A">
+          <arguments xsi:type="slco:SignalArgumentVariable" variable="//@classes.0/@variables.0"/>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <ports name="Out"/>
+    <variables name="sendvar_Out">
+      <initialValue xsi:type="slco:IntegerConstantExpression"/>
+    </variables>
+  </classes>
+  <classes name="B">
+    <stateMachines name="B">
+      <vertices xsi:type="slco:Initial" name="Initial" incoming="//@classes.1/@stateMachines.0/@transitions.2 //@classes.1/@stateMachines.0/@transitions.3" outgoing="//@classes.1/@stateMachines.0/@transitions.0 //@classes.1/@stateMachines.0/@transitions.2"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.1/@stateMachines.0/@transitions.1"/>
+      <vertices xsi:type="slco:State" name="Initial_1_0_A_1" incoming="//@classes.1/@stateMachines.0/@transitions.0" outgoing="//@classes.1/@stateMachines.0/@transitions.1 //@classes.1/@stateMachines.0/@transitions.3"/>
+      <transitions name="InitialToFinal" source="//@classes.1/@stateMachines.0/@vertices.0" target="//@classes.1/@stateMachines.0/@vertices.2">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.0" signalName="A">
+          <arguments xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+      </transitions>
+      <transitions name="Initial_1_0_A_1ToFinal" source="//@classes.1/@stateMachines.0/@vertices.2" target="//@classes.1/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.0" signalName="A">
+          <arguments xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="Initial_1_0_A_1ToInitial_1_0_A_1_canc_In" source="//@classes.1/@stateMachines.0/@vertices.0" target="//@classes.1/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="4"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.0" signalName="A">
+          <arguments xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="Initial_1_0_A_1ToInitial" source="//@classes.1/@stateMachines.0/@vertices.2" target="//@classes.1/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="4"/>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <stateMachines name="B_reader">
+      <vertices xsi:type="slco:Initial" name="B_reader_is" incoming="//@classes.1/@stateMachines.1/@transitions.0" outgoing="//@classes.1/@stateMachines.1/@transitions.0"/>
+      <transitions name="A_In" source="//@classes.1/@stateMachines.1/@vertices.0" target="//@classes.1/@stateMachines.1/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.0" signalName="A">
+          <arguments xsi:type="slco:SignalArgumentVariable" variable="//@classes.1/@variables.0"/>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <ports name="In"/>
+    <variables name="recvar_In">
+      <initialValue xsi:type="slco:IntegerConstantExpression" value="3"/>
+    </variables>
+  </classes>
+  <objects name="a" class="//@classes.0"/>
+  <objects name="b" class="//@classes.1"/>
+  <channels xsi:type="slco:BidirectionalChannel" name="CA" port1="//@classes.0/@ports.0" port2="//@classes.1/@ports.0" object1="a" object2="b"/>
+</slco:Model>

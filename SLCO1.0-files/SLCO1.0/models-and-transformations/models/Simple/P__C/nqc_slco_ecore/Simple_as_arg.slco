@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ASCII"?>
+<slco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:slco="slco" name="Simple_as_arg">
+  <classes name="Producer_as">
+    <stateMachines name="Producer">
+      <vertices xsi:type="slco:Initial" name="State" incoming="//@classes.0/@stateMachines.0/@transitions.0" outgoing="//@classes.0/@stateMachines.0/@transitions.0"/>
+      <transitions name="StateToState" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.0" signalName="Signal">
+          <arguments xsi:type="slco:StringConstantExpression" value="Send_Bericht"/>
+        </statements>
+        <statements xsi:type="slco:SignalReception" port="//@classes.0/@ports.0" signalName="Signal">
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:StringConstantExpression" value="Acknowledge_Bericht"/>
+          </arguments>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <ports name="C"/>
+  </classes>
+  <classes name="Consumer_as">
+    <stateMachines name="Consumer">
+      <vertices xsi:type="slco:Initial" name="State" incoming="//@classes.1/@stateMachines.0/@transitions.0" outgoing="//@classes.1/@stateMachines.0/@transitions.0"/>
+      <transitions name="StateToState" source="//@classes.1/@stateMachines.0/@vertices.0" target="//@classes.1/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.0" signalName="Signal">
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:StringConstantExpression" value="Send_Bericht"/>
+          </arguments>
+        </statements>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.0" signalName="Signal">
+          <arguments xsi:type="slco:StringConstantExpression" value="Acknowledge_Bericht"/>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <ports name="P"/>
+  </classes>
+  <objects name="P_as" class="//@classes.0"/>
+  <objects name="C_as" class="//@classes.1"/>
+  <channels xsi:type="slco:BidirectionalChannel" name="Producer_To_Consumer_as" port1="//@classes.0/@ports.0" port2="//@classes.1/@ports.0" object1="P_as" object2="C_as">
+    <argumentTypes type="String"/>
+  </channels>
+</slco:Model>

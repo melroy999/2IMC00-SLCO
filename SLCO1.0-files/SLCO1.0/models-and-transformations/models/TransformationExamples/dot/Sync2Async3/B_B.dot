@@ -1,0 +1,13 @@
+digraph B {
+  compound = true;
+  rank = LR;
+  fontname = "Arial";
+node [shape = "point", height = "0.2"] Initial_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Initial Initial_extra -> Initial
+
+
+node [shape = "doublecircle", height = "0.2", width = "0.2", style = "filled", color = "black", label = ""] Final_extra node [shape = "Mrecord", height = "0.8", width = "1.6", style = "solid", label="Final"] Final Final -> Final_extra
+
+
+Initial -> Final [label = "receive A() from In"];
+
+}

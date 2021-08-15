@@ -1,0 +1,395 @@
+model dve_phils_8 {
+classes
+	GlobalClass {
+		variables
+			Byte[16] fork
+		state machines
+			phil_0 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[0] = 0; fork[0] := 1]
+					}
+
+					from one to eat {
+						[fork[1] = 0; fork[1] := 1]
+					}
+
+					from eat to finish {
+						[fork[0] := 0]
+					}
+
+					from finish to think {
+						[fork[1] := 0]
+					}
+
+				}
+	
+			phil_1 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[1] = 0; fork[1] := 1]
+					}
+
+					from one to eat {
+						[fork[2] = 0; fork[2] := 1]
+					}
+
+					from eat to finish {
+						[fork[1] := 0]
+					}
+
+					from finish to think {
+						[fork[2] := 0]
+					}
+
+				}
+	
+			phil_2 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[2] = 0; fork[2] := 1]
+					}
+
+					from one to eat {
+						[fork[3] = 0; fork[3] := 1]
+					}
+
+					from eat to finish {
+						[fork[2] := 0]
+					}
+
+					from finish to think {
+						[fork[3] := 0]
+					}
+
+				}
+	
+			phil_3 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[3] = 0; fork[3] := 1]
+					}
+
+					from one to eat {
+						[fork[4] = 0; fork[4] := 1]
+					}
+
+					from eat to finish {
+						[fork[3] := 0]
+					}
+
+					from finish to think {
+						[fork[4] := 0]
+					}
+
+				}
+	
+			phil_4 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[4] = 0; fork[4] := 1]
+					}
+
+					from one to eat {
+						[fork[5] = 0; fork[5] := 1]
+					}
+
+					from eat to finish {
+						[fork[4] := 0]
+					}
+
+					from finish to think {
+						[fork[5] := 0]
+					}
+
+				}
+	
+			phil_5 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[5] = 0; fork[5] := 1]
+					}
+
+					from one to eat {
+						[fork[6] = 0; fork[6] := 1]
+					}
+
+					from eat to finish {
+						[fork[5] := 0]
+					}
+
+					from finish to think {
+						[fork[6] := 0]
+					}
+
+				}
+	
+			phil_6 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[6] = 0; fork[6] := 1]
+					}
+
+					from one to eat {
+						[fork[7] = 0; fork[7] := 1]
+					}
+
+					from eat to finish {
+						[fork[6] := 0]
+					}
+
+					from finish to think {
+						[fork[7] := 0]
+					}
+
+				}
+	
+			phil_7 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[7] = 0; fork[7] := 1]
+					}
+
+					from one to eat {
+						[fork[8] = 0; fork[8] := 1]
+					}
+
+					from eat to finish {
+						[fork[7] := 0]
+					}
+
+					from finish to think {
+						[fork[8] := 0]
+					}
+
+				}
+	
+			phil_8 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[8] = 0; fork[8] := 1]
+					}
+
+					from one to eat {
+						[fork[9] = 0; fork[9] := 1]
+					}
+
+					from eat to finish {
+						[fork[8] := 0]
+					}
+
+					from finish to think {
+						[fork[9] := 0]
+					}
+
+				}
+	
+			phil_9 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[9] = 0; fork[9] := 1]
+					}
+
+					from one to eat {
+						[fork[10] = 0; fork[10] := 1]
+					}
+
+					from eat to finish {
+						[fork[9] := 0]
+					}
+
+					from finish to think {
+						[fork[10] := 0]
+					}
+
+				}
+	
+			phil_10 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[10] = 0; fork[10] := 1]
+					}
+
+					from one to eat {
+						[fork[11] = 0; fork[11] := 1]
+					}
+
+					from eat to finish {
+						[fork[10] := 0]
+					}
+
+					from finish to think {
+						[fork[11] := 0]
+					}
+
+				}
+	
+			phil_11 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[11] = 0; fork[11] := 1]
+					}
+
+					from one to eat {
+						[fork[12] = 0; fork[12] := 1]
+					}
+
+					from eat to finish {
+						[fork[11] := 0]
+					}
+
+					from finish to think {
+						[fork[12] := 0]
+					}
+
+				}
+	
+			phil_12 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[12] = 0; fork[12] := 1]
+					}
+
+					from one to eat {
+						[fork[13] = 0; fork[13] := 1]
+					}
+
+					from eat to finish {
+						[fork[12] := 0]
+					}
+
+					from finish to think {
+						[fork[13] := 0]
+					}
+
+				}
+	
+			phil_13 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[13] = 0; fork[13] := 1]
+					}
+
+					from one to eat {
+						[fork[14] = 0; fork[14] := 1]
+					}
+
+					from eat to finish {
+						[fork[13] := 0]
+					}
+
+					from finish to think {
+						[fork[14] := 0]
+					}
+
+				}
+	
+			phil_14 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[14] = 0; fork[14] := 1]
+					}
+
+					from one to eat {
+						[fork[15] = 0; fork[15] := 1]
+					}
+
+					from eat to finish {
+						[fork[14] := 0]
+					}
+
+					from finish to think {
+						[fork[15] := 0]
+					}
+
+				}
+	
+			phil_15 {
+				variables
+					
+				initial think
+				states  one eat finish
+				transitions
+					from think to one {
+						[fork[15] = 0; fork[15] := 1]
+					}
+
+					from one to eat {
+						[fork[0] = 0; fork[0] := 1]
+					}
+
+					from eat to finish {
+						[fork[15] := 0]
+					}
+
+					from finish to think {
+						[fork[0] := 0]
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

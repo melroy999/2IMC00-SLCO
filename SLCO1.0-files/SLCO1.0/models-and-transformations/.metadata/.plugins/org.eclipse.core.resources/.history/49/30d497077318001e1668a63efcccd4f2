@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Package xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/2.1.0/UML" xmi:id="_bXXtALoFEdySW4dgMK8TCg" name="recursion">
+  <packagedElement xmi:type="uml:Class" xmi:id="_geIygLoFEdySW4dgMK8TCg" name="A">
+    <ownedAttribute xmi:id="_ruRqALoFEdySW4dgMK8TCg" name="b" type="_ixDQULoFEdySW4dgMK8TCg"/>
+    <ownedBehavior xmi:type="uml:OpaqueBehavior" xmi:id="_wsN4wLoHEdySW4dgMK8TCg" name="m" specification="_hAf4sLoFEdySW4dgMK8TCg">
+      <ownedParameter xmi:id="__ky2kLoHEdySW4dgMK8TCg" name="rpar" type="_ixDQULoFEdySW4dgMK8TCg" direction="return"/>
+      <ownedParameter xmi:id="__ky2kLoZZZZSW4dgMK8TCg" name="ipar" type="_ixDQULoFEdySW4dgMK8TCg" direction="in"/>
+      <language>SL</language>
+      <body>
+        behavior {
+          var v: B
+        | if v then
+            v := v
+          else
+            if v then
+              v := self.n(self.n(), v)
+            else
+              while v do
+                v := v
+              od
+            fi
+          fi;
+          while v do
+            v := v;
+            if v then
+              v := self.n(self.n(), v)
+            else
+              while v do
+                while v do
+                  v := ipar
+                od
+              od
+            fi
+          od;
+          v := create(B);
+          v := self.n(self.n(), v);
+          return v
+        }
+      </body>
+    </ownedBehavior>
+    <ownedOperation xmi:id="_hAf4sLoFEdySW4dgMK8TCg" name="n" method="_wsN4wLoHEdySW4dgMK8TCg">
+      <ownedParameter xmi:id="_lMlMsLoHEdySW4dgMK8TCg" name="rpar" type="_ixDQULoFEdySW4dgMK8TCg" direction="return"/>
+      <ownedParameter xmi:id="_lMlMsLoZZZZSW4dgMK8TCg" name="ipar" type="_ixDQULoFEdySW4dgMK8TCg" direction="in"/>
+    </ownedOperation>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_ixDQULoFEdySW4dgMK8TCg" name="B">
+    <ownedOperation xmi:id="_llREYLoFEdySW4dgMK8TCg" name="n"/>
+  </packagedElement>
+</uml:Package>

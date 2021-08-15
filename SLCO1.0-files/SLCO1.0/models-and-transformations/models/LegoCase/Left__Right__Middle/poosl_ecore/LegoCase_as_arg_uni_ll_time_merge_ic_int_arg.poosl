@@ -1,0 +1,3394 @@
+<?xml version="1.0" encoding="ASCII"?>
+<poosl:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:poosl="poosl" name="LegoCase_as_arg_uni_ll_time_merge_ic_int_arg">
+  <classes xsi:type="poosl:ProcessClass" name="Environment">
+    <variables name="BlockLeft" type="//@primitiveTypes.0"/>
+    <variables name="BlockRight" type="//@primitiveTypes.0"/>
+    <variables name="EnvironmentMiddleMotorBlockFellOff" type="//@primitiveTypes.0"/>
+    <methods name="RightMotor_Start">
+      <body xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.5">
+        <message name="On"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.4"/>
+    </methods>
+    <methods name="MiddleMotor_Off">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.3">
+            <message name="Right"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.5"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.3">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.3">
+            <message name="Left"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.6"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="LeftMotor_Start">
+      <body xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.1">
+        <message name="On"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.8"/>
+    </methods>
+    <methods name="RightMotor_Off">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.5">
+            <message name="On"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.0/@variables.1">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant boolean="true" type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.4"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.5">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.3"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="RightMotor_Running">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.5">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.3"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.0/@ports.4">
+            <message name="Block"/>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.0/@ports.4">
+            <message name="BlockPassed"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.4"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.5">
+            <message name="On"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.4"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="MiddleMotor_Right">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.3">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.0/@variables.1"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant boolean="true" type="boolean"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.0/@variables.2">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant boolean="true" type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.0/@variables.1">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.5"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.3">
+            <message name="Right"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.5"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.3">
+            <message name="Left"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.6"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.0/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant boolean="true" type="boolean"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.0/@ports.2">
+            <message name="Block"/>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.0/@ports.2">
+            <message name="BlockPassed"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.0/@variables.0">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.5"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="MiddleMotor_Left">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.3">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.0/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant boolean="true" type="boolean"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.0/@variables.2">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant boolean="true" type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.0/@variables.0">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.6"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.3">
+            <message name="Left"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.6"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.3">
+            <message name="Right"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.5"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.0/@variables.1"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant boolean="true" type="boolean"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.0/@ports.2">
+            <message name="Block"/>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.0/@ports.2">
+            <message name="BlockPassed"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.0/@variables.1">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.6"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="LeftMotor_Off">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.1">
+            <message name="On"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.0/@variables.0">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant boolean="true" type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.8"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.1">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.7"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="LeftMotor_Running">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.1">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.7"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.0/@ports.0">
+            <message name="Block"/>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.0/@ports.0">
+            <message name="BlockPassed"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.8"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.1">
+            <message name="On"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.8"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Environment_initial">
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.0/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="boolean"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.0/@variables.1">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="boolean"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.0/@variables.2">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="boolean"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ParallelComposition">
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.0"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.2"/>
+        </statementLists>
+      </body>
+    </methods>
+    <ports name="LeftSensor"/>
+    <ports name="LeftMotor"/>
+    <ports name="MiddleSensor"/>
+    <ports name="MiddleMotor"/>
+    <ports name="RightSensor"/>
+    <ports name="RightMotor"/>
+    <initialMethodCall method="//@classes.0/@methods.9"/>
+  </classes>
+  <classes xsi:type="poosl:ProcessClass" name="R_R_R_R_R">
+    <variables name="Right_as_Middle_out_Original_to_Sender_abl" type="//@primitiveTypes.1"/>
+    <variables name="Right_as_Middle_out_Original_to_Sender_name" type="//@primitiveTypes.1"/>
+    <variables name="Right_as_Middle_out_Original_to_Sender_arg_0" type="//@primitiveTypes.1"/>
+    <variables name="Right_as_Middle_out_AR_to_Sender_abl" type="//@primitiveTypes.1"/>
+    <variables name="Right_as_Middle_out_AR_to_Sender_name" type="//@primitiveTypes.1"/>
+    <variables name="Right_as_Middle_in_Receiver_to_Original_abl" type="//@primitiveTypes.1"/>
+    <variables name="Right_as_Middle_in_Receiver_to_Original_name" type="//@primitiveTypes.1"/>
+    <variables name="Right_as_Middle_in_Receiver_to_Original_arg_0" type="//@primitiveTypes.1"/>
+    <variables name="Right_as_Middle_in_Receiver_to_AS_abl" type="//@primitiveTypes.1"/>
+    <variables name="Right_as_Middle_in_Receiver_to_AS_name" type="//@primitiveTypes.1"/>
+    <variables name="R_R_R_R_RRight_as_Middle_outABP_Sender_Senders" type="//@primitiveTypes.1"/>
+    <variables name="R_R_R_R_RRight_as_Middle_outABP_Sender_Senderd" type="//@primitiveTypes.1"/>
+    <variables name="R_R_R_R_RRight_as_Middle_outABP_AR_ARb" type="//@primitiveTypes.1"/>
+    <variables name="R_R_R_R_RRight_as_Middle_inABP_Receiver_Receiverr" type="//@primitiveTypes.1"/>
+    <variables name="R_R_R_R_RRight_as_Middle_inABP_Receiver_Receiverd" type="//@primitiveTypes.1"/>
+    <variables name="R_R_R_R_RRight_as_Middle_inABP_AS_ASb" type="//@primitiveTypes.1"/>
+    <methods name="Right_as_Single_Start">
+      <body xsi:type="poosl:MessageSend" port="//@classes.1/@ports.1">
+        <message name="On"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.5"/>
+    </methods>
+    <methods name="Right_as_Middle_outABP_Sender_Sender_Zero">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+          <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+            <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.0"/>
+            <parameterExpressionLists>
+              <expressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </expressions>
+            </parameterExpressionLists>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.1"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="2" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="2" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.9"/>
+    </methods>
+    <methods name="Right_as_Middle_outABP_AR_AR_Zero">
+      <variables name="var_29" type="//@primitiveTypes.2"/>
+      <variables name="var_12" type="//@primitiveTypes.1"/>
+      <variables name="var_18" type="//@primitiveTypes.2"/>
+      <variables name="var_27" type="//@primitiveTypes.1"/>
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.3" variables="//@classes.1/@methods.2/@variables.0 //@classes.1/@methods.2/@variables.1">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@methods.2/@variables.0"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Acknowledge_1"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@methods.2/@variables.1"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.12"/>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.4">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.3">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.11"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.3" variables="//@classes.1/@methods.2/@variables.2 //@classes.1/@methods.2/@variables.3">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@methods.2/@variables.2"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Acknowledge_1"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@methods.2/@variables.3"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+                      <objectExpressions xsi:type="poosl:ConstantExpression">
+                        <constant integer="1" type="integer"/>
+                      </objectExpressions>
+                      <parameterExpressionLists>
+                        <expressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.12"/>
+                      </parameterExpressionLists>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.2"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Right_as_Middle_inABP_Receiver_Receiver_Zero">
+      <variables name="var_11" type="//@primitiveTypes.2"/>
+      <variables name="var_21" type="//@primitiveTypes.1"/>
+      <variables name="var_30" type="//@primitiveTypes.2"/>
+      <variables name="var_7" type="//@primitiveTypes.1"/>
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.4" variables="//@classes.1/@methods.3/@variables.0 //@classes.1/@variables.14 //@classes.1/@methods.3/@variables.1">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@methods.3/@variables.0"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Message_1"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@methods.3/@variables.1"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.13"/>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.6">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.7">
+            <rightHandSide xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.14"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.5">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.12"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.4" variables="//@classes.1/@methods.3/@variables.2 //@classes.1/@variables.14 //@classes.1/@methods.3/@variables.3">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@methods.3/@variables.2"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Message_1"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@methods.3/@variables.3"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+                      <objectExpressions xsi:type="poosl:ConstantExpression">
+                        <constant integer="1" type="integer"/>
+                      </objectExpressions>
+                      <parameterExpressionLists>
+                        <expressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.13"/>
+                      </parameterExpressionLists>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.3"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Right_as_Middle_inABP_AS_AS_Zero">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:TimeSynchronisation">
+            <duration xsi:type="poosl:ConstantExpression">
+              <constant integer="900" type="integer"/>
+            </duration>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.1/@ports.5">
+            <message name="Signal"/>
+            <expressionLists>
+              <expressions xsi:type="poosl:ConstantExpression">
+                <constant string="Acknowledge_1"/>
+              </expressions>
+            </expressionLists>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.15"/>
+            </expressionLists>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.4"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.8"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant integer="1" type="integer"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.9"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:ConstantExpression">
+                      <constant integer="1" type="integer"/>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.8">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.14"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Right_as_Single_Running">
+      <body xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.0">
+        <message name="Block"/>
+      </body>
+      <body xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.0">
+        <message name="BlockPassed"/>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.1/@ports.1">
+        <message name="Off"/>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.1">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="2" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.2">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.6"/>
+    </methods>
+    <methods name="Right_as_Single_Running_s_Signal_abl_RunningToBlock">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+          <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+            <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.5"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="1" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </objectExpressions>
+            <parameterExpressionLists>
+              <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.6"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant integer="2" type="integer"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </expressions>
+            </parameterExpressionLists>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.7"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.5">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="2" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.7"/>
+    </methods>
+    <methods name="Right_as_Single_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.5"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.5">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="2" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.0">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="3" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.1/@ports.1">
+            <message name="On"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.5"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.5"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.6"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Right_as_Middle_outABP_Sender_Sender_One">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:TimeSynchronisation">
+            <duration xsi:type="poosl:ConstantExpression">
+              <constant integer="900" type="integer"/>
+            </duration>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.1/@ports.2">
+            <message name="Signal"/>
+            <expressionLists>
+              <expressions xsi:type="poosl:ConstantExpression">
+                <constant string="Message_1"/>
+              </expressions>
+            </expressionLists>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.11"/>
+            </expressionLists>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.10"/>
+            </expressionLists>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.8"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.3"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant integer="1" type="integer"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.4"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:ConstantExpression">
+                      <constant integer="1" type="integer"/>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.3">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.10"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Right_as_Middle_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.11">
+            <rightHandSide xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.2"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.0">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.8"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.1"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Right_as_Middle_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.3"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.3">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.10">
+            <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+              <objectExpressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.10"/>
+              </parameterExpressionLists>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.3"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.8"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Right_as_Middle_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.3"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.3">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.3"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.12">
+        <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+          <objectExpressions xsi:type="poosl:ConstantExpression">
+            <constant integer="1" type="integer"/>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.12"/>
+          </parameterExpressionLists>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.2"/>
+    </methods>
+    <methods name="Right_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.5"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.5">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.5"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.9">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.8">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.13"/>
+    </methods>
+    <methods name="Right_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.8"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.8">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.8"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.13">
+        <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+          <objectExpressions xsi:type="poosl:ConstantExpression">
+            <constant integer="1" type="integer"/>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.13"/>
+          </parameterExpressionLists>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.3"/>
+    </methods>
+    <methods name="Right_as_Middle_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.8"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.8">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.15">
+            <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+              <objectExpressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.15"/>
+              </parameterExpressionLists>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.4"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.8"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.4"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="R_R_R_R_R_initial">
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.3">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.5">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.8">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.10">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.12">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.13">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.15">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ParallelComposition">
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.0"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.2"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.3"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.4"/>
+        </statementLists>
+      </body>
+    </methods>
+    <ports name="Right_as_Sensor"/>
+    <ports name="Right_as_Motor"/>
+    <ports name="Right_as_Middle_outABP_Sender_ASReceiver"/>
+    <ports name="Right_as_Middle_outABP_AR_AARAS"/>
+    <ports name="Right_as_Middle_inABP_Receiver_ARSender"/>
+    <ports name="Right_as_Middle_inABP_AS_AASAR"/>
+    <initialMethodCall method="//@classes.1/@methods.15"/>
+  </classes>
+  <classes xsi:type="poosl:ProcessClass" name="M_M_M_M_M_M_M_M_M">
+    <variables name="Middle_as_Right_out_Original_to_Sender_abl" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Right_out_Original_to_Sender_name" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Right_out_Original_to_Sender_arg_0" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Left_out_Original_to_Sender_abl" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Left_out_Original_to_Sender_name" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Left_out_Original_to_Sender_arg_0" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Right_in_Receiver_to_Original_abl" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Right_in_Receiver_to_Original_name" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Right_in_Receiver_to_Original_arg_0" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Right_in_Receiver_to_AS_abl" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Right_in_Receiver_to_AS_name" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Left_in_Receiver_to_Original_abl" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Left_in_Receiver_to_Original_name" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Left_in_Receiver_to_Original_arg_0" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Left_in_Receiver_to_AS_abl" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Left_in_Receiver_to_AS_name" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Right_out_AR_to_Sender_abl" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Right_out_AR_to_Sender_name" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Left_out_AR_to_Sender_abl" type="//@primitiveTypes.1"/>
+    <variables name="Middle_as_Left_out_AR_to_Sender_name" type="//@primitiveTypes.1"/>
+    <variables name="M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_Receiver_Receiverr" type="//@primitiveTypes.1"/>
+    <variables name="M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_Receiver_Receiverd" type="//@primitiveTypes.1"/>
+    <variables name="M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_AS_ASb" type="//@primitiveTypes.1"/>
+    <variables name="M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_Receiver_Receiverr" type="//@primitiveTypes.1"/>
+    <variables name="M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_Receiver_Receiverd" type="//@primitiveTypes.1"/>
+    <variables name="M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_AS_ASb" type="//@primitiveTypes.1"/>
+    <variables name="M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_Sender_Senders" type="//@primitiveTypes.1"/>
+    <variables name="M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_Sender_Senderd" type="//@primitiveTypes.1"/>
+    <variables name="M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_AR_ARb" type="//@primitiveTypes.1"/>
+    <variables name="M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_Sender_Senders" type="//@primitiveTypes.1"/>
+    <variables name="M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_Sender_Senderd" type="//@primitiveTypes.1"/>
+    <variables name="M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_AR_ARb" type="//@primitiveTypes.1"/>
+    <methods name="Middle_as_Middle_Idle">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+                <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.6"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:ConstantExpression">
+                      <constant integer="1" type="integer"/>
+                    </expressions>
+                  </parameterExpressionLists>
+                </objectExpressions>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                    <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.7"/>
+                    <parameterExpressionLists>
+                      <expressions xsi:type="poosl:ConstantExpression">
+                        <constant integer="2" type="integer"/>
+                      </expressions>
+                    </parameterExpressionLists>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.8"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:ConstantExpression">
+                      <constant integer="3" type="integer"/>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.6">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.10"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+                <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.11"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:ConstantExpression">
+                      <constant integer="1" type="integer"/>
+                    </expressions>
+                  </parameterExpressionLists>
+                </objectExpressions>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                    <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.12"/>
+                    <parameterExpressionLists>
+                      <expressions xsi:type="poosl:ConstantExpression">
+                        <constant integer="2" type="integer"/>
+                      </expressions>
+                    </parameterExpressionLists>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.13"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:ConstantExpression">
+                      <constant integer="3" type="integer"/>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.11">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.11"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Right_inABP_Receiver_Receiver_Zero">
+      <variables name="var_17" type="//@primitiveTypes.2"/>
+      <variables name="var_18" type="//@primitiveTypes.1"/>
+      <variables name="var_11" type="//@primitiveTypes.2"/>
+      <variables name="var_6" type="//@primitiveTypes.1"/>
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.2" variables="//@classes.2/@methods.1/@variables.0 //@classes.2/@variables.21 //@classes.2/@methods.1/@variables.1">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.1/@variables.0"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Message_1"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.1/@variables.1"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.20"/>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.7">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.8">
+            <rightHandSide xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.21"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.6">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.14"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.2" variables="//@classes.2/@methods.1/@variables.2 //@classes.2/@variables.21 //@classes.2/@methods.1/@variables.3">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.1/@variables.2"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Message_1"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.1/@variables.3"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+                      <objectExpressions xsi:type="poosl:ConstantExpression">
+                        <constant integer="1" type="integer"/>
+                      </objectExpressions>
+                      <parameterExpressionLists>
+                        <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.20"/>
+                      </parameterExpressionLists>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.1"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Right_inABP_AS_AS_Zero">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:TimeSynchronisation">
+            <duration xsi:type="poosl:ConstantExpression">
+              <constant integer="900" type="integer"/>
+            </duration>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.2/@ports.3">
+            <message name="Signal"/>
+            <expressionLists>
+              <expressions xsi:type="poosl:ConstantExpression">
+                <constant string="Acknowledge_1"/>
+              </expressions>
+            </expressionLists>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.22"/>
+            </expressionLists>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.2"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.9"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant integer="1" type="integer"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.10"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:ConstantExpression">
+                      <constant integer="1" type="integer"/>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.9">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.16"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Left_inABP_Receiver_Receiver_Zero">
+      <variables name="var_49" type="//@primitiveTypes.2"/>
+      <variables name="var_33" type="//@primitiveTypes.1"/>
+      <variables name="var_50" type="//@primitiveTypes.2"/>
+      <variables name="var_35" type="//@primitiveTypes.1"/>
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.4" variables="//@classes.2/@methods.3/@variables.0 //@classes.2/@variables.24 //@classes.2/@methods.3/@variables.1">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.3/@variables.0"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Message_0"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.3/@variables.1"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.23"/>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.12">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.13">
+            <rightHandSide xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.24"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.11">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.17"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.4" variables="//@classes.2/@methods.3/@variables.2 //@classes.2/@variables.24 //@classes.2/@methods.3/@variables.3">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.3/@variables.2"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Message_0"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.3/@variables.3"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+                      <objectExpressions xsi:type="poosl:ConstantExpression">
+                        <constant integer="1" type="integer"/>
+                      </objectExpressions>
+                      <parameterExpressionLists>
+                        <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.23"/>
+                      </parameterExpressionLists>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.3"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Left_inABP_AS_AS_Zero">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:TimeSynchronisation">
+            <duration xsi:type="poosl:ConstantExpression">
+              <constant integer="900" type="integer"/>
+            </duration>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.2/@ports.5">
+            <message name="Signal"/>
+            <expressionLists>
+              <expressions xsi:type="poosl:ConstantExpression">
+                <constant string="Acknowledge_0"/>
+              </expressions>
+            </expressionLists>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.25"/>
+            </expressionLists>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.4"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.14"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant integer="1" type="integer"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.15"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:ConstantExpression">
+                      <constant integer="1" type="integer"/>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.14">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.19"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Right_outABP_Sender_Sender_Zero">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+          <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+            <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.0"/>
+            <parameterExpressionLists>
+              <expressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </expressions>
+            </parameterExpressionLists>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.1"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="2" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="2" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.21"/>
+    </methods>
+    <methods name="Middle_as_Right_outABP_AR_AR_Zero">
+      <variables name="var_17" type="//@primitiveTypes.2"/>
+      <variables name="var_34" type="//@primitiveTypes.1"/>
+      <variables name="var_30" type="//@primitiveTypes.2"/>
+      <variables name="var_13" type="//@primitiveTypes.1"/>
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.7" variables="//@classes.2/@methods.6/@variables.0 //@classes.2/@methods.6/@variables.1">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.6/@variables.0"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Acknowledge_1"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.6/@variables.1"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.28"/>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.17">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.16">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.23"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.7" variables="//@classes.2/@methods.6/@variables.2 //@classes.2/@methods.6/@variables.3">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.6/@variables.2"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Acknowledge_1"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.6/@variables.3"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+                      <objectExpressions xsi:type="poosl:ConstantExpression">
+                        <constant integer="1" type="integer"/>
+                      </objectExpressions>
+                      <parameterExpressionLists>
+                        <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.28"/>
+                      </parameterExpressionLists>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.6"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Left_outABP_Sender_Sender_Zero">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+          <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+            <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.3"/>
+            <parameterExpressionLists>
+              <expressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </expressions>
+            </parameterExpressionLists>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.4"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="2" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.3">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="2" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.25"/>
+    </methods>
+    <methods name="Middle_as_Left_outABP_AR_AR_Zero">
+      <variables name="var_10" type="//@primitiveTypes.2"/>
+      <variables name="var_32" type="//@primitiveTypes.1"/>
+      <variables name="var_1" type="//@primitiveTypes.2"/>
+      <variables name="var_21" type="//@primitiveTypes.1"/>
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.9" variables="//@classes.2/@methods.8/@variables.0 //@classes.2/@methods.8/@variables.1">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.8/@variables.0"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Acknowledge_0"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.8/@variables.1"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.31"/>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.19">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.18">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.27"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.9" variables="//@classes.2/@methods.8/@variables.2 //@classes.2/@methods.8/@variables.3">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.8/@variables.2"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Acknowledge_0"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@methods.8/@variables.3"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+                      <objectExpressions xsi:type="poosl:ConstantExpression">
+                        <constant integer="1" type="integer"/>
+                      </objectExpressions>
+                      <parameterExpressionLists>
+                        <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.31"/>
+                      </parameterExpressionLists>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.8"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Middle_Running">
+      <body xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.0">
+        <message name="Block"/>
+      </body>
+      <body xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.0">
+        <message name="BlockPassed"/>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.2/@ports.1">
+        <message name="Off"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.0"/>
+    </methods>
+    <methods name="Middle_as_Middle_Idle_r_Signal_rbl_IdleToLeft">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.6"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.6">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.1">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.2">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.0">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.12"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.6"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.0"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Middle_Idle_r_Signal_rbl_IdleToRight">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.11"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.11">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.4">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.5">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.3">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.13"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.11"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.0"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Middle_Idle_r_Signal_rbl_IdleToLeft_s_Signal_abl_Idle_r_Signal_rbl_IdleToLeft_to_Running">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.0"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.0"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.2/@ports.1">
+        <message name="Left"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.9"/>
+    </methods>
+    <methods name="Middle_as_Middle_Idle_r_Signal_rbl_IdleToRight_s_Signal_abl_Idle_r_Signal_rbl_IdleToRight_to_Running">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.3"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.3">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.3"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.2/@ports.1">
+        <message name="Right"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.9"/>
+    </methods>
+    <methods name="Middle_as_Right_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.6"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.6">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.6"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.10">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.9">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.15"/>
+    </methods>
+    <methods name="Middle_as_Right_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.9"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.9">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.9"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.20">
+        <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+          <objectExpressions xsi:type="poosl:ConstantExpression">
+            <constant integer="1" type="integer"/>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.20"/>
+          </parameterExpressionLists>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.1"/>
+    </methods>
+    <methods name="Middle_as_Right_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.9"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.9">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.22">
+            <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+              <objectExpressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.22"/>
+              </parameterExpressionLists>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.2"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.9"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.2"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Left_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.11"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.11">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.11"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.15">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.14">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.18"/>
+    </methods>
+    <methods name="Middle_as_Left_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.14"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.14">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.14"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.23">
+        <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+          <objectExpressions xsi:type="poosl:ConstantExpression">
+            <constant integer="1" type="integer"/>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.23"/>
+          </parameterExpressionLists>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.3"/>
+    </methods>
+    <methods name="Middle_as_Left_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.14"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.14">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.25">
+            <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+              <objectExpressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.25"/>
+              </parameterExpressionLists>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.4"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.14"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.4"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Right_outABP_Sender_Sender_One">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:TimeSynchronisation">
+            <duration xsi:type="poosl:ConstantExpression">
+              <constant integer="900" type="integer"/>
+            </duration>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.2/@ports.6">
+            <message name="Signal"/>
+            <expressionLists>
+              <expressions xsi:type="poosl:ConstantExpression">
+                <constant string="Message_1"/>
+              </expressions>
+            </expressionLists>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.27"/>
+            </expressionLists>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.26"/>
+            </expressionLists>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.20"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.16"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant integer="1" type="integer"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.17"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:ConstantExpression">
+                      <constant integer="1" type="integer"/>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.16">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.22"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Right_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.27">
+            <rightHandSide xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.2"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.0">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.20"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.5"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Right_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.16"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.16">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.26">
+            <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+              <objectExpressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.26"/>
+              </parameterExpressionLists>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.5"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.16"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.20"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Right_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.16"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.16">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.16"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.28">
+        <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+          <objectExpressions xsi:type="poosl:ConstantExpression">
+            <constant integer="1" type="integer"/>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.28"/>
+          </parameterExpressionLists>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.6"/>
+    </methods>
+    <methods name="Middle_as_Left_outABP_Sender_Sender_One">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:TimeSynchronisation">
+            <duration xsi:type="poosl:ConstantExpression">
+              <constant integer="900" type="integer"/>
+            </duration>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.2/@ports.8">
+            <message name="Signal"/>
+            <expressionLists>
+              <expressions xsi:type="poosl:ConstantExpression">
+                <constant string="Message_0"/>
+              </expressions>
+            </expressionLists>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.30"/>
+            </expressionLists>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.29"/>
+            </expressionLists>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.24"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.18"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant integer="1" type="integer"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.19"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:ConstantExpression">
+                      <constant integer="1" type="integer"/>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.18">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.26"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Left_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.3"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.30">
+            <rightHandSide xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.5"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.3">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.24"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.3"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.7"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Left_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.18"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.18">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.29">
+            <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+              <objectExpressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.29"/>
+              </parameterExpressionLists>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.7"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.18"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.24"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_as_Left_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.18"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.18">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.18"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.31">
+        <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+          <objectExpressions xsi:type="poosl:ConstantExpression">
+            <constant integer="1" type="integer"/>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.31"/>
+          </parameterExpressionLists>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.8"/>
+    </methods>
+    <methods name="M_M_M_M_M_M_M_M_M_initial">
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.3">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.6">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.9">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.11">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.14">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.16">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.18">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.20">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.22">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.23">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.25">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.26">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.28">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.29">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.31">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ParallelComposition">
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.0"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.2"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.3"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.4"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.5"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.6"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.7"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.8"/>
+        </statementLists>
+      </body>
+    </methods>
+    <ports name="Middle_as_Sensor"/>
+    <ports name="Middle_as_Motor"/>
+    <ports name="Middle_as_Right_inABP_Receiver_ARSender"/>
+    <ports name="Middle_as_Right_inABP_AS_AASAR"/>
+    <ports name="Middle_as_Left_inABP_Receiver_ARSender"/>
+    <ports name="Middle_as_Left_inABP_AS_AASAR"/>
+    <ports name="Middle_as_Right_outABP_Sender_ASReceiver"/>
+    <ports name="Middle_as_Right_outABP_AR_AARAS"/>
+    <ports name="Middle_as_Left_outABP_Sender_ASReceiver"/>
+    <ports name="Middle_as_Left_outABP_AR_AARAS"/>
+    <initialMethodCall method="//@classes.2/@methods.28"/>
+  </classes>
+  <classes xsi:type="poosl:ProcessClass" name="L_L_L_L_L">
+    <variables name="Left_as_Middle_out_Original_to_Sender_abl" type="//@primitiveTypes.1"/>
+    <variables name="Left_as_Middle_out_Original_to_Sender_name" type="//@primitiveTypes.1"/>
+    <variables name="Left_as_Middle_out_Original_to_Sender_arg_0" type="//@primitiveTypes.1"/>
+    <variables name="Left_as_Middle_out_AR_to_Sender_abl" type="//@primitiveTypes.1"/>
+    <variables name="Left_as_Middle_out_AR_to_Sender_name" type="//@primitiveTypes.1"/>
+    <variables name="Left_as_Middle_in_Receiver_to_Original_abl" type="//@primitiveTypes.1"/>
+    <variables name="Left_as_Middle_in_Receiver_to_Original_name" type="//@primitiveTypes.1"/>
+    <variables name="Left_as_Middle_in_Receiver_to_Original_arg_0" type="//@primitiveTypes.1"/>
+    <variables name="Left_as_Middle_in_Receiver_to_AS_abl" type="//@primitiveTypes.1"/>
+    <variables name="Left_as_Middle_in_Receiver_to_AS_name" type="//@primitiveTypes.1"/>
+    <variables name="L_L_L_L_LLeft_as_Middle_outABP_Sender_Senders" type="//@primitiveTypes.1"/>
+    <variables name="L_L_L_L_LLeft_as_Middle_outABP_Sender_Senderd" type="//@primitiveTypes.1"/>
+    <variables name="L_L_L_L_LLeft_as_Middle_outABP_AR_ARb" type="//@primitiveTypes.1"/>
+    <variables name="L_L_L_L_LLeft_as_Middle_inABP_Receiver_Receiverr" type="//@primitiveTypes.1"/>
+    <variables name="L_L_L_L_LLeft_as_Middle_inABP_Receiver_Receiverd" type="//@primitiveTypes.1"/>
+    <variables name="L_L_L_L_LLeft_as_Middle_inABP_AS_ASb" type="//@primitiveTypes.1"/>
+    <methods name="Left_as_Single_Start">
+      <body xsi:type="poosl:MessageSend" port="//@classes.3/@ports.1">
+        <message name="On"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.5"/>
+    </methods>
+    <methods name="Left_as_Middle_outABP_Sender_Sender_Zero">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+          <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+            <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.0"/>
+            <parameterExpressionLists>
+              <expressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </expressions>
+            </parameterExpressionLists>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.1"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="2" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="2" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.9"/>
+    </methods>
+    <methods name="Left_as_Middle_outABP_AR_AR_Zero">
+      <variables name="var_16" type="//@primitiveTypes.2"/>
+      <variables name="var_4" type="//@primitiveTypes.1"/>
+      <variables name="var_20" type="//@primitiveTypes.2"/>
+      <variables name="var_3" type="//@primitiveTypes.1"/>
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.3/@ports.3" variables="//@classes.3/@methods.2/@variables.0 //@classes.3/@methods.2/@variables.1">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@methods.2/@variables.0"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Acknowledge_0"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@methods.2/@variables.1"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.12"/>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.4">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.3">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.11"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.3/@ports.3" variables="//@classes.3/@methods.2/@variables.2 //@classes.3/@methods.2/@variables.3">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@methods.2/@variables.2"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Acknowledge_0"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@methods.2/@variables.3"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+                      <objectExpressions xsi:type="poosl:ConstantExpression">
+                        <constant integer="1" type="integer"/>
+                      </objectExpressions>
+                      <parameterExpressionLists>
+                        <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.12"/>
+                      </parameterExpressionLists>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.2"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Left_as_Middle_inABP_Receiver_Receiver_Zero">
+      <variables name="var_38" type="//@primitiveTypes.2"/>
+      <variables name="var_14" type="//@primitiveTypes.1"/>
+      <variables name="var_52" type="//@primitiveTypes.2"/>
+      <variables name="var_39" type="//@primitiveTypes.1"/>
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.3/@ports.4" variables="//@classes.3/@methods.3/@variables.0 //@classes.3/@variables.14 //@classes.3/@methods.3/@variables.1">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@methods.3/@variables.0"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Message_0"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@methods.3/@variables.1"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.13"/>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.6">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.7">
+            <rightHandSide xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.14"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.5">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="1" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.12"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.3/@ports.4" variables="//@classes.3/@methods.3/@variables.2 //@classes.3/@variables.14 //@classes.3/@methods.3/@variables.3">
+            <message name="Signal"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@methods.3/@variables.2"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant string="Message_0"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@methods.3/@variables.3"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+                      <objectExpressions xsi:type="poosl:ConstantExpression">
+                        <constant integer="1" type="integer"/>
+                      </objectExpressions>
+                      <parameterExpressionLists>
+                        <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.13"/>
+                      </parameterExpressionLists>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.3"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Left_as_Middle_inABP_AS_AS_Zero">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:TimeSynchronisation">
+            <duration xsi:type="poosl:ConstantExpression">
+              <constant integer="900" type="integer"/>
+            </duration>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.3/@ports.5">
+            <message name="Signal"/>
+            <expressionLists>
+              <expressions xsi:type="poosl:ConstantExpression">
+                <constant string="Acknowledge_0"/>
+              </expressions>
+            </expressionLists>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.15"/>
+            </expressionLists>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.4"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.8"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant integer="1" type="integer"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.9"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:ConstantExpression">
+                      <constant integer="1" type="integer"/>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.8">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.14"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Left_as_Single_Running">
+      <body xsi:type="poosl:MessageReceive" port="//@classes.3/@ports.0">
+        <message name="Block"/>
+      </body>
+      <body xsi:type="poosl:MessageReceive" port="//@classes.3/@ports.0">
+        <message name="BlockPassed"/>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.3/@ports.1">
+        <message name="Off"/>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.1">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="2" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.2">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.6"/>
+    </methods>
+    <methods name="Left_as_Single_Running_s_Signal_abl_RunningToBlock">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+          <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+            <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.5"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="1" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </objectExpressions>
+            <parameterExpressionLists>
+              <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.6"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant integer="2" type="integer"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </expressions>
+            </parameterExpressionLists>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.7"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.5">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="2" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.7"/>
+    </methods>
+    <methods name="Left_as_Single_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.5"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.5">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="2" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.0">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="3" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.3/@ports.1">
+            <message name="On"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.5"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.5"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.6"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Left_as_Middle_outABP_Sender_Sender_One">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:TimeSynchronisation">
+            <duration xsi:type="poosl:ConstantExpression">
+              <constant integer="900" type="integer"/>
+            </duration>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.3/@ports.2">
+            <message name="Signal"/>
+            <expressionLists>
+              <expressions xsi:type="poosl:ConstantExpression">
+                <constant string="Message_0"/>
+              </expressions>
+            </expressionLists>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.11"/>
+            </expressionLists>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.10"/>
+            </expressionLists>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.8"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="and">
+              <objectExpressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.3"/>
+                <parameterExpressionLists>
+                  <expressions xsi:type="poosl:ConstantExpression">
+                    <constant integer="1" type="integer"/>
+                  </expressions>
+                </parameterExpressionLists>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+                  <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.4"/>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:ConstantExpression">
+                      <constant integer="1" type="integer"/>
+                    </expressions>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.3">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.10"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Left_as_Middle_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.11">
+            <rightHandSide xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.2"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.0">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.8"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.1"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Left_as_Middle_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.3"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.3">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.10">
+            <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+              <objectExpressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.10"/>
+              </parameterExpressionLists>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.3"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.8"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Left_as_Middle_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.3"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.3">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.3"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.12">
+        <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+          <objectExpressions xsi:type="poosl:ConstantExpression">
+            <constant integer="1" type="integer"/>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.12"/>
+          </parameterExpressionLists>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.2"/>
+    </methods>
+    <methods name="Left_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.5"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.5">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.5"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.9">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.8">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.13"/>
+    </methods>
+    <methods name="Left_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero">
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.8"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant integer="2" type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.8">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="3" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:GuardedExecution">
+        <statement xsi:type="poosl:Skip"/>
+        <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.8"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </expressions>
+          </parameterExpressionLists>
+        </guard>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.13">
+        <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+          <objectExpressions xsi:type="poosl:ConstantExpression">
+            <constant integer="1" type="integer"/>
+          </objectExpressions>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.13"/>
+          </parameterExpressionLists>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.3"/>
+    </methods>
+    <methods name="Left_as_Middle_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.8"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant integer="3" type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.8">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="integer"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.15">
+            <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+              <objectExpressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.15"/>
+              </parameterExpressionLists>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.4"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.8"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant type="integer"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.4"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="L_L_L_L_L_initial">
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.3">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.5">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.8">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.10">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.12">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.13">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.15">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ParallelComposition">
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.0"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.2"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.3"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.4"/>
+        </statementLists>
+      </body>
+    </methods>
+    <ports name="Left_as_Sensor"/>
+    <ports name="Left_as_Motor"/>
+    <ports name="Left_as_Middle_outABP_Sender_ASReceiver"/>
+    <ports name="Left_as_Middle_outABP_AR_AARAS"/>
+    <ports name="Left_as_Middle_inABP_Receiver_ARSender"/>
+    <ports name="Left_as_Middle_inABP_AS_AASAR"/>
+    <initialMethodCall method="//@classes.3/@methods.15"/>
+  </classes>
+  <processInstances name="Environment" class="//@classes.0"/>
+  <processInstances name="L_L_L_L_L" class="//@classes.3"/>
+  <processInstances name="M_M_M_M_M_M_M_M_M" class="//@classes.2"/>
+  <processInstances name="R_R_R_R_R" class="//@classes.1"/>
+  <channels name="ELeftSensor_to_LSensor_as" port1="//@classes.0/@ports.0" port2="//@classes.3/@ports.0" processInstance1="//@processInstances.0" processInstance2="//@processInstances.1"/>
+  <channels name="LMotor_to_ELeftMotor_as" port1="//@classes.3/@ports.1" port2="//@classes.0/@ports.1" processInstance1="//@processInstances.1" processInstance2="//@processInstances.0"/>
+  <channels name="ERightSensor_to_RSensor_as" port1="//@classes.0/@ports.4" port2="//@classes.1/@ports.0" processInstance1="//@processInstances.0" processInstance2="//@processInstances.3"/>
+  <channels name="RMotor_to_ERightMotor_as" port1="//@classes.1/@ports.1" port2="//@classes.0/@ports.5" processInstance1="//@processInstances.3" processInstance2="//@processInstances.0"/>
+  <channels name="EMiddleSensor_to_MSensor_as" port1="//@classes.0/@ports.2" port2="//@classes.2/@ports.0" processInstance1="//@processInstances.0" processInstance2="//@processInstances.2"/>
+  <channels name="MMotor_to_EMiddleMotor_as" port1="//@classes.2/@ports.1" port2="//@classes.0/@ports.3" processInstance1="//@processInstances.2" processInstance2="//@processInstances.0"/>
+  <channels name="Right_as_Middle_out_Sender_to_Receiver" port1="//@classes.1/@ports.2" port2="//@classes.2/@ports.2" processInstance1="//@processInstances.3" processInstance2="//@processInstances.2"/>
+  <channels name="Right_as_Middle_out_AS_to_AR" port1="//@classes.2/@ports.3" port2="//@classes.1/@ports.3" processInstance1="//@processInstances.2" processInstance2="//@processInstances.3"/>
+  <channels name="Left_as_Middle_out_Sender_to_Receiver" port1="//@classes.3/@ports.2" port2="//@classes.2/@ports.4" processInstance1="//@processInstances.1" processInstance2="//@processInstances.2"/>
+  <channels name="Left_as_Middle_out_AS_to_AR" port1="//@classes.2/@ports.5" port2="//@classes.3/@ports.3" processInstance1="//@processInstances.2" processInstance2="//@processInstances.1"/>
+  <channels name="Middle_as_Right_out_Sender_to_Receiver" port1="//@classes.2/@ports.6" port2="//@classes.1/@ports.4" processInstance1="//@processInstances.2" processInstance2="//@processInstances.3"/>
+  <channels name="Middle_as_Right_out_AS_to_AR" port1="//@classes.1/@ports.5" port2="//@classes.2/@ports.7" processInstance1="//@processInstances.3" processInstance2="//@processInstances.2"/>
+  <channels name="Middle_as_Left_out_Sender_to_Receiver" port1="//@classes.2/@ports.8" port2="//@classes.3/@ports.4" processInstance1="//@processInstances.2" processInstance2="//@processInstances.1"/>
+  <channels name="Middle_as_Left_out_AS_to_AR" port1="//@classes.3/@ports.5" port2="//@classes.2/@ports.9" processInstance1="//@processInstances.1" processInstance2="//@processInstances.2"/>
+  <primitiveTypes primitiveTypeEnum="boolean"/>
+  <primitiveTypes primitiveTypeEnum="integer"/>
+  <primitiveTypes/>
+</poosl:Model>

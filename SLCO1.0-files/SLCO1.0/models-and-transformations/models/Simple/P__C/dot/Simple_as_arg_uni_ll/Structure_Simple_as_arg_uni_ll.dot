@@ -1,0 +1,37 @@
+
+digraph Simple_as_arg_uni_ll {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+Producer_as_58
+ [label="{Producer_as||}"]
+Producer_as_58_Producer [label="{Producer||}", style=filled, fillcolor=gray95]
+Producer_as_58 -> Producer_as_58_Producer
+
+Consumer_as_51
+ [label="{Consumer_as||}"]
+Consumer_as_51_Consumer [label="{Consumer||}", style=filled, fillcolor=gray95]
+Consumer_as_51 -> Consumer_as_51_Consumer
+
+ABP_Sender_3
+ [label="{ABP_Sender||}"]
+ABP_Sender_3_Sender [label="{Sender|Integer s = 0\n String d|}", style=filled, fillcolor=gray95]
+ABP_Sender_3 -> ABP_Sender_3_Sender
+
+ABP_AR_90
+ [label="{ABP_AR||}"]
+ABP_AR_90_AR [label="{AR|Integer b = 0|}", style=filled, fillcolor=gray95]
+ABP_AR_90 -> ABP_AR_90_AR
+
+ABP_Receiver_96
+ [label="{ABP_Receiver||}"]
+ABP_Receiver_96_Receiver [label="{Receiver|Integer r = 0\n String d|}", style=filled, fillcolor=gray95]
+ABP_Receiver_96 -> ABP_Receiver_96_Receiver
+
+ABP_AS_61
+ [label="{ABP_AS||}"]
+ABP_AS_61_AS [label="{AS|Integer b = 1|}", style=filled, fillcolor=gray95]
+ABP_AS_61 -> ABP_AS_61_AS
+
+
+}

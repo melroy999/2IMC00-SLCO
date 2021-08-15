@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;slco.ecore&apos; to &apos;slco.ecore&apos;&#x0D;&#x0A;- Original project: &apos;MetaModels&apos;&#x0D;&#x0A;- Destination element: &apos;slco.ecore&apos;&#x0D;&#x0A;- Original element: &apos;slco.ecore&apos;" description="Copy file" element1="slco.ecore" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1382964768605" target="/slco_ecore2slco_txt/src/slco.ecore" units="0" version="1.0"/>
+</session>

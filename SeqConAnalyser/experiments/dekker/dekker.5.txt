@@ -1,0 +1,217 @@
+int want1;
+int want2;
+int want3;
+int want4;
+int want5;
+int want6;
+int turn;
+
+proctype p1 {	
+int tmp;
+int tmp2;
+int tmp3;
+int tmp4;
+do
+:: true ->
+		store(want1, 1);
+		tmp = loadval(want2);
+		tmp2 = loadval(want3);
+		tmp3 = loadval(want4);
+		tmp4 = loadval(want5);
+		do
+		:: tmp == 1 || tmp2 == 1 || tmp3 == 1 || tmp4 == 1 || load(want6,1) ->
+			if
+			:: load(turn,1) || load(turn,2) || load(turn,3) || load(turn,4) || load(turn,5) ->
+				store(want1, 0);
+				
+				if
+				:: load(turn,0) -> skip;
+				fi;
+				
+				store(want1, 1);
+			:: load(turn,0) -> skip;
+			fi;
+			
+		:: tmp == 0 && tmp2 == 0 && tmp3 == 0 && tmp4 == 0 && load(want6,0) -> break;
+		od;
+		
+		store(turn, 1);
+		store(want1, 0);
+		break;
+od;
+}
+
+proctype p2 {	
+int tmp;
+int tmp2;
+int tmp3;
+int tmp4;
+do
+:: true ->
+		store(want2, 1);
+		tmp = loadval(want1);
+		tmp2 = loadval(want3);
+		tmp3 = loadval(want4);
+		tmp4 = loadval(want5);
+		do
+		:: tmp == 1 || tmp2 == 1 || tmp3 == 1 || tmp4 == 1 || load(want6,1) ->
+			if
+			:: load(turn,0) || load(turn,2) || load(turn,3) || load(turn,4) || load(turn,5) ->
+				store(want2, 0);
+				
+				if
+				:: load(turn,1) -> skip;
+				fi;
+				
+				store(want2, 1);
+			:: load(turn,1) -> skip;
+			fi;
+			
+		:: tmp == 0 && tmp2 == 0 && tmp3 == 0 && tmp4 == 0 && load(want6,0) -> break;
+		od;
+		
+		store(turn, 2);
+		store(want2, 0);
+		break;
+od;
+}
+
+proctype p3 {	
+int tmp;
+int tmp2;
+int tmp3;
+int tmp4;
+do
+:: true ->
+		store(want3, 1);
+		tmp = loadval(want1);
+		tmp2 = loadval(want2);
+		tmp3 = loadval(want4);
+		tmp4 = loadval(want5);
+		do
+		:: tmp == 1 || tmp2 == 1 || tmp3 == 1 || tmp4 == 1 || load(want6,1) ->
+			if
+			:: load(turn,0) || load(turn,1) || load(turn,3) || load(turn,4) || load(turn,5) ->
+				store(want3, 0);
+				
+				if
+				:: load(turn,2) -> skip;
+				fi;
+				
+				store(want3, 1);
+			:: load(turn,2) -> skip;
+			fi;
+			
+		:: tmp == 0 && tmp2 == 0 && tmp3 == 0 && tmp4 == 0 && load(want6,0) -> break;
+		od;
+		
+		store(turn, 3);
+		store(want3, 0);
+		break;
+od;
+}
+
+proctype p4 {	
+int tmp;
+int tmp2;
+int tmp3;
+int tmp4;
+do
+:: true ->
+		store(want4, 1);
+		tmp = loadval(want1);
+		tmp2 = loadval(want2);
+		tmp3 = loadval(want3);
+		tmp4 = loadval(want5);
+		do
+		:: tmp == 1 || tmp2 == 1 || tmp3 == 1 || tmp4 == 1 || load(want6,1) ->
+			if
+			:: load(turn,0) || load(turn,1) || load(turn,2) || load(turn,4) || load(turn,5) ->
+				store(want4, 0);
+				
+				if
+				:: load(turn,3) -> skip;
+				fi;
+				
+				store(want4, 1);
+			:: load(turn,3) -> skip;
+			fi;
+			
+		:: tmp == 0 && tmp2 == 0 && tmp3 == 0 && tmp4 == 0 && load(want6,0) -> break;
+		od;
+		
+		store(turn, 4);
+		store(want4, 0);
+		break;
+od;
+}
+
+proctype p5 {	
+int tmp;
+int tmp2;
+int tmp3;
+int tmp4;
+do
+:: true ->
+		store(want5, 1);
+		tmp = loadval(want1);
+		tmp2 = loadval(want2);
+		tmp3 = loadval(want3);
+		tmp4 = loadval(want4);
+		do
+		:: tmp == 1 || tmp2 == 1 || tmp3 == 1 || tmp4 == 1 || load(want6,1) ->
+			if
+			:: load(turn,0) || load(turn,1) || load(turn,2) || load(turn,3) || load(turn,5) ->
+				store(want5, 0);
+				
+				if
+				:: load(turn,4) -> skip;
+				fi;
+				
+				store(want5, 1);
+			:: load(turn,4) -> skip;
+			fi;
+			
+		:: tmp == 0 && tmp2 == 0 && tmp3 == 0 && tmp4 == 0 && load(want6,0) -> break;
+		od;
+		
+		store(turn, 5);
+		store(want5, 0);
+		break;
+od;
+}
+
+proctype p6 {	
+int tmp;
+int tmp2;
+int tmp3;
+int tmp4;
+do
+:: true ->
+		store(want6, 1);
+		tmp = loadval(want1);
+		tmp2 = loadval(want2);
+		tmp3 = loadval(want3);
+		tmp4 = loadval(want4);
+		do
+		:: tmp == 1 || tmp2 == 1 || tmp3 == 1 || tmp4 == 1 || load(want5,1) ->
+			if
+			:: load(turn,0) || load(turn,1) || load(turn,2) || load(turn,3) || load(turn,4) ->
+				store(want6, 0);
+				
+				if
+				:: load(turn,5) -> skip;
+				fi;
+				
+				store(want6, 1);
+			:: load(turn,5) -> skip;
+			fi;
+			
+		:: tmp == 0 && tmp2 == 0 && tmp3 == 0 && tmp4 == 0 && load(want5,0) -> break;
+		od;
+		
+		store(turn, 0);
+		store(want6, 0);
+		break;
+od;
+}

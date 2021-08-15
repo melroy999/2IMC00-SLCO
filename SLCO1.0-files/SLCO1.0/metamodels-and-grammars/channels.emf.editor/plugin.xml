@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="channels.presentation.ChannelsModelWizardID"
+            name="%_UI_ChannelsModelWizard_label"
+            class="channels.presentation.ChannelsModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/ChannelsModelFile.gif">
+         <description>%_UI_ChannelsModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
+   <extension point="org.eclipse.ui.editors">
+      <editor
+            id="channels.presentation.ChannelsEditorID"
+            name="%_UI_ChannelsEditor_label"
+            icon="icons/full/obj16/ChannelsModelFile.gif"
+            extensions="channels"
+            class="channels.presentation.ChannelsEditor"
+            contributorClass="channels.presentation.ChannelsActionBarContributor">
+      </editor>
+   </extension>
+
+</plugin>

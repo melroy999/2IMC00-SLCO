@@ -1,0 +1,104 @@
+
+digraph Simple_as_arg_uni_ll {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_P_as{
+    label = "P_as: Producer_as";
+    node [shape = box];
+    P_as_C_in[label = C_in]
+    P_as_C_out[label = C_out]
+  }
+
+  subgraph cluster_C_as{
+    label = "C_as: Consumer_as";
+    node [shape = box];
+    C_as_P_in[label = P_in]
+    C_as_P_out[label = P_out]
+  }
+
+  subgraph cluster_P_as_C_outABP_Sender{
+    label = "P_as_C_outABP_Sender: ABP_Sender";
+    node [shape = box];
+    P_as_C_outABP_Sender_ASOriginal[label = ASOriginal]
+    P_as_C_outABP_Sender_ASReceiver[label = ASReceiver]
+    P_as_C_outABP_Sender_ASAR[label = ASAR]
+  }
+
+  subgraph cluster_P_as_C_outABP_AR{
+    label = "P_as_C_outABP_AR: ABP_AR";
+    node [shape = box];
+    P_as_C_outABP_AR_AARAS[label = AARAS]
+    P_as_C_outABP_AR_AARSender[label = AARSender]
+  }
+
+  subgraph cluster_C_as_P_inABP_Receiver{
+    label = "C_as_P_inABP_Receiver: ABP_Receiver";
+    node [shape = box];
+    C_as_P_inABP_Receiver_AROriginal[label = AROriginal]
+    C_as_P_inABP_Receiver_ARSender[label = ARSender]
+    C_as_P_inABP_Receiver_ARAS[label = ARAS]
+  }
+
+  subgraph cluster_C_as_P_inABP_AS{
+    label = "C_as_P_inABP_AS: ABP_AS";
+    node [shape = box];
+    C_as_P_inABP_AS_AASAR[label = AASAR]
+    C_as_P_inABP_AS_AASReceiver[label = AASReceiver]
+  }
+
+  subgraph cluster_C_as_P_outABP_Sender{
+    label = "C_as_P_outABP_Sender: ABP_Sender";
+    node [shape = box];
+    C_as_P_outABP_Sender_ASOriginal[label = ASOriginal]
+    C_as_P_outABP_Sender_ASReceiver[label = ASReceiver]
+    C_as_P_outABP_Sender_ASAR[label = ASAR]
+  }
+
+  subgraph cluster_C_as_P_outABP_AR{
+    label = "C_as_P_outABP_AR: ABP_AR";
+    node [shape = box];
+    C_as_P_outABP_AR_AARAS[label = AARAS]
+    C_as_P_outABP_AR_AARSender[label = AARSender]
+  }
+
+  subgraph cluster_P_as_C_inABP_Receiver{
+    label = "P_as_C_inABP_Receiver: ABP_Receiver";
+    node [shape = box];
+    P_as_C_inABP_Receiver_AROriginal[label = AROriginal]
+    P_as_C_inABP_Receiver_ARSender[label = ARSender]
+    P_as_C_inABP_Receiver_ARAS[label = ARAS]
+  }
+
+  subgraph cluster_P_as_C_inABP_AS{
+    label = "P_as_C_inABP_AS: ABP_AS";
+    node [shape = box];
+    P_as_C_inABP_AS_AASAR[label = AASAR]
+    P_as_C_inABP_AS_AASReceiver[label = AASReceiver]
+  }
+
+  
+ P_as_C_out -> P_as_C_outABP_Sender_ASOriginal [label = "P_as_C_out_Original_to_Sender(String)"];
+
+ P_as_C_outABP_AR_AARSender -> P_as_C_outABP_Sender_ASAR [label = "P_as_C_out_AR_to_Sender()"];
+
+ C_as_P_inABP_Receiver_AROriginal -> C_as_P_in [label = "C_as_P_in_Receiver_to_Original(String)"];
+
+ C_as_P_inABP_Receiver_ARAS -> C_as_P_inABP_AS_AASReceiver [label = "C_as_P_in_Receiver_to_AS()"];
+
+ P_as_C_outABP_Sender_ASReceiver -> C_as_P_inABP_Receiver_ARSender [label = "P_as_C_out_Sender_to_Receiver(String, Integer)", style=dotted];
+
+ C_as_P_inABP_AS_AASAR -> P_as_C_outABP_AR_AARAS [label = "P_as_C_out_AS_to_AR(Integer)", style=dotted];
+
+ C_as_P_out -> C_as_P_outABP_Sender_ASOriginal [label = "C_as_P_out_Original_to_Sender(String)"];
+
+ C_as_P_outABP_AR_AARSender -> C_as_P_outABP_Sender_ASAR [label = "C_as_P_out_AR_to_Sender()"];
+
+ P_as_C_inABP_Receiver_AROriginal -> P_as_C_in [label = "P_as_C_in_Receiver_to_Original(String)"];
+
+ P_as_C_inABP_Receiver_ARAS -> P_as_C_inABP_AS_AASReceiver [label = "P_as_C_in_Receiver_to_AS()"];
+
+ C_as_P_outABP_Sender_ASReceiver -> P_as_C_inABP_Receiver_ARSender [label = "C_as_P_out_Sender_to_Receiver(String, Integer)", style=dotted];
+
+ P_as_C_inABP_AS_AASAR -> C_as_P_outABP_AR_AARAS [label = "C_as_P_out_AS_to_AR(Integer)", style=dotted];
+
+}

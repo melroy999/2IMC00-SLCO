@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channels:ChannelList xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:channels="channels" xmlns:slco="slco">
+  <channels xsi:type="slco:BidirectionalChannel" href="../nqc_slco_ecore/LegoCase_merge_ic_mc_as.slco#//@channels.6"/>
+</channels:ChannelList>

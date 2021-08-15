@@ -1,0 +1,56 @@
+/**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
+ */
+package NQC;
+
+
+/**
+ * <!-- begin-user-doc -->
+ * A representation of the model object '<em><b>Tx Power Constant</b></em>'.
+ * <!-- end-user-doc -->
+ *
+ * <p>
+ * The following features are supported:
+ * <ul>
+ *   <li>{@link NQC.TxPowerConstant#getTxPower <em>Tx Power</em>}</li>
+ * </ul>
+ * </p>
+ *
+ * @see NQC.NQCPackage#getTxPowerConstant()
+ * @model
+ * @generated
+ */
+public interface TxPowerConstant extends ConstantExpression {
+	/**
+	 * Returns the value of the '<em><b>Tx Power</b></em>' attribute.
+	 * The literals are from the enumeration {@link NQC.TxPowerEnum}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Tx Power</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Tx Power</em>' attribute.
+	 * @see NQC.TxPowerEnum
+	 * @see #setTxPower(TxPowerEnum)
+	 * @see NQC.NQCPackage#getTxPowerConstant_TxPower()
+	 * @model required="true"
+	 * @generated
+	 */
+	TxPowerEnum getTxPower();
+
+	/**
+	 * Sets the value of the '{@link NQC.TxPowerConstant#getTxPower <em>Tx Power</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Tx Power</em>' attribute.
+	 * @see NQC.TxPowerEnum
+	 * @see #getTxPower()
+	 * @generated
+	 */
+	void setTxPower(TxPowerEnum value);
+
+} // TxPowerConstant

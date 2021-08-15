@@ -1,0 +1,38 @@
+<workflow>
+
+  <property name='inputname' value='ExclusiveChannels' />
+  <property name='slcoinputfile' value='${inputname}.slco' />
+  <property name='channelsinputfile' value='${inputname}_ex.channels' />
+
+  <property name='outputfile' value='${inputname}_ex.slco' />
+
+  <property name='sourcedir' value='../models/TransformationExamples/slco_ecore'/>
+  <property name='targetdir' value='../models/TransformationExamples/slco_ecore'/>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${sourcedir}/${slcoinputfile}"/>
+    <outputSlot value="InModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${sourcedir}/${channelsinputfile}"/>
+    <outputSlot value="Channels"/>
+  </component>
+
+  <component id="s2as" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::ExclusiveChannels::exclusiveChannels(InModel, Channels)"/>
+    <outputSlot value="OutModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${outputfile}"/>
+    <inputSlot value="OutModel"/>
+  </component>
+
+</workflow>

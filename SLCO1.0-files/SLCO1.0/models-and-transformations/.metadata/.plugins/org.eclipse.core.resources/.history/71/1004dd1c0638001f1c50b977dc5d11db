@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<workflow>
+
+  <property name='inputname' value='DoubleDebug' />
+  <property name='modelinputfile' value='${inputname}.slco' />
+  <property name='fragmentinputfile' value='${inputname}.dsl' />
+  <property name='slcooutputfile' value='${inputname}.slco' />
+
+  <property name='sourcedir' value='../models/slco-sl-ecore'/>
+  <property name='auxtargetdir' value='../models/slco-ecore/sl'/>
+  <property name='targetdir' value='../models/slco-ecore'/>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${sourcedir}/${modelinputfile}"/>
+    <outputSlot value="HybridModel"/>
+  </component>
+
+  <component class='org.eclipse.xpand2.Generator'>
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <expand value='Transformations::Extract::generateFile FOR HybridModel'/>
+    <genPath value='${auxtargetdir}'/>
+  </component>
+
+  <component class="org.eclipse.xtext.MweReader">
+    <uri value="${auxtargetdir}/${fragmentinputfile}"/>
+    <register class="org.xtext.sdslco.DslStandaloneSetup"/>
+    <outputSlot value="Fragments"/>
+  </component>
+
+  <component id="cam" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="org.xtext.sdslco.dsl.DslPackage"/>
+    </metaModel>
+    <invoke value="../../slco-sl-ecore2slco-ecore/src/Transformations::ConvertAndMerge::modifyModel(HybridModel, Fragments)"/>
+    <outputSlot value="SLCOModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${slcooutputfile}"/>
+    <inputSlot value="SLCOModel"/>
+  </component>
+</workflow>

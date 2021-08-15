@@ -1,0 +1,282 @@
+% *** DEFINITION OF XOR OPERATOR ***
+
+map xor: Bool # Bool -> Bool;
+var a, b: Bool;
+eqn xor(a,b) = (a || b) && !(a && b);
+
+% *** DEFINITION OF UPDATING LISTS OF INTEGERS AND BOOLEANS ***
+
+map update: List(Int) # Nat # Int -> List(Int);
+    updatestep: List(Int) # Nat # Int # Nat -> List(Int);
+    update: List(Bool) # Nat # Bool -> List(Bool);
+    updatestep: List(Bool) # Nat # Bool # Nat -> List(Bool);
+var li: List(Int);
+    lb: List(Bool);
+    i,j: Nat;
+    vi: Int;
+    vb: Bool;
+eqn (i >= #li) -> update(li,i,vi) = li;
+    (i < #li) -> update(li,i,vi) = updatestep(li,i,vi,0);
+    (j == i) -> updatestep(li,i,vi,j) = [vi] ++ tail(li);
+    (j < i)  -> updatestep(li,i,vi,j) = [head(li)] ++ updatestep(tail(li),i,vi,j+1);
+    (i >= #lb) -> update(lb,i,vb) = lb;
+    (i < #lb) -> update(lb,i,vb) = updatestep(lb,i,vb,0);
+    (j == i) -> updatestep(lb,i,vb,j) = [vb] ++ tail(lb);
+    (j < i)  -> updatestep(lb,i,vb,j) = [head(lb)] ++ updatestep(tail(lb),i,vb,j+1);
+
+% *** STATE NAMES ***
+
+{% for s in states %}{% if loop.first %}sort State = struct {% else %}| {% endif %}{{s}}{% if loop.last %};{% else %} {% endif %}{% endfor %}
+
+
+{% if check_rc %}
+{% if modelvars|length > 0 %}
+% *** VARIABLE NAMES ***
+
+{% for v in modelvars %}{% if loop.first %}sort Var = struct {% else %} | {% endif %}{{mcrl2varprefix}}{{v[0]}}{% if v[1].size > 1 %}(Nat){% endif %}{{';' if loop.last }}{% endfor %}
+
+
+% *** STATEMACHINE NAMES ***
+
+{% for stm in statemachinenames %}{% if loop.first %}sort Statemachine = struct {% else %} | {% endif %}{{stm}}{{' | _;' if loop.last }}{% endfor %}
+
+{% endif %}
+{% endif %}
+
+{% if channeltypes|length > 0 %}
+% *** SPECIFICATION OF SIGNALS ***
+
+{% for ct, sset in channeltypes.items() %}
+sort Signal'{% for d in ct %}{{d|datatypeacronym}}{% endfor %} = struct {% for signal in sset %}{{signal}}{% if not loop.last %} | {% endif %}{% endfor %}{% if sset|length == 0 %}DUMMY'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}{% endif %};
+
+{% endfor %}
+{% endif %}
+{% if asynclosslesstypes.union(asynclossytypes)|length > 0 %}
+% *** SPECIFICATION OF MESSAGES ***
+
+{% for ct in asynclosslesstypes.union(asynclossytypes) %}
+{% set sset = channeltypes[ct] %}
+sort M'{% for d in ct %}{{d|datatypeacronym}}{% endfor %} = struct m'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}(el'0: Signal'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}{% for d in ct %}, el'{{ loop.index }}: {{d}}{% endfor %});
+
+{% endfor %}
+% *** SLCO CHANNEL TYPES SPECIFICATIONS ***
+
+act cannot'insert, cannot'remove;
+{% for ct in asynclosslesstypes.union(asynclossytypes) %}
+    insert, remove: {{'Statemachine # Set(Var) # Set(Var) # Statemachine # Set(Var) # Set(Var) # ' if check_rc}}Signal'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}{% for d in ct %} # {{d}}{% endfor %};
+		show: {{'Statemachine # Set(Var) # Set(Var) # ' if check_rc}}Signal'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}{% for d in ct %} # {{d}}{% endfor %};
+{% endfor %}
+
+{% for ct in asynclosslesstypes.union(asynclossytypes) %}
+{% set sset = channeltypes[ct] %}
+proc AsyncChannel{{'Lossy' if ct in asynclossytypes }}'{% for t in ct %}{{t|datatypeacronym}}{% endfor %}(l : List(M'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}), size : Int, maxsize : Int) =
+	(size < maxsize) -> sum {{'SM\': Statemachine, R\': Set(Var), W\': Set(Var), ' if check_rc }}s:Signal'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}{% for d in ct %}, x'{{loop.index0}}: {{d}}{% endfor %}. insert({{'SM\',R\',W\',_,{},{},' if check_rc }}s{% for d in ct %},x'{{loop.index0}}{% endfor %}).AsyncChannel{{'Lossy' if ct in asynclossytypes }}'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}(l <| m'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}(s{% for d in ct %},x'{{loop.index0}}{% endfor %}), size+1, maxsize) +
+	(size > 0) -> {{'sum SM\': Statemachine, R\': Set(Var), W\': Set(Var). ' if check_rc}}remove({{'_,{},{},SM\',R\',W\',' if check_rc}}el'0(head(l)){% for d in ct %},el'{{ loop.index }}(head(l)){% endfor %}).AsyncChannel{{'Lossy' if ct in asynclossytypes }}'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}(tail(l), size-1, maxsize) +
+	(size > 0) -> show({{'_,{},{},' if check_rc}}el'0(head(l)){% for d in ct %},el'{{ loop.index }}(head(l)){% endfor %}).AsyncChannel{{'Lossy' if ct in asynclossytypes }}'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}() +
+	(size == 0) -> cannot'remove.AsyncChannel{{'Lossy' if ct in asynclossytypes }}'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}() +
+	(size == maxsize) -> cannot'insert.AsyncChannel{{'Lossy' if ct in asynclossytypes }}'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}();
+
+{% endfor %}
+{% endif %}
+% *** SLCO CLASS SPECIFICATIONS ***
+
+act tau'{% for a in model.actions %}, {{a.name}}{% endfor %};
+{% for c, aset in visibleactions.items() %}
+{% for a in aset %}
+{% if a|statementactionlabel(c,false) not in actions %}
+    {{a|statementactionlabel(c,false)}}{{a|statementactiontype(c)}};
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% for c in model.channels %}
+    {{c|class_sendactionlabel}}{{c|sendactiontype}};
+		{{c|class_receiveactionlabel}}{{c|receiveactiontype}};
+		{{c|class_peekactionlabel}}{{c|peekactiontype}};
+		{% if c.synctype == 'sync' %}
+		{{c|class_sendpeekactionlabel}}{{c|sendpeekactiontype}};
+		{% endif %}
+{% if c.synctype == 'sync' %}
+    not'{{c|class_sendactionlabel}}, not'{{c|class_receiveactionlabel}};
+{% endif %}
+{% endfor %}
+{% for class in model.classes %}
+{% if class_receives[class]|length > 0 %}
+    {{mcrl2resetrecs}}_{{class.name}};
+{% endif %}
+{% endfor %}
+
+{% for class in model.classes %}
+proc {{class.name}}({%for var in class.variables%}{{var.name}}: {{var.type|mcrl2type}}, {% endfor %}{%for sm in class.statemachines%}{% set smloop = loop %}{{sm.name}}_state: State, {{sm.name}}_stindex: Int{{', ' if not loop.last or sm.variables|length>0}}{%for smvar in sm.variables%}{{sm.name}}'{{smvar.name}}: {{smvar.type|mcrl2type}}{{', ' if not loop.last or not smloop.last }}{% endfor %}{% endfor %}{% for s in class_receives[class] %}, rec_enabled{{s._tx_position}}: Bool{% endfor %}) =
+	{% for sm in class.statemachines %}
+	{% set smloop = loop %}
+	{% for smstat in sm.states|select("hasoutgoingtrans", sm.transitions) %}
+	{% set smstatloop = loop %}
+	{% set transcounter = [] %}
+	{% set statetrans = sm.transitions|select("outgoingfromstate", smstat.name) %}
+	{% set statetransprio = statetrans|sort(attribute='priority') %}
+	{% for tr in statetransprio %}
+	{% set trloop = loop %}
+	{%for stat in tr.statements %}
+	{% set statloop = loop %}
+	{% set statindex = 0 %}
+	{% if not loop.first %}{% set statindex = transcounter|length+statloop.index0 %}{% endif %}
+	({{sm.name}}_state == {{tr.source.name}} && {{sm.name}}_stindex == {{statindex}}{{stat|statementguard(class,statindex,loop.index0==0,False)}}{% for cs in class_sguard_creceives|reject("equalto", stat) %} && {% if cs in condstats %}!{% endif %}rec_enabled{{cs._tx_position}}{% endfor %}) -> {{stat|statementsummation(class)}}{{stat|statementlabel(class,loop.index0==0,0)}}{{stat|statementparameters(class)}}.{{class.name}}({% if loop.last %}{{sm.name}}_state={{tr.target.name}}{% if tr.statements|length>1 %}, {% endif %}{% endif %}{% if tr.statements|length>1 %}{{sm.name}}_stindex={% if loop.last %}0{% else %}{{transcounter|length+loop.index0+1}}{% endif %}{% endif %}{{stat|statementstatechanges(class)}}{% for s in class_receives[class] %}, rec_enabled{{s._tx_position}}=true{% endfor %}){% if stat.__class__.__name__ == 'ReceiveSignal' %}<>{% if stat is o2o_sync(class) %}not'{{stat|statementactionlabel(class,False)}}{% else %}tau'{% endif %}.{{class.name}}(rec_enabled{{stat._tx_position}}=false)){% endif %}{% if not loop.last or not trloop.last or not smstatloop.last or not smloop.last or stat.__class__.__name__ == 'SendSignal' %} +{% elif o2o_sync_summands.get(class) != None or class_receives.get(class)|length > 0 %} +{% else %}{% if check_rc and stat.__class__.__name__ == 'Expression' and stat is not actionref %} +{% else %};{% endif %}{% endif %}
+	{% if check_rc and stat.__class__.__name__ == 'Expression' and stat is not actionref %}
+
+	({{sm.name}}_state == {{tr.source.name}} && {{sm.name}}_stindex == {{statindex}}{{stat|statementguard(class,statindex,loop.index0==0,True)}}{% for cs in class_sguard_creceives|reject("equalto", stat) %} && {% if cs in condstats %}!{% endif %}rec_enabled{{cs._tx_position}}{% endfor %}) -> {{stat|statementsummation(class)}}{{stat|statementlabel(class,loop.index0==0,0)}}{{stat|statementparameters(class)}}.{{class.name}}(){% if not loop.last or not trloop.last or not smstatloop.last or not smloop.last %} +{% elif o2o_sync_summands.get(class) != None  or class_receives.get(class)|length > 0 %} +{% else %};{% endif %}
+	{% endif %}
+	{% if stat.__class__.__name__ == 'SendSignal' and stat is o2o_sync(class) %}
+
+	({{sm.name}}_state == {{tr.source.name}} && {{sm.name}}_stindex == {{statindex}}{{stat|statementguard(class,statindex,loop.index0==0,False)}}{% for cs in class_sguard_creceives|reject("equalto", stat) %} && {% if cs in condstats %}!{% endif %}rec_enabled{{cs._tx_position}}{% endfor %}) -> {{stat|peekstatementlabel(class)}}{{previous_sid[0]}}{{stat|peekstatementparameters(class)}}.({{stat|statementsummation(class)}}{{stat|statementlabel(class,False,0)}}{{stat|statementparameters(class)}}.{{class.name}}({% if loop.last %}{{sm.name}}_state={{tr.target.name}}{% if tr.statements|length>1 %}, {% endif %}{% endif %}{% if tr.statements|length>1 %}{{sm.name}}_stindex={% if loop.last %}0{% else %}{{transcounter|length+loop.index0+1}}{% endif %}{% endif %}{{stat|statementstatechanges(class)}}{% for s in class_receives[class] %}, rec_enabled{{s._tx_position}}=true{% endfor %}) + not'{{stat|statementactionlabel(class,False)}}.{{class.name}}()){% if not loop.last or not trloop.last or not smstatloop.last or not smloop.last %} +{% elif o2o_sync_summands.get(class) != None or class_receives.get(class)|length > 0 %} +{% else %};{% endif %}{% endif %}
+	{% if class_sguard_creceives_combs|length == 0 %}
+
+	{% endif %}
+	{% for condstats in class_sguard_creceives_combs %}
+	({{sm.name}}_state == {{tr.source.name}} && {{sm.name}}_stindex == {{statindex}}{{stat|statementguard(class,statindex,statloop.index0==0,False)}}{% for cs in class_sguard_creceives|reject("equalto", stat) %} && {% if cs in condstats %}!{% endif %}rec_enabled{{cs._tx_position}}{% endfor %}) -> {{stat|statementsummation(class)}}{{stat|statementlabel(class,False,loop.index)}}{{stat|statementparameters(class)}}.{{class.name}}({% if statloop.last %}{{sm.name}}_state={{tr.target.name}}{% if tr.statements|length>1 %}, {% endif %}{% endif %}{% if tr.statements|length>1 %}{{sm.name}}_stindex={% if statloop.last %}0{% else %}{{transcounter|length+statloop.index0+1}}{% endif %}{% endif %}{{stat|statementstatechanges(class)}}{% for s in class_receives[class] %}, rec_enabled{{s._tx_position}}=true{% endfor %}){% if stat.__class__.__name__ == 'ReceiveSignal' %}<>{% if stat is o2o_sync(class) %}not'{{stat|statementactionlabel(class,False)}}{% else %}tau'{% endif %}.{{class.name}}(rec_enabled{{stat._tx_position}}=false)){% endif %}{% if not loop.last or statloop.last or not trloop.last or not smstatloop.last or not smloop.last or stat.__class__.__name__ == 'SendSignal' %} +{% elif o2o_sync_summands.get(class) != None or class_receives.get(class)|length > 0 %} +{% else %}{% if check_rc and stat.__class__.__name__ == 'Expression' and stat is not actionref %} +{% else %};{% endif %}{% endif %}
+	{% if check_rc and stat.__class__.__name__ == 'Expression' and stat is not actionref %}
+
+	({{sm.name}}_state == {{tr.source.name}} && {{sm.name}}_stindex == {{statindex}}{{stat|statementguard(class,statindex,loop.index0==0,True)}}{% for cs in class_sguard_creceives|reject("equalto", stat) %} && {% if cs in condstats %}!{% endif %}rec_enabled{{cs._tx_position}}{% endfor %}) -> {{stat|statementsummation(class)}}{{stat|statementlabel(class,loop.index0==0,0)}}{{stat|statementparameters(class)}}.{{class.name}}(){% if not loop.last or not trloop.last or not smstatloop.last or not smloop.last %} +{% elif o2o_sync_summands.get(class) != None or class_receives.get(class)|length > 0 %} +{% else %};{% endif %}
+	{% endif %}
+	{% if stat.__class__.__name__ == 'SendSignal' and stat is o2o_sync(class) %}
+
+	({{sm.name}}_state == {{tr.source.name}} && {{sm.name}}_stindex == {{statindex}}{{stat|statementguard(class,statindex,statloop.index0==0,False)}}{% for cs in class_sguard_creceives|reject("equalto", stat) %} && {% if cs in condstats %}!{% endif %}rec_enabled{{cs._tx_position}}{% endfor %}) -> {{stat|peekstatementlabel(class)}}{{previous_sid[0]}}{{stat|peekstatementparameters(class)}}.({{stat|statementsummation(class)}}{{stat|statementlabel(class,statloop.index0==0,0)}}{{stat|statementparameters(class)}}.{{class.name}}({% if statloop.last %}{{sm.name}}_state={{tr.target.name}}{% if tr.statements|length>1 %}, {% endif %}{% endif %}{% if tr.statements|length>1 %}{{sm.name}}_stindex={% if statloop.last %}0{% else %}{{transcounter|length+statloop.index0+1}}{% endif %}{% endif %}{{stat|statementstatechanges(class)}}{% for s in class_receives[class] %}, rec_enabled{{s._tx_position}}=true{% endfor %}) + not'{{stat|statementactionlabel(class,False)}}.{{class.name}}()){% if not statloop.last or not trloop.last or not smstatloop.last or not smloop.last %} +{% elif o2o_sync_summands.get(class) != None or class_receives.get(class)|length > 0 %} +{% else %};{% endif %}
+	{% endif %}
+
+	{% endfor %}
+	{% endfor %}
+	{% for i in tr.statements[1:] %}
+	{% do transcounter.append(1) %}
+	{% endfor %}
+	{% endfor %}
+	{% endfor %}
+	{% endfor %}
+	{% if o2o_sync_summands.get(class) != None %}
+	{% for stat, sguard in o2o_sync_summands[class].items() %}
+	({% for g in sguard[1] %}{{' && ' if not loop.first}}{{g}}{% endfor %}) -> cannot'{{stat}}.{{class.name}}(){% if not loop.last or class_receives.get(class) != None %} +{% else %};{% endif %}
+
+	{% endfor %}
+	{% endif %}
+	{% if class_receives.get(class)|length > 0 %}
+	{{mcrl2resetrecs}}_{{class.name}}.{{class.name}}({% for s in class_receives[class] %}{% if not loop.first %}, {% endif %}rec_enabled{{s._tx_position}} = true{% endfor %});
+	{% endif %}
+
+{% endfor %}
+{% for c, statlist in sync_guarded_statements.items() %}
+{% set trloop = loop %}
+{% for sref in statlist %}
+{% if trloop.first %}act {% else %}    {% endif %}{{sref[0]|statementactionlabel(c,false)}}{{sref[1]}}{{sref[0]|statementactiontype(c)}};
+{% if sref[0].__class__.__name__ == 'ReceiveSignal' or sref[0].__class__.__name__ == "SendSignal" %}
+    {{sref[0]|peekstatementlabel(c)}}{{sref[1]}}{{sref[0]|peekstatementactiontype(c)}};
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% for c, o2osyncs in o2o_sync_summands.items() %}
+{% if loop.first and sync_guarded_statements|length == 0 %}act {% else %}    {% endif %}{% for stat, sguard in o2osyncs.items() %}cannot'{{stat}};
+{% endfor %}
+{% endfor %}
+{% if sync_guarded_statements|length > 0 or o2o_sync_summands|length > 0 %}
+
+{% endif %}
+% *** SLCO OBJECT SPECIFICATIONS ***
+
+{% for o in model.objects %}{% if loop.first %}act {% else %}, {% endif %}tau'_{{o.name}}{% endfor %};
+{% for c, aset in visibleactions.items() %}
+{% for a in aset %}
+{% for o in classobjects[c] %}
+{% if a|statementactionlabel(c,false) not in actions %}    {{a|statementactionlabel(o,false)}}{{a|statementactiontype(c)}}{% else %}    {{a|statementactionlabel(o,false)}}{% endif %};
+{% endfor %}
+{% endfor %}
+{% endfor %}
+{% for c in model.channels %}
+    {{c|sendactionlabel}}{{c|sendactiontype}};
+		{{c|receiveactionlabel}}{{c|receiveactiontype}};
+		{{c|peekactionlabel}}{{c|peekactiontype}};
+		{% if c.synctype == 'sync' %}
+		{{c|sendpeekactionlabel}}{{c|sendpeekactiontype}};
+		{% endif %}
+{% if c.synctype == 'sync' %}
+    not'{{c|sendactionlabel}}, not'{{c|receiveactionlabel}};
+{% endif %}
+{% endfor %}
+{% for class in model.classes|select("hasreceivestatements") %}
+{% for o in classobjects[class] %}{% if loop.first %}    {% else %}, {% endif %}{{mcrl2resetrecs}}_{{o.name}}{% endfor %};
+{% endfor %}
+
+{% for c, statlist in sync_guarded_statements.items() %}
+{% set trloop = loop %}
+{% if classobjects.get(c) != None %}
+{% for o in classobjects[c] %}
+{% for sref in statlist %}
+{% if trloop.first and loop.first %}act {% else %}    {% endif %}{{sref[0]|statementactionlabel(o,false)}}{{sref[1]}}{{sref[0]|statementactiontype(o)}};
+{% if sref[0].__class__.__name__ == 'ReceiveSignal' or sref[0].__class__.__name__ == "SendSignal" %}
+    {{sref[0]|peekstatementlabel(o)}}{{sref[1]}}{{sref[0]|peekstatementactiontype(c)}};
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% for c, o2osyncs in o2o_sync_summands.items() %}
+{% set trloop = loop %}
+{% if classobjects.get(c) != None %}
+{% for o in classobjects[c] %}
+{% if sync_guarded_statements|length == 0 and trloop.first and loop.first %}act {% else %}    {% endif %}{% for stat, sguard in o2osyncs.items() %}cannot'{% if sguard[0].__class__.__name__ == 'ReceiveSignal' %}{{sguard[0]|statementactionlabel(o,true)}}{% else %}{{sguard[0]|statementactionlabel(o,false)}}{% endif %};
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% if sync_guarded_statements|length > 0 or o2o_sync_summands|length > 0 %}
+
+{% endif %}
+{% for o in model.objects %}
+{% set o_sync_guarded = sync_guarded_statements.get(o.type) %}
+proc {{o.name}} = rename({ tau' -> tau'_{{o.name}}{% for c in model.channels %}{% if (c.source == o or c.target == o) %}, {% endif %}{% if c.source == o %}{{c|class_sendactionlabel}} -> {{c|sendactionlabel}}{% if c.synctype == 'sync' %}, {{c|class_sendpeekactionlabel}} -> {{c|sendpeekactionlabel}}, not'{{c|class_sendactionlabel}} -> not'{{c|sendactionlabel}}{% endif %}{% elif c.target == o %}{{c|class_receiveactionlabel}} -> {{c|receiveactionlabel}}, {{c|class_peekactionlabel}} -> {{c|peekactionlabel}}{% if c.synctype == 'sync' %}, not'{{c|class_receiveactionlabel}} -> not'{{c|receiveactionlabel}}{% endif %}{% endif %}{% endfor %}{% if visibleactions.get(o.type) != None %}{% for a in visibleactions[o.type] %}, {{a|statementactionlabel(o.type,false)}} -> {{a|statementactionlabel(o,false)}}{% endfor %}{% endif %}{% if o_sync_guarded != None %}{% for sref in o_sync_guarded %}{% if sref[0].__class__.__name__ == 'ReceiveSignal' or sref[0].__class__.__name__ == "SendSignal" %}, {{sref[0]|peekstatementlabel(o.type)}}{{sref[1]}} -> {{sref[0]|peekstatementlabel(o)}}{{sref[1]}}{% else %}, {{sref[0]|statementactionlabel(o.type,false)}}{{sref[1]}} -> {{sref[0]|statementactionlabel(o,false)}}{{sref[1]}}{% endif %}{% endfor %}{% endif %}{% if o2o_sync_summands.get(o.type) != None %}{% set o2osyncs = o2o_sync_summands[o.type] %}{% for stat, sguard in o2osyncs.items() %}, cannot'{{stat}} -> cannot'{% if sguard[0].__class__.__name__ == 'ReceiveSignal' %}{{sguard[0]|statementactionlabel(o,true)}}{% else %}{{sguard[0]|statementactionlabel(o,false)}}{% endif %}{% endfor %}{% endif %}{% if class_receives[o.type]|length > 0 %}, {{mcrl2resetrecs}}_{{o.type.name}} -> {{mcrl2resetrecs}}_{{o.name}}{% endif %} }, {{o.type.name}}({% for var in o.type.variables %}{% for vinit in o.assignments %}{% if var.name == vinit.left.name %}{% if vinit.right == None %}[{% for v in vinit.rights %}{{v|mcrl2value}}{{',' if not loop.last }}{% endfor %}]{% else %}{{vinit.right|mcrl2value}}{% endif %}{% break %}{% endif %}{% if loop.last %}{{var|variabledefault}}{% endif %}{% endfor %}{% if o.assignments|length == 0 %}{{var|variabledefault}}{% endif %}{% if not loop.last or o.type.statemachines|length > 0 or class_receives.get(o.type) != [] %}, {% endif %}{% endfor %}{% for sm in o.type.statemachines %}{{sm.initialstate.name}}, 0{% for smvar in sm.variables %}, {{smvar|variabledefault}}{% endfor %}{% if not loop.last or class_receives.get(o.type) != [] %}, {% endif %}{% endfor %}{% for s in class_receives[o.type] %}true{{', ' if not loop.last }}{% endfor %}));
+
+{% endfor %}
+{% if asynclosslesstypes.union(asynclossytypes)|length > 0 %}
+% *** SLCO CHANNEL SPECIFICATIONS ***
+
+{% for c in model.channels|select("isasync") %}
+act cannot'insert_{{c.source.name}}'{{c.ports[0].name}}, cannot'remove_{{c.target.name}}'{{c.ports[1].name}};
+    insert_{{c.source.name}}'{{c.ports[0].name}}, remove_{{c.target.name}}'{{c.ports[1].name}}: {{'Statemachine # Set(Var) # Set(Var) # Statemachine # Set(Var) # Set(Var) # ' if check_rc}}Signal'{% for t in c.type %}{{t|mcrl2type|datatypeacronym}}{% endfor %}{% for t in c.type %} # {{t|mcrl2type}}{% endfor %};
+		show_{{c.target.name}}'{{c.ports[1].name}}: {{'Statemachine # Set(Var) # Set(Var) # ' if check_rc}}Signal'{% for t in c.type %}{{t|mcrl2type|datatypeacronym}}{% endfor %}{% for t in c.type %} # {{t|mcrl2type}}{% endfor %};
+
+{% endfor %}
+{% for c in model.channels|select("isasync") %}
+proc {{c.name}} = rename({cannot'insert -> cannot'insert_{{c.source.name}}'{{c.ports[0].name}}, cannot'remove -> cannot'remove_{{c.target.name}}'{{c.ports[1].name}}, insert -> insert_{{c.source.name}}'{{c.ports[0].name}}, remove -> remove_{{c.target.name}}'{{c.ports[1].name}}, show -> show_{{c.target.name}}'{{c.ports[1].name}}}, AsyncChannel{% if c.losstype == 'lossy' %}Lossy{% endif %}'{% for t in c.type %}{{t|mcrl2type|datatypeacronym}}{% endfor %}([],0,{% if c.size == 0 %}1{% else %}{{c.size}}{% endif %}));
+
+{% endfor %}
+{% endif %}
+% *** INITIALISATION ***
+
+{% for c in model.channels %}
+{% if loop.first %}act {% else %}    {% endif %}{% if c.synctype == 'async' %}{{c|commsendactionlabel}}, {{c|commreceiveactionlabel}}{{c|sendactiontype}};
+    {{c|commpeekactionlabel}}{{c|peekactiontype}}{% else %}{{c|syncactionlabel}}{{c|sendactiontype}};
+	  {{c|peeksyncactionlabel}}{{c|sendpeekactiontype}}{% endif %};
+{% if c.synctype == 'sync' %}    not'{{c|syncactionlabel}};
+{% endif %}
+{% endfor %}
+
+init(
+hide({ {% for o in model.objects %}tau'_{{o.name}}{{', ' if not loop.last }}{% endfor %}{% for c in model.channels %}{% set type = c.type|mcrl2typetuple %}{% if c.synctype == 'async' %}{% if not check_rc %}, {{c|commpeekactionlabel}}{% endif %}{% else %}{% if not check_rc %}, {{c|peeksyncactionlabel}}{% endif %}, not'{{c|syncactionlabel}}{% endif %}{% endfor %} },
+allow({ {% for o in model.objects %}{{ ', ' if not loop.first }}tau'_{{o.name}}{% if visibleactions.get(o.type) != None %}{% for a in visibleactions[o.type] %}, {{a|statementactionlabel(o,false)}}{% endfor %}{% endif %}{% endfor %}{% for c in model.channels %}{% if c.synctype == 'async' %}, {{c|commsendactionlabel}}, {{c|commreceiveactionlabel}}, {{c|commpeekactionlabel}}{% else %}, {{c|syncactionlabel}}, {{c|peeksyncactionlabel}}, not'{{c|syncactionlabel}}{% endif %}{% endfor %} },
+{% if model.channels|length > 0 %}
+comm({ {% for c in model.channels %}{% if not loop.first %}, {% endif %}{% if c.synctype == 'async' %}{{c|sendactionlabel}} | insert_{{c.source.name}}'{{c.ports[0].name}} -> {{c|commsendactionlabel}}, {{c|receiveactionlabel}} | remove_{{c.target.name}}'{{c.ports[1].name}} -> {{c|commreceiveactionlabel}}, {{c|peekactionlabel}} | show_{{c.target.name}}'{{c.ports[1].name}} -> {{c|commpeekactionlabel}}{% else %}{{c|sendactionlabel}} | {{c|receiveactionlabel}} -> {{c|syncactionlabel}}, {{c|sendpeekactionlabel}} | {{c|peekactionlabel}} -> {{c|peeksyncactionlabel}}, not'{{c|sendactionlabel}} | not'{{c|receiveactionlabel}} -> not'{{c|syncactionlabel}}{% endif %}{% endfor %} },
+{% endif %}
+{% if sync_guard_rules|length > 0 or class_receives is nonemptydict %}
+rename({ {% for rule in sync_guard_rules %}{{', ' if not loop.first }}{{rule[0][0]}} -> {{rule[0][1]}}{% endfor %} },
+hide({ {% for r in sync_guard_rules|sync_guard_hideset %}{{', ' if not loop.first }}{{r}}{% endfor %}{% for c in model.classes|select("hasreceivestatements") %}{{', ' if not loop.first or sync_guard_rules|sync_guard_hideset|length > 0 }}{% for o in classobjects[c] %}{{mcrl2resetrecs}}_{{o.name}}{% endfor %}{% endfor %} },
+allow({ {% for o in model.objects %}{% if visibleactions.get(o.type) != None %}{% for a in visibleactions[o.type] %}{{a|statementactionlabel(o,false)}}{% for c in model.classes|select("hasreceivestatements") %}{% for oo in classobjects[c] %}{% if oo != o %} | {{mcrl2resetrecs}}_{{oo.name}}{% endif %}{% endfor %}{% endfor %}, {% endfor %}{% endif %}{% endfor %}{% for o in model.objects %}{{', ' if not loop.first }}tau'_{{o.name}}{% for c in model.classes|select("hasreceivestatements") %}{% for oo in classobjects[c] %}{% if o != oo %} | {{mcrl2resetrecs}}_{{oo.name}}{% endif %}{% endfor %}{% endfor %}{% endfor %}{% for c in model.channels %}, {% if c.synctype == 'async' %}{{c|sendactionlabel}} | insert_{{c.source.name}}'{{c.ports[0].name}}{% for cc in model.classes|select("hasreceivestatements") %}{% for o in classobjects[cc] %}{% if o != c.source %} | {{mcrl2resetrecs}}_{{o.name}}{% endif %}{% endfor %}{% endfor %}, {{c|receiveactionlabel}} | remove_{{c.target.name}}'{{c.ports[1].name}}{% for cc in model.classes|select("hasreceivestatements") %}{% for o in classobjects[cc] %}{% if o != c.target %} | {{mcrl2resetrecs}}_{{o.name}}{% endif %}{% endfor %}{% endfor %}, {{c|peekactionlabel}} | show_{{c.target.name}}'{{c.ports[1].name}}{% for cc in model.classes|select("hasreceivestatements") %}{% for o in classobjects[cc] %}{% if o != c.target %} | {{mcrl2resetrecs}}_{{o.name}}{% endif %}{% endfor %}{% endfor %}{% else %}{{c|sendactionlabel}} | {{c|receiveactionlabel}}{% for cc in model.classes|select("hasreceivestatements") %}{% for o in classobjects[cc] %}{% if o != c.source and o != c.target %} | {{mcrl2resetrecs}}_{{o.name}}{% endif %}{% endfor %}{% endfor %}, {{c|sendpeekactionlabel}} | {{c|peekactionlabel}}{% for cc in model.classes|select("hasreceivestatements") %}{% for o in classobjects[cc] %}{% if o != c.source and o != c.target %} | {{mcrl2resetrecs}}_{{o.name}}{% endif %}{% endfor %}{% endfor %}, not'{{c|sendactionlabel}} | not'{{c|receiveactionlabel}}{% for cc in model.classes|select("hasreceivestatements") %}{% for o in classobjects[cc] %}{% if o != c.source and o != c.target %} | {{mcrl2resetrecs}}_{{o.name}}{% endif %}{% endfor %}{% endfor %}{% endif %}{% endfor %}{% for rule in sync_guard_rules %}{% for postfix in sync_guarded_sids.get(rule[2],[]) + [''] %}, {{rule[0][0]}}{% for r in rule[1] %} | {{r}}{% endfor %}{% if rule[2] != "" %} | {{rule[2]}}{{postfix}}{% endif %}{% for c in model.classes|select("hasreceivestatements") %}{% for oo in classobjects[c] %}{% if oo not in rule[3] %} | {{mcrl2resetrecs}}_{{oo.name}}{% endif %}{% endfor %}{% endfor %}{% endfor %}{% endfor %} },
+{% endif %}
+{% for object in model.objects %}
+{{object.name}}
+{% if not loop.last %}
+||
+{% endif %}
+{% endfor %}
+{% for c in model.channels %}
+{% if c.synctype == 'async' %}
+||
+{{c.name}}
+{% endif %}
+{% endfor %}
+{{')' if model.channels|length > 0 }}{{ ')))' if sync_guard_rules|length > 0 or class_receives is nonemptydict }})));

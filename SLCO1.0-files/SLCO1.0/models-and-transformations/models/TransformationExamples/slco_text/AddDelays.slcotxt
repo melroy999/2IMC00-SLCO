@@ -1,0 +1,15 @@
+model AddDelays {
+  classes
+    A {
+      state machines
+        A {
+          initial
+            Initial
+
+          transitions
+            InitialToInitial from Initial to Initial {
+
+            }
+        }
+    }
+}

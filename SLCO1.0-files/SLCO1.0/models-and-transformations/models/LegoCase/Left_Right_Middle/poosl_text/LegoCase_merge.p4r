@@ -1,0 +1,504 @@
+///////////
+//-------//
+// Model //
+//-------//
+///////////
+
+system specification LegoCase_merge()
+
+behaviour specification
+  (
+   Environment: Environment[
+     ELeftSensor_to_LSensor/LeftSensor,
+     ERightSensor_to_RSensor/RightSensor,
+     EMiddleSensor_to_MSensor/MiddleSensor,
+     LMotor_to_ELeftMotor/LeftMotor,
+     RMotor_to_ERightMotor/RightMotor,
+     MMotor_to_EMiddleMotor/MiddleMotor
+   ]
+  ||
+   R_L_M: R_L_M[
+     LMotor_to_ELeftMotor/Left_Motor,
+     RMotor_to_ERightMotor/Right_Motor,
+     MMotor_to_EMiddleMotor/Middle_Motor,
+     ELeftSensor_to_LSensor/Left_Sensor,
+     ERightSensor_to_RSensor/Right_Sensor,
+     EMiddleSensor_to_MSensor/Middle_Sensor
+   ]
+  )
+  \
+  {ELeftSensor_to_LSensor, LMotor_to_ELeftMotor, ERightSensor_to_RSensor, RMotor_to_ERightMotor, EMiddleSensor_to_MSensor, MMotor_to_EMiddleMotor}
+ 
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class Environment()
+instance variables
+  BlockLeft: Boolean,
+  BlockRight: Boolean,
+  EnvironmentMiddleMotorBlockFellOff: Boolean
+initial method call
+  Environment_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  RightMotor_Start()()
+    |  |
+    RightMotor?On();
+    RightMotor_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Off()()
+    |  |
+    sel
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Start()()
+    |  |
+    LeftMotor?On();
+    LeftMotor_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  RightMotor_Off()()
+    |  |
+    sel
+      RightMotor?On();
+      BlockRight := true;
+      RightMotor_Running()()
+    or
+      RightMotor?Off();
+      RightMotor_Off()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  RightMotor_Running()()
+    |  |
+    sel
+      RightMotor?Off();
+      RightMotor_Off()()
+    or
+      RightSensor!Block();
+      RightSensor!BlockPassed();
+      RightMotor_Running()()
+    or
+      RightMotor?On();
+      RightMotor_Running()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Right()()
+    |  |
+    sel
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      [(BlockRight=true)]skip;
+      EnvironmentMiddleMotorBlockFellOff := true;
+      BlockRight := false;
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    or
+      [(BlockLeft=true)]skip;
+      MiddleSensor!Block();
+      MiddleSensor!BlockPassed();
+      BlockLeft := false;
+      MiddleMotor_Right()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Left()()
+    |  |
+    sel
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      [(BlockLeft=true)]skip;
+      EnvironmentMiddleMotorBlockFellOff := true;
+      BlockLeft := false;
+      MiddleMotor_Left()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    or
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      [(BlockRight=true)]skip;
+      MiddleSensor!Block();
+      MiddleSensor!BlockPassed();
+      BlockRight := false;
+      MiddleMotor_Left()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Off()()
+    |  |
+    sel
+      LeftMotor?On();
+      BlockLeft := true;
+      LeftMotor_Running()()
+    or
+      LeftMotor?Off();
+      LeftMotor_Off()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Running()()
+    |  |
+    sel
+      LeftMotor?Off();
+      LeftMotor_Off()()
+    or
+      LeftSensor!Block();
+      LeftSensor!BlockPassed();
+      LeftMotor_Running()()
+    or
+      LeftMotor?On();
+      LeftMotor_Running()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Environment_initial()()
+    |  |
+    BlockLeft := false;
+    BlockRight := false;
+    EnvironmentMiddleMotorBlockFellOff := false;
+    par
+      RightMotor_Start()()
+    and
+      MiddleMotor_Off()()
+    and
+      LeftMotor_Start()()
+    rap
+  .
+
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class R_L_M()
+instance variables
+  RMiddle_to_MRight_abl: Integer,
+  RMiddle_to_MRight_name: String,
+  LMiddle_to_MLeft_abl: Integer,
+  LMiddle_to_MLeft_name: String
+initial method call
+  R_L_M_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Right_Single_Start()()
+    |  |
+    Right_Motor!On();
+    Right_Single_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Left_Single_Start()()
+    |  |
+    Left_Motor!On();
+    Left_Single_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_Middle_Idle()()
+    |  |
+    sel
+      [((RMiddle_to_MRight_abl=1)&(RMiddle_to_MRight_name="Block"))]skip;
+      RMiddle_to_MRight_abl := 2;
+      Middle_Middle_Idle_r_Block_rbl_IdleToLeft()()
+    or
+      [((LMiddle_to_MLeft_abl=1)&(LMiddle_to_MLeft_name="Block"))]skip;
+      LMiddle_to_MLeft_abl := 2;
+      Middle_Middle_Idle_r_Block_rbl_IdleToRight()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Right_Single_Running()()
+    |  |
+    Right_Sensor?Block();
+    Right_Sensor?BlockPassed();
+    Right_Motor!Off();
+    RMiddle_to_MRight_name := "Block";
+    RMiddle_to_MRight_abl := 1;
+    Right_Single_Running_s_Block_abl_RunningToBlock()()
+  .
+/* ------ ProcessMethod ------ */
+  Right_Single_Running_s_Block_abl_RunningToBlock()()
+    |  |
+    [(RMiddle_to_MRight_abl=2)]skip;
+    RMiddle_to_MRight_abl := 3;
+    [(RMiddle_to_MRight_abl=0)]skip;
+    Right_Motor!On();
+    Right_Single_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Left_Single_Running()()
+    |  |
+    Left_Sensor?Block();
+    Left_Sensor?BlockPassed();
+    Left_Motor!Off();
+    LMiddle_to_MLeft_name := "Block";
+    LMiddle_to_MLeft_abl := 1;
+    Left_Single_Running_s_Block_abl_RunningToBlock()()
+  .
+/* ------ ProcessMethod ------ */
+  Left_Single_Running_s_Block_abl_RunningToBlock()()
+    |  |
+    [(LMiddle_to_MLeft_abl=2)]skip;
+    LMiddle_to_MLeft_abl := 3;
+    [(LMiddle_to_MLeft_abl=0)]skip;
+    Left_Motor!On();
+    Left_Single_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_Middle_Running()()
+    |  |
+    Middle_Sensor?Block();
+    Middle_Sensor?BlockPassed();
+    Middle_Motor!Off();
+    Middle_Middle_Idle()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_Middle_Idle_r_Block_rbl_IdleToLeft()()
+    |  |
+    sel
+      [(RMiddle_to_MRight_abl=3)]skip;
+      RMiddle_to_MRight_abl := 0;
+      Middle_Motor!Left();
+      Middle_Middle_Running()()
+    or
+      [(RMiddle_to_MRight_abl=0)]skip;
+      Middle_Middle_Idle()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_Middle_Idle_r_Block_rbl_IdleToRight()()
+    |  |
+    sel
+      [(LMiddle_to_MLeft_abl=3)]skip;
+      LMiddle_to_MLeft_abl := 0;
+      Middle_Motor!Right();
+      Middle_Middle_Running()()
+    or
+      [(LMiddle_to_MLeft_abl=0)]skip;
+      Middle_Middle_Idle()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  R_L_M_initial()()
+    |  |
+    RMiddle_to_MRight_abl := 0;
+    LMiddle_to_MLeft_abl := 0;
+    par
+      Right_Single_Start()()
+    and
+      Left_Single_Start()()
+    and
+      Middle_Middle_Idle()()
+    rap
+  .
+
+
+/*========================*/
+/*------------------------*/
+/* Primitive Data Classes */
+/*------------------------*/
+/*========================*/
+
+data class Object
+instance variables
+instance methods
+	error(ErrorMessage: String): Object primitive.
+	deepCopy: Object primitive.
+	=  (Operand2: Object): Boolean primitive.
+	!= (Operand2: Object): Boolean primitive.
+	== (Operand2: Object): Boolean primitive.
+	!==(Operand2: Object): Boolean primitive.
+	printString: String primitive.
+	shallowCopy: Object primitive.
+
+data class Number
+extends Object
+instance variables
+instance methods
+
+data class Integer
+extends Object
+instance variables
+instance methods
+	+  (Operand2: Number): Number primitive.
+	/  (Operand2: Number): Number primitive.
+	*  (Operand2: Number): Number primitive.
+	-  (Operand2: Number): Number primitive.
+	<  (Operand2: Number): Boolean primitive.
+	>  (Operand2: Number): Boolean primitive.
+	<= (Operand2: Number): Boolean primitive.
+	>= (Operand2: Number): Boolean primitive.
+	unaryMinus: Integer primitive.
+
+	abs: Integer primitive.
+
+	&  (Operand2: Integer): Integer primitive.
+	|  (Operand2: Integer): Integer primitive.
+	not: Integer primitive.
+
+	sqrt: Number primitive.
+	power(Operand2: Number): Number primitive.
+	sqr: Integer primitive.
+
+	div(Operand2: Integer): Integer primitive.
+	modulo(Operand2: Number): Number primitive.
+
+	asInteger: Integer primitive.
+	asReal: Real primitive.
+	asString: String primitive.
+	printString: String primitive.
+
+	fac: Integer primitive.
+	monus(n: Integer): Integer if n > self then 0 else self - n fi.
+
+data class Real
+extends Object
+instance variables
+instance methods
+	+  (Operand2: Number): Real primitive.
+	/  (Operand2: Number): Real primitive.
+	*  (Operand2: Number): Real primitive.
+	-  (Operand2: Number): Real primitive.
+	<  (Operand2: Number): Boolean primitive.
+	>  (Operand2: Number): Boolean primitive.
+	<= (Operand2: Number): Boolean primitive.
+	>= (Operand2: Number): Boolean primitive.
+	unaryMinus: Real primitive.
+
+	acos: Real primitive.
+	asin: Real primitive.
+	atan: Real primitive.
+	atan2(Denom: Real): Real primitive.
+	cos: Real primitive.
+	sin: Real primitive.
+	tan: Real primitive.
+
+	abs: Real primitive.
+
+	log: Real primitive.
+	ln: Real primitive.
+	sqrt: Real primitive.
+	exp: Real primitive.
+	power(Operand2: Number): Real primitive.
+	sqr: Real primitive.
+	
+	ceiling: Integer primitive.
+	floor: Integer primitive.
+	round: Integer primitive.
+
+	div(Operand2: Number): Integer primitive.
+	modulo(Operand2: Number): Real primitive.
+
+	asInteger: Integer primitive.
+	asReal: Real primitive.
+	asString: String primitive.
+	printString: String primitive.
+
+primitive data class Boolean
+extends Object
+instance variables
+instance methods
+	&  (Operand2: Boolean): Boolean primitive.
+	|  (Operand2: Boolean): Boolean primitive.
+	not: Boolean primitive.
+	printString: String primitive.
+
+primitive data class Char
+extends Object
+instance variables
+instance methods
+	printString: String primitive.
+
+primitive data class Array
+extends Object
+instance variables
+instance methods
+	get(FromPosition: Integer): Object primitive.
+	getSize: Integer primitive.
+	size(newSize: Integer): Array primitive.
+	printString: String
+		| i, s: Integer, Str: String |
+		Str := "Array ("; i := 0; s := self getSize;
+		while i < s do Str append(self get(i := i + 1) printString) append(if i < s then "," else ")" fi) od;
+		Str.
+	put(AtPosition: Integer, Element: Object): Array primitive.
+	putAll(Element: Object): Array primitive.
+
+primitive data class String
+extends Object
+instance variables
+instance methods
+	+  (aString: String): String primitive.
+	<  (Operand2: String): Boolean primitive.
+	>  (Operand2: String): Boolean primitive.
+	<= (Operand2: String): Boolean primitive.
+	>= (Operand2: String): Boolean primitive.    
+	append(aString: String): String primitive.
+	copy(From, To: Integer): String primitive.
+	concat(aString: String): String primitive.
+	cr: String primitive.
+	get(FromPosition: Integer): Char primitive.
+	length: Integer primitive.
+	printString: String primitive.
+	put(AtPosition: Integer, aChar: Char): String primitive.
+	tab: String primitive.
+
+primitive data class RandomGenerator
+extends Object
+instance variables
+instance methods
+	random: Real primitive.
+	randomInt(n: Integer): Integer primitive.
+	randomiseSeed: RandomGenerator primitive.
+	setSeed(aSeed: Integer): RandomGenerator primitive.
+
+primitive data class FileOut
+extends Object
+instance variables
+instance methods
+	append: FileOut primitive.
+	destination(FileName: String): FileOut primitive.
+	close: Object primitive.
+	open: FileOut primitive.
+	write(anObject: Object): FileOut
+		self writeString(anObject printString append(' ')).
+	writeln(anObject: Object): FileOut
+		self writeString(anObject printString cr).
+	writeString(aString: String): FileOut primitive.
+
+primitive data class FileIn
+extends Object
+instance variables
+instance methods
+	open: FileIn primitive.
+	close: Object primitive.
+	readString: String primitive.
+	readInteger: Integer primitive.
+	readNumber: Object primitive.
+	readReal: Real primitive.
+	readBoolean: Boolean primitive.
+	readChar: Char primitive.
+	source(FileName: String): FileIn primitive.
+

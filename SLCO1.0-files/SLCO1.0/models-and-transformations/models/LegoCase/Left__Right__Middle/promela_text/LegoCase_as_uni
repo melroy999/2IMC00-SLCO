@@ -1,0 +1,293 @@
+mtype {Block, BlockPassed, On, Off, Acknowledge_Block, Right, Left}
+
+bool Environment_BlockLeft = false; 
+bool Environment_BlockRight = false; 
+chan ELeftSensor_to_LSensor__Environment_2_Left = [0] of { mtype  }; 
+chan LMotor_to_ELeftMotor__Left_2_Environment = [0] of { mtype  }; 
+chan ERightSensor_to_RSensor__Environment_2_Right = [0] of { mtype  }; 
+chan RMotor_to_ERightMotor__Right_2_Environment = [0] of { mtype  }; 
+chan EMiddleSensor_to_MSensor__Environment_2_Middle = [0] of { mtype  }; 
+chan MMotor_to_EMiddleMotor__Middle_2_Environment = [0] of { mtype  }; 
+chan RMiddle_to_MRight_1_to_2__Right_2_Middle = [1] of { mtype  }; 
+chan LMiddle_to_MLeft_1_to_2__Left_2_Middle = [1] of { mtype  }; 
+chan RMiddle_to_MRight_2_to_1__Middle_2_Right = [1] of { mtype  }; 
+chan LMiddle_to_MLeft_2_to_1__Middle_2_Left = [1] of { mtype  }
+
+active [1] proctype Right_Single() {
+
+Label_Start: {
+ if
+ ::{RMotor_to_ERightMotor__Right_2_Environment!On;
+goto Label_Running;
+};
+ fi;
+goto Label_Start;
+};
+Label_Running: {
+ if
+ ::{ERightSensor_to_RSensor__Environment_2_Right?Block;
+goto Label_Block;
+};
+ fi;
+goto Label_Running;
+};
+Label_Block: {
+ if
+ ::{ERightSensor_to_RSensor__Environment_2_Right?BlockPassed;
+RMotor_to_ERightMotor__Right_2_Environment!Off;
+RMiddle_to_MRight_1_to_2__Right_2_Middle!Block;
+goto Label_Block_1;
+};
+ fi;
+goto Label_Block;
+};
+Label_Block_1: {
+ if
+ ::{RMiddle_to_MRight_2_to_1__Middle_2_Right?Acknowledge_Block;
+RMotor_to_ERightMotor__Right_2_Environment!On;
+goto Label_Running;
+};
+ fi;
+goto Label_Block_1;
+};
+}
+
+active [1] proctype Left_Single() {
+
+Label_Start: {
+ if
+ ::{LMotor_to_ELeftMotor__Left_2_Environment!On;
+goto Label_Running;
+};
+ fi;
+goto Label_Start;
+};
+Label_Running: {
+ if
+ ::{ELeftSensor_to_LSensor__Environment_2_Left?Block;
+goto Label_Block;
+};
+ fi;
+goto Label_Running;
+};
+Label_Block: {
+ if
+ ::{ELeftSensor_to_LSensor__Environment_2_Left?BlockPassed;
+LMotor_to_ELeftMotor__Left_2_Environment!Off;
+LMiddle_to_MLeft_1_to_2__Left_2_Middle!Block;
+goto Label_Block_1;
+};
+ fi;
+goto Label_Block;
+};
+Label_Block_1: {
+ if
+ ::{LMiddle_to_MLeft_2_to_1__Middle_2_Left?Acknowledge_Block;
+LMotor_to_ELeftMotor__Left_2_Environment!On;
+goto Label_Running;
+};
+ fi;
+goto Label_Block_1;
+};
+}
+
+active [1] proctype Middle_Middle() {
+
+Label_Start: {
+ if
+ ::{goto Label_Idle;
+};
+ fi;
+goto Label_Start;
+};
+Label_Idle: {
+ if
+ ::{LMiddle_to_MLeft_1_to_2__Left_2_Middle?Block;
+LMiddle_to_MLeft_2_to_1__Middle_2_Left!Acknowledge_Block;
+MMotor_to_EMiddleMotor__Middle_2_Environment!Right;
+goto Label_Running;
+};
+::{RMiddle_to_MRight_1_to_2__Right_2_Middle?Block;
+RMiddle_to_MRight_2_to_1__Middle_2_Right!Acknowledge_Block;
+MMotor_to_EMiddleMotor__Middle_2_Environment!Left;
+goto Label_Running;
+};
+ fi;
+goto Label_Idle;
+};
+Label_Running: {
+ if
+ ::{EMiddleSensor_to_MSensor__Environment_2_Middle?Block;
+goto Label_Block;
+};
+ fi;
+goto Label_Running;
+};
+Label_Block: {
+ if
+ ::{EMiddleSensor_to_MSensor__Environment_2_Middle?BlockPassed;
+MMotor_to_EMiddleMotor__Middle_2_Environment!Off;
+goto Label_Idle;
+};
+ fi;
+goto Label_Block;
+};
+}
+
+active [1] proctype Environment_RightMotor() {
+
+Label_Start: {
+ if
+ ::{RMotor_to_ERightMotor__Right_2_Environment?On;
+goto Label_Running;
+};
+ fi;
+goto Label_Start;
+};
+Label_Off: {
+ if
+ ::{RMotor_to_ERightMotor__Right_2_Environment?On;
+Environment_BlockRight = true;
+goto Label_Running;
+};
+::{RMotor_to_ERightMotor__Right_2_Environment?Off;
+goto Label_Off;
+};
+ fi;
+goto Label_Off;
+};
+Label_Running: {
+ if
+ ::{RMotor_to_ERightMotor__Right_2_Environment?Off;
+goto Label_Off;
+};
+::{ERightSensor_to_RSensor__Environment_2_Right!Block;
+ERightSensor_to_RSensor__Environment_2_Right!BlockPassed;
+goto Label_Running;
+};
+::{RMotor_to_ERightMotor__Right_2_Environment?On;
+goto Label_Running;
+};
+ fi;
+goto Label_Running;
+};
+}
+
+active [1] proctype Environment_MiddleMotor() {
+
+bool Environment_BlockFellOff = false;
+Label_Start: {
+ if
+ ::{goto Label_Off;
+};
+ fi;
+goto Label_Start;
+};
+Label_Off: {
+ if
+ ::{MMotor_to_EMiddleMotor__Middle_2_Environment?Right;
+goto Label_Right;
+};
+::{MMotor_to_EMiddleMotor__Middle_2_Environment?Off;
+goto Label_Off;
+};
+::{MMotor_to_EMiddleMotor__Middle_2_Environment?Left;
+goto Label_Left;
+};
+ fi;
+goto Label_Off;
+};
+Label_Right: {
+ if
+ ::{MMotor_to_EMiddleMotor__Middle_2_Environment?Off;
+goto Label_Off;
+};
+::{Environment_BlockRight == true;
+Environment_BlockFellOff = true;
+Environment_BlockRight = false;
+goto Label_Right;
+};
+::{MMotor_to_EMiddleMotor__Middle_2_Environment?Right;
+goto Label_Right;
+};
+::{MMotor_to_EMiddleMotor__Middle_2_Environment?Left;
+goto Label_Left;
+};
+::{Environment_BlockLeft == true;
+EMiddleSensor_to_MSensor__Environment_2_Middle!Block;
+EMiddleSensor_to_MSensor__Environment_2_Middle!BlockPassed;
+Environment_BlockLeft = false;
+goto Label_Right;
+};
+ fi;
+goto Label_Right;
+};
+Label_Left: {
+ if
+ ::{MMotor_to_EMiddleMotor__Middle_2_Environment?Off;
+goto Label_Off;
+};
+::{Environment_BlockLeft == true;
+Environment_BlockFellOff = true;
+Environment_BlockLeft = false;
+goto Label_Left;
+};
+::{MMotor_to_EMiddleMotor__Middle_2_Environment?Left;
+goto Label_Left;
+};
+::{MMotor_to_EMiddleMotor__Middle_2_Environment?Right;
+goto Label_Right;
+};
+::{Environment_BlockRight == true;
+EMiddleSensor_to_MSensor__Environment_2_Middle!Block;
+EMiddleSensor_to_MSensor__Environment_2_Middle!BlockPassed;
+Environment_BlockRight = false;
+goto Label_Left;
+};
+ fi;
+goto Label_Left;
+};
+}
+
+active [1] proctype Environment_LeftMotor() {
+
+Label_Start: {
+ if
+ ::{LMotor_to_ELeftMotor__Left_2_Environment?On;
+goto Label_Running;
+};
+ fi;
+goto Label_Start;
+};
+Label_Off: {
+ if
+ ::{LMotor_to_ELeftMotor__Left_2_Environment?On;
+Environment_BlockLeft = true;
+goto Label_Running;
+};
+::{LMotor_to_ELeftMotor__Left_2_Environment?Off;
+goto Label_Off;
+};
+ fi;
+goto Label_Off;
+};
+Label_Running: {
+ if
+ ::{LMotor_to_ELeftMotor__Left_2_Environment?Off;
+goto Label_Off;
+};
+::{ELeftSensor_to_LSensor__Environment_2_Left!Block;
+ELeftSensor_to_LSensor__Environment_2_Left!BlockPassed;
+goto Label_Running;
+};
+::{LMotor_to_ELeftMotor__Left_2_Environment?On;
+goto Label_Running;
+};
+ fi;
+goto Label_Running;
+};
+}
+
+
+
+

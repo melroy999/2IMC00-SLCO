@@ -1,0 +1,536 @@
+drawing
+system
+
+instances
+
+process of class 'C_C_C_C_C' in 0@0 to 50@50 name 'C_C_C_C_C' at 5@5
+connectors
+  'C_as_P_inABP_Receiver_ARSender' at 0@0 name at 0@0
+  'C_as_P_inABP_AS_AASAR' at 0@0 name at 0@0
+  'C_as_P_outABP_Sender_ASReceiver' at 0@0 name at 0@0
+  'C_as_P_outABP_AR_AARAS' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'P_P_P_P_P' in 0@0 to 50@50 name 'P_P_P_P_P' at 5@5
+connectors
+  'P_as_C_outABP_Sender_ASReceiver' at 0@0 name at 0@0
+  'P_as_C_outABP_AR_AARAS' at 0@0 name at 0@0
+  'P_as_C_inABP_Receiver_ARSender' at 0@0 name at 0@0
+  'P_as_C_inABP_AS_AASAR' at 0@0 name at 0@0
+scenarios
+'normal'
+
+channels
+
+name 'P_as_C_out_Sender_to_Receiver' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'P_as_C_outABP_Sender_ASReceiver' of instance 'P_P_P_P_P' to socket 'C_as_P_inABP_Receiver_ARSender' of instance 'C_C_C_C_C'
+
+scenarios
+  'normal'
+
+name 'P_as_C_out_AS_to_AR' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'C_as_P_inABP_AS_AASAR' of instance 'C_C_C_C_C' to socket 'P_as_C_outABP_AR_AARAS' of instance 'P_P_P_P_P'
+
+scenarios
+  'normal'
+
+name 'C_as_P_out_Sender_to_Receiver' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'C_as_P_outABP_Sender_ASReceiver' of instance 'C_C_C_C_C' to socket 'P_as_C_inABP_Receiver_ARSender' of instance 'P_P_P_P_P'
+
+scenarios
+  'normal'
+
+name 'C_as_P_out_AS_to_AR' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'P_as_C_inABP_AS_AASAR' of instance 'P_P_P_P_P' to socket 'C_as_P_outABP_AR_AARAS' of instance 'C_C_C_C_C'
+
+scenarios
+  'normal'
+
+scenarios
+'all', 'normal'
+
+poosl specification
+'
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class C_C_C_C_C()
+instance variables
+  C_as_P_out_Original_to_Sender_abl: Integer,
+  C_as_P_out_Original_to_Sender_name: Integer,
+  C_as_P_out_Original_to_Sender_arg_0: Integer,
+  C_as_P_in_Receiver_to_Original_abl: Integer,
+  C_as_P_in_Receiver_to_Original_name: Integer,
+  C_as_P_in_Receiver_to_Original_arg_0: Integer,
+  C_as_P_in_Receiver_to_AS_abl: Integer,
+  C_as_P_in_Receiver_to_AS_name: Integer,
+  C_as_P_out_AR_to_Sender_abl: Integer,
+  C_as_P_out_AR_to_Sender_name: Integer,
+  C_C_C_C_CC_as_P_inABP_Receiver_Receiverr: Integer,
+  C_C_C_C_CC_as_P_inABP_Receiver_Receiverd: Integer,
+  C_C_C_C_CC_as_P_inABP_AS_ASb: Integer,
+  C_C_C_C_CC_as_P_outABP_Sender_Senders: Integer,
+  C_C_C_C_CC_as_P_outABP_Sender_Senderd: Integer,
+  C_C_C_C_CC_as_P_outABP_AR_ARb: Integer
+communication channels
+  C_as_P_inABP_Receiver_ARSender,
+  C_as_P_inABP_AS_AASAR,
+  C_as_P_outABP_Sender_ASReceiver,
+  C_as_P_outABP_AR_AARAS
+message interface
+  C_as_P_inABP_AS_AASAR!Acknowledge(Object);
+  C_as_P_inABP_Receiver_ARSender?Message(Integer,Integer);
+  C_as_P_outABP_Sender_ASReceiver!Message(Object,Object);
+  C_as_P_outABP_AR_AARAS?Acknowledge(Integer);
+  C_as_P_inABP_Receiver_ARSender?Message(Integer,Integer);
+  C_as_P_outABP_AR_AARAS?Acknowledge(Integer)
+initial method call
+  C_C_C_C_C_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  C_as_Consumer_State()()
+    |  |
+    [(((C_as_P_in_Receiver_to_Original_abl=1)&(C_as_P_in_Receiver_to_Original_name=1))&(C_as_P_in_Receiver_to_Original_arg_0=3))]skip;
+    C_as_P_in_Receiver_to_Original_abl := 2;
+    C_as_Consumer_State_r_Signal_rbl_StateToState()()
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_inABP_Receiver_Receiver_Zero()()
+    |   var_41: Integer,  var_14: Integer |
+    sel
+      C_as_P_inABP_Receiver_ARSender?Message(C_C_C_C_CC_as_P_inABP_Receiver_Receiverd,var_41|(var_41=C_C_C_C_CC_as_P_inABP_Receiver_Receiverr));
+      C_as_P_in_Receiver_to_Original_name := 1;
+      C_as_P_in_Receiver_to_Original_arg_0 := C_C_C_C_CC_as_P_inABP_Receiver_Receiverd;
+      C_as_P_in_Receiver_to_Original_abl := 1;
+      C_as_P_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    or
+      C_as_P_inABP_Receiver_ARSender?Message(C_C_C_C_CC_as_P_inABP_Receiver_Receiverd,var_14|(var_14=(1-C_C_C_C_CC_as_P_inABP_Receiver_Receiverr)));
+      C_as_P_inABP_Receiver_Receiver_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_inABP_AS_AS_Zero()()
+    |  |
+    sel
+      delay (900);
+      C_as_P_inABP_AS_AASAR!Acknowledge(C_C_C_C_CC_as_P_inABP_AS_ASb);
+      C_as_P_inABP_AS_AS_Zero()()
+    or
+      [((C_as_P_in_Receiver_to_AS_abl=1)&(C_as_P_in_Receiver_to_AS_name=2))]skip;
+      C_as_P_in_Receiver_to_AS_abl := 2;
+      C_as_P_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_outABP_Sender_Sender_Zero()()
+    |  |
+    [((C_as_P_out_Original_to_Sender_abl=1)&(C_as_P_out_Original_to_Sender_name=1))]skip;
+    C_as_P_out_Original_to_Sender_abl := 2;
+    C_as_P_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_outABP_AR_AR_Zero()()
+    |   var_27: Integer,  var_13: Integer |
+    sel
+      C_as_P_outABP_AR_AARAS?Acknowledge(var_27|(var_27=C_C_C_C_CC_as_P_outABP_AR_ARb));
+      C_as_P_out_AR_to_Sender_name := 2;
+      C_as_P_out_AR_to_Sender_abl := 1;
+      C_as_P_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    or
+      C_as_P_outABP_AR_AARAS?Acknowledge(var_13|(var_13=(1-C_C_C_C_CC_as_P_outABP_AR_ARb)));
+      C_as_P_outABP_AR_AR_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_Consumer_State_r_Signal_rbl_StateToState()()
+    |  |
+    sel
+      [(C_as_P_in_Receiver_to_Original_abl=3)]skip;
+      C_as_P_in_Receiver_to_Original_abl := 0;
+      C_as_P_out_Original_to_Sender_name := 1;
+      C_as_P_out_Original_to_Sender_arg_0 := 0;
+      C_as_P_out_Original_to_Sender_abl := 1;
+      C_as_Consumer_State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State()()
+    or
+      [(C_as_P_in_Receiver_to_Original_abl=0)]skip;
+      C_as_Consumer_State()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_Consumer_State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State()()
+    |  |
+    [(C_as_P_out_Original_to_Sender_abl=2)]skip;
+    C_as_P_out_Original_to_Sender_abl := 3;
+    [(C_as_P_out_Original_to_Sender_abl=0)]skip;
+    C_as_Consumer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    |  |
+    [(C_as_P_in_Receiver_to_Original_abl=2)]skip;
+    C_as_P_in_Receiver_to_Original_abl := 3;
+    [(C_as_P_in_Receiver_to_Original_abl=0)]skip;
+    C_as_P_in_Receiver_to_AS_name := 2;
+    C_as_P_in_Receiver_to_AS_abl := 1;
+    C_as_P_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+    |  |
+    [(C_as_P_in_Receiver_to_AS_abl=2)]skip;
+    C_as_P_in_Receiver_to_AS_abl := 3;
+    [(C_as_P_in_Receiver_to_AS_abl=0)]skip;
+    C_C_C_C_CC_as_P_inABP_Receiver_Receiverr := (1-C_C_C_C_CC_as_P_inABP_Receiver_Receiverr);
+    C_as_P_inABP_Receiver_Receiver_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    |  |
+    sel
+      [(C_as_P_in_Receiver_to_AS_abl=3)]skip;
+      C_as_P_in_Receiver_to_AS_abl := 0;
+      C_C_C_C_CC_as_P_inABP_AS_ASb := (1-C_C_C_C_CC_as_P_inABP_AS_ASb);
+      C_as_P_inABP_AS_AS_Zero()()
+    or
+      [(C_as_P_in_Receiver_to_AS_abl=0)]skip;
+      C_as_P_inABP_AS_AS_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_outABP_Sender_Sender_One()()
+    |  |
+    sel
+      delay (900);
+      C_as_P_outABP_Sender_ASReceiver!Message(C_C_C_C_CC_as_P_outABP_Sender_Senderd,C_C_C_C_CC_as_P_outABP_Sender_Senders);
+      C_as_P_outABP_Sender_Sender_One()()
+    or
+      [((C_as_P_out_AR_to_Sender_abl=1)&(C_as_P_out_AR_to_Sender_name=2))]skip;
+      C_as_P_out_AR_to_Sender_abl := 2;
+      C_as_P_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+    |  |
+    sel
+      [(C_as_P_out_Original_to_Sender_abl=3)]skip;
+      C_C_C_C_CC_as_P_outABP_Sender_Senderd := C_as_P_out_Original_to_Sender_arg_0;
+      C_as_P_out_Original_to_Sender_abl := 0;
+      C_as_P_outABP_Sender_Sender_One()()
+    or
+      [(C_as_P_out_Original_to_Sender_abl=0)]skip;
+      C_as_P_outABP_Sender_Sender_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    |  |
+    sel
+      [(C_as_P_out_AR_to_Sender_abl=3)]skip;
+      C_as_P_out_AR_to_Sender_abl := 0;
+      C_C_C_C_CC_as_P_outABP_Sender_Senders := (1-C_C_C_C_CC_as_P_outABP_Sender_Senders);
+      C_as_P_outABP_Sender_Sender_Zero()()
+    or
+      [(C_as_P_out_AR_to_Sender_abl=0)]skip;
+      C_as_P_outABP_Sender_Sender_One()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    |  |
+    [(C_as_P_out_AR_to_Sender_abl=2)]skip;
+    C_as_P_out_AR_to_Sender_abl := 3;
+    [(C_as_P_out_AR_to_Sender_abl=0)]skip;
+    C_C_C_C_CC_as_P_outABP_AR_ARb := (1-C_C_C_C_CC_as_P_outABP_AR_ARb);
+    C_as_P_outABP_AR_AR_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  C_C_C_C_C_initial()()
+    |  |
+    C_as_P_out_Original_to_Sender_abl := 0;
+    C_as_P_in_Receiver_to_Original_abl := 0;
+    C_as_P_in_Receiver_to_AS_abl := 0;
+    C_as_P_out_AR_to_Sender_abl := 0;
+    C_C_C_C_CC_as_P_inABP_Receiver_Receiverr := 0;
+    C_C_C_C_CC_as_P_inABP_AS_ASb := 1;
+    C_C_C_C_CC_as_P_outABP_Sender_Senders := 0;
+    C_C_C_C_CC_as_P_outABP_AR_ARb := 0;
+    par
+      C_as_Consumer_State()()
+    and
+      C_as_P_inABP_Receiver_Receiver_Zero()()
+    and
+      C_as_P_inABP_AS_AS_Zero()()
+    and
+      C_as_P_outABP_Sender_Sender_Zero()()
+    and
+      C_as_P_outABP_AR_AR_Zero()()
+    rap
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class P_P_P_P_P()
+instance variables
+  P_as_C_out_Original_to_Sender_abl: Integer,
+  P_as_C_out_Original_to_Sender_name: Integer,
+  P_as_C_out_Original_to_Sender_arg_0: Integer,
+  P_as_C_out_AR_to_Sender_abl: Integer,
+  P_as_C_out_AR_to_Sender_name: Integer,
+  P_as_C_in_Receiver_to_Original_abl: Integer,
+  P_as_C_in_Receiver_to_Original_name: Integer,
+  P_as_C_in_Receiver_to_Original_arg_0: Integer,
+  P_as_C_in_Receiver_to_AS_abl: Integer,
+  P_as_C_in_Receiver_to_AS_name: Integer,
+  P_P_P_P_PP_as_C_outABP_Sender_Senders: Integer,
+  P_P_P_P_PP_as_C_outABP_Sender_Senderd: Integer,
+  P_P_P_P_PP_as_C_outABP_AR_ARb: Integer,
+  P_P_P_P_PP_as_C_inABP_Receiver_Receiverr: Integer,
+  P_P_P_P_PP_as_C_inABP_Receiver_Receiverd: Integer,
+  P_P_P_P_PP_as_C_inABP_AS_ASb: Integer
+communication channels
+  P_as_C_outABP_Sender_ASReceiver,
+  P_as_C_outABP_AR_AARAS,
+  P_as_C_inABP_Receiver_ARSender,
+  P_as_C_inABP_AS_AASAR
+message interface
+  P_as_C_outABP_AR_AARAS?Acknowledge(Integer);
+  P_as_C_outABP_AR_AARAS?Acknowledge(Integer);
+  P_as_C_outABP_Sender_ASReceiver!Message(Object,Object);
+  P_as_C_inABP_Receiver_ARSender?Message(Integer,Integer);
+  P_as_C_inABP_Receiver_ARSender?Message(Integer,Integer);
+  P_as_C_inABP_AS_AASAR!Acknowledge(Object)
+initial method call
+  P_P_P_P_P_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  P_as_Producer_State()()
+    |  |
+    P_as_C_out_Original_to_Sender_name := 1;
+    P_as_C_out_Original_to_Sender_arg_0 := 3;
+    P_as_C_out_Original_to_Sender_abl := 1;
+    P_as_Producer_State_s_Signal_abl_StateToState()()
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_outABP_Sender_Sender_Zero()()
+    |  |
+    [((P_as_C_out_Original_to_Sender_abl=1)&(P_as_C_out_Original_to_Sender_name=1))]skip;
+    P_as_C_out_Original_to_Sender_abl := 2;
+    P_as_C_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_outABP_AR_AR_Zero()()
+    |   var_15: Integer,  var_21: Integer |
+    sel
+      P_as_C_outABP_AR_AARAS?Acknowledge(var_15|(var_15=P_P_P_P_PP_as_C_outABP_AR_ARb));
+      P_as_C_out_AR_to_Sender_name := 2;
+      P_as_C_out_AR_to_Sender_abl := 1;
+      P_as_C_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    or
+      P_as_C_outABP_AR_AARAS?Acknowledge(var_21|(var_21=(1-P_P_P_P_PP_as_C_outABP_AR_ARb)));
+      P_as_C_outABP_AR_AR_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_inABP_Receiver_Receiver_Zero()()
+    |   var_28: Integer,  var_14: Integer |
+    sel
+      P_as_C_inABP_Receiver_ARSender?Message(P_P_P_P_PP_as_C_inABP_Receiver_Receiverd,var_28|(var_28=P_P_P_P_PP_as_C_inABP_Receiver_Receiverr));
+      P_as_C_in_Receiver_to_Original_name := 1;
+      P_as_C_in_Receiver_to_Original_arg_0 := P_P_P_P_PP_as_C_inABP_Receiver_Receiverd;
+      P_as_C_in_Receiver_to_Original_abl := 1;
+      P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    or
+      P_as_C_inABP_Receiver_ARSender?Message(P_P_P_P_PP_as_C_inABP_Receiver_Receiverd,var_14|(var_14=(1-P_P_P_P_PP_as_C_inABP_Receiver_Receiverr)));
+      P_as_C_inABP_Receiver_Receiver_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_inABP_AS_AS_Zero()()
+    |  |
+    sel
+      delay (900);
+      P_as_C_inABP_AS_AASAR!Acknowledge(P_P_P_P_PP_as_C_inABP_AS_ASb);
+      P_as_C_inABP_AS_AS_Zero()()
+    or
+      [((P_as_C_in_Receiver_to_AS_abl=1)&(P_as_C_in_Receiver_to_AS_name=2))]skip;
+      P_as_C_in_Receiver_to_AS_abl := 2;
+      P_as_C_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_Producer_State_s_Signal_abl_StateToState()()
+    |  |
+    [(((P_as_C_in_Receiver_to_Original_abl=1)&(P_as_C_in_Receiver_to_Original_name=1))&(P_as_C_in_Receiver_to_Original_arg_0=0))]skip;
+    P_as_C_in_Receiver_to_Original_abl := 2;
+    P_as_Producer_State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State()()
+  .
+/* ------ ProcessMethod ------ */
+  P_as_Producer_State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State()()
+    |  |
+    sel
+      [(P_as_C_in_Receiver_to_Original_abl=3)]skip;
+      P_as_C_in_Receiver_to_Original_abl := 0;
+      [(P_as_C_out_Original_to_Sender_abl=2)]skip;
+      P_as_C_out_Original_to_Sender_abl := 3;
+      [(P_as_C_out_Original_to_Sender_abl=0)]skip;
+      P_as_Producer_State()()
+    or
+      [(P_as_C_in_Receiver_to_Original_abl=0)]skip;
+      P_as_Producer_State_s_Signal_abl_StateToState()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_outABP_Sender_Sender_One()()
+    |  |
+    sel
+      delay (900);
+      P_as_C_outABP_Sender_ASReceiver!Message(P_P_P_P_PP_as_C_outABP_Sender_Senderd,P_P_P_P_PP_as_C_outABP_Sender_Senders);
+      P_as_C_outABP_Sender_Sender_One()()
+    or
+      [((P_as_C_out_AR_to_Sender_abl=1)&(P_as_C_out_AR_to_Sender_name=2))]skip;
+      P_as_C_out_AR_to_Sender_abl := 2;
+      P_as_C_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+    |  |
+    sel
+      [(P_as_C_out_Original_to_Sender_abl=3)]skip;
+      P_P_P_P_PP_as_C_outABP_Sender_Senderd := P_as_C_out_Original_to_Sender_arg_0;
+      P_as_C_out_Original_to_Sender_abl := 0;
+      P_as_C_outABP_Sender_Sender_One()()
+    or
+      [(P_as_C_out_Original_to_Sender_abl=0)]skip;
+      P_as_C_outABP_Sender_Sender_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    |  |
+    sel
+      [(P_as_C_out_AR_to_Sender_abl=3)]skip;
+      P_as_C_out_AR_to_Sender_abl := 0;
+      P_P_P_P_PP_as_C_outABP_Sender_Senders := (1-P_P_P_P_PP_as_C_outABP_Sender_Senders);
+      P_as_C_outABP_Sender_Sender_Zero()()
+    or
+      [(P_as_C_out_AR_to_Sender_abl=0)]skip;
+      P_as_C_outABP_Sender_Sender_One()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    |  |
+    [(P_as_C_out_AR_to_Sender_abl=2)]skip;
+    P_as_C_out_AR_to_Sender_abl := 3;
+    [(P_as_C_out_AR_to_Sender_abl=0)]skip;
+    P_P_P_P_PP_as_C_outABP_AR_ARb := (1-P_P_P_P_PP_as_C_outABP_AR_ARb);
+    P_as_C_outABP_AR_AR_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    |  |
+    [(P_as_C_in_Receiver_to_Original_abl=2)]skip;
+    P_as_C_in_Receiver_to_Original_abl := 3;
+    [(P_as_C_in_Receiver_to_Original_abl=0)]skip;
+    P_as_C_in_Receiver_to_AS_name := 2;
+    P_as_C_in_Receiver_to_AS_abl := 1;
+    P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+    |  |
+    [(P_as_C_in_Receiver_to_AS_abl=2)]skip;
+    P_as_C_in_Receiver_to_AS_abl := 3;
+    [(P_as_C_in_Receiver_to_AS_abl=0)]skip;
+    P_P_P_P_PP_as_C_inABP_Receiver_Receiverr := (1-P_P_P_P_PP_as_C_inABP_Receiver_Receiverr);
+    P_as_C_inABP_Receiver_Receiver_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    |  |
+    sel
+      [(P_as_C_in_Receiver_to_AS_abl=3)]skip;
+      P_as_C_in_Receiver_to_AS_abl := 0;
+      P_P_P_P_PP_as_C_inABP_AS_ASb := (1-P_P_P_P_PP_as_C_inABP_AS_ASb);
+      P_as_C_inABP_AS_AS_Zero()()
+    or
+      [(P_as_C_in_Receiver_to_AS_abl=0)]skip;
+      P_as_C_inABP_AS_AS_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_P_P_P_P_initial()()
+    |  |
+    P_as_C_out_Original_to_Sender_abl := 0;
+    P_as_C_out_AR_to_Sender_abl := 0;
+    P_as_C_in_Receiver_to_Original_abl := 0;
+    P_as_C_in_Receiver_to_AS_abl := 0;
+    P_P_P_P_PP_as_C_outABP_Sender_Senders := 0;
+    P_P_P_P_PP_as_C_outABP_AR_ARb := 0;
+    P_P_P_P_PP_as_C_inABP_Receiver_Receiverr := 0;
+    P_P_P_P_PP_as_C_inABP_AS_ASb := 1;
+    par
+      P_as_Producer_State()()
+    and
+      P_as_C_outABP_Sender_Sender_Zero()()
+    and
+      P_as_C_outABP_AR_AR_Zero()()
+    and
+      P_as_C_inABP_Receiver_Receiver_Zero()()
+    and
+      P_as_C_inABP_AS_AS_Zero()()
+    rap
+  .
+
+
+cluster class aClass()
+
+communication channels
+
+message interface
+
+behaviour specification
+  (
+   C_C_C_C_C: C_C_C_C_C[
+     P_as_C_out_AS_to_AR/C_as_P_inABP_AS_AASAR,
+     C_as_P_out_Sender_to_Receiver/C_as_P_outABP_Sender_ASReceiver,
+     P_as_C_out_Sender_to_Receiver/C_as_P_inABP_Receiver_ARSender,
+     C_as_P_out_AS_to_AR/C_as_P_outABP_AR_AARAS
+   ]
+  ||
+   P_P_P_P_P: P_P_P_P_P[
+     P_as_C_out_Sender_to_Receiver/P_as_C_outABP_Sender_ASReceiver,
+     C_as_P_out_AS_to_AR/P_as_C_inABP_AS_AASAR,
+     P_as_C_out_AS_to_AR/P_as_C_outABP_AR_AARAS,
+     C_as_P_out_Sender_to_Receiver/P_as_C_inABP_Receiver_ARSender
+   ]
+  )
+  \
+  {P_as_C_out_Sender_to_Receiver, P_as_C_out_AS_to_AR, C_as_P_out_Sender_to_Receiver, C_as_P_out_AS_to_AR}
+'

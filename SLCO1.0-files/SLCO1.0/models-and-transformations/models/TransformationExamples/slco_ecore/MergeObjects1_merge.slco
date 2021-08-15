@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="ASCII"?>
+<slco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:slco="slco" name="MergeObjects1_merge">
+  <classes name="a_b">
+    <stateMachines name="a_A">
+      <vertices xsi:type="slco:Initial" name="Initial" outgoing="//@classes.0/@stateMachines.0/@transitions.0 //@classes.0/@stateMachines.0/@transitions.1"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.0/@stateMachines.0/@transitions.1 //@classes.0/@stateMachines.0/@transitions.2 //@classes.0/@stateMachines.0/@transitions.3"/>
+      <vertices xsi:type="slco:State" name="Initial_s_S_abl_InitialToFinalSend" incoming="//@classes.0/@stateMachines.0/@transitions.0" outgoing="//@classes.0/@stateMachines.0/@transitions.2 //@classes.0/@stateMachines.0/@transitions.3"/>
+      <transitions name="InitialToFinalSend" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.2">
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.1">
+          <expression xsi:type="slco:StringConstantExpression" value="S"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+      </transitions>
+      <transitions name="InitialToFinalSkip" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.1"/>
+      <transitions name="Initial_s_S_abl_InitialToFinalSend_to_Final" source="//@classes.0/@stateMachines.0/@vertices.2" target="//@classes.0/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="Initial_s_S_abl_InitialToFinalSend_to_Final" source="//@classes.0/@stateMachines.0/@vertices.2" target="//@classes.0/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <stateMachines name="b_B">
+      <vertices xsi:type="slco:Initial" name="Initial" incoming="//@classes.0/@stateMachines.1/@transitions.2" outgoing="//@classes.0/@stateMachines.1/@transitions.0"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.0/@stateMachines.1/@transitions.1"/>
+      <vertices xsi:type="slco:State" name="Initial_r_S_rbl_InitialToFinal" incoming="//@classes.0/@stateMachines.1/@transitions.0" outgoing="//@classes.0/@stateMachines.1/@transitions.1 //@classes.0/@stateMachines.1/@transitions.2"/>
+      <transitions name="Initial_to_Initial_r_S_rbl_InitialToFinal" source="//@classes.0/@stateMachines.1/@vertices.0" target="//@classes.0/@stateMachines.1/@vertices.2">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="and">
+          <operand1 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+          </operand1>
+          <operand2 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.1"/>
+            <operand2 xsi:type="slco:StringConstantExpression" value="S"/>
+          </operand2>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+      </transitions>
+      <transitions name="Initial_r_S_rbl_InitialToFinal_to_Final" source="//@classes.0/@stateMachines.1/@vertices.2" target="//@classes.0/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="Initial_r_S_rbl_InitialToFinal_to_Initial" source="//@classes.0/@stateMachines.1/@vertices.2" target="//@classes.0/@stateMachines.1/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <variables name="C_abl">
+      <initialValue xsi:type="slco:IntegerConstantExpression"/>
+    </variables>
+    <variables name="C_name" type="String"/>
+  </classes>
+  <objects name="a_b" class="//@classes.0"/>
+</slco:Model>

@@ -1,0 +1,62 @@
+package GeneratedCode;
+
+import java.util.ArrayList;
+import GenericCode.SharedVariable;
+import GenericCode.BooleanExpression;
+import GenericCode.Class;
+import GenericCode.SignalMessage;
+import GenericCode.SharedVariableList;
+
+
+public class BooleanExpression_[%=transition.name%] extends BooleanExpression{
+	public [%= stateMachine.name%] sm;
+	public BooleanExpression_[%=transition.name%](Class slcoClass, SharedVariableList sharedVariables, [%= stateMachine.name%] sm) {
+		super(slcoClass, sharedVariables);
+		this.sm = sm;
+		// TODO Auto-generated constructor stub
+	}
+	@Override
+	public boolean evaluate() {
+		// TODO Auto-generated method stub
+        return [%= "("+(generateExpression(statement.operand1, class, stateMachine) + generateOperator(statement) + generateExpression(statement.operand2, class, stateMachine))+")"%];
+	}
+}
+[* Generate the right of "Assignment": BinaryOperatorExpression*]
+[%operation generateExpression(expression : slco::Expression, class : slco::Class, stateMachine : slco::StateMachine) : String{%]
+[%var returnValue : String;%]
+[%if(expression.isTypeOf(IntegerConstantExpression) or expression.isTypeOf(BooleanConstantExpression)){%][% returnValue = (expression.value).toString();%][%}%]
+[%else if(expression.isTypeOf(StringConstantExpression)){%][%returnValue = ('"'+(expression.value).toString()+'"');%][%}%]
+[%else if(expression.isTypeOf(VariableExpression)){%][%returnValue = generateVariableExpression(expression.variable, class, stateMachine);%][%}%]
+[%else if(expression.isTypeOf(BinaryOperatorExpression)){returnValue = "("+generateExpression(expression.operand1, class, stateMachine) + generateOperator(expression) + generateExpression(expression.operand2, class, stateMachine)+")";%][%}%]
+[% return returnValue;%]
+[%}%]
+[* Generate the right of "Assignment": VariableExpression*]
+[%operation generateVariableExpression(variable : slco::Variable, class : slco::Class, stateMachine : slco::StateMachine) : String{%]
+[%var returnValue : String;%]
+[* class variables*]
+[%if (class.variables.exists(v|v.name = variable.name)){%]
+[%returnValue = ("("+generateVariableExpressionType(variable)+")slcoClass.getSharedVariableName(" + '"'+ variable.name +'"'+").getValue()").toString;%]
+[%}%]
+[%else{%][%returnValue = ("sm."+variable.name).toString;%][%}%]
+[% return returnValue;%]
+[%}%]
+[%operation generateVariableExpressionType(variable : slco::Variable) : String{%]
+[%var returnValue : String;%]
+[%if (variable.type = PrimitiveTypeEnum#Integer){%][% returnValue = "Integer";%][%}%]
+[%else if (variable.type = PrimitiveTypeEnum#Boolean){%][% returnValue = "boolean";%][%}%]
+[%else if (variable.type = PrimitiveTypeEnum#String){%][%returnValue = "String";%][%}%]
+[% return returnValue;%]
+[%}%]
+[* generate Operator*]
+[%operation generateOperator(expression : slco::Expression){%]
+[%var returnValue : String;%]
+[%if (expression.operator = slco::OperatorEnum#atLeast){returnValue= ">=";}%]
+[%else if (expression.operator = slco::OperatorEnum#atMost){returnValue= "<=";}%]
+[%else if (expression.operator = slco::OperatorEnum#differs){returnValue= "!=";}%]
+[%else if (expression.operator = slco::OperatorEnum#equals){returnValue= "==";}%]
+[%else if (expression.operator = slco::OperatorEnum#subtract){returnValue= "-";}%]
+[%else if (expression.operator = slco::OperatorEnum#add){returnValue= "+";}%]
+[%else if (expression.operator = slco::OperatorEnum#`and`){returnValue= "&&";}%]
+[%else if (expression.operator = slco::OperatorEnum#`or`){returnValue= "||";}%]
+[% return returnValue;%]
+[%}%]

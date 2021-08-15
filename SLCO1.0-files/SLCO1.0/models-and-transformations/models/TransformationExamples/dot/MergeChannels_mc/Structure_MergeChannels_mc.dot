@@ -1,0 +1,19 @@
+
+digraph MergeChannels_mc {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_9
+ [label="{A||}"]
+A_9_A1 [label="{A1||}", style=filled, fillcolor=gray95]
+A_9 -> A_9_A1
+A_9_A2 [label="{A2||}", style=filled, fillcolor=gray95]
+A_9 -> A_9_A2
+
+B_10
+ [label="{B||}"]
+B_10_B [label="{B||}", style=filled, fillcolor=gray95]
+B_10 -> B_10_B
+
+
+}

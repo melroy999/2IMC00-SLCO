@@ -1,0 +1,116 @@
+model PaperExample1 {
+  classes
+    Q {
+      variables 
+	    Integer s = 0
+      ports 
+		  In1
+		  Out1
+		state machines
+		  SM1 {
+			initial
+			  Sm1a
+			state
+			  Sm1b
+			final
+			  Sm1c
+			transitions
+			  Sm1a2Sm1b from Sm1a to Sm1b {
+				  send O(1) to Out1
+			  }
+			  Sm1b2Sm1c from Sm1b to Sm1c {
+				  receive R(s | s==4) from In1 
+				  }
+		  }
+		  SM2 {
+			initial
+			  Sm2a
+			state
+			  Sm2b
+			final
+			  Sm2c
+			transitions
+			  Sm2a2Sm2b from Sm2a to Sm2b {
+				  send P(2) to Out1
+			  }
+			  Sm2b2Sm2c from Sm2b to Sm2c {
+				  receive S(s | s==5) from In1
+				  }
+		  }
+		  SM3 {
+			initial
+			  Sm3a
+			state
+			  Sm3b
+			final
+			  Sm3c
+			transitions
+			  Sm3a2Sm3b from Sm3a to Sm3b {
+				  send Q(3) to Out1
+			  }
+			  Sm3b2Sm3c from Sm3b to Sm3c {
+				  receive T(s | s==6) from In1 
+				  }
+		  }
+		  	
+    }
+    P {
+      variables
+        Integer m = 0
+      ports
+        In1
+        Out1
+      state machines
+	     SM4 {
+			initial
+			  Sm4a
+			state
+			  Sm4b
+			final
+			  Sm4c
+			transitions
+			  Sm4a2Sm4b from Sm4a to Sm4b {
+			  	 receive Q(m | m==3) from In1
+			  }
+			  Sm4b2Sm4c from Sm4b to Sm4c {
+				 send T(6) to Out1
+			 }
+		  }
+		   SM5 {
+			initial
+			  Sm5a
+			state
+			  Sm5b
+			final
+			  Sm5c
+			transitions
+			  Sm5a2Sm5b from Sm5a to Sm5b {
+			  	 receive O(m | m==1) from In1
+			  }
+			  Sm5b2Sm5c from Sm5b to Sm5c {
+				 send R(4) to Out1
+			 }
+		  }
+		   SM6 {
+			initial
+			  Sm6a
+			state
+			  Sm6b
+			final
+			  Sm6c
+			transitions
+			  Sm6a2Sm6b from Sm6a to Sm6b {
+			  	 receive P(m | m==2) from In1
+			  }
+			  Sm6b2Sm6c from Sm6b to Sm6c {
+				 send S(5) to Out1
+			 }
+		  }
+    }
+	objects
+	  p: P
+	  q: Q
+	channels
+	c1(Integer) async lossless from q.Out1 to p.In1
+	c2(Integer) async lossless from p.Out1 to q.In1
+}

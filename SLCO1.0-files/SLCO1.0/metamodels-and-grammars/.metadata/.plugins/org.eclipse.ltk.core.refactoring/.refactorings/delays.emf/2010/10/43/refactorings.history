@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;delays.emf/model/delay.ecore&apos; to &apos;delays.ecore&apos;" description="Rename resource &apos;delay.ecore&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="model/delay.ecore" name="delays.ecore" stamp="1288266031582" updateReferences="true"/>
+</session>

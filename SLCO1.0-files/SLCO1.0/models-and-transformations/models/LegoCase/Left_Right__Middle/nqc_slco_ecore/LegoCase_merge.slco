@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="ASCII"?>
+<slco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:slco="slco" name="LegoCase_merge">
+  <classes name="Middle">
+    <stateMachines name="Middle">
+      <vertices xsi:type="slco:Initial" name="Idle" incoming="//@classes.0/@stateMachines.0/@transitions.1" outgoing="//@classes.0/@stateMachines.0/@transitions.0 //@classes.0/@stateMachines.0/@transitions.2"/>
+      <vertices xsi:type="slco:State" name="Running" incoming="//@classes.0/@stateMachines.0/@transitions.0 //@classes.0/@stateMachines.0/@transitions.2" outgoing="//@classes.0/@stateMachines.0/@transitions.1"/>
+      <transitions name="IdleToRight" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.0/@ports.0" signalName="Block"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.3" signalName="Right"/>
+      </transitions>
+      <transitions name="RunningToBlock" source="//@classes.0/@stateMachines.0/@vertices.1" target="//@classes.0/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.0/@ports.2" signalName="Block"/>
+        <statements xsi:type="slco:SignalReception" port="//@classes.0/@ports.2" signalName="BlockPassed"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.3" signalName="Off"/>
+      </transitions>
+      <transitions name="IdleToLeft" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.0/@ports.1" signalName="Block"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.3" signalName="Left"/>
+      </transitions>
+    </stateMachines>
+    <ports name="Left"/>
+    <ports name="Right"/>
+    <ports name="Sensor"/>
+    <ports name="Motor"/>
+  </classes>
+  <classes name="Environment">
+    <stateMachines name="RightMotor">
+      <vertices xsi:type="slco:Initial" name="Start" outgoing="//@classes.1/@stateMachines.0/@transitions.0"/>
+      <vertices xsi:type="slco:State" name="Off" incoming="//@classes.1/@stateMachines.0/@transitions.2 //@classes.1/@stateMachines.0/@transitions.4" outgoing="//@classes.1/@stateMachines.0/@transitions.1 //@classes.1/@stateMachines.0/@transitions.4"/>
+      <vertices xsi:type="slco:State" name="Running" incoming="//@classes.1/@stateMachines.0/@transitions.0 //@classes.1/@stateMachines.0/@transitions.1 //@classes.1/@stateMachines.0/@transitions.3 //@classes.1/@stateMachines.0/@transitions.5" outgoing="//@classes.1/@stateMachines.0/@transitions.2 //@classes.1/@stateMachines.0/@transitions.3 //@classes.1/@stateMachines.0/@transitions.5"/>
+      <transitions name="Start" source="//@classes.1/@stateMachines.0/@vertices.0" target="//@classes.1/@stateMachines.0/@vertices.2">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.5" signalName="On"/>
+      </transitions>
+      <transitions name="OffToRunning" source="//@classes.1/@stateMachines.0/@vertices.1" target="//@classes.1/@stateMachines.0/@vertices.2">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.5" signalName="On"/>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.1">
+          <expression xsi:type="slco:BooleanConstantExpression" value="true"/>
+        </statements>
+      </transitions>
+      <transitions name="RunningToOff" source="//@classes.1/@stateMachines.0/@vertices.2" target="//@classes.1/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.5" signalName="Off"/>
+      </transitions>
+      <transitions name="RunningToRunningBlock" source="//@classes.1/@stateMachines.0/@vertices.2" target="//@classes.1/@stateMachines.0/@vertices.2">
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.4" signalName="Block"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.4" signalName="BlockPassed"/>
+      </transitions>
+      <transitions name="OffToOff" source="//@classes.1/@stateMachines.0/@vertices.1" target="//@classes.1/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.5" signalName="Off"/>
+      </transitions>
+      <transitions name="RunningToRunning" source="//@classes.1/@stateMachines.0/@vertices.2" target="//@classes.1/@stateMachines.0/@vertices.2">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.5" signalName="On"/>
+      </transitions>
+    </stateMachines>
+    <stateMachines name="MiddleMotor">
+      <vertices xsi:type="slco:Initial" name="Off" incoming="//@classes.1/@stateMachines.1/@transitions.1 //@classes.1/@stateMachines.1/@transitions.2 //@classes.1/@stateMachines.1/@transitions.4" outgoing="//@classes.1/@stateMachines.1/@transitions.0 //@classes.1/@stateMachines.1/@transitions.2 //@classes.1/@stateMachines.1/@transitions.3"/>
+      <vertices xsi:type="slco:State" name="Right" incoming="//@classes.1/@stateMachines.1/@transitions.0 //@classes.1/@stateMachines.1/@transitions.5 //@classes.1/@stateMachines.1/@transitions.7 //@classes.1/@stateMachines.1/@transitions.10 //@classes.1/@stateMachines.1/@transitions.11" outgoing="//@classes.1/@stateMachines.1/@transitions.1 //@classes.1/@stateMachines.1/@transitions.5 //@classes.1/@stateMachines.1/@transitions.7 //@classes.1/@stateMachines.1/@transitions.9 //@classes.1/@stateMachines.1/@transitions.11"/>
+      <vertices xsi:type="slco:State" name="Left" incoming="//@classes.1/@stateMachines.1/@transitions.3 //@classes.1/@stateMachines.1/@transitions.6 //@classes.1/@stateMachines.1/@transitions.8 //@classes.1/@stateMachines.1/@transitions.9 //@classes.1/@stateMachines.1/@transitions.12" outgoing="//@classes.1/@stateMachines.1/@transitions.4 //@classes.1/@stateMachines.1/@transitions.6 //@classes.1/@stateMachines.1/@transitions.8 //@classes.1/@stateMachines.1/@transitions.10 //@classes.1/@stateMachines.1/@transitions.12"/>
+      <transitions name="OffToRight" source="//@classes.1/@stateMachines.1/@vertices.0" target="//@classes.1/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.3" signalName="Right"/>
+      </transitions>
+      <transitions name="RightToOff" source="//@classes.1/@stateMachines.1/@vertices.1" target="//@classes.1/@stateMachines.1/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.3" signalName="Off"/>
+      </transitions>
+      <transitions name="OffToOff" source="//@classes.1/@stateMachines.1/@vertices.0" target="//@classes.1/@stateMachines.1/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.3" signalName="Off"/>
+      </transitions>
+      <transitions name="OffToLeft" source="//@classes.1/@stateMachines.1/@vertices.0" target="//@classes.1/@stateMachines.1/@vertices.2">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.3" signalName="Left"/>
+      </transitions>
+      <transitions name="LeftToOff" source="//@classes.1/@stateMachines.1/@vertices.2" target="//@classes.1/@stateMachines.1/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.3" signalName="Off"/>
+      </transitions>
+      <transitions name="RightToRightBlockFell" source="//@classes.1/@stateMachines.1/@vertices.1" target="//@classes.1/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.1"/>
+          <operand2 xsi:type="slco:BooleanConstantExpression" value="true"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@stateMachines.1/@variables.0">
+          <expression xsi:type="slco:BooleanConstantExpression" value="true"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.1">
+          <expression xsi:type="slco:BooleanConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="LeftToLeftBlockFell" source="//@classes.1/@stateMachines.1/@vertices.2" target="//@classes.1/@stateMachines.1/@vertices.2">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.0"/>
+          <operand2 xsi:type="slco:BooleanConstantExpression" value="true"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@stateMachines.1/@variables.0">
+          <expression xsi:type="slco:BooleanConstantExpression" value="true"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.0">
+          <expression xsi:type="slco:BooleanConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="RightToRight" source="//@classes.1/@stateMachines.1/@vertices.1" target="//@classes.1/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.3" signalName="Right"/>
+      </transitions>
+      <transitions name="LeftToLeft" source="//@classes.1/@stateMachines.1/@vertices.2" target="//@classes.1/@stateMachines.1/@vertices.2">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.3" signalName="Left"/>
+      </transitions>
+      <transitions name="RightToLeft" source="//@classes.1/@stateMachines.1/@vertices.1" target="//@classes.1/@stateMachines.1/@vertices.2">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.3" signalName="Left"/>
+      </transitions>
+      <transitions name="LeftToRight" source="//@classes.1/@stateMachines.1/@vertices.2" target="//@classes.1/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.3" signalName="Right"/>
+      </transitions>
+      <transitions name="RightToRightBlock" source="//@classes.1/@stateMachines.1/@vertices.1" target="//@classes.1/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.0"/>
+          <operand2 xsi:type="slco:BooleanConstantExpression" value="true"/>
+        </statements>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.2" signalName="Block"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.2" signalName="BlockPassed"/>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.0">
+          <expression xsi:type="slco:BooleanConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="LeftToLeftBlock" source="//@classes.1/@stateMachines.1/@vertices.2" target="//@classes.1/@stateMachines.1/@vertices.2">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.1"/>
+          <operand2 xsi:type="slco:BooleanConstantExpression" value="true"/>
+        </statements>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.2" signalName="Block"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.2" signalName="BlockPassed"/>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.1">
+          <expression xsi:type="slco:BooleanConstantExpression"/>
+        </statements>
+      </transitions>
+      <variables name="BlockFellOff" type="Boolean">
+        <initialValue xsi:type="slco:BooleanConstantExpression"/>
+      </variables>
+    </stateMachines>
+    <stateMachines name="LeftMotor">
+      <vertices xsi:type="slco:Initial" name="Start" outgoing="//@classes.1/@stateMachines.2/@transitions.0"/>
+      <vertices xsi:type="slco:State" name="Off" incoming="//@classes.1/@stateMachines.2/@transitions.2 //@classes.1/@stateMachines.2/@transitions.4" outgoing="//@classes.1/@stateMachines.2/@transitions.1 //@classes.1/@stateMachines.2/@transitions.4"/>
+      <vertices xsi:type="slco:State" name="Running" incoming="//@classes.1/@stateMachines.2/@transitions.0 //@classes.1/@stateMachines.2/@transitions.1 //@classes.1/@stateMachines.2/@transitions.3 //@classes.1/@stateMachines.2/@transitions.5" outgoing="//@classes.1/@stateMachines.2/@transitions.2 //@classes.1/@stateMachines.2/@transitions.3 //@classes.1/@stateMachines.2/@transitions.5"/>
+      <transitions name="Start" source="//@classes.1/@stateMachines.2/@vertices.0" target="//@classes.1/@stateMachines.2/@vertices.2">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.1" signalName="On"/>
+      </transitions>
+      <transitions name="OffToRunning" source="//@classes.1/@stateMachines.2/@vertices.1" target="//@classes.1/@stateMachines.2/@vertices.2">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.1" signalName="On"/>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.0">
+          <expression xsi:type="slco:BooleanConstantExpression" value="true"/>
+        </statements>
+      </transitions>
+      <transitions name="RunningToOff" source="//@classes.1/@stateMachines.2/@vertices.2" target="//@classes.1/@stateMachines.2/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.1" signalName="Off"/>
+      </transitions>
+      <transitions name="RunningToRunningBlock" source="//@classes.1/@stateMachines.2/@vertices.2" target="//@classes.1/@stateMachines.2/@vertices.2">
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.0" signalName="Block"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.0" signalName="BlockPassed"/>
+      </transitions>
+      <transitions name="OffToOff" source="//@classes.1/@stateMachines.2/@vertices.1" target="//@classes.1/@stateMachines.2/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.1" signalName="Off"/>
+      </transitions>
+      <transitions name="RunningToRunning" source="//@classes.1/@stateMachines.2/@vertices.2" target="//@classes.1/@stateMachines.2/@vertices.2">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.1" signalName="On"/>
+      </transitions>
+    </stateMachines>
+    <ports name="LeftSensor"/>
+    <ports name="LeftMotor"/>
+    <ports name="MiddleSensor"/>
+    <ports name="MiddleMotor"/>
+    <ports name="RightSensor"/>
+    <ports name="RightMotor"/>
+    <variables name="BlockLeft" type="Boolean">
+      <initialValue xsi:type="slco:BooleanConstantExpression"/>
+    </variables>
+    <variables name="BlockRight" type="Boolean">
+      <initialValue xsi:type="slco:BooleanConstantExpression"/>
+    </variables>
+  </classes>
+  <classes name="R_L">
+    <stateMachines name="Right_Single">
+      <vertices xsi:type="slco:Initial" name="Start" outgoing="//@classes.2/@stateMachines.0/@transitions.0"/>
+      <vertices xsi:type="slco:State" name="Running" incoming="//@classes.2/@stateMachines.0/@transitions.0 //@classes.2/@stateMachines.0/@transitions.1" outgoing="//@classes.2/@stateMachines.0/@transitions.1"/>
+      <transitions name="StartToRunning" source="//@classes.2/@stateMachines.0/@vertices.0" target="//@classes.2/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SendSignal" port="//@classes.2/@ports.2" signalName="On"/>
+      </transitions>
+      <transitions name="RunningToBlock" source="//@classes.2/@stateMachines.0/@vertices.1" target="//@classes.2/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.2/@ports.1" signalName="Block"/>
+        <statements xsi:type="slco:SignalReception" port="//@classes.2/@ports.1" signalName="BlockPassed"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.2/@ports.2" signalName="Off"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.2/@ports.0" signalName="Block"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.2/@ports.2" signalName="On"/>
+      </transitions>
+    </stateMachines>
+    <stateMachines name="Left_Single">
+      <vertices xsi:type="slco:Initial" name="Start" outgoing="//@classes.2/@stateMachines.1/@transitions.0"/>
+      <vertices xsi:type="slco:State" name="Running" incoming="//@classes.2/@stateMachines.1/@transitions.0 //@classes.2/@stateMachines.1/@transitions.1" outgoing="//@classes.2/@stateMachines.1/@transitions.1"/>
+      <transitions name="StartToRunning" source="//@classes.2/@stateMachines.1/@vertices.0" target="//@classes.2/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:SendSignal" port="//@classes.2/@ports.5" signalName="On"/>
+      </transitions>
+      <transitions name="RunningToBlock" source="//@classes.2/@stateMachines.1/@vertices.1" target="//@classes.2/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.2/@ports.4" signalName="Block"/>
+        <statements xsi:type="slco:SignalReception" port="//@classes.2/@ports.4" signalName="BlockPassed"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.2/@ports.5" signalName="Off"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.2/@ports.3" signalName="Block"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.2/@ports.5" signalName="On"/>
+      </transitions>
+    </stateMachines>
+    <ports name="Right_Middle"/>
+    <ports name="Right_Sensor"/>
+    <ports name="Right_Motor"/>
+    <ports name="Left_Middle"/>
+    <ports name="Left_Sensor"/>
+    <ports name="Left_Motor"/>
+  </classes>
+  <objects name="Middle" class="//@classes.0"/>
+  <objects name="Environment" class="//@classes.1"/>
+  <objects name="R_L" class="//@classes.2"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="ELeftSensor_to_LSensor" channelType="sync" sourcePort="//@classes.1/@ports.0" targetPort="//@classes.2/@ports.4" sourceObject="Environment" targetObject="R_L"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="LMotor_to_ELeftMotor" channelType="sync" sourcePort="//@classes.2/@ports.5" targetPort="//@classes.1/@ports.1" sourceObject="R_L" targetObject="Environment"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="ERightSensor_to_RSensor" channelType="sync" sourcePort="//@classes.1/@ports.4" targetPort="//@classes.2/@ports.1" sourceObject="Environment" targetObject="R_L"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="RMotor_to_ERightMotor" channelType="sync" sourcePort="//@classes.2/@ports.2" targetPort="//@classes.1/@ports.5" sourceObject="R_L" targetObject="Environment"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="RMiddle_to_MRight" channelType="sync" sourcePort="//@classes.2/@ports.0" targetPort="//@classes.0/@ports.1" sourceObject="R_L" targetObject="Middle"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="LMiddle_to_MLeft" channelType="sync" sourcePort="//@classes.2/@ports.3" targetPort="//@classes.0/@ports.0" sourceObject="R_L" targetObject="Middle"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="EMiddleSensor_to_MSensor" channelType="sync" sourcePort="//@classes.1/@ports.2" targetPort="//@classes.0/@ports.2" sourceObject="Environment" targetObject="Middle"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="MMotor_to_EMiddleMotor" channelType="sync" sourcePort="//@classes.0/@ports.3" targetPort="//@classes.1/@ports.3" sourceObject="Middle" targetObject="Environment"/>
+</slco:Model>

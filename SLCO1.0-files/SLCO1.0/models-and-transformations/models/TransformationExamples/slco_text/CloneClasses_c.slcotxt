@@ -1,0 +1,140 @@
+model CloneClasses_c {
+  classes
+    A {
+      ports
+        BOut
+        COut
+
+      state machines
+        A {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              send S() to BOut
+            }
+
+            InitialToFinal from Initial to Final {
+              send S() to COut
+            }
+        }
+    }
+
+    B {
+      ports
+        In
+
+      state machines
+        B {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              receive S() from In
+            }
+        }
+    }
+
+    C {
+      ports
+        In
+
+      state machines
+        C {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              receive S() from In
+            }
+        }
+    }
+
+    A_c {
+      ports
+        BOut
+        COut
+
+      state machines
+        A {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              send S() to BOut
+            }
+
+            InitialToFinal from Initial to Final {
+              send S() to COut
+            }
+        }
+    }
+
+    B_c {
+      ports
+        In
+
+      state machines
+        B {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              receive S() from In
+            }
+        }
+    }
+
+    C_c {
+      ports
+        In
+
+      state machines
+        C {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              receive S() from In
+            }
+        }
+    }
+
+  objects
+    a1: A
+    b1: B
+    c1: C
+    a2_c: A_c
+    b2_c: B_c
+    c2_c: C_c
+
+  channels
+    e1() sync from a1.BOut to b1.In
+    f1() sync from a1.COut to c1.In
+    e2_c() sync from a2_c.BOut to b2_c.In
+    f2_c() sync from a2_c.COut to c2_c.In
+}

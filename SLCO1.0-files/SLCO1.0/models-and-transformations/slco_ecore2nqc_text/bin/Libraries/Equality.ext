@@ -1,0 +1,124 @@
+import slco;
+
+extension org::eclipse::xtend::util::stdlib::io;
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// Equality functions	
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+Boolean portEqualsPort(slco::Port port1, slco::Port port2) :
+   (
+      port1.name == port2.name
+   )
+   &&
+   (
+      ((slco::Class) port1.eContainer).name
+      ==
+      ((slco::Class) port2.eContainer).name
+   ) 
+;
+
+// ----------------------------------------------------------------------------
+
+Boolean channelEqualsChannel(slco::Channel channel1, slco::Channel channel2) :
+   syserr(
+      "Comparing one or two unknown types of Channels: "
+      +
+      channel1.metaType.toString()
+      +
+      " and "
+      +
+      channel2.metaType.toString()
+   )
+-> false
+;
+
+// ----------------------------------------------------------------------------
+
+Boolean channelEqualsChannel(
+   slco::UnidirectionalChannel channel1, slco::UnidirectionalChannel channel2
+) :
+   channel1.name == channel2.name
+   &&
+   channel1.sourcePort.portEqualsPort(channel2.sourcePort)
+   &&
+   channel1.targetPort.portEqualsPort(channel2.targetPort)
+   &&
+   channel1.sourceObject.objectEqualsObject(channel2.sourceObject)
+   &&
+   channel1.targetObject.objectEqualsObject(channel2.targetObject)
+;
+
+// ----------------------------------------------------------------------------
+
+Boolean channelEqualsChannel(
+   slco::BidirectionalChannel channel1, slco::BidirectionalChannel channel2
+) :
+   channel1.name == channel2.name
+   &&
+   channel1.port1.portEqualsPort(channel2.port1)
+   &&
+   channel1.port2.portEqualsPort(channel2.port2)
+   &&
+   channel1.object1.objectEqualsObject(channel2.object1)
+   &&
+   channel1.object2.objectEqualsObject(channel2.object2)
+;
+
+// ----------------------------------------------------------------------------
+
+Boolean channelEqualsChannel(
+   slco::BidirectionalChannel channel1, slco::UnidirectionalChannel channel2
+) :
+   false
+;
+
+// ----------------------------------------------------------------------------
+
+Boolean channelEqualsChannel(
+   slco::UnidirectionalChannel channel1, slco::BidirectionalChannel channel2
+) :
+   false
+;
+
+// ----------------------------------------------------------------------------
+
+Boolean objectEqualsObject(slco::Object object1, slco::Object object2) :
+   object1.name == object2.name
+   &&
+   object1.class.name == object2.class.name
+;
+
+// ----------------------------------------------------------------------------
+
+Boolean classEqualsClass(slco::Class class1, slco::Class class2) :
+   class1.name == class2.name
+;
+
+// ----------------------------------------------------------------------------
+
+Boolean stateMachineEqualsStateMachine(
+   slco::StateMachine stateMachine1, slco::StateMachine stateMachine2
+) :
+   stateMachine1.name == stateMachine2.name
+   &&
+   ((slco::Class) stateMachine1.eContainer).classEqualsClass(
+      ((slco::Class) stateMachine2.eContainer)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+Boolean transitionEqualsTransition(
+   slco::Transition transition1, slco::Transition transition2
+) :
+   transition1.name == transition2.name
+   &&
+   (
+      (slco::StateMachine) transition1.eContainer
+   ).stateMachineEqualsStateMachine(
+      ((slco::StateMachine) transition2.eContainer)
+   )
+;

@@ -1,0 +1,155 @@
+import slco;
+import channels;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension Libraries::Equality;
+extension Libraries::CreationSLCO;
+extension Libraries::ModifyModel;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// These functions modifies all Signals such that their original name becomes
+// the first argument of the resulting Signal and names this resulting Signal
+// "Signal".
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// Copy the classes that need to be modified and update all references to these
+// classes.
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+slco::Model modifyModelN2A(slco::Model model, channels::ChannelList channels) :
+   let cl = model.channels.select(
+      c1
+   |
+      channels.channels.exists(
+         c2 
+      |
+         c1.channelEqualsChannel(c2)
+      )
+   ) :
+      model.modifyModel(cl, "")
+   -> cl.modifyClass()
+   -> cl.modifyChannel(model)
+   -> model.setName(
+         model.name + "_arg"
+      )
+   -> model
+;
+
+slco::Model names2Arguments(slco::Model model, channels::ChannelList channels) :
+   let cl = model.channels.select(
+      c1
+   |
+      channels.channels.exists(
+         c2 
+      |
+         c1.channelEqualsChannel(c2)
+      )
+   ) :
+      cl.modifyClass()
+   -> cl.modifyChannel(model)
+   -> model.setName(
+         model.name + "_arg"
+      )
+   -> model
+;
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// Make the SignalNames constant.
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+private Void modifyChannel(slco::Channel channel, slco::Model model) :
+   channel.setArgumentTypes(
+      {createStringArgumentType()}.addAll(channel.argumentTypes).toList()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClass(List[slco::Channel] channelList) :
+   let pl1 = channelList.typeSelect(slco::BidirectionalChannel).port1 :
+   let pl2 = channelList.typeSelect(slco::BidirectionalChannel).port2 :
+   let pl3 = channelList.typeSelect(slco::UnidirectionalChannel).sourcePort :
+   let pl4 = channelList.typeSelect(slco::UnidirectionalChannel).targetPort :
+   let pl = pl1.union(pl2).union(pl3).union(pl4) :
+      pl.modifyClass(pl)
+;
+   
+// ----------------------------------------------------------------------------
+
+private Void modifyClass(
+   slco::Port port, Set[slco::Port] ports
+) :
+   ports.replaceSignals(port.eContainer)
+;
+   
+// ----------------------------------------------------------------------------
+
+private Void replaceSignals(slco::Port port, emf::EObject object) :
+   syserr(
+      "Expecting a Class, but encountered the following type instead: "
+      +
+      object.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private cached Void replaceSignals(
+   slco::Port port, slco::Class class
+) :
+   class.stateMachines.transitions.statements.typeSelect(
+      slco::SendSignal
+   ).select(
+      s
+   |
+      s.port.portEqualsPort(port)
+   ).replaceSignal()
+-> class.stateMachines.transitions.statements.typeSelect(
+      slco::SignalReception
+   ).select(
+      t
+   |
+      t.port.portEqualsPort(port)
+   ).replaceSignal()
+;
+
+// ----------------------------------------------------------------------------
+
+private Void replaceSignal(
+   slco::SendSignal statement
+) :
+   statement.setArguments(
+      {
+         createStringConstantExpression(
+            statement.signalName
+         )
+      }.addAll(statement.arguments).toList()
+   )
+ -> statement.setSignalName("Signal")
+;
+
+// ----------------------------------------------------------------------------
+
+private Void replaceSignal(
+   slco::SignalReception trigger
+) :
+   trigger.setArguments(
+      {
+         createSignalArgumentExpression(
+            createStringConstantExpression(
+               trigger.signalName
+            )
+         )
+      }.addAll(trigger.arguments).toList()
+   )
+-> trigger.setSignalName("Signal")
+;

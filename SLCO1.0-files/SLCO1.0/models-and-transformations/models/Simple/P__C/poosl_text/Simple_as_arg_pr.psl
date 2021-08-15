@@ -1,0 +1,66 @@
+/*=================*/
+/*-----------------*/
+/* Process Classes */
+/*-----------------*/
+/*=================*/
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Producer_as()
+instance variables
+
+communication channels
+  C
+message interface
+  C!Signal(Object);
+  C?Signal(String)
+initial method call
+  Producer_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Producer_State()()
+    |   var_3: String |
+    C!Signal("Send_Bericht");
+    C?Signal(var_3|(var_3="Acknowledge_Bericht"));
+    Producer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Producer_as_initial()()
+    |  |
+    Producer_State()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Consumer_as()
+instance variables
+
+communication channels
+  P
+message interface
+  P?Signal(String);
+  P!Signal(Object)
+initial method call
+  Consumer_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Consumer_State()()
+    |   var_2: String |
+    P?Signal(var_2|(var_2="Send_Bericht"));
+    P!Signal("Acknowledge_Bericht");
+    Consumer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Consumer_as_initial()()
+    |  |
+    Consumer_State()()
+  .
+

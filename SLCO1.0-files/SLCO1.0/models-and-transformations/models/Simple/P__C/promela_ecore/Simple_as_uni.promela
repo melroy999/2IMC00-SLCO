@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<promela:spec xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:promela="promela" name="Simple_as_uni">
+  <mtypes name="Send_Bericht"/>
+  <mtypes name="Acknowledge_Bericht"/>
+  <one_decls visible="SHOW" typename="//@primitivetypes.0">
+    <ivars name="Producer_To_Consumer_as_1_to_2__P_as_2_C_as">
+      <any_expr_or_ch_init xsi:type="promela:ch_init" constant="1" typenames="//@primitivetypes.2"/>
+    </ivars>
+  </one_decls>
+  <one_decls visible="SHOW" typename="//@primitivetypes.0">
+    <ivars name="Producer_To_Consumer_as_2_to_1__C_as_2_P_as">
+      <any_expr_or_ch_init xsi:type="promela:ch_init" constant="1" typenames="//@primitivetypes.2"/>
+    </ivars>
+  </one_decls>
+  <proctypes active="1" name="P_as_Producer">
+    <sequence xsi:type="promela:block_stmnt" label="Label_State">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="Producer_To_Consumer_as_1_to_2__P_as_2_C_as"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.0"/>
+            </sequence>
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="Producer_To_Consumer_as_2_to_1__C_as_2_P_as"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.1"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.0/@sequence.0"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+  </proctypes>
+  <proctypes active="1" name="C_as_Consumer">
+    <sequence xsi:type="promela:block_stmnt" label="Label_State">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="Producer_To_Consumer_as_1_to_2__P_as_2_C_as"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.0"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="Producer_To_Consumer_as_2_to_1__C_as_2_P_as"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.1"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.1/@sequence.0"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+  </proctypes>
+  <primitivetypes primitivetype="CHAN"/>
+  <primitivetypes primitivetype="BYTE"/>
+  <primitivetypes primitivetype="MTYPE"/>
+  <primitivetypes primitivetype="INT"/>
+  <primitivetypes primitivetype="BOOL"/>
+</promela:spec>

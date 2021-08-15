@@ -1,0 +1,32 @@
+digraph Middle_as_Middle {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Idle_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Idle Idle_extra -> Idle
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Running
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Idle_r_Signal_rbl_IdleToLeft
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Idle_r_Signal_rbl_IdleToRight
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Idle_r_Signal_rbl_IdleToLeft_s_Signal_abl_Idle_r_Signal_rbl_IdleToLeft_to_Running
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Idle_r_Signal_rbl_IdleToRight_s_Signal_abl_Idle_r_Signal_rbl_IdleToRight_to_Running
+
+
+
+Running -> Idle [label = "receive Block() from Middle_as_Sensor;\n receive BlockPassed() from Middle_as_Sensor;\n send Off() to Middle_as_Motor"];
+
+Idle -> Idle_r_Signal_rbl_IdleToLeft [label = "Middle_as_Right_in_Receiver_to_Original_abl == 1 && Middle_as_Right_in_Receiver_to_Original_name == \"Signal\" && Middle_as_Right_in_Receiver_to_Original_arg_0 == \"Send_Block\";\n Middle_as_Right_in_Receiver_to_Original_abl := 2"];
+
+Idle_r_Signal_rbl_IdleToLeft -> Idle_r_Signal_rbl_IdleToLeft_s_Signal_abl_Idle_r_Signal_rbl_IdleToLeft_to_Running [label = "Middle_as_Right_in_Receiver_to_Original_abl == 3;\n Middle_as_Right_in_Receiver_to_Original_abl := 0;\n Middle_as_Right_out_Original_to_Sender_name := \"Signal\";\n Middle_as_Right_out_Original_to_Sender_arg_0 := \"Acknowledge_Block\";\n Middle_as_Right_out_Original_to_Sender_abl := 1"];
+
+Idle_r_Signal_rbl_IdleToLeft -> Idle [label = "Middle_as_Right_in_Receiver_to_Original_abl == 0"];
+
+Idle -> Idle_r_Signal_rbl_IdleToRight [label = "Middle_as_Left_in_Receiver_to_Original_abl == 1 && Middle_as_Left_in_Receiver_to_Original_name == \"Signal\" && Middle_as_Left_in_Receiver_to_Original_arg_0 == \"Send_Block\";\n Middle_as_Left_in_Receiver_to_Original_abl := 2"];
+
+Idle_r_Signal_rbl_IdleToRight -> Idle_r_Signal_rbl_IdleToRight_s_Signal_abl_Idle_r_Signal_rbl_IdleToRight_to_Running [label = "Middle_as_Left_in_Receiver_to_Original_abl == 3;\n Middle_as_Left_in_Receiver_to_Original_abl := 0;\n Middle_as_Left_out_Original_to_Sender_name := \"Signal\";\n Middle_as_Left_out_Original_to_Sender_arg_0 := \"Acknowledge_Block\";\n Middle_as_Left_out_Original_to_Sender_abl := 1"];
+
+Idle_r_Signal_rbl_IdleToRight -> Idle [label = "Middle_as_Left_in_Receiver_to_Original_abl == 0"];
+
+Idle_r_Signal_rbl_IdleToLeft_s_Signal_abl_Idle_r_Signal_rbl_IdleToLeft_to_Running -> Running [label = "Middle_as_Right_out_Original_to_Sender_abl == 2;\n Middle_as_Right_out_Original_to_Sender_abl := 3;\n Middle_as_Right_out_Original_to_Sender_abl == 0;\n send Left() to Middle_as_Motor"];
+
+Idle_r_Signal_rbl_IdleToRight_s_Signal_abl_Idle_r_Signal_rbl_IdleToRight_to_Running -> Running [label = "Middle_as_Left_out_Original_to_Sender_abl == 2;\n Middle_as_Left_out_Original_to_Sender_abl := 3;\n Middle_as_Left_out_Original_to_Sender_abl == 0;\n send Right() to Middle_as_Motor"];
+
+}

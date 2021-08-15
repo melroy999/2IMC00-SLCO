@@ -1,0 +1,35 @@
+model PaperExample3 {
+classes
+ SenderClass {
+ 	ports
+ 	 P
+ 	state machines
+ 	 SM1 {
+ 	 	initial A
+ 	 	final B 	 	
+ 	 	transitions
+ 	 	 A2B from A to B {
+ 	 	 	 send A(true) to P
+ 	 	 }	 
+ 	 }	 	 
+ }
+ ReceiverClass {
+ 	ports
+ 	 Q
+ 	state machines
+ 	 SM2 {
+ 	 	initial C
+ 	 	final D	 	 	
+ 	 	transitions
+ 	 	 C2D from C to D {
+ 	 	 	 receive A([[true]]) from Q
+ 	 	 }	 
+ 	 }	 	 
+ }
+objects
+ sender : SenderClass
+ receiver : ReceiverClass
+channels
+ Channel1(Boolean) async lossless from sender.P to receiver.Q
+}
+

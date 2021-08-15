@@ -1,0 +1,244 @@
+import slco;
+import nqc;
+
+extension org::eclipse::xtend::util::stdlib::io;
+
+// ####################################################################################
+// ------------------------------------------------------------------------------------
+// Creation functions
+// ------------------------------------------------------------------------------------
+// ####################################################################################
+
+nqc::GoToStatement createGotoStatement(nqc::Label label) :
+   let statement = new nqc::GoToStatement :
+      statement.setJumpLabel(label)
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::UntilStatement createUntilStatement(
+   nqc::Expression condition, nqc::Statement body
+) :
+   let stat = new nqc::UntilStatement :
+      stat.setCondition(condition)
+   -> stat.setBody(body)
+   -> stat
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::RepeatStatement createRepeatStatement(
+   nqc::Expression expression, nqc::Statement statement
+) :
+   let stat = new nqc::RepeatStatement :
+      stat.setCondition(expression)
+   -> stat.setBody(statement)
+   -> stat
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::VariableExpression createVariableExpression(nqc::Variable variable) :
+   let expr = new nqc::VariableExpression :
+      expr.setVariable(variable)
+   -> expr
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::SensorNameConstant createSensorNameConstant(nqc::SensorNameEnum name) :
+   let const = new nqc::SensorNameConstant :
+      const.setSensorName(name)
+   -> const
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::SensorConfigConstant createSensorConfigurationConstant(nqc::SensorConfigEnum sensorConfiguration) :
+   let const = new nqc::SensorConfigConstant :
+      const.setSensorConfig(sensorConfiguration)
+   -> const
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::BlockStatement createBlockStatement(List[nqc::Statement] statements) :
+   let block = new nqc::BlockStatement :
+      block.Statements.addAll(
+         statements
+      )
+   -> block
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::OutputPortNameConstant createOutputPortNameConstant(nqc::OutputPortNameEnum name) :
+   let const = new nqc::OutputPortNameConstant :
+      const.setOutputPortName(name)
+   -> const
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::OutputModeConstant createOutputModeConstant(nqc::OutputModeEnum mode) :
+   let const = new nqc::OutputModeConstant :
+      const.setOutputMode(mode)
+   -> const
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::DirectionConstant createDirectionConstant(nqc::DirectionEnum direction) :
+   let const = new nqc::DirectionConstant :
+      const.setDirection(direction)
+   -> const
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::NullaryBuiltInValueFunctionCall createNullaryBuiltInValueFunctionCall(
+   nqc::BuiltInNullaryValueFunctionEnum function
+) :
+   let call = new nqc::NullaryBuiltInValueFunctionCall :
+      call.setNullaryBuiltInValueFunction(function)
+   -> call
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::NullaryBuiltInFunctionCall createNullaryBuiltInFunctionCall(
+   nqc::BuiltInNullaryFunctionEnum function
+) :
+   let call = new nqc::NullaryBuiltInFunctionCall :
+      call.setNullaryBuiltInFunction(function)
+   -> call
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::UnaryBuiltInFunctionCall createUnaryBuiltInFunctionCall(
+   nqc::BuiltInUnaryFunctionEnum function, nqc::Expression parameter
+) :
+   let call = new nqc::UnaryBuiltInFunctionCall :
+      call.setUnaryBuiltInFunction(function)
+   -> call.setParameter(parameter)
+   -> call
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::UnaryBuiltInValueFunctionCall createUnaryBuiltInValueFunctionCall(
+   nqc::BuiltInUnaryValueFunctionEnum function, nqc::Expression parameter
+) :
+   let call = new nqc::UnaryBuiltInValueFunctionCall :
+      call.setUnaryBuiltInValueFunction(function)
+   -> call.setParameter(parameter)
+   -> call
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::BinaryBuiltInFunctionCall createBinaryBuiltInFunctionCall(
+   nqc::BuiltInBinaryFunctionEnum function, nqc::Expression parameter1, nqc::Expression parameter2
+) :
+   let call = new nqc::BinaryBuiltInFunctionCall :
+      call.setBinaryBuiltInFunction(function)
+   -> call.setParameter1(parameter1)
+   -> call.setParameter2(parameter2)
+   -> call
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::EmptyStatement createEmptyStatement() :
+   let stat = new nqc::EmptyStatement :
+      stat
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::IfStatement createIfStatement(
+   nqc::Expression expression, nqc::Statement statement
+) :
+   let stat = new nqc::IfStatement :
+      stat.setCondition(expression)
+   -> stat.setConsequence(statement)
+   -> stat
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::IfStatement createIfStatement(
+   nqc::Expression expression, nqc::Statement statement1,
+   nqc::Statement statement2
+) :
+   let stat = new nqc::IfStatement :
+      stat.setCondition(expression)
+   -> stat.setConsequence(statement1)
+   -> stat.setAlternative(statement2)
+   -> stat
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::WhileStatement createWhileStatement(
+   nqc::Expression expression, nqc::Statement statement
+) :
+   let stat = new nqc::WhileStatement :
+      stat.setCondition(expression)
+   -> stat.setBody(statement)
+   -> stat
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::BinaryExpression createBinaryExpression(
+   nqc::BinaryOperatorEnum operator, nqc::Expression operand1, nqc::Expression operand2
+) :
+   let exp = new nqc::BinaryExpression :
+      exp.setOperator(operator)
+   -> exp.setOperand1(operand1)
+   -> exp.setOperand2(operand2)
+   -> exp
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::BooleanConstant createBooleanConstant(Boolean value) :
+   let const = new nqc::BooleanConstant :
+      const.setValue(value)
+   -> const
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::IntegerConstant createIntegerConstant(Integer value) :
+   let const = new nqc::IntegerConstant :
+      const.setValue(value)
+   -> const
+;
+
+// ------------------------------------------------------------------------------------
+nqc::Variable createIntegerVariable(String name) :
+   let var = new nqc::Variable :
+      var.setName(name)
+   -> var.setType(nqc::TypeEnum::Integer)
+   -> var
+;
+
+// ------------------------------------------------------------------------------------
+
+nqc::AssignmentStatement createAssignmentStatement(
+   nqc::AssignmentStatementEnum operator, nqc::VariableExpression variableExpression,
+   nqc::Expression expression
+) :
+   let assignment = new nqc::AssignmentStatement :
+      assignment.setOperator(operator)
+   -> assignment.setExpression(
+         expression
+      )
+   -> assignment.setVariable(
+         variableExpression
+      )
+   -> assignment
+;

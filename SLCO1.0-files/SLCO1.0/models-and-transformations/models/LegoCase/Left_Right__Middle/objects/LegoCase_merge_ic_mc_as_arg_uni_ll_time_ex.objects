@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects:ObjectLists xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:objects="objects">
+  <objectLists>
+    <objects href="../nqc_slco_ecore/LegoCase_merge_ic_mc_as_arg_uni_ll_time_ex.slco#Middle_as"/>
+    <objects href="../nqc_slco_ecore/LegoCase_merge_ic_mc_as_arg_uni_ll_time_ex.slco#Middle_as_Middle_port_inABP_AS"/>
+    <objects href="../nqc_slco_ecore/LegoCase_merge_ic_mc_as_arg_uni_ll_time_ex.slco#Middle_as_Middle_port_inABP_Receiver"/>
+    <objects href="../nqc_slco_ecore/LegoCase_merge_ic_mc_as_arg_uni_ll_time_ex.slco#Middle_as_Middle_port_outABP_AR"/>
+    <objects href="../nqc_slco_ecore/LegoCase_merge_ic_mc_as_arg_uni_ll_time_ex.slco#Middle_as_Middle_port_outABP_Sender"/>
+  </objectLists>
+  <objectLists>
+    <objects href="../nqc_slco_ecore/LegoCase_merge_ic_mc_as_arg_uni_ll_time_ex.slco#R_L_as"/>
+    <objects href="../nqc_slco_ecore/LegoCase_merge_ic_mc_as_arg_uni_ll_time_ex.slco#R_L_as_R_L_port_inABP_AS"/>
+    <objects href="../nqc_slco_ecore/LegoCase_merge_ic_mc_as_arg_uni_ll_time_ex.slco#R_L_as_R_L_port_inABP_Receiver"/>
+    <objects href="../nqc_slco_ecore/LegoCase_merge_ic_mc_as_arg_uni_ll_time_ex.slco#R_L_as_R_L_port_outABP_AR"/>
+    <objects href="../nqc_slco_ecore/LegoCase_merge_ic_mc_as_arg_uni_ll_time_ex.slco#R_L_as_R_L_port_outABP_Sender"/>
+  </objectLists>
+</objects:ObjectLists>

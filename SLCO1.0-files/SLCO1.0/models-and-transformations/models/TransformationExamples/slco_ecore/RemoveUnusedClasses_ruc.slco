@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="ASCII"?>
+<slco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:slco="slco" name="RemoveUnusedClasses">
+  <classes name="A"/>
+  <objects name="a" class="//@classes.0"/>
+</slco:Model>

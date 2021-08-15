@@ -1,0 +1,264 @@
+import slco;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension org::eclipse::xtend::util::stdlib::cloning;
+extension Libraries::Equality;
+extension Libraries::ModifyModel;
+extension Libraries::CreationSLCO;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// 
+// 
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+slco::Model isolateDelays(
+   slco::Model model
+) :
+   let cl = model.channels.select(
+      c
+   |
+      c.channelType == slco::ChannelTypeEnum::sync
+   ) :
+      model.setName(
+         model.name + "_id"
+      )
+   -> cl.isolateDelays()
+   -> model
+;
+
+// ----------------------------------------------------------------------------
+
+private Void isolateDelays(
+   slco::Channel channel
+) :
+   syserr(
+      "IsolateDelays - unknown channel type: "
+      +
+      channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void isolateDelays(
+   slco::BidirectionalChannel channel
+) :
+   channel.object1.class.stateMachines.isolateDelays(channel.port1)
+-> channel.object2.class.stateMachines.isolateDelays(channel.port2)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void isolateDelays(
+   slco::UnidirectionalChannel channel
+) :
+   channel.sourceObject.class.stateMachines.isolateDelays(channel.sourcePort)
+-> channel.targetObject.class.stateMachines.isolateDelays(channel.targetPort)
+;
+
+// ----------------------------------------------------------------------------
+
+private cached Void isolateDelays(
+   slco::StateMachine stateMachine, slco::Port port
+) :
+   if (
+      stateMachine.needsIsolation(port)
+   ) then (
+      stateMachine.vertices.select(
+         v
+      |
+         v.outgoing.exists(
+            t
+         |
+            t.needsIsolation(port)
+         )
+      ).isolateDelays(stateMachine, port)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean needsIsolation(
+   slco::StateMachine stateMachine, slco::Port port
+) :
+   stateMachine.transitions.exists(
+      t
+   |
+      t.needsIsolation(port)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean needsIsolation(
+   slco::Transition transition, slco::Port port
+) :
+   transition.statements.get(0).metaType == slco::Delay
+&&
+   transition.statements.get(1).metaType == slco::SendSignal
+&&
+   (
+      (slco::SendSignal)
+      transition.statements.get(1)
+   ).port == port
+&&
+   transition.source.outgoing.size > 1
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean needsIsolation(
+   slco::Vertex vertex, slco::Port port
+) :
+   vertex.outgoing.exists(
+      t
+   |
+      t.needsIsolation(port)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void isolateDelays(
+   slco::Vertex vertex, slco::StateMachine stateMachine, slco::Port port
+) :
+   let transition = vertex.outgoing.getTransitionWithSmallestDelay(port) :
+   let delay = transition.statements.typeSelect(
+      slco::Delay
+   ).first() :
+   let delayValue = delay.value :
+   let ns = new slco::State :
+   let nt = new slco::Transition :
+      stateMachine.vertices.add(ns)
+   -> ns.setName(
+         vertex.name + "_" + delayValue.toString()
+      )
+   -> nt.setName(
+         "d" + delayValue.toString() + "_" + transition.name
+      )
+   -> nt.setSource(vertex)
+   -> nt.setTarget(ns)
+   -> stateMachine.transitions.add(nt)
+   -> nt.statements.add(
+         delay
+      )
+   -> transition.setSource(ns)
+   -> stateMachine.transitions.addAll(
+         vertex.outgoing.without(
+            {transition}
+         ).without(
+            vertex.outgoing.select(
+               t
+            |
+               t.hasDelay()
+            )
+         ).cloneTransition(ns)
+      )
+   -> stateMachine.transitions.addAll(
+         vertex.outgoing.select(
+            t
+         |
+            t.hasDelay()
+         ).without(
+            {nt}
+         ).cloneTransitionWithDelay(ns, delayValue)
+      )
+   -> vertex.outgoing.select(
+         t
+      |
+         t.hasDelay()
+      ).without(
+         {nt}
+      ).removeTransition(stateMachine)
+   -> if (ns.needsIsolation(port)) then (
+         ns.isolateDelays(stateMachine, port)
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void removeTransition(
+   slco::Transition transition, slco::StateMachine stateMachine
+) :
+   transition.source.outgoing.remove(transition)
+-> transition.target.incoming.remove(transition)
+-> stateMachine.transitions.remove(transition)
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Transition cloneTransition(
+   slco::Transition transition, slco::State state
+) :
+   let t = (slco::Transition) transition.clone() :
+      t.setSource(state)
+   -> t.setTarget(transition.target)
+   -> t.setName(
+         t.source.name + "To" + t.target.name
+      )
+   -> t
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Transition cloneTransitionWithDelay(
+   slco::Transition transition, slco::State state, Integer delayValue
+) :
+   let nt = (slco::Transition) transition.clone() :
+   let delay = nt.statements.typeSelect(
+      slco::Delay
+   ).first() :
+   let dv = delay.value :
+      nt.setSource(state)
+   -> nt.setTarget(transition.target)
+   -> nt.setName(
+         nt.source.name + "To" + nt.target.name
+      )
+   -> if (dv - delayValue == 0) then (
+         nt.statements.remove(delay)
+      ) else (
+         delay.setValue(
+            dv - delayValue
+         )
+      )
+   -> nt
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Transition getTransitionWithSmallestDelay(
+   List[slco::Transition] transitions, slco::Port port
+) :
+   let delayTransitions = transitions.select(
+      t
+   |
+      t.hasDelay()
+   ) :
+      delayTransitions.selectFirst(
+         t
+      |
+         t.needsIsolation(port)
+         &&
+         delayTransitions.forAll(
+            dt
+         |
+            dt.statements.typeSelect(slco::Delay).first().value
+         >=
+            t.statements.typeSelect(slco::Delay).first().value
+         )
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean hasDelay(slco::Transition transition) :
+   transition.statements.exists(
+      teos
+   |
+      teos.metaType == slco::Delay
+   )
+;

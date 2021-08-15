@@ -1,0 +1,68 @@
+/*=================*/
+/*-----------------*/
+/* Process Classes */
+/*-----------------*/
+/*=================*/
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class P_C()
+instance variables
+  Producer_To_Consumer_abl: Integer,
+  Producer_To_Consumer_name: String
+communication channels
+
+message interface
+
+initial method call
+  P_C_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  P_Producer_State()()
+    |  |
+    Producer_To_Consumer_name := "Bericht";
+    Producer_To_Consumer_abl := 1;
+    P_Producer_State_s_Bericht_abl_StateToState()()
+  .
+/* ------ ProcessMethod ------ */
+  C_Consumer_State()()
+    |  |
+    [((Producer_To_Consumer_abl=1)&(Producer_To_Consumer_name="Bericht"))]skip;
+    Producer_To_Consumer_abl := 2;
+    C_Consumer_State_r_Bericht_rbl_StateToState()()
+  .
+/* ------ ProcessMethod ------ */
+  P_Producer_State_s_Bericht_abl_StateToState()()
+    |  |
+    [(Producer_To_Consumer_abl=2)]skip;
+    Producer_To_Consumer_abl := 3;
+    [(Producer_To_Consumer_abl=0)]skip;
+    P_Producer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  C_Consumer_State_r_Bericht_rbl_StateToState()()
+    |  |
+    sel
+      [(Producer_To_Consumer_abl=3)]skip;
+      Producer_To_Consumer_abl := 0;
+      C_Consumer_State()()
+    or
+      [(Producer_To_Consumer_abl=0)]skip;
+      C_Consumer_State()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_C_initial()()
+    |  |
+    Producer_To_Consumer_abl := 0;
+    par
+      P_Producer_State()()
+    and
+      C_Consumer_State()()
+    rap
+  .
+

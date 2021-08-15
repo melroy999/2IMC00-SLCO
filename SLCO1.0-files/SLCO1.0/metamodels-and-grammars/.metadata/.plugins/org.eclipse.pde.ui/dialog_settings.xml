@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="quick_assist_proposal_size">
+	</section>
+	<section name="UpdateBuildpathWizard">
+	</section>
+	<section name="PluginExportWizard">
+		<item value="true" key="exportUpdate"/>
+		<item value="false" key="saveAsAnt"/>
+		<item value="Generate source bundles" key="exportSourceFormat"/>
+		<item value="" key="alias"/>
+		<item value="D:/File/First Task/SLCO/metamodels-and-grammars/.metadata/.plugins/org.eclipse.pde.core/install/" key="installDestination1"/>
+		<item value="false" key="qualifier"/>
+		<item value="D:/File/First Task/SLCO/metamodels-and-grammars/.metadata/.plugins/org.eclipse.pde.core/install/" key="installDestination0"/>
+		<item value="" key="password"/>
+		<item value="" key="keypass"/>
+		<item value="false" key="exportSource"/>
+		<item value="false" key="useWorkspaceCompiledClasses"/>
+		<item value="" key="keystore"/>
+		<item value="D:\Program Files\eclipse-modeling-galileo" key="destination5"/>
+		<item value="1" key="exportType"/>
+		<item value="D:\Program Files\eclipse" key="destination4"/>
+		<item value="true" key="exportDirectory"/>
+		<item value="false" key="signJAR"/>
+		<item value="D:\Program Files\eclipse-juno" key="destination3"/>
+		<item value="C:\Users\lengelen2\Downloads\eclipse" key="destination2"/>
+		<item value="O:\First Task\eclipse\eclipse" key="destination1"/>
+		<item value="O:\First Task\eclipse" key="destination0"/>
+		<item value="true" key="allowBinaryCycles"/>
+		<item value="200903031132" key="qualifierName"/>
+	</section>
+</section>

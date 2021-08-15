@@ -1,0 +1,246 @@
+model LegoCase_as {
+  classes
+    Environment {
+      variables
+        Boolean BlockLeft = false
+        Boolean BlockRight = false
+
+      ports
+        LeftSensor
+        LeftMotor
+        MiddleSensor
+        MiddleMotor
+        RightSensor
+        RightMotor
+
+      state machines
+        RightMotor {
+          initial
+            Start
+
+          state
+            Off
+            Running
+
+          transitions
+            Start from Start to Running {
+              receive On() from RightMotor
+            }
+
+            OffToRunning from Off to Running {
+              receive On() from RightMotor;
+              BlockRight := true
+            }
+
+            RunningToOff from Running to Off {
+              receive Off() from RightMotor
+            }
+
+            RunningToRunningBlock from Running to Running {
+              send Block() to RightSensor;
+              send BlockPassed() to RightSensor
+            }
+
+            OffToOff from Off to Off {
+              receive Off() from RightMotor
+            }
+
+            RunningToRunning from Running to Running {
+              receive On() from RightMotor
+            }
+        }
+
+        MiddleMotor {
+          variables
+            Boolean BlockFellOff = false
+
+          initial
+            Off
+
+          state
+            Right
+            Left
+
+          transitions
+            OffToRight from Off to Right {
+              receive Right() from MiddleMotor
+            }
+
+            RightToOff from Right to Off {
+              receive Off() from MiddleMotor
+            }
+
+            OffToOff from Off to Off {
+              receive Off() from MiddleMotor
+            }
+
+            OffToLeft from Off to Left {
+              receive Left() from MiddleMotor
+            }
+
+            LeftToOff from Left to Off {
+              receive Off() from MiddleMotor
+            }
+
+            RightToRightBlockFell from Right to Right {
+              (BlockRight == true);
+              BlockFellOff := true;
+              BlockRight := false
+            }
+
+            LeftToLeftBlockFell from Left to Left {
+              (BlockLeft == true);
+              BlockFellOff := true;
+              BlockLeft := false
+            }
+
+            RightToRight from Right to Right {
+              receive Right() from MiddleMotor
+            }
+
+            LeftToLeft from Left to Left {
+              receive Left() from MiddleMotor
+            }
+
+            RightToLeft from Right to Left {
+              receive Left() from MiddleMotor
+            }
+
+            LeftToRight from Left to Right {
+              receive Right() from MiddleMotor
+            }
+
+            RightToRightBlock from Right to Right {
+              (BlockLeft == true);
+              send Block() to MiddleSensor;
+              send BlockPassed() to MiddleSensor;
+              BlockLeft := false
+            }
+
+            LeftToLeftBlock from Left to Left {
+              (BlockRight == true);
+              send Block() to MiddleSensor;
+              send BlockPassed() to MiddleSensor;
+              BlockRight := false
+            }
+        }
+
+        LeftMotor {
+          initial
+            Start
+
+          state
+            Off
+            Running
+
+          transitions
+            Start from Start to Running {
+              receive On() from LeftMotor
+            }
+
+            OffToRunning from Off to Running {
+              receive On() from LeftMotor;
+              BlockLeft := true
+            }
+
+            RunningToOff from Running to Off {
+              receive Off() from LeftMotor
+            }
+
+            RunningToRunningBlock from Running to Running {
+              send Block() to LeftSensor;
+              send BlockPassed() to LeftSensor
+            }
+
+            OffToOff from Off to Off {
+              receive Off() from LeftMotor
+            }
+
+            RunningToRunning from Running to Running {
+              receive On() from LeftMotor
+            }
+        }
+    }
+
+    Single_as {
+      ports
+        Middle
+        Sensor
+        Motor
+
+      state machines
+        Single {
+          initial
+            Start
+
+          state
+            Running
+
+          transitions
+            StartToRunning from Start to Running {
+              send On() to Motor
+            }
+
+            RunningToBlock from Running to Running {
+              receive Block() from Sensor;
+              receive BlockPassed() from Sensor;
+              send Off() to Motor;
+              send Send_Block() to Middle;
+              receive Acknowledge_Block() from Middle;
+              send On() to Motor
+            }
+        }
+    }
+
+    Middle_as {
+      ports
+        Left
+        Right
+        Sensor
+        Motor
+
+      state machines
+        Middle {
+          initial
+            Idle
+
+          state
+            Running
+
+          transitions
+            IdleToRight from Idle to Running {
+              receive Send_Block() from Left;
+              send Acknowledge_Block() to Left;
+              send Right() to Motor
+            }
+
+            RunningToBlock from Running to Idle {
+              receive Block() from Sensor;
+              receive BlockPassed() from Sensor;
+              send Off() to Motor
+            }
+
+            IdleToLeft from Idle to Running {
+              receive Send_Block() from Right;
+              send Acknowledge_Block() to Right;
+              send Left() to Motor
+            }
+        }
+    }
+
+  objects
+    Right_as: Single_as
+    Left_as: Single_as
+    Middle_as: Middle_as
+    Environment: Environment
+
+  channels
+    ELeftSensor_to_LSensor_as() sync from Environment.LeftSensor to Left_as.Sensor
+    LMotor_to_ELeftMotor_as() sync from Left_as.Motor to Environment.LeftMotor
+    ERightSensor_to_RSensor_as() sync from Environment.RightSensor to Right_as.Sensor
+    RMotor_to_ERightMotor_as() sync from Right_as.Motor to Environment.RightMotor
+    EMiddleSensor_to_MSensor_as() sync from Environment.MiddleSensor to Middle_as.Sensor
+    MMotor_to_EMiddleMotor_as() sync from Middle_as.Motor to Environment.MiddleMotor
+    RMiddle_to_MRight_as() async lossless between Right_as.Middle and Middle_as.Right
+    LMiddle_to_MLeft_as() async lossless between Left_as.Middle and Middle_as.Left
+}

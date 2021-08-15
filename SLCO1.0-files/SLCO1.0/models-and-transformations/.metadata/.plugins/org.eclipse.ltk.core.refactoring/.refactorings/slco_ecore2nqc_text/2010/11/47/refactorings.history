@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;slco_ecore2nqc_text/src/Workflows/wf-Simple/P__C/as_arg_uni_half_ll.mwe&apos; to &apos;as_arg_uni_half_ll_time_merge.mwe&apos;" description="Rename resource &apos;as_arg_uni_half_ll.mwe&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/Workflows/wf-Simple/P__C/as_arg_uni_half_ll.mwe" name="as_arg_uni_half_ll_time_merge.mwe" stamp="1290679102190" updateReferences="true"/>
+</session>

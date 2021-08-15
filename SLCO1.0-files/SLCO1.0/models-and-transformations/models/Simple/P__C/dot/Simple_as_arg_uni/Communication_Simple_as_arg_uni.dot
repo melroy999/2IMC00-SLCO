@@ -1,0 +1,24 @@
+
+digraph Simple_as_arg_uni {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_P_as{
+    label = "P_as: Producer_as";
+    node [shape = box];
+    P_as_C_in[label = C_in]
+    P_as_C_out[label = C_out]
+  }
+
+  subgraph cluster_C_as{
+    label = "C_as: Consumer_as";
+    node [shape = box];
+    C_as_P_in[label = P_in]
+    C_as_P_out[label = P_out]
+  }
+
+  
+ P_as_C_out -> C_as_P_in [label = "Producer_To_Consumer_as_1_to_2(String)", style=dashed];
+
+ C_as_P_out -> P_as_C_in [label = "Producer_To_Consumer_as_2_to_1(String)", style=dashed];
+
+}

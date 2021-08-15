@@ -1,0 +1,531 @@
+import slco;
+import channels;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension Libraries::Equality;
+extension Libraries::CreationSLCO;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// These functions replace an asynchronous unidirectional lossless channel by
+// a number of objects implementing the concurrent alternating bit protocol
+// communicating over two lossy unidirectional asynchronous channels.
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+slco::Model modifyModelL2LL(
+   slco::Model model, channels::ChannelList channels
+) :
+   let cl = model.channels.select(
+      c1
+   |
+      channels.channels.exists(
+         c2 
+      |
+         c1.channelEqualsChannel(c2)
+      )
+   ).typeSelect(slco::UnidirectionalChannel) :
+      if (cl.size != 0) then (
+         model.classes.add(
+            createABPSenderClass(model)
+         )
+      -> model.classes.add(
+            createABPARClass(model)
+         )
+      -> model.classes.add(
+            createABPReceiverClass(model)
+         )
+      -> model.classes.add(
+            createABPASClass(model)
+         )
+      -> cl.addABPObjects(model)
+      -> cl.addChannels(model)
+      -> model.channels.removeAll(cl)
+      )
+   -> model.setName(
+         model.name + "_ll"
+      )
+   -> model
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addABPObjects(slco::UnidirectionalChannel channel, slco::Model model) :
+   channel.addABPSenderObjects(model)
+-> channel.addABPARObjects(model)
+-> channel.addABPReceiverObjects(model)
+-> channel.addABPASObjects(model)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addABPSenderObjects(slco::UnidirectionalChannel channel, slco::Model model) :
+   model.objects.add(
+      channel.sourcePort.createABPSenderObject(channel.sourceObject, model)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addABPARObjects(slco::UnidirectionalChannel channel, slco::Model model) :
+   model.objects.add(
+      channel.sourcePort.createABPARObject(channel.sourceObject, model)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addABPReceiverObjects(slco::UnidirectionalChannel channel, slco::Model model) :
+   model.objects.add(
+      channel.targetPort.createABPReceiverObject(channel.targetObject, model)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addABPASObjects(slco::UnidirectionalChannel channel, slco::Model model) :
+   model.objects.add(
+      channel.targetPort.createABPASObject(channel.targetObject, model)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Class createABPSenderClass(slco::Model model) :
+   this.setName("ABP_Sender")
+-> this.ports.add(createPort("ASOriginal"))
+-> this.ports.add(createPort("ASReceiver"))
+-> this.ports.add(createPort("ASAR"))
+-> this.stateMachines.add(createABPSender(model))
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Class createABPARClass(slco::Model model) :
+   this.setName("ABP_AR")
+-> this.ports.add(createPort("AARAS"))
+-> this.ports.add(createPort("AARSender"))
+-> this.stateMachines.add(createABPAR(model))
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Class createABPReceiverClass(slco::Model model) :
+   this.setName("ABP_Receiver")
+-> this.ports.add(createPort("AROriginal"))
+-> this.ports.add(createPort("ARSender"))
+-> this.ports.add(createPort("ARAS"))
+-> this.stateMachines.add(createABPReceiver(model))
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Class createABPASClass(slco::Model model) :
+   this.setName("ABP_AS")
+-> this.ports.add(createPort("AASAR"))
+-> this.ports.add(createPort("AASReceiver"))
+-> this.stateMachines.add(createABPAS(model))
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Object createABPSenderObject(
+   slco::Port port, slco::Object object, slco::Model model
+) :
+   this.setName(object.name + "_" + port.name + "ABP_Sender")
+-> this.setClass(createABPSenderClass(model))
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Object createABPARObject(
+   slco::Port port, slco::Object object, slco::Model model
+) :
+   this.setName(object.name + "_" + port.name + "ABP_AR")
+-> this.setClass(createABPARClass(model))
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Object createABPReceiverObject(
+   slco::Port port, slco::Object object, slco::Model model
+) :
+   this.setName(object.name + "_" + port.name + "ABP_Receiver")
+-> this.setClass(createABPReceiverClass(model))
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Object createABPASObject(
+   slco::Port port, slco::Object object, slco::Model model
+) :
+   this.setName(object.name + "_" + port.name + "ABP_AS")
+-> this.setClass(createABPASClass(model))
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addChannels(slco::UnidirectionalChannel channel, slco::Model model) :
+   addChannels(
+      channel.sourcePort, channel.sourceObject, channel.targetPort, channel.targetObject, model
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addChannels(
+   slco::Port sendingPort, slco::Object sendingObject,
+   slco::Port receivingPort, slco::Object receivingObject,
+   slco::Model model
+) :
+   model.channels.add(
+      createChannelOriginalToSender(sendingPort, sendingObject, model)
+   )
+-> model.channels.add(
+      createChannelARToSender(sendingPort, sendingObject, model)
+   )
+-> model.channels.add(
+      createChannelReceiverToOriginal(receivingPort, receivingObject, model)
+   )
+-> model.channels.add(
+      createChannelReceiverToAS(receivingPort, receivingObject, model)
+   )
+-> model.channels.add(
+      createChannelSenderToReceiver(
+         sendingPort, sendingObject, receivingPort, receivingObject, model
+      )
+   )
+-> model.channels.add(
+      createChannelASToAR(
+         sendingPort, sendingObject, receivingPort, receivingObject, model
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::UnidirectionalChannel createChannelOriginalToSender(
+   slco::Port port, slco::Object object, slco::Model model
+) :
+   this.setName(object.name + "_" + port.name + "_Original_to_Sender")
+-> this.setSourcePort(port)
+-> this.setSourceObject(object)
+-> this.setTargetPort(createPort("ASOriginal"))
+-> this.setTargetObject(createABPSenderObject(port, object, model))
+-> this.setChannelType(slco::ChannelTypeEnum::sync)
+-> this.argumentTypes.add(
+      createStringArgumentType()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::UnidirectionalChannel createChannelARToSender(
+   slco::Port port, slco::Object object, slco::Model model
+) :
+   this.setName(object.name + "_" + port.name + "_AR_to_Sender")
+-> this.setSourcePort(createPort("AARSender"))
+-> this.setSourceObject(createABPARObject(port, object, model))
+-> this.setTargetPort(createPort("ASAR"))
+-> this.setTargetObject(createABPSenderObject(port, object, model))
+-> this.setChannelType(slco::ChannelTypeEnum::sync)
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::UnidirectionalChannel createChannelReceiverToOriginal(
+   slco::Port port, slco::Object object, slco::Model model
+) :
+   this.setName(object.name + "_" + port.name + "_Receiver_to_Original")
+-> this.setSourcePort(createPort("AROriginal"))
+-> this.setSourceObject(createABPReceiverObject(port, object, model))
+-> this.setTargetPort(port)
+-> this.setTargetObject(object)
+-> this.setChannelType(slco::ChannelTypeEnum::sync)
+-> this.argumentTypes.add(
+      createStringArgumentType()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::UnidirectionalChannel createChannelReceiverToAS(
+   slco::Port port, slco::Object object, slco::Model model
+) :
+   this.setName(object.name + "_" + port.name + "_Receiver_to_AS")
+-> this.setSourcePort(createPort("ARAS"))
+-> this.setSourceObject(createABPReceiverObject(port, object, model))
+-> this.setTargetPort(createPort("AASReceiver"))
+-> this.setTargetObject(createABPASObject(port, object, model))
+-> this.setChannelType(slco::ChannelTypeEnum::sync)
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::UnidirectionalChannel createChannelSenderToReceiver(
+   slco::Port sendingPort, slco::Object sendingObject,
+   slco::Port receivingPort, slco::Object receivingObject,
+   slco::Model model
+) :
+   this.setName(
+      sendingObject.name + "_" + sendingPort.name + "_Sender_to_Receiver"
+   )
+-> this.setSourcePort(createPort("ASReceiver"))
+-> this.setSourceObject(createABPSenderObject(sendingPort, sendingObject, model))
+-> this.setTargetPort(createPort("ARSender"))
+-> this.setTargetObject(
+      createABPReceiverObject(receivingPort, receivingObject, model)
+   )
+-> this.setChannelType(slco::ChannelTypeEnum::async_lossy)
+-> this.argumentTypes.add(
+      createStringArgumentType()
+   )
+-> this.argumentTypes.add(
+      createIntegerArgumentType()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::UnidirectionalChannel createChannelASToAR(
+   slco::Port sendingPort, slco::Object sendingObject,
+   slco::Port receivingPort, slco::Object receivingObject, slco::Model model
+) :
+   this.setName(sendingObject.name + "_" + sendingPort.name + "_AS_to_AR")
+-> this.setSourcePort(createPort("AASAR"))
+-> this.setSourceObject(createABPASObject(receivingPort, receivingObject, model))
+-> this.setTargetPort(createPort("AARAS"))
+-> this.setTargetObject(createABPARObject(sendingPort, sendingObject, model))
+-> this.setChannelType(slco::ChannelTypeEnum::async_lossy)
+-> this.argumentTypes.add(
+      createIntegerArgumentType()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Port createPort(String name) :
+   this.setName(name)
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::StateMachine createABPSender(slco::Model model) :
+   let szero = createInitial("Zero") :
+   let sone = createState("One") :
+
+   let tr_zero_to_one = createTransition("ZeroToOne", szero, sone) :
+   let tr_one_to_zero = createTransition("OneToZero", sone, szero) :
+   let tr_one_to_one = createTransition("SenderOneToOne", sone, sone) :
+
+   let var_s = createIntegerVariable("s", 0) :
+   let var_d = createStringVariable("d") :
+
+      this.setName("Sender")
+   -> this.vertices.add(szero)
+   -> this.vertices.add(sone)
+   -> this.transitions.add(tr_zero_to_one)
+   -> this.transitions.add(tr_one_to_zero)
+   -> this.transitions.add(tr_one_to_one)
+   -> this.variables.add(var_s)
+   -> this.variables.add(var_d)
+   -> tr_zero_to_one.statements.add(
+         createSignalReception(
+            "Signal", createPort("ASOriginal"),
+            {createSignalArgumentVariable(var_d)}
+         )
+      )
+   -> tr_one_to_zero.statements.add(
+         createSignalReception("Acknowledge", createPort("ASAR"), {})
+      )
+   -> tr_one_to_zero.statements.add(
+         createAssignment(
+            var_s,
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::subtract,
+               createIntegerConstantExpression(1),
+               createVariableExpression(var_s)
+            )
+         )
+      )
+   -> tr_one_to_one.statements.add(
+         createSendSignal(
+            "Message",
+            createPort("ASReceiver"),
+            {
+               createVariableExpression(var_d),
+               createVariableExpression(var_s)
+            }
+         )
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::StateMachine createABPAR(slco::Model model) :
+   let szero = createInitial("Zero") :
+
+   let tr_zero_to_zero_ack = createTransition("ZeroToZeroAck", szero, szero) :
+   let tr_zero_to_zero = createTransition("ZeroToZero", szero, szero) :
+
+   let var_b = createIntegerVariable("b", 0) :
+
+      this.setName("AR")
+   -> this.vertices.add(szero)
+   -> this.transitions.add(tr_zero_to_zero_ack)
+   -> this.transitions.add(tr_zero_to_zero)
+   -> this.variables.add(var_b)
+   -> tr_zero_to_zero_ack.statements.add(
+         createSignalReception(
+            "Acknowledge",
+            createPort("AARAS"),
+            {
+               createSignalArgumentExpression(createVariableExpression(var_b))
+            }
+         )
+      )
+   -> tr_zero_to_zero_ack.statements.add(   
+         createSendSignal(
+            "Acknowledge",
+            createPort("AARSender"),
+            {}
+         )
+      )
+   -> tr_zero_to_zero_ack.statements.add(
+         createAssignment(
+            var_b,
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::subtract,
+               createIntegerConstantExpression(1),
+               createVariableExpression(var_b)
+            )
+         )
+      )
+   -> tr_zero_to_zero.statements.add(
+         createSignalReception(
+            "Acknowledge",
+            createPort("AARAS"),
+            {
+               createSignalArgumentExpression(
+                  createBinaryOperatorExpression(
+                     slco::OperatorEnum::subtract,
+                     createIntegerConstantExpression(1),
+                     createVariableExpression(var_b)
+                  )
+               )
+            }
+         )
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::StateMachine createABPReceiver(slco::Model model) :
+   let szero = createInitial("Zero") :
+
+   let tr_zero_to_zero_ack = createTransition("ZeroToZeroAck", szero, szero) :
+   let tr_zero_to_zero = createTransition("ZeroToZero", szero, szero) :
+
+   let var_r = createIntegerVariable("r", 0) :
+   let var_d = createStringVariable("d") :
+
+      this.setName("Receiver")
+   -> this.vertices.add(szero)
+   -> this.transitions.add(tr_zero_to_zero_ack)
+   -> this.transitions.add(tr_zero_to_zero)
+   -> this.variables.add(var_r)
+   -> this.variables.add(var_d)
+   -> tr_zero_to_zero_ack.statements.add(
+         createSignalReception(
+            "Message",
+            createPort("ARSender"),
+            {
+               createSignalArgumentVariable(var_d),
+               createSignalArgumentExpression(createVariableExpression(var_r))
+            }
+         )
+      )
+   -> tr_zero_to_zero_ack.statements.add(   
+         createSendSignal(
+            "Signal",
+            createPort("AROriginal"),
+            {createVariableExpression(var_d)}
+         )
+      )
+   -> tr_zero_to_zero_ack.statements.add(   
+         createSendSignal(
+            "Acknowledge",
+            createPort("ARAS"),
+            {}
+         )
+      )
+   -> tr_zero_to_zero_ack.statements.add(
+         createAssignment(
+            var_r,
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::subtract,
+               createIntegerConstantExpression(1),
+               createVariableExpression(var_r)
+            )
+         )
+      )
+   -> tr_zero_to_zero.statements.add(
+         createSignalReception(
+            "Message",
+            createPort("ARSender"),
+            {
+               createSignalArgumentVariable(
+                  var_d
+               ),
+               createSignalArgumentExpression(
+                  createBinaryOperatorExpression(
+                     slco::OperatorEnum::subtract,
+                     createIntegerConstantExpression(1),
+                     createVariableExpression(var_r)
+                  )
+               )
+            }
+         )
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::StateMachine createABPAS(slco::Model model) :
+   let szero = createInitial("Zero") :
+
+   let tr_zero_to_zero_ack = createTransition("ZeroToZeroAck", szero, szero) :
+   let tr_zero_to_zero = createTransition("ASZeroToZero", szero, szero) :
+   
+   let var_b = createIntegerVariable("b", 1) :
+
+      this.setName("AS")
+   -> this.vertices.add(szero)
+   -> this.transitions.add(tr_zero_to_zero_ack)
+   -> this.transitions.add(tr_zero_to_zero)
+   -> this.variables.add(var_b)
+   -> tr_zero_to_zero_ack.statements.add(
+         createSignalReception("Acknowledge", createPort("AASReceiver"), {})
+      )
+   -> tr_zero_to_zero_ack.statements.add(
+         createAssignment(
+            var_b,
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::subtract,
+               createIntegerConstantExpression(1),
+               createVariableExpression(var_b)
+            )
+         )
+      )
+   -> tr_zero_to_zero.statements.add(
+         createSendSignal(
+            "Acknowledge",
+            createPort("AASAR"),
+            {
+               createVariableExpression(var_b)
+            }
+         )
+      )
+;

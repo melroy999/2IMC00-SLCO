@@ -1,0 +1,20 @@
+
+digraph Sync2Async3 {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_a{
+    label = "a: A";
+    node [shape = box];
+    a_Out[label = Out]
+  }
+
+  subgraph cluster_b{
+    label = "b: B";
+    node [shape = box];
+    b_In[label = In]
+  }
+
+  
+ a_Out -> b_In [label = "CA()"];
+
+}

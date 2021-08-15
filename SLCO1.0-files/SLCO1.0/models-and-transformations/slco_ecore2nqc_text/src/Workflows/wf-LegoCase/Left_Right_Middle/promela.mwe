@@ -1,0 +1,60 @@
+<workflow>
+
+  <property name='inputname' value='LegoCase_merge' />
+  <property name='inputfile' value='${inputname}.slco' />
+
+  <property name='uni-outputfile' value='${inputname}_uni.slco' />
+  <property name='int-outputfile' value='${inputname}_uni_int.slco' />
+
+  <property name='sourcedir' value='../models/LegoCase/Left_Right_Middle/nqc_slco_ecore'/>
+  <property name='targetdir' value='../models/LegoCase/Left_Right_Middle/promela_slco_ecore'/>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${sourcedir}/${inputfile}"/>
+    <outputSlot value="Model"/>
+  </component>
+
+  <component id="b2u" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::Bi2Uni::modifyModelB2U(Model)"/>
+    <outputSlot value="IUNIModel"/>
+  </component>
+
+  <component id="ruc-uni" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::RemoveUnusedClasses::modifyModelRUC(IUNIModel)"/>
+    <outputSlot value="UNIModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${uni-outputfile}"/>
+    <inputSlot value="UNIModel"/>
+  </component>
+
+  <component id="s2i" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::StringsToIntegers::stringsToIntegers(UNIModel)"/>
+    <outputSlot value="INTModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${int-outputfile}"/>
+    <inputSlot value="INTModel"/>
+  </component>
+
+</workflow>

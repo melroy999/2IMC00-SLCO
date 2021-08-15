@@ -1,0 +1,21 @@
+/**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
+ */
+package NQC;
+
+
+/**
+ * <!-- begin-user-doc -->
+ * A representation of the model object '<em><b>Control Structure</b></em>'.
+ * <!-- end-user-doc -->
+ *
+ *
+ * @see NQC.NQCPackage#getControlStructure()
+ * @model abstract="true"
+ * @generated
+ */
+public interface ControlStructure extends Statement {
+} // ControlStructure

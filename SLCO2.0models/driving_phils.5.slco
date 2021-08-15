@@ -1,0 +1,207 @@
+model dve_driving_phils_5 {
+classes
+	GlobalClass {
+		variables
+			Byte[6] request
+			Byte[6] starvers
+			Byte[4] resources
+			Integer[3] res0
+			Integer[3] res1
+			Integer[3] acquiring
+			Integer entryRound := 1
+			Byte phase := 0
+			Byte fire := 0
+		state machines
+			round_about {
+				variables
+					Integer i := 0
+				initial reset
+				states  begin0 begin1 begin2 begin3 action end0 end1 end2
+				transitions
+					from reset to reset {
+						[i < 3; res0[i] := -1;res1[i] := -1;acquiring[i] := -1;i := i+1]
+					}
+
+					from reset to begin0 {
+						[i = 3; i := 0;phase := 0]
+					}
+
+					from begin0 to begin0 {
+						[i < 4; resources[i] := 0;i := i+1]
+					}
+
+					from begin0 to begin1 {
+						[i = 4; i := 0]
+					}
+
+					from begin1 to begin1 {
+						[i < 3 and res0[i] <> -1; resources[res0[i]*2] := entryRound;resources[res0[i]*2+1] := i;i := i+1]
+					}
+
+					from begin1 to begin1 {
+						[i < 3 and res0[i] = -1; i := i+1]
+					}
+
+					from begin1 to begin2 {
+						[i = 3; i := 0]
+					}
+
+					from begin2 to begin2 {
+						[i < 3 and res1[i] <> -1; resources[res1[i]*2] := entryRound;resources[res1[i]*2+1] := i;i := i+1]
+					}
+
+					from begin2 to begin2 {
+						[i < 3 and res1[i] = -1; i := i+1]
+					}
+
+					from begin2 to action {
+						[i = 3; i := 0;phase := 1;fire := 0]
+					}
+
+					from action to end0 {
+						[fire = 3; fire := 0;phase := 2]
+					}
+
+					from end0 to end0 {
+						[i < 2 and resources[2*i] <> 0; request[2*resources[2*i+1]+i] := 0;starvers[2*resources[2*i+1]+i] := 0;i := i+1]
+					}
+
+					from end0 to end0 {
+						[i < 2 and resources[2*i] = 0; i := i+1]
+					}
+
+					from end0 to end1 {
+						[i = 2; i := 0]
+					}
+
+					from end1 to end1 {
+						[i < 6 and request[i] < entryRound - 3; starvers[i] := request[i];i := i+1]
+					}
+
+					from end1 to end1 {
+						[i < 6; i := i+1]
+					}
+
+					from end1 to begin0 {
+						[i = 6 and fire = 3 and entryRound <> 10; phase := 0;entryRound := entryRound + 1;i := 0]
+					}
+
+					from end1 to end2 {
+						entryRound = 10
+					}
+
+				}
+	
+			phil_0 {
+				variables
+					Integer i := 0
+				initial action
+				states  end1 mutex
+				transitions
+					from action to end1 {
+						[phase = 1 and res0[0] <> -1; resources[res0[0]] := 0;resources[res0[0]+1] := 0;res0[0] := res1[0];res1[0] := -1;fire := fire + 1]
+					}
+
+					from action to end1 {
+						[phase = 1 and res1[0] = -1 and acquiring[0] = -1; acquiring[0] := 0;fire := fire + 1;request[0*2+0] := entryRound]
+					}
+
+					from action to end1 {
+						[phase = 1 and res1[0] = -1 and acquiring[0] = -1; acquiring[0] := 1;fire := fire + 1;request[0*2+1] := entryRound]
+					}
+
+					from action to end1 {
+						[phase = 1; fire := fire + 1]
+					}
+
+					from end1 to action {
+						[phase = 2 and acquiring[0] = -1; fire := fire+1]
+					}
+
+					from end1 to action {
+						[phase = 2 and acquiring[0] <> -1 and res0[0] = -1; res0[0] := acquiring[0];acquiring[0] := -1;fire := fire + 1]
+					}
+
+					from end1 to action {
+						[phase = 2 and acquiring[0] <> -1 and res0[0] <> -1; res1[0] := acquiring[0];acquiring[0] := -1;fire := fire + 1]
+					}
+
+				}
+	
+			phil_1 {
+				variables
+					Integer i := 0
+				initial action
+				states  end1 mutex
+				transitions
+					from action to end1 {
+						[phase = 1 and res0[1] <> -1; resources[res0[1]] := 0;resources[res0[1]+1] := 0;res0[1] := res1[1];res1[1] := -1;fire := fire + 1]
+					}
+
+					from action to end1 {
+						[phase = 1 and res1[1] = -1 and acquiring[1] = -1; acquiring[1] := 0;fire := fire + 1;request[1*2+0] := entryRound]
+					}
+
+					from action to end1 {
+						[phase = 1 and res1[1] = -1 and acquiring[1] = -1; acquiring[1] := 1;fire := fire + 1;request[1*2+1] := entryRound]
+					}
+
+					from action to end1 {
+						[phase = 1; fire := fire + 1]
+					}
+
+					from end1 to action {
+						[phase = 2 and acquiring[1] = -1; fire := fire+1]
+					}
+
+					from end1 to action {
+						[phase = 2 and acquiring[1] <> -1 and res0[1] = -1; res0[1] := acquiring[1];acquiring[1] := -1;fire := fire + 1]
+					}
+
+					from end1 to action {
+						[phase = 2 and acquiring[1] <> -1 and res0[1] <> -1; res1[1] := acquiring[1];acquiring[1] := -1;fire := fire + 1]
+					}
+
+				}
+	
+			phil_2 {
+				variables
+					Integer i := 0
+				initial action
+				states  end1 mutex
+				transitions
+					from action to end1 {
+						[phase = 1 and res0[2] <> -1; resources[res0[2]] := 0;resources[res0[2]+1] := 0;res0[2] := res1[2];res1[2] := -1;fire := fire + 1]
+					}
+
+					from action to end1 {
+						[phase = 1 and res1[2] = -1 and acquiring[2] = -1; acquiring[2] := 0;fire := fire + 1;request[2*2+0] := entryRound]
+					}
+
+					from action to end1 {
+						[phase = 1 and res1[2] = -1 and acquiring[2] = -1; acquiring[2] := 1;fire := fire + 1;request[2*2+1] := entryRound]
+					}
+
+					from action to end1 {
+						[phase = 1; fire := fire + 1]
+					}
+
+					from end1 to action {
+						[phase = 2 and acquiring[2] = -1; fire := fire+1]
+					}
+
+					from end1 to action {
+						[phase = 2 and acquiring[2] <> -1 and res0[2] = -1; res0[2] := acquiring[2];acquiring[2] := -1;fire := fire + 1]
+					}
+
+					from end1 to action {
+						[phase = 2 and acquiring[2] <> -1 and res0[2] <> -1; res1[2] := acquiring[2];acquiring[2] := -1;fire := fire + 1]
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

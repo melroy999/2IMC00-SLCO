@@ -1,0 +1,13 @@
+digraph AR {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Zero_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Zero Zero_extra -> Zero
+
+
+
+
+Zero -> Zero [label = "receive Acknowledge([[b]]) from AARAS;\n send Acknowledge() to AARSender;\n b := 1 - b"];
+
+Zero -> Zero [label = "receive Acknowledge([[1 - b]]) from AARAS"];
+
+}

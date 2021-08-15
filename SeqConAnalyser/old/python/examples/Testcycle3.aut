@@ -1,0 +1,7 @@
+des(0,3,1)
+
+(0,"rw_p(SMC1, {var_x(1),var_x(3)}, {var_x(0)})",0)
+(0,"rw_p(SMC2, {var_x(2),var_x(3)}, {var_x(1)})",0)
+(0,"rw_p(SMC3, {var_x(0),var_x(1)}, {var_x(2)})",0)
+(0,"rw_p(SMC4, {var_x(1),var_x(4)}, {var_x(3)})",0)
+(0,"rw_p(SMC5, {var_x(0),var_x(3)}, {var_x(4)})",0)

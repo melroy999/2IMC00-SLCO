@@ -1,0 +1,66 @@
+
+digraph LegoCase_as_arg_uni {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_Right_as{
+    label = "Right_as: Single_as";
+    node [shape = box];
+    Right_as_Sensor[label = Sensor]
+    Right_as_Motor[label = Motor]
+    Right_as_Middle_in[label = Middle_in]
+    Right_as_Middle_out[label = Middle_out]
+  }
+
+  subgraph cluster_Left_as{
+    label = "Left_as: Single_as";
+    node [shape = box];
+    Left_as_Sensor[label = Sensor]
+    Left_as_Motor[label = Motor]
+    Left_as_Middle_in[label = Middle_in]
+    Left_as_Middle_out[label = Middle_out]
+  }
+
+  subgraph cluster_Middle_as{
+    label = "Middle_as: Middle_as";
+    node [shape = box];
+    Middle_as_Sensor[label = Sensor]
+    Middle_as_Motor[label = Motor]
+    Middle_as_Right_in[label = Right_in]
+    Middle_as_Right_out[label = Right_out]
+    Middle_as_Left_in[label = Left_in]
+    Middle_as_Left_out[label = Left_out]
+  }
+
+  subgraph cluster_Environment{
+    label = "Environment: Environment";
+    node [shape = box];
+    Environment_LeftSensor[label = LeftSensor]
+    Environment_LeftMotor[label = LeftMotor]
+    Environment_MiddleSensor[label = MiddleSensor]
+    Environment_MiddleMotor[label = MiddleMotor]
+    Environment_RightSensor[label = RightSensor]
+    Environment_RightMotor[label = RightMotor]
+  }
+
+  
+ Environment_LeftSensor -> Left_as_Sensor [label = "ELeftSensor_to_LSensor_as()"];
+
+ Left_as_Motor -> Environment_LeftMotor [label = "LMotor_to_ELeftMotor_as()"];
+
+ Environment_RightSensor -> Right_as_Sensor [label = "ERightSensor_to_RSensor_as()"];
+
+ Right_as_Motor -> Environment_RightMotor [label = "RMotor_to_ERightMotor_as()"];
+
+ Environment_MiddleSensor -> Middle_as_Sensor [label = "EMiddleSensor_to_MSensor_as()"];
+
+ Middle_as_Motor -> Environment_MiddleMotor [label = "MMotor_to_EMiddleMotor_as()"];
+
+ Right_as_Middle_out -> Middle_as_Right_in [label = "RMiddle_to_MRight_as_1_to_2(String)", style=dashed];
+
+ Left_as_Middle_out -> Middle_as_Left_in [label = "LMiddle_to_MLeft_as_1_to_2(String)", style=dashed];
+
+ Middle_as_Right_out -> Right_as_Middle_in [label = "RMiddle_to_MRight_as_2_to_1(String)", style=dashed];
+
+ Middle_as_Left_out -> Left_as_Middle_in [label = "LMiddle_to_MLeft_as_2_to_1(String)", style=dashed];
+
+}

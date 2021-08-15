@@ -1,0 +1,1061 @@
+import slco;
+import objects;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension org::eclipse::xtend::util::stdlib::cloning;
+
+extension Libraries::Clone;
+extension Libraries::Equality;
+extension Libraries::CreationSLCO;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// These functions merge a number of objects into one object. These objects can
+// only be merged succesfully if they communicate over synchronous lossless
+// unidirectional channels.
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+// ----------------------------------------------------------------------------
+
+slco::Model modifyModelMerge(
+   slco::Model model, objects::ObjectLists objectLists
+) :
+   objectLists.objectLists.cloneAndRenameClasses(model)
+-> objectLists.objectLists.addVariablesUsingList(model)
+-> objectLists.objectLists.replaceChannelsByVariables(model)
+-> objectLists.objectLists.removeInternalPorts(model)
+-> objectLists.objectLists.mergeClassesUsingList(model)
+-> objectLists.objectLists.mergeObjectsUsingList(model)
+-> objectLists.objectLists.updateConnectedChannels(model)
+-> objectLists.objectLists.removeInternalChannels(model)
+-> objectLists.objectLists.removeClonedClasses(model)
+-> objectLists.objectLists.removeObjects(model)
+-> model.setName(
+      model.name + "_merge"
+   )
+-> model
+;
+
+// ----------------------------------------------------------------------------
+
+slco::Model mergeObjects(
+   slco::Model model, objects::ObjectLists objectLists
+) :
+   objectLists.objectLists.cloneAndRenameClasses(model)
+-> objectLists.objectLists.addVariablesUsingList(model)
+-> objectLists.objectLists.replaceChannelsByVariables(model)
+-> objectLists.objectLists.removeInternalPorts(model)
+-> objectLists.objectLists.mergeClassesUsingList(model)
+-> objectLists.objectLists.mergeObjectsUsingList(model)
+-> objectLists.objectLists.updateConnectedChannels(model)
+-> objectLists.objectLists.removeInternalChannels(model)
+-> objectLists.objectLists.removeClonedClasses(model)
+-> objectLists.objectLists.removeClasses(model)
+-> objectLists.objectLists.removeObjects(model)
+-> model.setName(
+      model.name + "_merge"
+   )
+-> model
+;
+
+// ----------------------------------------------------------------------------
+
+private Void cloneAndRenameClasses(
+   objects::ObjectList objectList, slco::Model model
+) :
+   model.classes.addAll(
+      objectList.getObjects(model).cloneAndRenameClass()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Class cloneAndRenameClass(slco::Object object) :
+   object.class.cloneAndRenameClass(object.name)
+;
+
+// ----------------------------------------------------------------------------
+
+private cached slco::Class cloneAndRenameClass(slco::Class class, String s) :
+   let c = (slco::Class) class.clone() :
+      c.ports.renamePort(s)
+   -> c.stateMachines.renameStateMachine(s)
+   -> c.variables.renameVariable(s)
+   -> c.setName(s + "_" + c.name)
+   -> c
+;
+
+// ----------------------------------------------------------------------------
+
+private Void renameStateMachine(slco::StateMachine stateMachine, String s) :
+   stateMachine.setName(s + "_" + stateMachine.name)
+-> stateMachine
+;
+
+// ----------------------------------------------------------------------------
+
+private Void renamePort(slco::Port port, String s) :
+   port.setName(s + "_" + port.name)
+-> port
+;
+
+// ----------------------------------------------------------------------------
+
+private Void renameVariable(slco::Variable variable, String s) :
+   variable.setName(s + "_" + variable.name)
+-> variable
+;
+
+// ----------------------------------------------------------------------------
+
+private Void mergeClassesUsingList(
+   objects::ObjectList objectList, slco::Model model
+) :
+   model.classes.add(
+      objectList.getObjects(model).mergeClasses(model)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void mergeObjectsUsingList(
+   objects::ObjectList objectList, slco::Model model
+) :
+   model.objects.add(
+      objectList.getObjects(model).mergeObjects(model)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Class mergeClasses(
+   List[slco::Object] objects, Integer index, slco::Model model
+) :
+   this.setName(
+      objects.get(index).class.name
+   )
+-> this.ports.addAll(
+      objects.get(index).cloneAndRenameClass().ports
+   )
+-> this.variables.addAll(
+      objects.get(index).cloneAndRenameClass().variables
+   )
+-> this.stateMachines.addAll(
+      objects.get(index).cloneAndRenameClass().stateMachines
+   )
+-> if (index < objects.size - 1) then (
+      this.ports.addAll(
+         mergeClasses(objects, index + 1, model).ports
+      )
+   -> this.stateMachines.addAll(
+         mergeClasses(objects, index + 1, model).stateMachines
+      )
+   -> this.variables.addAll(
+         mergeClasses(objects, index + 1, model).variables
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Object mergeObjects(
+   List[slco::Object] objects, Integer index, slco::Model model
+) :
+   this.setClass(
+      mergeClasses(objects, index, model)
+   )
+-> this.setName(
+      mergeObjectNames(objects, 0)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private String mergeObjectNames(List[slco::Object] objects, Integer index) :
+   if (objects.size == index + 1) then (
+      objects.get(index).name.subString(0, 1)
+   ) else (
+      objects.get(index).name.subString(0, 1)
+   +
+      "_"
+   +
+      mergeObjectNames(objects, index + 1)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateConnectedChannels(
+   objects::ObjectList objectList, slco::Model model
+) :
+   model.channels.updateConnectedChannel(objectList.getObjects(model), model)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateConnectedChannel(
+   slco::Channel channel, List[slco::Object] objects, slco::Model model
+) :
+   syserr(
+      "MergeObjects - updateConnectedChannel - unknown channel type: "
+      +
+      channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateConnectedChannel(
+   slco::UnidirectionalChannel channel, List[slco::Object] objects,
+   slco::Model model
+) :
+   if (
+      objects.contains(channel.sourceObject)
+      &&
+      !objects.contains(channel.targetObject)
+   ) then (
+      let o = objects.mergeObjects(model) :
+      let p = objects.mergeClasses(model).getPort(
+         channel.sourceObject.name, channel.sourcePort
+      ) :
+         channel.setSourceObject(o)
+      -> channel.setSourcePort(p)
+   ) else if (
+      !objects.contains(channel.sourceObject)
+      &&
+      objects.contains(channel.targetObject)
+   ) then (
+      let o = objects.mergeObjects(model) :
+      let p = objects.mergeClasses(model).getPort(
+         channel.targetObject.name, channel.targetPort
+      ) :
+         channel.setTargetObject(o)
+      -> channel.setTargetPort(p)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateConnectedChannel(
+   slco::BidirectionalChannel channel, List[slco::Object] objects,
+   slco::Model model
+) :
+   if (
+      objects.contains(channel.object1)
+      &&
+      !objects.contains(channel.object2)
+   ) then (
+      let o = objects.mergeObjects(model) :
+      let p = objects.mergeClasses(model).getPort(
+         channel.object1.name, channel.port1
+      ) :
+         channel.setObject1(o)
+      -> channel.setPort1(p)
+   ) else if (
+      !objects.contains(channel.object1)
+      &&
+      objects.contains(channel.object2)
+   ) then (
+      let o = objects.mergeObjects(model) :
+      let p = objects.mergeClasses(model).getPort(
+         channel.object2.name, channel.port2
+      ) :
+         channel.setObject2(o)
+      -> channel.setPort2(p)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Port getPort(slco::Class class, String s, slco::Port port) :
+   class.ports.selectFirst(
+      p
+   |
+      p.name == s + "_" + port.name
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void removeInternalPorts(
+   objects::ObjectList objectList, slco::Model model
+) :
+   objectList.getObjects(model).removeInternalPorts(
+      objectList.getObjects(model).getInternalChannels(model)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void removeInternalPorts(
+   slco::Object object, Set[slco::Channel] channels
+) :
+   channels.removeInternalPorts(object)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void removeInternalPorts(slco::Channel channel, slco::Object object) :
+   syserr(
+      "MergeObjects - removeInternalPorts - unknown channel type: "
+      +
+      channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void removeInternalPorts(
+   slco::UnidirectionalChannel channel, slco::Object object
+) :
+   let ps = object.cloneAndRenameClass().ports.select(
+      p
+   |
+      (
+         p.name == object.name + "_" + channel.sourcePort.name
+      ||
+         p.name == object.name + "_" + channel.targetPort.name
+      )
+   ) : 
+      object.cloneAndRenameClass().ports.removeAll(ps)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void removeInternalPorts(
+   slco::BidirectionalChannel channel, slco::Object object
+) :
+   let ps = object.cloneAndRenameClass().ports.select(
+      p
+   |
+      (
+         p.name == object.name + "_" + channel.port1.name
+      ||
+         p.name == object.name + "_" + channel.port2.name
+      )
+   ) : 
+      object.cloneAndRenameClass().ports.removeAll(ps)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void removeInternalChannels(
+   objects::ObjectList objectList, slco::Model model
+) :
+   model.channels.removeAll(
+      objectList.getObjects(model).getInternalChannels(model)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void removeObjects(
+   objects::ObjectList objectList, slco::Model model
+) :
+   model.objects.removeAll(
+      objectList.getObjects(model)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private List[slco::Object] getObjects(
+   objects::ObjectList objectList, slco::Model model
+) :
+   model.objects.select(
+      o1
+   |
+      objectList.objects.exists(
+         o2
+      |
+         o2.objectEqualsObject(o1)
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Set[slco::Channel] getInternalChannels(
+   List[slco::Object] objects, slco::Model model
+) :
+   let uni = model.channels.typeSelect(slco::UnidirectionalChannel).select(
+      c
+   |
+      objects.contains(c.sourceObject)
+      &&
+      objects.contains(c.targetObject)
+   ) :
+   let bi = model.channels.typeSelect(slco::BidirectionalChannel).select(
+      c
+   |
+      objects.contains(c.object1)
+      &&
+      objects.contains(c.object2)
+   ) :
+      uni.union(bi)
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean isInternalPort(
+   slco::Port port, List[slco::Object] objects, slco::Model model
+) :
+   let channels = getInternalChannels(objects, model) :
+   let bi = channels.typeSelect(slco::BidirectionalChannel) :
+   let uni = channels.typeSelect(slco::UnidirectionalChannel) :
+      bi.port1.contains(port)
+      ||
+      bi.port2.contains(port)
+      ||
+      uni.sourcePort.contains(port)
+      ||
+      uni.targetPort.contains(port)
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Class mergeClasses(
+   List[slco::Object] objects, slco::Model model
+) :
+   let c = mergeClasses(objects, 0, model) :
+      c.setName(objects.mergeObjects(model).name)
+   -> c
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Object mergeObjects(
+   List[slco::Object] objects, slco::Model model
+) :
+   mergeObjects(objects, 0, model)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addVariablesUsingList(
+   objects::ObjectList objectList, slco::Model model
+) :
+   objectList.getObjects(model).addVariables(
+      objectList.getObjects(model).getInternalChannels(model), model
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addVariables(
+   slco::Object object, Set[slco::Channel] channels, slco::Model model
+) :
+   channels.addVariables(object, model)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addVariables(
+   slco::Channel channel, slco::Object object, slco::Model model
+) :
+   syserr(
+      "MergeObjects - addVariables - unknown channel type: "
+      +
+      channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addVariables(
+   slco::BidirectionalChannel channel, slco::Object object, slco::Model model
+) :
+   syserr(
+      "MergeObjects - addVariables - cannot replace communication over a "
+      +
+      "bidirectional channel by communication using shared variables: "
+      +
+      channel.name
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addVariables(
+   slco::UnidirectionalChannel channel, slco::Object object, slco::Model model
+) :
+   if (
+      (
+         object.class.stateMachines.transitions.statements.typeSelect(
+            slco::SendSignal
+         ).exists(
+            sss
+         |
+            (
+               sss.port == channel.sourcePort
+            ||
+               sss.port == channel.targetPort
+            )
+         )
+      &&
+         (
+            channel.sourceObject == object
+         ||
+            channel.targetObject == object
+         )
+      )
+   ) then (
+      object.cloneAndRenameClass().variables.add(
+         channel.createAvailableVariable(model)
+      )
+   -> object.cloneAndRenameClass().variables.add(
+         channel.createStringVariable(model)
+      )
+   -> object.cloneAndRenameClass().variables.addAll(
+         channel.argumentTypes.createVariable(channel, model)
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void replaceChannelsByVariables(
+   objects::ObjectList objectList, slco::Model model
+) :
+   objectList.getObjects(model).replaceChannelsByVariables(
+      objectList.getObjects(model).getInternalChannels(model), model
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void replaceChannelsByVariables(
+   slco::Object object, Set[slco::Channel] channels, slco::Model model
+) :
+   channels.replaceChannelByVariables(object, model)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void replaceChannelByVariables(
+   slco::Channel channel, slco::Object object, slco::Model model
+) :
+   syserr(
+      "MergeObjects - replaceChannelByVariable - unknown channel type: "
+      +
+      channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void replaceChannelByVariables(
+   slco::UnidirectionalChannel channel, slco::Object object, slco::Model model
+) :
+   if (
+      channel.sourceObject == object
+   ||
+      channel.targetObject == object
+   ) then (
+      object.cloneAndRenameClass().replaceChannelByVariables(
+         channel, object, model
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void replaceChannelByVariables(
+   slco::BidirectionalChannel channel, slco::Object object, slco::Model model
+) :
+   syserr(
+      "Communication over a bidirectional channel cannot be replaced by " +
+      "communication using shared variables: " + channel.name
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void replaceChannelByVariables(
+   slco::Class class, slco::UnidirectionalChannel channel, slco::Object object,
+   slco::Model model
+) :
+   class.stateMachines.replaceChannelByVariables(
+      class, channel, object, model
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void replaceChannelByVariables(
+   slco::StateMachine stateMachine, slco::Class class,
+   slco::UnidirectionalChannel channel,
+   slco::Object object, slco::Model model
+) :
+   stateMachine.transitions.statements.typeSelect(slco::SignalReception).select(
+      sr
+   |
+      (
+         sr.port.name == object.name + "_" + channel.sourcePort.name
+      ||
+         sr.port.name == object.name + "_" + channel.targetPort.name
+      )
+   ).replaceSignalReception(stateMachine, channel, model)
+-> stateMachine.transitions.statements.typeSelect(
+      slco::SendSignal
+   ).select(
+      sss
+   |
+      (
+         sss.port.name == object.name + "_" + channel.sourcePort.name
+      ||
+         sss.port.name == object.name + "_" + channel.targetPort.name
+      )
+   ).replaceSendSignalStatement(stateMachine, channel, model)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void replaceSendSignalStatement(
+   slco::SendSignal statement, slco::StateMachine stateMachine,
+   slco::UnidirectionalChannel channel, slco::Model model
+) :
+   let otrans = ((slco::Transition) statement.eContainer) :
+   let nstate1 = createState(
+      otrans.source.name
+      + "_s_" + statement.signalName
+      + "_abl_"
+      + otrans.name
+   ) :
+   let ntrans1 = createTransition(
+      nstate1.name + "_to_" + otrans.target.name,
+      nstate1,
+      otrans.target
+   ) :
+      stateMachine.transitions.add(ntrans1)
+   -> stateMachine.vertices.add(nstate1)
+   -> if (
+         otrans.statements.first() == statement
+      ) then (
+         nstate1.addOutgoingTransitions(
+            otrans.source.outgoing, otrans, channel, model, stateMachine, 0
+         )
+      )
+   -> ntrans1.statements.add(
+         createBinaryOperatorExpression(
+            slco::OperatorEnum::equals,
+            createVariableExpression(
+               channel.createAvailableVariable(model)
+            ),
+            createIntegerConstantExpression(2)
+         )
+      )
+   -> ntrans1.statements.add(
+         createAssignment(
+            channel.createAvailableVariable(model),
+            createIntegerConstantExpression(3)
+         )
+      )
+   -> ntrans1.statements.add(
+         createBinaryOperatorExpression(
+            slco::OperatorEnum::equals,
+            createVariableExpression(
+               channel.createAvailableVariable(model)
+            ),
+            createIntegerConstantExpression(0)
+         )
+      )
+   -> ntrans1.statements.addAll(
+         otrans.statements.select(
+            s
+         |
+            otrans.statements.indexOf(s)
+         >
+            otrans.statements.indexOf(statement)
+         )
+      )
+   -> otrans.setTarget(nstate1)
+   -> otrans.statements.remove(statement)
+   -> otrans.statements.add(
+         createAssignment(
+            channel.createStringVariable(model),
+            createStringConstantExpression(statement.signalName)
+         )
+      )
+   -> otrans.statements.addAll(
+         channel.createAssignmentsForSend(statement, model)
+      )
+   -> otrans.statements.add(
+         createAssignment(
+            channel.createAvailableVariable(model),
+            createIntegerConstantExpression(1)
+         )
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addOutgoingTransitions(
+   slco::State state, List[slco::Transition] transitions,
+   slco::Transition transition, slco::Channel channel, slco::Model model,
+   slco::StateMachine stateMachine, Integer index
+) :
+   if (index < transitions.size) then (
+      if (transitions.get(index) != transition) then (
+         let trans = ((slco::Transition) transitions.get(index).clone()) :
+            state.outgoing.add(trans)
+         -> stateMachine.transitions.add(trans)
+         -> trans.setName(
+               state.name + "_to_" + transitions.get(index).target.name
+            )
+         -> trans.setTarget(transitions.get(index).target)
+         -> trans.setStatements(
+               trans.statements.reverse().toList()
+            )
+         -> trans.statements.add(
+               createAssignment(
+                  channel.createAvailableVariable(model),
+                  createIntegerConstantExpression(0)
+               )
+            )
+         -> trans.setStatements(
+               trans.statements.reverse().toList()
+            )
+      )
+   -> if (index < transitions.size - 1) then (
+         state.addOutgoingTransitions(
+            transitions, transition, channel, model, stateMachine, index + 1
+         )
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[slco::Assignment] createAssignmentsForSend(
+   slco::Channel channel, slco::SendSignal statement,
+   slco::Model model
+) :
+   this.addAssignmentsForSend(channel, statement, model, 0)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addAssignmentsForSend(
+   List[slco::Assignment] statements, slco::Channel channel,
+   slco::SendSignal statement, slco::Model model, Integer index
+) :
+   if (channel.argumentTypes.size > index) then (
+      statements.add(
+         createAssignmentForSend(
+            channel.argumentTypes.get(index),
+            channel,
+            statement.arguments.get(index),
+            model
+         )
+      )
+   -> statements.addAssignmentsForSend(
+         channel, statement, model, index + 1
+      )
+   ) else (
+      statements
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Assignment createAssignmentForSend(
+   slco::ArgumentType argumentType, slco::Channel channel,
+   slco::Expression expression, slco::Model model
+) :
+   createAssignment(
+      argumentType.createVariable(channel, model),
+      ((slco::Expression) expression.clone())
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void replaceSignalReception(
+   slco::SignalReception signalReception, slco::StateMachine stateMachine,
+   slco::Channel channel, slco::Model model
+) :
+   let otrans = ((slco::Transition) signalReception.eContainer) :
+   let nstate = createState(
+      otrans.source.name
+      + "_r_"
+      + signalReception.signalName
+      + "_rbl_"
+      + otrans.name
+   ) :
+   let ntrans1 = createTransition(
+      otrans.source.name + "_to_" + nstate.name,
+      otrans.source,
+      nstate
+   ) :
+   let ntrans2 = createTransition(
+      nstate.name + "_to_" + otrans.target.name,
+      nstate,
+      otrans.target
+   ) :
+   let ntrans3 = createTransition(
+      nstate.name + "_to_" + otrans.source.name,
+      nstate,
+      otrans.source
+   ) :
+   let exp = createExpression(signalReception, channel, model) :
+      ntrans1.setStatements(
+         {
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::and,
+               createBinaryOperatorExpression(
+                  slco::OperatorEnum::equals,
+                  createVariableExpression(
+                     channel.createAvailableVariable(model)
+                  ),
+                  createIntegerConstantExpression(1)
+               ),
+               createBinaryOperatorExpression(
+                  slco::OperatorEnum::equals,
+                  createVariableExpression(
+                     channel.createStringVariable(model)
+                  ),
+                  createStringConstantExpression(
+                     signalReception.signalName
+                  )
+               )
+            )
+         }
+      )
+   -> if (exp != null) then (
+         ntrans1.setStatements(
+            {
+               createBinaryOperatorExpression(
+                  slco::OperatorEnum::and,
+                  (slco::Expression) ntrans1.statements.first(),
+                  exp
+               )
+            }
+         )
+      )
+   -> ntrans1.statements.add(
+         createAssignment(
+            channel.createAvailableVariable(model),
+            createIntegerConstantExpression(2)
+         )
+      )
+   -> ntrans2.setStatements(
+         {
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::equals,
+               createVariableExpression(
+                  channel.createAvailableVariable(model)
+               ),
+               createIntegerConstantExpression(3)
+            )
+         }
+      )
+   -> ntrans2.statements.addAll(
+         channel.createAssignmentsForReception(signalReception, model)
+      )
+   -> ntrans2.statements.add(
+         createAssignment(
+            channel.createAvailableVariable(model),
+            createIntegerConstantExpression(0)
+         )
+      )
+   -> ntrans2.statements.addAll(
+         otrans.statements.remove(signalReception)
+      )
+   -> ntrans3.setStatements(
+         {
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::equals,
+               createVariableExpression(
+                  channel.createAvailableVariable(model)
+               ),
+               createIntegerConstantExpression(0)
+            )
+         }
+      )
+   -> otrans.source.outgoing.remove(otrans)
+   -> otrans.source.outgoing.add(ntrans1)
+   -> otrans.target.incoming.remove(otrans)
+   -> otrans.target.incoming.add(ntrans2)
+   -> stateMachine.transitions.remove(otrans)
+   -> stateMachine.transitions.add(ntrans1)
+   -> stateMachine.transitions.add(ntrans2)
+   -> stateMachine.transitions.add(ntrans3)
+   -> stateMachine.vertices.add(nstate)
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Expression createExpression(
+   slco::SignalReception trigger, slco::Channel channel, slco::Model model
+) :
+   let l = {} :
+      l.addExpressions(trigger, channel, model, 0)
+   -> l.createExpression(0)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addExpressions(
+   List[slco::Expression] expressions, slco::SignalReception trigger,
+   slco::Channel channel, slco::Model model, Integer index
+) :
+   if (index < trigger.arguments.size) then (
+      if (
+         trigger.arguments.get(index).metaType
+         ==
+         slco::SignalArgumentExpression
+      ) then (
+         expressions.add(
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::equals,
+               createVariableExpression(
+                  channel.argumentTypes.get(index).createVariable(
+                     channel, model
+                  )
+               ),
+               (
+                  (slco::SignalArgumentExpression)
+                  trigger.arguments.get(index)
+               ).expression
+            )
+         )
+      )
+   -> addExpressions(expressions, trigger, channel, model, index + 1)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Expression createExpression(
+   List[slco::Expression] expressions, Integer index
+) :
+   if (index == expressions.size - 1) then (
+      expressions.get(index)
+   ) else if (index < expressions.size) then (
+      createBinaryOperatorExpression(
+         slco::OperatorEnum::and,
+         expressions.get(index),
+         createExpression(expressions, index + 1)
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[slco::Assignment]
+createAssignmentsForReception(
+   slco::Channel channel, slco::SignalReception trigger, slco::Model model
+) :
+   this.addAssignmentsForReception(channel, trigger, model, 0)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addAssignmentsForReception(
+   List[slco::Assignment] statements, slco::Channel channel,
+   slco::SignalReception signalReception, slco::Model model, Integer index
+) :
+   if (channel.argumentTypes.size > index) then (
+      if (
+         signalReception.arguments.get(index).metaType
+         ==
+         slco::SignalArgumentVariable
+      ) then (
+         statements.add(
+            createAssignmentForReception(
+               channel.argumentTypes.get(index),
+               channel,
+               (
+                  (slco::SignalArgumentVariable)
+                  signalReception.arguments.get(index)
+               ),
+               model
+            )
+         )
+      )
+   -> statements.addAssignmentsForReception(
+         channel, signalReception, model, index + 1
+      )
+   ) else (
+      statements
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Assignment createAssignmentForReception(
+   slco::ArgumentType argumentType, slco::Channel channel,
+   slco::SignalArgumentVariable signalArgument, slco::Model model
+) :
+   createAssignment(
+      signalArgument.variable,
+      createVariableExpression(
+         argumentType.createVariable(channel, model)
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Variable createAvailableVariable(
+   slco::Channel channel, slco::Model model
+) :
+   this.setName(
+      channel.name + "_abl"
+   )
+-> this.setInitialValue(createIntegerConstantExpression(0))
+-> this.setType(
+      slco::PrimitiveTypeEnum::Integer
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Variable createStringVariable(
+   slco::Channel channel, slco::Model model
+) :
+   this.setName(
+      channel.name + "_name"
+   )
+-> this.setType(
+      slco::PrimitiveTypeEnum::String
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Variable createVariable(
+   slco::ArgumentType argumentType, slco::Channel channel, slco::Model model
+) :
+   this.setName(
+      channel.name + "_arg_" +
+      channel.argumentTypes.indexOf(argumentType).toString()
+   )
+-> this.setType(
+      argumentType.type
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void removeClonedClasses(
+   objects::ObjectList objectList, slco::Model model
+) :
+   model.classes.removeAll(
+      objectList.getObjects(model).cloneAndRenameClass()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void removeClasses(
+   objects::ObjectList objectList, slco::Model model
+) :
+   model.classes.removeAll(
+      objectList.getObjects(model).class
+   )
+;

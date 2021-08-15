@@ -1,0 +1,12 @@
+
+digraph Strings2Integers_int {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_a{
+    label = "a: A";
+    node [shape = box];
+
+  }
+
+  
+}

@@ -1,0 +1,104 @@
+<workflow>
+
+  <property name='inputname' value='LegoCase' />
+  <property name='slcoinputfile' value='${inputname}.slco' />
+  <property name='objectsinputfile' value='${inputname}.objects' />
+  <property name='slco2nqcinputfile' value='${inputname}_merge_int.slco2nqc' />
+  <property name='mergeoutputfile' value='${inputname}_merge.slco' />
+  <property name='intoutputfile' value='${inputname}_merge_int.slco' />
+  <property name='nqcoutputfile' value='${inputname}_merge_int.nqc' />
+
+  <property name='slcosourcedir' value='../models/slco_ecore'/>
+  <property name='objectssourcedir' value='../models/LegoCase/Left_Right_Middle/objects'/>
+  <property name='channelssourcedir' value='../models/LegoCase/Left_Right_Middle/channels'/>
+  <property name='slco2nqcsourcedir' value='../models/LegoCase/Left_Right_Middle/slco2nqc'/>
+  <property name='targetdir' value='../models/LegoCase/Left_Right_Middle/nqc_slco_ecore'/>
+  <property name='nqc_ecore_targetdir' value='../models/LegoCase/Left_Right_Middle/nqc_ecore'/>
+  <property name='nqc_text_targetdir' value='../models/LegoCase/Left_Right_Middle/nqc_text'/>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${slcosourcedir}/${slcoinputfile}"/>
+    <outputSlot value="SLCOModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${objectssourcedir}/${objectsinputfile}"/>
+    <outputSlot value="OBJECTS"/>
+  </component>
+
+  <component id="merge" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="objects" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="objects.ObjectsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::MergeObjects::modifyModelMerge(SLCOModel, OBJECTS)"/>
+    <outputSlot value="IMergeModel"/>
+  </component>
+
+  <component id="ruc-merge" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::RemoveUnusedClasses::modifyModelRUC(IMergeModel)"/>
+    <outputSlot value="MergeModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${mergeoutputfile}"/>
+    <inputSlot value="MergeModel"/>
+  </component>
+
+  <component id="arg2i" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::StringsToIntegers::stringsToIntegers(MergeModel)"/>
+    <outputSlot value="INTModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${intoutputfile}"/>
+    <inputSlot value="INTModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${slco2nqcsourcedir}/${slco2nqcinputfile}"/>
+    <outputSlot value="SLCO2NQC"/>
+  </component>
+
+  <component id="slco2nqc" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <metaModel id="nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="nqc.NqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::Slco2NQC::createPrograms(INTModel, SLCO2NQC)"/>
+    <outputSlot value="NQCModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${nqc_ecore_targetdir}/${nqcoutputfile}"/>
+    <inputSlot value="NQCModel"/>
+  </component>
+
+  <component class='org.eclipse.xpand2.Generator'>
+    <metaModel id="NQC" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="nqc.NqcPackage"/>
+    </metaModel>
+    <expand value='Transformations::NQCModel2NQCCode::generatePrograms FOR NQCModel'/>
+    <genPath value='${nqc_text_targetdir}'/>
+  </component>
+  
+</workflow>

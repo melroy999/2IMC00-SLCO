@@ -1,0 +1,51 @@
+model dve_loyd_3 {
+classes
+	GlobalClass {
+		variables
+			Integer[12] a := [0,1,2,3,4,5,6,7,8,9,10,11]
+			Integer x := 0
+			Integer y := 0
+		state machines
+			P {
+				variables
+					
+				initial q
+				states  
+				transitions
+					from q to q {
+						x>0; a[(y)*4+x] := a[(y)*4+x-1];a[(y)*4+x-1] := 0;x := x-1
+					}
+
+					from q to q {
+						x<4-1; a[(y)*4+x] := a[(y)*4+x+1];a[(y)*4+x+1] := 0;x := x+1
+					}
+
+					from q to q {
+						y>0; a[(y)*4+x] := a[(y-1)*4+x];a[(y-1)*4+x] := 0;y := y-1
+					}
+
+					from q to q {
+						y<3-1; a[(y)*4+x] := a[(y+1)*4+x];a[(y+1)*4+x] := 0;y := y+1
+					}
+
+				}
+	
+			Check {
+				variables
+					
+				initial dvenotdone
+				states  done
+				transitions
+					from dvenotdone to done {
+						a[0] = 11  and a[1] = 10  and a[2] = 9  and a[3] = 8   and
+a[4] = 7  and a[5] = 6  and a[6] = 5  and a[7] = 4   and
+a[8] = 3  and a[9] = 2  and a[10] = 1  and a[11] = 0
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

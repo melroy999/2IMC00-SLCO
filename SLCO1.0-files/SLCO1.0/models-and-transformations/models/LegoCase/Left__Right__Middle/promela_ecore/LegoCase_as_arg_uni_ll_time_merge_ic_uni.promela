@@ -1,0 +1,2519 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:promela="promela">
+  <promela:spec name="LegoCase_as_arg_uni_ll_time_merge_ic_uni">
+    <mtypes name="Block"/>
+    <mtypes name="BlockPassed"/>
+    <mtypes name="On"/>
+    <mtypes name="Off"/>
+    <mtypes name="Message_0"/>
+    <mtypes name="Acknowledge_0"/>
+    <mtypes name="Left"/>
+    <mtypes name="Right"/>
+    <mtypes name="Acknowledge_1"/>
+    <mtypes name="Message_1"/>
+    <mtypes name="Signal"/>
+    <mtypes name="Send_Block"/>
+    <mtypes name="Acknowledge_Block"/>
+    <mtypes name="Acknowledge"/>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.4">
+      <ivars name="Environment_BlockLeft">
+        <any_expr_or_ch_init xsi:type="promela:enum_const" const_enum="FALSE"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.4">
+      <ivars name="Environment_BlockRight">
+        <any_expr_or_ch_init xsi:type="promela:enum_const" const_enum="FALSE"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_arg_0"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_arg_0"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_arg_0"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_arg_0"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_arg_0"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_arg_0"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_arg_0"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_arg_0"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.3">
+      <ivars name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl">
+        <any_expr_or_ch_init xsi:type="promela:num_const"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.2">
+      <ivars name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_name"/>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="ELeftSensor_to_LSensor_as__Environment_2_L_L_L_L_L">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="/0/@primitivetypes.2"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="/0/@primitivetypes.2"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="ERightSensor_to_RSensor_as__Environment_2_R_R_R_R_R">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="/0/@primitivetypes.2"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="/0/@primitivetypes.2"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="/0/@primitivetypes.2"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="/0/@primitivetypes.2"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="Right_as_Middle_out_Sender_to_Receiver__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" constant="1" typenames="/0/@primitivetypes.2 /1 /2"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="Right_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" constant="1" typenames="/0/@primitivetypes.2 /3"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="Left_as_Middle_out_Sender_to_Receiver__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" constant="1" typenames="/0/@primitivetypes.2 /4 /5"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="Left_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" constant="1" typenames="/0/@primitivetypes.2 /6"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="Middle_as_Right_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" constant="1" typenames="/0/@primitivetypes.2 /7 /8"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="Middle_as_Right_out_AS_to_AR__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" constant="1" typenames="/0/@primitivetypes.2 /9"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="Middle_as_Left_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" constant="1" typenames="/0/@primitivetypes.2 /10 /11"/>
+      </ivars>
+    </one_decls>
+    <one_decls visible="SHOW" typename="/0/@primitivetypes.0">
+      <ivars name="Middle_as_Left_out_AS_to_AR__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M">
+        <any_expr_or_ch_init xsi:type="promela:ch_init" constant="1" typenames="/0/@primitivetypes.2 /12"/>
+      </ivars>
+    </one_decls>
+    <proctypes active="1" name="Environment_RightMotor">
+      <sequence xsi:type="promela:block_stmnt" label="Label_Start">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.0/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Off">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="Environment_BlockRight"/>
+                <any_expr xsi:type="promela:enum_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.0/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.3"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.0/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Running">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.3"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.0/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="ERightSensor_to_RSensor_as__Environment_2_R_R_R_R_R"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.0"/>
+              </sequence>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="ERightSensor_to_RSensor_as__Environment_2_R_R_R_R_R"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.0/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.0/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="Environment_MiddleMotor">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.4">
+        <ivars name="Environment_BlockFellOff">
+          <any_expr_or_ch_init xsi:type="promela:enum_const" const_enum="FALSE"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Off">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.7"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.1/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.3"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.1/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.6"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.1/@sequence.3"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Right">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.3"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.1/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="Environment_BlockRight"/>
+                <operand2 xsi:type="promela:enum_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="Environment_BlockFellOff"/>
+                <any_expr xsi:type="promela:enum_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="Environment_BlockRight"/>
+                <any_expr xsi:type="promela:enum_const" const_enum="FALSE"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.1/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.7"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.1/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.6"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.1/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="Environment_BlockLeft"/>
+                <operand2 xsi:type="promela:enum_const"/>
+              </sequence>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.0"/>
+              </sequence>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.1"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="Environment_BlockLeft"/>
+                <any_expr xsi:type="promela:enum_const" const_enum="FALSE"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.1/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Left">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.3"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.1/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="Environment_BlockLeft"/>
+                <operand2 xsi:type="promela:enum_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="Environment_BlockFellOff"/>
+                <any_expr xsi:type="promela:enum_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="Environment_BlockLeft"/>
+                <any_expr xsi:type="promela:enum_const" const_enum="FALSE"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.1/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.6"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.1/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.7"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.1/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="Environment_BlockRight"/>
+                <operand2 xsi:type="promela:enum_const"/>
+              </sequence>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.0"/>
+              </sequence>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.1"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="Environment_BlockRight"/>
+                <any_expr xsi:type="promela:enum_const" const_enum="FALSE"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.1/@sequence.3"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="Environment_LeftMotor">
+      <sequence xsi:type="promela:block_stmnt" label="Label_Start">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.2/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Off">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="Environment_BlockLeft"/>
+                <any_expr xsi:type="promela:enum_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.2/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.3"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.2/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Running">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.3"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.2/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="ELeftSensor_to_LSensor_as__Environment_2_L_L_L_L_L"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.0"/>
+              </sequence>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="ELeftSensor_to_LSensor_as__Environment_2_L_L_L_L_L"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.2/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.2/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="L_L_L_L_L_Left_as_Single">
+      <sequence xsi:type="promela:block_stmnt" label="Label_Start">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.3/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Running">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="ELeftSensor_to_LSensor_as__Environment_2_L_L_L_L_L"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.0"/>
+              </sequence>
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="ELeftSensor_to_LSensor_as__Environment_2_L_L_L_L_L"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.1"/>
+              </sequence>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_arg_0"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.11"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.3/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Running_s_Signal_abl_RunningToBlock">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="AND">
+                  <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                    <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl"/>
+                    <operand2 xsi:type="promela:num_const" number="1"/>
+                  </operand1>
+                  <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                    <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_name"/>
+                    <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+                  </operand2>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_arg_0"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.12"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.3/@sequence.3"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.3/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.3/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="L_L_L_L_L_Left_as_Middle_outABP_Sender_Sender">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="L_L_L_L_L_s">
+          <any_expr_or_ch_init xsi:type="promela:num_const"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.2">
+        <ivars name="L_L_L_L_L_d"/>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl"/>
+                  <operand2 xsi:type="promela:num_const" number="1"/>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_name"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.4/@sequence.4"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_One">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:enum_const" const_enum="SKIP"/>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="Left_as_Middle_out_Sender_to_Receiver__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.4"/>
+                <send_args xsi:type="promela:varref" var_name="L_L_L_L_L_d"/>
+                <send_args xsi:type="promela:varref" var_name="L_L_L_L_L_s"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.4/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl"/>
+                  <operand2 xsi:type="promela:num_const" number="1"/>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_name"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.4/@sequence.5"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_r_Signal_rbl_ZeroToOne">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_d"/>
+                <any_expr xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_arg_0"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.4/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.4/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_One_r_Acknowledge_rbl_OneToZero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_s"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="L_L_L_L_L_s"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.4/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.4/@sequence.3"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="L_L_L_L_L_Left_as_Middle_outABP_AR_AR">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="L_L_L_L_L_b">
+          <any_expr_or_ch_init xsi:type="promela:num_const"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Left_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.5"/>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:varref" var_name="L_L_L_L_L_b"/>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.5/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Left_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.5"/>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:bin_expr" operator="MINUS">
+                    <operand1 xsi:type="promela:num_const" number="1"/>
+                    <operand2 xsi:type="promela:varref" var_name="L_L_L_L_L_b"/>
+                  </expr>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.5/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_s_Acknowledge_abl_ZeroToZeroAck">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_b"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="L_L_L_L_L_b"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.5/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="L_L_L_L_L_Left_as_Middle_inABP_Receiver_Receiver">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="L_L_L_L_L_r">
+          <any_expr_or_ch_init xsi:type="promela:num_const"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.2">
+        <ivars name="L_L_L_L_L_d"/>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Middle_as_Left_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.4"/>
+                <recv_args xsi:type="promela:recv_arg_varref">
+                  <varref var_name="L_L_L_L_L_d"/>
+                </recv_args>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:varref" var_name="L_L_L_L_L_r"/>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_arg_0"/>
+                <any_expr xsi:type="promela:varref" var_name="L_L_L_L_L_d"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.6/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Middle_as_Left_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.4"/>
+                <recv_args xsi:type="promela:recv_arg_varref">
+                  <varref var_name="L_L_L_L_L_d"/>
+                </recv_args>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:bin_expr" operator="MINUS">
+                    <operand1 xsi:type="promela:num_const" number="1"/>
+                    <operand2 xsi:type="promela:varref" var_name="L_L_L_L_L_r"/>
+                  </expr>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.6/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_s_Signal_abl_ZeroToZeroAck">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.6/@sequence.4"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_r"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="L_L_L_L_L_r"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.6/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="L_L_L_L_L_Left_as_Middle_inABP_AS_AS">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="L_L_L_L_L_b">
+          <any_expr_or_ch_init xsi:type="promela:num_const" number="1"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:enum_const" const_enum="SKIP"/>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="Middle_as_Left_out_AS_to_AR__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.5"/>
+                <send_args xsi:type="promela:varref" var_name="L_L_L_L_L_b"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.7/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl"/>
+                  <operand2 xsi:type="promela:num_const" number="1"/>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_name"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.7/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="L_L_L_L_L_b"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="L_L_L_L_L_b"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.7/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.7/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="M_M_M_M_M_M_M_M_M_Middle_as_Middle">
+      <sequence xsi:type="promela:block_stmnt" label="Label_Idle">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="AND">
+                  <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                    <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl"/>
+                    <operand2 xsi:type="promela:num_const" number="1"/>
+                  </operand1>
+                  <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                    <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_name"/>
+                    <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+                  </operand2>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_arg_0"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.11"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.8/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="AND">
+                  <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                    <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl"/>
+                    <operand2 xsi:type="promela:num_const" number="1"/>
+                  </operand1>
+                  <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                    <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_name"/>
+                    <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+                  </operand2>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_arg_0"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.11"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.8/@sequence.3"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Running">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.0"/>
+              </sequence>
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.1"/>
+              </sequence>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.3"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.8/@sequence.0"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Idle_r_Signal_rbl_IdleToLeft">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_arg_0"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.12"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.8/@sequence.4"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.8/@sequence.0"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Idle_r_Signal_rbl_IdleToRight">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_arg_0"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.12"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.8/@sequence.5"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.8/@sequence.0"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Idle_r_Signal_rbl_IdleToLeft_s_Signal_abl_Idle_r_Signal_rbl_IdleToLeft_to_Running">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.6"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.8/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Idle_r_Signal_rbl_IdleToRight_s_Signal_abl_Idle_r_Signal_rbl_IdleToRight_to_Running">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.7"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.8/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="M_M_M_M_M_M_M_M_M_Middle_as_Right_inABP_Receiver_Receiver">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="M_M_M_M_M_M_M_M_M_r">
+          <any_expr_or_ch_init xsi:type="promela:num_const"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.2">
+        <ivars name="M_M_M_M_M_M_M_M_M_d"/>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Right_as_Middle_out_Sender_to_Receiver__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.9"/>
+                <recv_args xsi:type="promela:recv_arg_varref">
+                  <varref var_name="M_M_M_M_M_M_M_M_M_d"/>
+                </recv_args>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_r"/>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_arg_0"/>
+                <any_expr xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_d"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.9/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Right_as_Middle_out_Sender_to_Receiver__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.9"/>
+                <recv_args xsi:type="promela:recv_arg_varref">
+                  <varref var_name="M_M_M_M_M_M_M_M_M_d"/>
+                </recv_args>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:bin_expr" operator="MINUS">
+                    <operand1 xsi:type="promela:num_const" number="1"/>
+                    <operand2 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_r"/>
+                  </expr>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.9/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_s_Signal_abl_ZeroToZeroAck">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.9/@sequence.4"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_r"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_r"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.9/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="M_M_M_M_M_M_M_M_M_Middle_as_Right_inABP_AS_AS">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="M_M_M_M_M_M_M_M_M_b">
+          <any_expr_or_ch_init xsi:type="promela:num_const" number="1"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:enum_const" const_enum="SKIP"/>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="Right_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.8"/>
+                <send_args xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_b"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.10/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl"/>
+                  <operand2 xsi:type="promela:num_const" number="1"/>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_name"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.10/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_b"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_b"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.10/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.10/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="M_M_M_M_M_M_M_M_M_Middle_as_Left_inABP_Receiver_Receiver">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="M_M_M_M_M_M_M_M_M_r">
+          <any_expr_or_ch_init xsi:type="promela:num_const"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.2">
+        <ivars name="M_M_M_M_M_M_M_M_M_d"/>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Left_as_Middle_out_Sender_to_Receiver__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.4"/>
+                <recv_args xsi:type="promela:recv_arg_varref">
+                  <varref var_name="M_M_M_M_M_M_M_M_M_d"/>
+                </recv_args>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_r"/>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_arg_0"/>
+                <any_expr xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_d"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.11/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Left_as_Middle_out_Sender_to_Receiver__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.4"/>
+                <recv_args xsi:type="promela:recv_arg_varref">
+                  <varref var_name="M_M_M_M_M_M_M_M_M_d"/>
+                </recv_args>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:bin_expr" operator="MINUS">
+                    <operand1 xsi:type="promela:num_const" number="1"/>
+                    <operand2 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_r"/>
+                  </expr>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.11/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_s_Signal_abl_ZeroToZeroAck">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.11/@sequence.4"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_r"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_r"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.11/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="M_M_M_M_M_M_M_M_M_Middle_as_Left_inABP_AS_AS">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="M_M_M_M_M_M_M_M_M_b">
+          <any_expr_or_ch_init xsi:type="promela:num_const" number="1"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:enum_const" const_enum="SKIP"/>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="Left_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.5"/>
+                <send_args xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_b"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.12/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl"/>
+                  <operand2 xsi:type="promela:num_const" number="1"/>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_name"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.12/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_b"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_b"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.12/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.12/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="M_M_M_M_M_M_M_M_M_Middle_as_Right_outABP_Sender_Sender">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="M_M_M_M_M_M_M_M_M_s">
+          <any_expr_or_ch_init xsi:type="promela:num_const"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.2">
+        <ivars name="M_M_M_M_M_M_M_M_M_d"/>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl"/>
+                  <operand2 xsi:type="promela:num_const" number="1"/>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_name"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.13/@sequence.4"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_One">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:enum_const" const_enum="SKIP"/>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="Middle_as_Right_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.9"/>
+                <send_args xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_d"/>
+                <send_args xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_s"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.13/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl"/>
+                  <operand2 xsi:type="promela:num_const" number="1"/>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_name"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.13/@sequence.5"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_r_Signal_rbl_ZeroToOne">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_d"/>
+                <any_expr xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_arg_0"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.13/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.13/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_One_r_Acknowledge_rbl_OneToZero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_s"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_s"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.13/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.13/@sequence.3"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="M_M_M_M_M_M_M_M_M_Middle_as_Right_outABP_AR_AR">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="M_M_M_M_M_M_M_M_M_b">
+          <any_expr_or_ch_init xsi:type="promela:num_const"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Middle_as_Right_out_AS_to_AR__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.8"/>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_b"/>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.14/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Middle_as_Right_out_AS_to_AR__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.8"/>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:bin_expr" operator="MINUS">
+                    <operand1 xsi:type="promela:num_const" number="1"/>
+                    <operand2 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_b"/>
+                  </expr>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.14/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_s_Acknowledge_abl_ZeroToZeroAck">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_b"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_b"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.14/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="M_M_M_M_M_M_M_M_M_Middle_as_Left_outABP_Sender_Sender">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="M_M_M_M_M_M_M_M_M_s">
+          <any_expr_or_ch_init xsi:type="promela:num_const"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.2">
+        <ivars name="M_M_M_M_M_M_M_M_M_d"/>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl"/>
+                  <operand2 xsi:type="promela:num_const" number="1"/>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_name"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.15/@sequence.4"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_One">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:enum_const" const_enum="SKIP"/>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="Middle_as_Left_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.4"/>
+                <send_args xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_d"/>
+                <send_args xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_s"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.15/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl"/>
+                  <operand2 xsi:type="promela:num_const" number="1"/>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_name"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.15/@sequence.5"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_r_Signal_rbl_ZeroToOne">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_d"/>
+                <any_expr xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_arg_0"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.15/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.15/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_One_r_Acknowledge_rbl_OneToZero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_s"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_s"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.15/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.15/@sequence.3"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="M_M_M_M_M_M_M_M_M_Middle_as_Left_outABP_AR_AR">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="M_M_M_M_M_M_M_M_M_b">
+          <any_expr_or_ch_init xsi:type="promela:num_const"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Middle_as_Left_out_AS_to_AR__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.5"/>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_b"/>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.16/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Middle_as_Left_out_AS_to_AR__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.5"/>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:bin_expr" operator="MINUS">
+                    <operand1 xsi:type="promela:num_const" number="1"/>
+                    <operand2 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_b"/>
+                  </expr>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.16/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_s_Acknowledge_abl_ZeroToZeroAck">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="M_M_M_M_M_M_M_M_M_b"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="M_M_M_M_M_M_M_M_M_b"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.16/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="R_R_R_R_R_Right_as_Single">
+      <sequence xsi:type="promela:block_stmnt" label="Label_Start">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.17/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Running">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="ERightSensor_to_RSensor_as__Environment_2_R_R_R_R_R"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.0"/>
+              </sequence>
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="ERightSensor_to_RSensor_as__Environment_2_R_R_R_R_R"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.1"/>
+              </sequence>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_arg_0"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.11"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.17/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Running_s_Signal_abl_RunningToBlock">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="AND">
+                  <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                    <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl"/>
+                    <operand2 xsi:type="promela:num_const" number="1"/>
+                  </operand1>
+                  <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                    <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_name"/>
+                    <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+                  </operand2>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_arg_0"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.12"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.17/@sequence.3"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.17/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.17/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="R_R_R_R_R_Right_as_Middle_outABP_Sender_Sender">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="R_R_R_R_R_s">
+          <any_expr_or_ch_init xsi:type="promela:num_const"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.2">
+        <ivars name="R_R_R_R_R_d"/>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl"/>
+                  <operand2 xsi:type="promela:num_const" number="1"/>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_name"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.18/@sequence.4"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_One">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:enum_const" const_enum="SKIP"/>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="Right_as_Middle_out_Sender_to_Receiver__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.9"/>
+                <send_args xsi:type="promela:varref" var_name="R_R_R_R_R_d"/>
+                <send_args xsi:type="promela:varref" var_name="R_R_R_R_R_s"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.18/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl"/>
+                  <operand2 xsi:type="promela:num_const" number="1"/>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_name"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.18/@sequence.5"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_r_Signal_rbl_ZeroToOne">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_d"/>
+                <any_expr xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_arg_0"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.18/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.18/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_One_r_Acknowledge_rbl_OneToZero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_s"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="R_R_R_R_R_s"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.18/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.18/@sequence.3"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="R_R_R_R_R_Right_as_Middle_outABP_AR_AR">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="R_R_R_R_R_b">
+          <any_expr_or_ch_init xsi:type="promela:num_const"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Right_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.8"/>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:varref" var_name="R_R_R_R_R_b"/>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.19/@sequence.2"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Right_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.8"/>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:bin_expr" operator="MINUS">
+                    <operand1 xsi:type="promela:num_const" number="1"/>
+                    <operand2 xsi:type="promela:varref" var_name="R_R_R_R_R_b"/>
+                  </expr>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.19/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_s_Acknowledge_abl_ZeroToZeroAck">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_b"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="R_R_R_R_R_b"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.19/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="R_R_R_R_R_Right_as_Middle_inABP_Receiver_Receiver">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="R_R_R_R_R_r">
+          <any_expr_or_ch_init xsi:type="promela:num_const"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.2">
+        <ivars name="R_R_R_R_R_d"/>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Middle_as_Right_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.9"/>
+                <recv_args xsi:type="promela:recv_arg_varref">
+                  <varref var_name="R_R_R_R_R_d"/>
+                </recv_args>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:varref" var_name="R_R_R_R_R_r"/>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.10"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_arg_0"/>
+                <any_expr xsi:type="promela:varref" var_name="R_R_R_R_R_d"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.20/@sequence.3"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:receive" receivetype="normal">
+                <varref var_name="Middle_as_Right_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R"/>
+                <recv_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.9"/>
+                <recv_args xsi:type="promela:recv_arg_varref">
+                  <varref var_name="R_R_R_R_R_d"/>
+                </recv_args>
+                <recv_args xsi:type="promela:recv_arg_eval_expr">
+                  <expr xsi:type="promela:bin_expr" operator="MINUS">
+                    <operand1 xsi:type="promela:num_const" number="1"/>
+                    <operand2 xsi:type="promela:varref" var_name="R_R_R_R_R_r"/>
+                  </expr>
+                </recv_args>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.20/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_s_Signal_abl_ZeroToZeroAck">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_name"/>
+                <any_expr xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const" number="1"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.20/@sequence.4"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_r"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="R_R_R_R_R_r"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.20/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <proctypes active="1" name="R_R_R_R_R_Right_as_Middle_inABP_AS_AS">
+      <sequence xsi:type="promela:one_decl" visible="SHOW" typename="/0/@primitivetypes.3">
+        <ivars name="R_R_R_R_R_b">
+          <any_expr_or_ch_init xsi:type="promela:num_const" number="1"/>
+        </ivars>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:enum_const" const_enum="SKIP"/>
+              <sequence xsi:type="promela:send" sendtype="normal_fifo">
+                <varref var_name="Middle_as_Right_out_AS_to_AR__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M"/>
+                <send_args xsi:type="promela:mtype_const" mtype="/0/@mtypes.8"/>
+                <send_args xsi:type="promela:varref" var_name="R_R_R_R_R_b"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.21/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="AND">
+                <operand1 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl"/>
+                  <operand2 xsi:type="promela:num_const" number="1"/>
+                </operand1>
+                <operand2 xsi:type="promela:bin_expr" operator="EQUALS">
+                  <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_name"/>
+                  <operand2 xsi:type="promela:mtype_const" mtype="/0/@mtypes.13"/>
+                </operand2>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const" number="2"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.21/@sequence.2"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+      <sequence xsi:type="promela:block_stmnt" label="Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck">
+        <sequence xsi:type="promela:if_stmnt">
+          <options>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const" number="3"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl"/>
+                <any_expr xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:assign_std">
+                <varref var_name="R_R_R_R_R_b"/>
+                <any_expr xsi:type="promela:bin_expr" operator="MINUS">
+                  <operand1 xsi:type="promela:num_const" number="1"/>
+                  <operand2 xsi:type="promela:varref" var_name="R_R_R_R_R_b"/>
+                </any_expr>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.21/@sequence.1"/>
+            </sequence>
+            <sequence xsi:type="promela:block_stmnt">
+              <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+                <operand1 xsi:type="promela:varref" var_name="R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl"/>
+                <operand2 xsi:type="promela:num_const"/>
+              </sequence>
+              <sequence xsi:type="promela:goto_stmnt" stmnt="/0/@proctypes.21/@sequence.1"/>
+            </sequence>
+          </options>
+        </sequence>
+      </sequence>
+    </proctypes>
+    <primitivetypes primitivetype="CHAN"/>
+    <primitivetypes primitivetype="BYTE"/>
+    <primitivetypes primitivetype="MTYPE"/>
+    <primitivetypes primitivetype="INT"/>
+    <primitivetypes primitivetype="BOOL"/>
+  </promela:spec>
+  <promela:primitivetype primitivetype="MTYPE"/>
+  <promela:primitivetype primitivetype="INT"/>
+  <promela:primitivetype primitivetype="INT"/>
+  <promela:primitivetype primitivetype="MTYPE"/>
+  <promela:primitivetype primitivetype="INT"/>
+  <promela:primitivetype primitivetype="INT"/>
+  <promela:primitivetype primitivetype="MTYPE"/>
+  <promela:primitivetype primitivetype="INT"/>
+  <promela:primitivetype primitivetype="INT"/>
+  <promela:primitivetype primitivetype="MTYPE"/>
+  <promela:primitivetype primitivetype="INT"/>
+  <promela:primitivetype primitivetype="INT"/>
+</xmi:XMI>

@@ -1,0 +1,114 @@
+model Sync2Async3_as {
+  classes
+    A {
+      variables
+        Integer sendvar_Out = 0
+
+      ports
+        Out
+
+      state machines
+        A {
+          variables
+            Integer v = 0
+
+          initial
+            Initial
+
+          state
+            Initial_1_0_A_1
+
+          final
+            Final
+
+          transitions
+            InitialToInitial_1_0_A_1 from Initial to Initial_1_0_A_1 {
+              send A(1) to Out;
+              (sendvar_Out == 0)
+            }
+
+            InitialToInitial from Initial to Initial {
+              v := v
+            }
+
+            Initial_1_0_A_1ToFinal from Initial_1_0_A_1 to Final {
+              (sendvar_Out == 2);
+              send A(3) to Out;
+              (sendvar_Out == 0)
+            }
+
+            Initial_1_0_A_1ToInitial from Initial_1_0_A_1 to Initial {
+              sendvar_Out := 2;
+              send A(4) to Out
+            }
+        }
+
+        A_reader {
+          initial
+            A_reader_is
+
+          transitions
+            A_Out from A_reader_is to A_reader_is {
+              receive A(sendvar_Out) from Out
+            }
+        }
+    }
+
+    B {
+      variables
+        Integer recvar_In = 3
+
+      ports
+        In
+
+      state machines
+        B {
+          initial
+            Initial
+
+          state
+            Initial_1_0_A_1
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Initial_1_0_A_1 {
+              (recvar_In == 1);
+              send A(2) to In
+            }
+
+            Initial_1_0_A_1ToFinal from Initial_1_0_A_1 to Final {
+              (recvar_In == 3);
+              send A(0) to In
+            }
+
+            Initial_1_0_A_1ToInitial_1_0_A_1_canc_In from Initial to Initial {
+              (recvar_In == 4);
+              recvar_In := 3;
+              send A(0) to In
+            }
+
+            Initial_1_0_A_1ToInitial from Initial_1_0_A_1 to Initial {
+              (recvar_In == 4)
+            }
+        }
+
+        B_reader {
+          initial
+            B_reader_is
+
+          transitions
+            A_In from B_reader_is to B_reader_is {
+              receive A(recvar_In) from In
+            }
+        }
+    }
+
+  objects
+    a: A
+    b: B
+
+  channels
+    CA() async lossless between a.Out and b.In
+}

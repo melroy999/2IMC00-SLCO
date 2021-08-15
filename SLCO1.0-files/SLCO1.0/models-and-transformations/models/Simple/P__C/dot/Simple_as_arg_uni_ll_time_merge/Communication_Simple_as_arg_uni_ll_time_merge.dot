@@ -1,0 +1,32 @@
+
+digraph Simple_as_arg_uni_ll_time_merge {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_C_C_C_C_C{
+    label = "C_C_C_C_C: C_C_C_C_C";
+    node [shape = box];
+    C_C_C_C_C_C_as_P_inABP_Receiver_ARSender[label = C_as_P_inABP_Receiver_ARSender]
+    C_C_C_C_C_C_as_P_inABP_AS_AASAR[label = C_as_P_inABP_AS_AASAR]
+    C_C_C_C_C_C_as_P_outABP_Sender_ASReceiver[label = C_as_P_outABP_Sender_ASReceiver]
+    C_C_C_C_C_C_as_P_outABP_AR_AARAS[label = C_as_P_outABP_AR_AARAS]
+  }
+
+  subgraph cluster_P_P_P_P_P{
+    label = "P_P_P_P_P: P_P_P_P_P";
+    node [shape = box];
+    P_P_P_P_P_P_as_C_outABP_Sender_ASReceiver[label = P_as_C_outABP_Sender_ASReceiver]
+    P_P_P_P_P_P_as_C_outABP_AR_AARAS[label = P_as_C_outABP_AR_AARAS]
+    P_P_P_P_P_P_as_C_inABP_Receiver_ARSender[label = P_as_C_inABP_Receiver_ARSender]
+    P_P_P_P_P_P_as_C_inABP_AS_AASAR[label = P_as_C_inABP_AS_AASAR]
+  }
+
+  
+ P_P_P_P_P_P_as_C_outABP_Sender_ASReceiver -> C_C_C_C_C_C_as_P_inABP_Receiver_ARSender [label = "P_as_C_out_Sender_to_Receiver(String, Integer)", style=dotted];
+
+ C_C_C_C_C_C_as_P_inABP_AS_AASAR -> P_P_P_P_P_P_as_C_outABP_AR_AARAS [label = "P_as_C_out_AS_to_AR(Integer)", style=dotted];
+
+ C_C_C_C_C_C_as_P_outABP_Sender_ASReceiver -> P_P_P_P_P_P_as_C_inABP_Receiver_ARSender [label = "C_as_P_out_Sender_to_Receiver(String, Integer)", style=dotted];
+
+ P_P_P_P_P_P_as_C_inABP_AS_AASAR -> C_C_C_C_C_C_as_P_outABP_AR_AARAS [label = "C_as_P_out_AS_to_AR(Integer)", style=dotted];
+
+}

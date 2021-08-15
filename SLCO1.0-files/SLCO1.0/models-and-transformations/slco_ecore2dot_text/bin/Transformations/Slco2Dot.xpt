@@ -1,0 +1,122 @@
+«IMPORT slco»
+
+extension org::openarchitectureware::util::stdlib::io;
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateGraphs FOR Model»
+«FILE "Communication_" + this.name + ".dot"»
+digraph «this.name» {
+  graph [rankdir = "LR"];
+  «EXPAND generateCluster FOREACH this.objects»
+  «EXPAND generateEdge FOREACH this.channels»
+}
+«ENDFILE»
+«FILE "Structure_" + this.name + ".dot"»
+digraph «this.name» {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+«EXPAND generateCluster FOREACH this.classes»
+}
+«ENDFILE»
+«EXPAND generateStateMachine FOREACH this.classes.stateMachines»
+«ENDDEFINE»
+
+«DEFINE generateCluster FOR Class-»
+«LET this.name + "_" + this.eRootContainer.eAllContents.toList().indexOf(this).toString() AS qualifiedName-»
+«qualifiedName»
+ [label="{«this.name»|«EXPAND generateVariable FOREACH this.variables SEPARATOR "\\n "»|}"]
+«EXPAND generateCluster(qualifiedName) FOREACH this.stateMachines»
+«ENDLET»«ENDDEFINE»
+
+«DEFINE generateVariable FOR Variable»«this.type.toString()» «this.name»«IF this.initialValue != null» = «EXPAND generateExpression FOR this.initialValue»«ENDIF»«ENDDEFINE»
+
+«DEFINE generateCluster(String className) FOR StateMachine»«className + "_" + this.name» [label="{«this.name»|«EXPAND generateVariable FOREACH this.variables SEPARATOR "\\n "»|}", style=filled, fillcolor=gray95]
+«className» -> «className + "_" + this.name»
+«ENDDEFINE»
+
+«DEFINE generateStateMachine FOR StateMachine»
+«FILE ((Class) this.eContainer).name + "_" + this.name + ".dot"-»
+digraph «this.name» {
+  compound = true;
+  rank = LR;
+«EXPAND generateVertex FOREACH this.vertices.typeSelect(Initial)»
+«EXPAND generateVertex FOREACH this.vertices.typeSelect(State)»
+«EXPAND generateVertex FOREACH this.vertices.typeSelect(Final)»
+«EXPAND generateTransition FOREACH this.transitions»
+}
+«ENDFILE»
+«ENDDEFINE»
+
+«DEFINE generateVertex FOR Vertex»«IF this.metaType == Initial»node [shape = "point", height = "0.2"] «this.name»_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] «this.name» «this.name»_extra -> «this.name»«ELSEIF this.metaType == Final»node [shape = "doublecircle", height = "0.2", width = "0.2", style = "filled", color = "black", label = ""] «this.name»_extra node [shape = "Mrecord", height = "0.8", width = "1.6", style = "solid", label="«this.name»"] «this.name» «this.name» -> «this.name»_extra«ELSEIF this.metaType == State»node [shape = "Mrecord", height = "0.8", width = "1.6"] «this.name»«ELSE»--Vertex with Metatype «this.metaType.toString()»: «this.name»--«ENDIF»
+«ENDDEFINE»
+
+«DEFINE generateTransition FOR Transition»
+«this.source.name» -> «this.target.name» [label = "«EXPAND generateStatement FOREACH this.statements SEPARATOR ";\\n "»"];
+«ENDDEFINE»
+
+«DEFINE generateStatement FOR Expression»«EXPAND generateExpression FOR this»«ENDDEFINE»
+
+«DEFINE generateStatement FOR Delay»after «this.value.toString()» ms«ENDDEFINE»
+
+«DEFINE generateStatement FOR SignalReception»receive «this.signalName»(«EXPAND generateSignalArgument FOREACH this.arguments SEPARATOR ", "»«IF this.condition != null» | «EXPAND generateExpression FOR this.condition»«ENDIF») from «this.port.name»«ENDDEFINE»
+
+«DEFINE generateSignalArgument FOR SignalArgument»SignalArgument«ENDDEFINE»
+
+«DEFINE generateSignalArgument FOR SignalArgumentExpression»[[«EXPAND generateExpression FOR this.expression»]]«ENDDEFINE»
+
+«DEFINE generateSignalArgument FOR SignalArgumentVariable»«EXPAND generateVariableName FOR this.variable»«ENDDEFINE»
+
+«DEFINE generateVariableName FOR Variable»«this.name»«ENDDEFINE»
+
+«DEFINE generateGuard FOR Expression»[«EXPAND generateExpression FOR this»]«ENDDEFINE»
+
+«DEFINE generateEffect FOR Statement»«EXPAND generateStatement FOR this»«ENDDEFINE»
+
+«DEFINE generateExpression FOR Expression»expression«ENDDEFINE»
+
+«DEFINE generateExpression FOR BinaryOperatorExpression»«EXPAND generateExpression FOR this.operand1» «EXPAND generateOperator FOR this.operator» «EXPAND generateExpression FOR this.operand2»«ENDDEFINE»
+
+«DEFINE generateOperator FOR OperatorEnum»«IF this == OperatorEnum::atLeast»>=«ELSEIF this == OperatorEnum::atMost»<=«ELSEIF this == OperatorEnum::add»+«ELSEIF this == OperatorEnum::and»&&«ELSEIF this == OperatorEnum::or»||«ELSEIF this == OperatorEnum::equals»==«ELSEIF this == OperatorEnum::differs»!=«ELSEIF this == OperatorEnum::subtract»-«ELSE»XXX«ENDIF»«ENDDEFINE»
+
+«DEFINE generateExpression FOR BooleanConstantExpression»«this.value.toString()»«ENDDEFINE»
+
+«DEFINE generateExpression FOR StringConstantExpression»\"«this.value.toString()»\"«ENDDEFINE»
+
+«DEFINE generateExpression FOR IntegerConstantExpression»«this.value.toString()»«ENDDEFINE»
+
+«DEFINE generateExpression FOR VariableExpression»«this.variable.name»«ENDDEFINE»
+
+«DEFINE generateStatement FOR Statement»statement«ENDDEFINE»
+
+«DEFINE generateStatement FOR Assignment»«EXPAND generateVariableName FOR this.variable» := «EXPAND generateExpression FOR this.expression»«ENDDEFINE»
+
+«DEFINE generateStatement FOR SendSignal»send «this.signalName»(«EXPAND generateExpression FOREACH this.arguments SEPARATOR ", "») to «this.port.name»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateCluster FOR slco::Object»
+  subgraph cluster_«this.name»{
+    label = "«this.name»: «this.class.name»";
+    node [shape = box];
+«EXPAND generateNodes(this) FOREACH this.class.ports SEPARATOR "
+"»
+  }
+«ENDDEFINE»
+
+«DEFINE generateNodes(slco::Object object) FOR Port-»
+    «object.name + "_" + this.name + "[label = " + this.name + "]"-»
+«ENDDEFINE»
+
+«DEFINE generateEdge FOR Channel»edge«ENDDEFINE»
+
+«DEFINE generateEdge FOR BidirectionalChannel»
+ «this.object1.name + "_" + this.port1.name» -> «this.object2.name + "_" + this.port2.name» [label = "«this.name»(«EXPAND generateTypeName FOREACH this.argumentTypes SEPARATOR ", "»)", dir = both«IF this.channelType == ChannelTypeEnum::async_lossy», style=dotted«ELSEIF this.channelType == ChannelTypeEnum::async_lossless», style=dashed«ENDIF»];
+«ENDDEFINE»
+
+«DEFINE generateEdge FOR UnidirectionalChannel»
+ «this.sourceObject.name + "_" + this.sourcePort.name» -> «this.targetObject.name + "_" + this.targetPort.name» [label = "«this.name»(«EXPAND generateTypeName FOREACH this.argumentTypes SEPARATOR ", "»)"«IF this.channelType == ChannelTypeEnum::async_lossy», style=dotted«ELSEIF this.channelType == ChannelTypeEnum::async_lossless», style=dashed«ENDIF»];
+«ENDDEFINE»
+
+«DEFINE generateTypeName FOR ArgumentType»«this.type.toString()»«ENDDEFINE»

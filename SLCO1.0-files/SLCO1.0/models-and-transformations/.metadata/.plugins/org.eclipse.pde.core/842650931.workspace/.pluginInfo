@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map>
+	<bundle bundleID="1072" localization="OSGI-INF/l10n/bundle" name="slco-text2slco-code" project="slco_text2slco_ecore"/>
+	<bundle bundleID="1073" localization="OSGI-INF/l10n/bundle" name="slco2dot" project="slco_ecore2dot_text"/>
+	<bundle bundleID="1074" localization="OSGI-INF/l10n/bundle" name="slco2nqcv2" project="slco_ecore2nqc_text"/>
+	<bundle bundleID="1075" localization="OSGI-INF/l10n/bundle" name="slco2code" project="slco_ecore2slco_text"/>
+	<bundle bundleID="1076" localization="OSGI-INF/l10n/bundle" name="promela2code" project="promela_ecore2promela_text"/>
+	<bundle bundleID="1077" localization="OSGI-INF/l10n/bundle" name="slco2poosl" project="slco_ecore2poosl_text"/>
+</map>

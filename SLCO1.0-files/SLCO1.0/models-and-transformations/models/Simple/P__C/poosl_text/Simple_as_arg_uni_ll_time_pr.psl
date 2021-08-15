@@ -1,0 +1,235 @@
+/*=================*/
+/*-----------------*/
+/* Process Classes */
+/*-----------------*/
+/*=================*/
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Producer_as()
+instance variables
+
+communication channels
+  C_in,
+  C_out
+message interface
+  C_out!Signal(Object);
+  C_in?Signal(String)
+initial method call
+  Producer_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Producer_State()()
+    |   var_0: String |
+    C_out!Signal("Send_Bericht");
+    C_in?Signal(var_0|(var_0="Acknowledge_Bericht"));
+    Producer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Producer_as_initial()()
+    |  |
+    Producer_State()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Consumer_as()
+instance variables
+
+communication channels
+  P_in,
+  P_out
+message interface
+  P_in?Signal(String);
+  P_out!Signal(Object)
+initial method call
+  Consumer_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Consumer_State()()
+    |   var_4: String |
+    P_in?Signal(var_4|(var_4="Send_Bericht"));
+    P_out!Signal("Acknowledge_Bericht");
+    Consumer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Consumer_as_initial()()
+    |  |
+    Consumer_State()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_Sender()
+instance variables
+  ABP_SenderSenders: Integer,
+  ABP_SenderSenderd: String
+communication channels
+  ASOriginal,
+  ASReceiver,
+  ASAR
+message interface
+  ASReceiver!Message(Object,Object);
+  ASAR?Acknowledge();
+  ASOriginal?Signal(String)
+initial method call
+  ABP_Sender_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Sender_Zero()()
+    |  |
+    ASOriginal?Signal(ABP_SenderSenderd);
+    Sender_One()()
+  .
+/* ------ ProcessMethod ------ */
+  Sender_One()()
+    |  |
+    sel
+      ASAR?Acknowledge();
+      ABP_SenderSenders := (1-ABP_SenderSenders);
+      Sender_Zero()()
+    or
+      delay (900);
+      ASReceiver!Message(ABP_SenderSenderd,ABP_SenderSenders);
+      Sender_One()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_Sender_initial()()
+    |  |
+    ABP_SenderSenders := 0;
+    Sender_Zero()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_AR()
+instance variables
+  ABP_ARARb: Integer
+communication channels
+  AARAS,
+  AARSender
+message interface
+  AARAS?Acknowledge(Integer);
+  AARAS?Acknowledge(Integer);
+  AARSender!Acknowledge()
+initial method call
+  ABP_AR_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  AR_Zero()()
+    |   var_8: Integer,  var_2: Integer |
+    sel
+      AARAS?Acknowledge(var_8|(var_8=ABP_ARARb));
+      AARSender!Acknowledge();
+      ABP_ARARb := (1-ABP_ARARb);
+      AR_Zero()()
+    or
+      AARAS?Acknowledge(var_2|(var_2=(1-ABP_ARARb)));
+      AR_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_AR_initial()()
+    |  |
+    ABP_ARARb := 0;
+    AR_Zero()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_Receiver()
+instance variables
+  ABP_ReceiverReceiverr: Integer,
+  ABP_ReceiverReceiverd: String
+communication channels
+  AROriginal,
+  ARSender,
+  ARAS
+message interface
+  ARSender?Message(String,Integer);
+  ARSender?Message(String,Integer);
+  AROriginal!Signal(Object);
+  ARAS!Acknowledge()
+initial method call
+  ABP_Receiver_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Receiver_Zero()()
+    |   var_4: Integer,  var_22: Integer |
+    sel
+      ARSender?Message(ABP_ReceiverReceiverd,var_4|(var_4=ABP_ReceiverReceiverr));
+      AROriginal!Signal(ABP_ReceiverReceiverd);
+      ARAS!Acknowledge();
+      ABP_ReceiverReceiverr := (1-ABP_ReceiverReceiverr);
+      Receiver_Zero()()
+    or
+      ARSender?Message(ABP_ReceiverReceiverd,var_22|(var_22=(1-ABP_ReceiverReceiverr)));
+      Receiver_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_Receiver_initial()()
+    |  |
+    ABP_ReceiverReceiverr := 0;
+    Receiver_Zero()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_AS()
+instance variables
+  ABP_ASASb: Integer
+communication channels
+  AASAR,
+  AASReceiver
+message interface
+  AASReceiver?Acknowledge();
+  AASAR!Acknowledge(Object)
+initial method call
+  ABP_AS_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  AS_Zero()()
+    |  |
+    sel
+      AASReceiver?Acknowledge();
+      ABP_ASASb := (1-ABP_ASASb);
+      AS_Zero()()
+    or
+      delay (900);
+      AASAR!Acknowledge(ABP_ASASb);
+      AS_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_AS_initial()()
+    |  |
+    ABP_ASASb := 1;
+    AS_Zero()()
+  .
+

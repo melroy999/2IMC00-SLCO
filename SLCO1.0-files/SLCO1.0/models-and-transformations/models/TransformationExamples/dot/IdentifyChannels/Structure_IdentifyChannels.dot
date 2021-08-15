@@ -1,0 +1,17 @@
+
+digraph IdentifyChannels {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_5
+ [label="{A||}"]
+A_5_A [label="{A||}", style=filled, fillcolor=gray95]
+A_5 -> A_5_A
+
+B_8
+ [label="{B||}"]
+B_8_B [label="{B||}", style=filled, fillcolor=gray95]
+B_8 -> B_8_B
+
+
+}

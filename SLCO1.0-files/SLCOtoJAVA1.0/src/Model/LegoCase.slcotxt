@@ -1,0 +1,243 @@
+model LegoCase {
+  classes
+    Single {
+      ports
+        Middle
+        Sensor
+        Motor
+
+      state machines
+        Single {
+          initial
+            Start
+
+          state
+            Running
+
+          transitions
+            StartToRunning from Start to Running {
+              send On() to Motor
+            }
+
+            RunningToBlock from Running to Running {
+              receive Block() from Sensor;
+              receive BlockPassed() from Sensor;
+              send Off() to Motor;
+              send Block() to Middle;
+              send On() to Motor
+            }
+        }
+    }
+
+    Middle {
+      ports
+        Left
+        Right
+        Sensor
+        Motor
+
+      state machines
+        Middle {
+          initial
+            Idle
+
+          state
+            Running
+
+          transitions
+            IdleToRight from Idle to Running {
+              receive Block() from Left;
+              send Right() to Motor
+            }
+
+            RunningToBlock from Running to Idle {
+              receive Block() from Sensor;
+              receive BlockPassed() from Sensor;
+              send Off() to Motor
+            }
+
+            IdleToLeft from Idle to Running {
+              receive Block() from Right;
+              send Left() to Motor
+            }
+        }
+    }
+
+    Environment {
+      variables
+        Boolean BlockLeft = false
+        Boolean BlockRight = false
+
+      ports
+        LeftSensor
+        LeftMotor
+        MiddleSensor
+        MiddleMotor
+        RightSensor
+        RightMotor
+
+      state machines
+        RightMotor {
+          initial
+            Start
+
+          state
+            Off
+            Running
+
+          transitions
+            Start from Start to Running {
+              receive On() from RightMotor
+            }
+
+            OffToRunning from Off to Running {
+              receive On() from RightMotor;
+              BlockRight := true
+            }
+
+            RunningToOff from Running to Off {
+              receive Off() from RightMotor
+            }
+
+            RunningToRunningBlock from Running to Running {
+              send Block() to RightSensor;
+              send BlockPassed() to RightSensor
+            }
+
+            OffToOff from Off to Off {
+              receive Off() from RightMotor
+            }
+
+            RunningToRunning from Running to Running {
+              receive On() from RightMotor
+            }
+        }
+
+        MiddleMotor {
+          variables
+            Boolean BlockFellOff = false
+
+          initial
+            Off
+
+          state
+            Right
+            Left
+
+          transitions
+            OffToRight from Off to Right {
+              receive Right() from MiddleMotor
+            }
+
+            RightToOff from Right to Off {
+              receive Off() from MiddleMotor
+            }
+
+            OffToOff from Off to Off {
+              receive Off() from MiddleMotor
+            }
+
+            OffToLeft from Off to Left {
+              receive Left() from MiddleMotor
+            }
+
+            LeftToOff from Left to Off {
+              receive Off() from MiddleMotor
+            }
+
+            RightToRightBlockFell from Right to Right {
+              (BlockRight == true);
+              BlockFellOff := true;
+              BlockRight := false
+            }
+
+            LeftToLeftBlockFell from Left to Left {
+              (BlockLeft == true);
+              BlockFellOff := true;
+              BlockLeft := false
+            }
+
+            RightToRight from Right to Right {
+              receive Right() from MiddleMotor
+            }
+
+            LeftToLeft from Left to Left {
+              receive Left() from MiddleMotor
+            }
+
+            RightToLeft from Right to Left {
+              receive Left() from MiddleMotor
+            }
+
+            LeftToRight from Left to Right {
+              receive Right() from MiddleMotor
+            }
+
+            RightToRightBlock from Right to Right {
+              (BlockLeft == true);
+              send Block() to MiddleSensor;
+              send BlockPassed() to MiddleSensor;
+              BlockLeft := false
+            }
+
+            LeftToLeftBlock from Left to Left {
+              (BlockRight == true);
+              send Block() to MiddleSensor;
+              send BlockPassed() to MiddleSensor;
+              BlockRight := false
+            }
+        }
+
+        LeftMotor {
+          initial
+            Start
+
+          state
+            Off
+            Running
+
+          transitions
+            Start from Start to Running {
+              receive On() from LeftMotor
+            }
+
+            OffToRunning from Off to Running {
+              receive On() from LeftMotor;
+              BlockLeft := true
+            }
+
+            RunningToOff from Running to Off {
+              receive Off() from LeftMotor
+            }
+
+            RunningToRunningBlock from Running to Running {
+              send Block() to LeftSensor;
+              send BlockPassed() to LeftSensor
+            }
+
+            OffToOff from Off to Off {
+              receive Off() from LeftMotor
+            }
+
+            RunningToRunning from Running to Running {
+              receive On() from LeftMotor
+            }
+        }
+    }
+
+  objects
+    Right: Single
+    Left: Single
+    Middle: Middle
+    Environment: Environment
+
+  channels
+    ELeftSensor_to_LSensor() sync from Environment.LeftSensor to Left.Sensor
+    LMotor_to_ELeftMotor() sync from Left.Motor to Environment.LeftMotor
+    ERightSensor_to_RSensor() sync from Environment.RightSensor to Right.Sensor
+    RMotor_to_ERightMotor() sync from Right.Motor to Environment.RightMotor
+    RMiddle_to_MRight() sync from Right.Middle to Middle.Right
+    LMiddle_to_MLeft() sync from Left.Middle to Middle.Left
+    EMiddleSensor_to_MSensor() sync from Environment.MiddleSensor to Middle.Sensor
+    MMotor_to_EMiddleMotor() sync from Middle.Motor to Environment.MiddleMotor
+}

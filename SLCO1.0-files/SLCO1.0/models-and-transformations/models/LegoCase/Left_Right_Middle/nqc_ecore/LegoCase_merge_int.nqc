@@ -1,0 +1,410 @@
+<?xml version="1.0" encoding="ASCII"?>
+<nqc:Programs xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:nqc="nqc">
+  <Programs Name="R_L_M">
+    <Tasks Name="main">
+      <Statements xsi:type="nqc:NullaryBuiltInFunctionCall" NullaryBuiltInFunction="ClearMessage"/>
+      <Statements xsi:type="nqc:BinaryBuiltInFunctionCall">
+        <Parameter1 xsi:type="nqc:SensorNameConstant"/>
+        <Parameter2 xsi:type="nqc:SensorConfigConstant" SensorConfig="SENSOR_LIGHT"/>
+      </Statements>
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Variable Variable="//@Programs.0/@GlobalVariables.4"/>
+        <Expression xsi:type="nqc:IntegerConstant"/>
+      </Statements>
+      <Statements xsi:type="nqc:RepeatStatement">
+        <Condition xsi:type="nqc:IntegerConstant" Value="10"/>
+        <Body xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.7"/>
+            <Expression xsi:type="nqc:SensorNameConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:IfStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="greater">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.7"/>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.4"/>
+            </Condition>
+            <Consequence xsi:type="nqc:AssignmentStatement">
+              <Variable Variable="//@Programs.0/@GlobalVariables.4"/>
+              <Expression xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.7"/>
+            </Consequence>
+          </Statements>
+        </Body>
+      </Statements>
+      <Statements xsi:type="nqc:BinaryBuiltInFunctionCall">
+        <Parameter1 xsi:type="nqc:SensorNameConstant" SensorName="SENSOR_2"/>
+        <Parameter2 xsi:type="nqc:SensorConfigConstant" SensorConfig="SENSOR_LIGHT"/>
+      </Statements>
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Variable Variable="//@Programs.0/@GlobalVariables.5"/>
+        <Expression xsi:type="nqc:IntegerConstant"/>
+      </Statements>
+      <Statements xsi:type="nqc:RepeatStatement">
+        <Condition xsi:type="nqc:IntegerConstant" Value="10"/>
+        <Body xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.8"/>
+            <Expression xsi:type="nqc:SensorNameConstant" SensorName="SENSOR_2"/>
+          </Statements>
+          <Statements xsi:type="nqc:IfStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="greater">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.8"/>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.5"/>
+            </Condition>
+            <Consequence xsi:type="nqc:AssignmentStatement">
+              <Variable Variable="//@Programs.0/@GlobalVariables.5"/>
+              <Expression xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.8"/>
+            </Consequence>
+          </Statements>
+        </Body>
+      </Statements>
+      <Statements xsi:type="nqc:BinaryBuiltInFunctionCall">
+        <Parameter1 xsi:type="nqc:SensorNameConstant" SensorName="SENSOR_3"/>
+        <Parameter2 xsi:type="nqc:SensorConfigConstant" SensorConfig="SENSOR_LIGHT"/>
+      </Statements>
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Variable Variable="//@Programs.0/@GlobalVariables.6"/>
+        <Expression xsi:type="nqc:IntegerConstant"/>
+      </Statements>
+      <Statements xsi:type="nqc:RepeatStatement">
+        <Condition xsi:type="nqc:IntegerConstant" Value="10"/>
+        <Body xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.9"/>
+            <Expression xsi:type="nqc:SensorNameConstant" SensorName="SENSOR_3"/>
+          </Statements>
+          <Statements xsi:type="nqc:IfStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="greater">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.9"/>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.6"/>
+            </Condition>
+            <Consequence xsi:type="nqc:AssignmentStatement">
+              <Variable Variable="//@Programs.0/@GlobalVariables.6"/>
+              <Expression xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.9"/>
+            </Consequence>
+          </Statements>
+        </Body>
+      </Statements>
+      <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetPower">
+        <Parameter1 xsi:type="nqc:OutputPortNameConstant"/>
+        <Parameter2 xsi:type="nqc:IntegerConstant" Value="7"/>
+      </Statements>
+      <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetPower">
+        <Parameter1 xsi:type="nqc:OutputPortNameConstant" OutputPortName="OUT_B"/>
+        <Parameter2 xsi:type="nqc:IntegerConstant" Value="7"/>
+      </Statements>
+      <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetPower">
+        <Parameter1 xsi:type="nqc:OutputPortNameConstant" OutputPortName="OUT_C"/>
+        <Parameter2 xsi:type="nqc:IntegerConstant" Value="7"/>
+      </Statements>
+      <Statements xsi:type="nqc:StartStatement" Task="//@Programs.0/@Tasks.1"/>
+      <Statements xsi:type="nqc:StartStatement" Task="//@Programs.0/@Tasks.2"/>
+      <Statements xsi:type="nqc:StartStatement" Task="//@Programs.0/@Tasks.3"/>
+    </Tasks>
+    <Tasks Name="Right_Single">
+      <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetDirection">
+        <Label Label="Right_Single_Start"/>
+        <Parameter1 xsi:type="nqc:OutputPortNameConstant" OutputPortName="OUT_C"/>
+        <Parameter2 xsi:type="nqc:DirectionConstant"/>
+      </Statements>
+      <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetOutput">
+        <Parameter1 xsi:type="nqc:OutputPortNameConstant" OutputPortName="OUT_C"/>
+        <Parameter2 xsi:type="nqc:OutputModeConstant" OutputMode="OUT_ON"/>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.1/@Statements.4/@Label"/>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.1/@Statements.0/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="Right_Single_Running"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="geq">
+          <Operand1 xsi:type="nqc:SensorNameConstant" SensorName="SENSOR_3"/>
+          <Operand2 xsi:type="nqc:BinaryExpression">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.6"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="4"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="leq">
+              <Operand1 xsi:type="nqc:SensorNameConstant" SensorName="SENSOR_3"/>
+              <Operand2 xsi:type="nqc:BinaryExpression">
+                <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.6"/>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="2"/>
+              </Operand2>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetOutput">
+            <Parameter1 xsi:type="nqc:OutputPortNameConstant" OutputPortName="OUT_C"/>
+            <Parameter2 xsi:type="nqc:OutputModeConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.1"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.0"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.1/@Statements.6/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.1/@Statements.4/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="Right_Single_Running_s_Block_abl_RunningToBlock"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.0"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="2"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.0"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="3"/>
+          </Statements>
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.0"/>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetDirection">
+            <Parameter1 xsi:type="nqc:OutputPortNameConstant" OutputPortName="OUT_C"/>
+            <Parameter2 xsi:type="nqc:DirectionConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetOutput">
+            <Parameter1 xsi:type="nqc:OutputPortNameConstant" OutputPortName="OUT_C"/>
+            <Parameter2 xsi:type="nqc:OutputModeConstant" OutputMode="OUT_ON"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.1/@Statements.4/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.1/@Statements.6/@Label"/>
+    </Tasks>
+    <Tasks Name="Left_Single">
+      <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetDirection">
+        <Label Label="Left_Single_Start"/>
+        <Parameter1 xsi:type="nqc:OutputPortNameConstant"/>
+        <Parameter2 xsi:type="nqc:DirectionConstant"/>
+      </Statements>
+      <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetOutput">
+        <Parameter1 xsi:type="nqc:OutputPortNameConstant"/>
+        <Parameter2 xsi:type="nqc:OutputModeConstant" OutputMode="OUT_ON"/>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.4/@Label"/>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.0/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="Left_Single_Running"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="geq">
+          <Operand1 xsi:type="nqc:SensorNameConstant"/>
+          <Operand2 xsi:type="nqc:BinaryExpression">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.4"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="4"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="leq">
+              <Operand1 xsi:type="nqc:SensorNameConstant"/>
+              <Operand2 xsi:type="nqc:BinaryExpression">
+                <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.4"/>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="2"/>
+              </Operand2>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetOutput">
+            <Parameter1 xsi:type="nqc:OutputPortNameConstant"/>
+            <Parameter2 xsi:type="nqc:OutputModeConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.3"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.2"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.6/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.4/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="Left_Single_Running_s_Block_abl_RunningToBlock"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.2"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="2"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.2"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="3"/>
+          </Statements>
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.2"/>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetDirection">
+            <Parameter1 xsi:type="nqc:OutputPortNameConstant"/>
+            <Parameter2 xsi:type="nqc:DirectionConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetOutput">
+            <Parameter1 xsi:type="nqc:OutputPortNameConstant"/>
+            <Parameter2 xsi:type="nqc:OutputModeConstant" OutputMode="OUT_ON"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.4/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.6/@Label"/>
+    </Tasks>
+    <Tasks Name="Middle_Middle">
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="Middle_Middle_Idle"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.0"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.1"/>
+            <Operand2 xsi:type="nqc:IntegerConstant"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.0"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="2"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.5/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.2"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.3"/>
+            <Operand2 xsi:type="nqc:IntegerConstant"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.2"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="2"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.8/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.0/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="Middle_Middle_Running"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="leq">
+          <Operand1 xsi:type="nqc:SensorNameConstant" SensorName="SENSOR_2"/>
+          <Operand2 xsi:type="nqc:BinaryExpression">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.5"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="-10"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="geq">
+              <Operand1 xsi:type="nqc:SensorNameConstant" SensorName="SENSOR_2"/>
+              <Operand2 xsi:type="nqc:BinaryExpression">
+                <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.5"/>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="-2"/>
+              </Operand2>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetOutput">
+            <Parameter1 xsi:type="nqc:OutputPortNameConstant" OutputPortName="OUT_B"/>
+            <Parameter2 xsi:type="nqc:OutputModeConstant" OutputMode="OUT_FLOAT"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.3/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="Middle_Middle_Idle_r_Block_rbl_IdleToLeft"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.0"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="3"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.0"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetDirection">
+            <Parameter1 xsi:type="nqc:OutputPortNameConstant" OutputPortName="OUT_B"/>
+            <Parameter2 xsi:type="nqc:DirectionConstant" Direction="OUT_REV"/>
+          </Statements>
+          <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetOutput">
+            <Parameter1 xsi:type="nqc:OutputPortNameConstant" OutputPortName="OUT_B"/>
+            <Parameter2 xsi:type="nqc:OutputModeConstant" OutputMode="OUT_ON"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.3/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.0"/>
+          <Operand2 xsi:type="nqc:IntegerConstant"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.5/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="Middle_Middle_Idle_r_Block_rbl_IdleToRight"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.2"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="3"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.2"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetDirection">
+            <Parameter1 xsi:type="nqc:OutputPortNameConstant" OutputPortName="OUT_B"/>
+            <Parameter2 xsi:type="nqc:DirectionConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:BinaryBuiltInFunctionCall" BinaryBuiltInFunction="SetOutput">
+            <Parameter1 xsi:type="nqc:OutputPortNameConstant" OutputPortName="OUT_B"/>
+            <Parameter2 xsi:type="nqc:OutputModeConstant" OutputMode="OUT_ON"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.3/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.2"/>
+          <Operand2 xsi:type="nqc:IntegerConstant"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.8/@Label"/>
+    </Tasks>
+    <GlobalVariables Name="RMiddle_to_MRight_abl">
+      <InitialValue xsi:type="nqc:IntegerConstant"/>
+    </GlobalVariables>
+    <GlobalVariables Name="RMiddle_to_MRight_name"/>
+    <GlobalVariables Name="LMiddle_to_MLeft_abl">
+      <InitialValue xsi:type="nqc:IntegerConstant"/>
+    </GlobalVariables>
+    <GlobalVariables Name="LMiddle_to_MLeft_name"/>
+    <GlobalVariables Name="R_L_M_sensor_1_null"/>
+    <GlobalVariables Name="R_L_M_sensor_2_null"/>
+    <GlobalVariables Name="R_L_M_sensor_3_null"/>
+    <GlobalVariables Name="R_L_M_sensor_1_temp"/>
+    <GlobalVariables Name="R_L_M_sensor_2_temp"/>
+    <GlobalVariables Name="R_L_M_sensor_3_temp"/>
+  </Programs>
+</nqc:Programs>

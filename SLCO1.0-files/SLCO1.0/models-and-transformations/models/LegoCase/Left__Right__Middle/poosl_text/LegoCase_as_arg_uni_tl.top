@@ -1,0 +1,496 @@
+drawing
+system
+
+instances
+
+process of class 'Single_as' in 0@0 to 50@50 name 'Right_as' at 5@5
+connectors
+  'Sensor' at 0@0 name at 0@0
+  'Motor' at 0@0 name at 0@0
+  'Middle_in' at 0@0 name at 0@0
+  'Middle_out' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'Single_as' in 0@0 to 50@50 name 'Left_as' at 5@5
+connectors
+  'Sensor' at 0@0 name at 0@0
+  'Motor' at 0@0 name at 0@0
+  'Middle_in' at 0@0 name at 0@0
+  'Middle_out' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'Middle_as' in 0@0 to 50@50 name 'Middle_as' at 5@5
+connectors
+  'Sensor' at 0@0 name at 0@0
+  'Motor' at 0@0 name at 0@0
+  'Right_in' at 0@0 name at 0@0
+  'Right_out' at 0@0 name at 0@0
+  'Left_in' at 0@0 name at 0@0
+  'Left_out' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'Environment' in 0@0 to 50@50 name 'Environment' at 5@5
+connectors
+  'LeftSensor' at 0@0 name at 0@0
+  'LeftMotor' at 0@0 name at 0@0
+  'MiddleSensor' at 0@0 name at 0@0
+  'MiddleMotor' at 0@0 name at 0@0
+  'RightSensor' at 0@0 name at 0@0
+  'RightMotor' at 0@0 name at 0@0
+scenarios
+'normal'
+
+channels
+
+name 'ELeftSensor_to_LSensor_as' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'LeftSensor' of instance 'Environment' to socket 'Sensor' of instance 'Left_as'
+
+scenarios
+  'normal'
+
+name 'LMotor_to_ELeftMotor_as' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Motor' of instance 'Left_as' to socket 'LeftMotor' of instance 'Environment'
+
+scenarios
+  'normal'
+
+name 'ERightSensor_to_RSensor_as' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'RightSensor' of instance 'Environment' to socket 'Sensor' of instance 'Right_as'
+
+scenarios
+  'normal'
+
+name 'RMotor_to_ERightMotor_as' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Motor' of instance 'Right_as' to socket 'RightMotor' of instance 'Environment'
+
+scenarios
+  'normal'
+
+name 'EMiddleSensor_to_MSensor_as' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'MiddleSensor' of instance 'Environment' to socket 'Sensor' of instance 'Middle_as'
+
+scenarios
+  'normal'
+
+name 'MMotor_to_EMiddleMotor_as' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Motor' of instance 'Middle_as' to socket 'MiddleMotor' of instance 'Environment'
+
+scenarios
+  'normal'
+
+name 'RMiddle_to_MRight_as_1_to_2' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Middle_out' of instance 'Right_as' to socket 'Right_in' of instance 'Middle_as'
+
+scenarios
+  'normal'
+
+name 'LMiddle_to_MLeft_as_1_to_2' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Middle_out' of instance 'Left_as' to socket 'Left_in' of instance 'Middle_as'
+
+scenarios
+  'normal'
+
+name 'RMiddle_to_MRight_as_2_to_1' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Right_out' of instance 'Middle_as' to socket 'Middle_in' of instance 'Right_as'
+
+scenarios
+  'normal'
+
+name 'LMiddle_to_MLeft_as_2_to_1' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Left_out' of instance 'Middle_as' to socket 'Middle_in' of instance 'Left_as'
+
+scenarios
+  'normal'
+
+scenarios
+'all', 'normal'
+
+poosl specification
+'
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Environment()
+instance variables
+  BlockLeft: Boolean,
+  BlockRight: Boolean,
+  EnvironmentMiddleMotorBlockFellOff: Boolean
+communication channels
+  LeftSensor,
+  LeftMotor,
+  MiddleSensor,
+  MiddleMotor,
+  RightSensor,
+  RightMotor
+message interface
+  RightMotor?Off();
+  LeftMotor?Off();
+  MiddleSensor!BlockPassed();
+  LeftMotor?On();
+  RightMotor?Off();
+  LeftMotor?On();
+  RightMotor?On();
+  LeftMotor?On();
+  MiddleMotor?Right();
+  MiddleMotor?Off();
+  RightSensor!Block();
+  MiddleMotor?Left();
+  LeftMotor?Off();
+  MiddleMotor?Off();
+  RightSensor!BlockPassed();
+  MiddleMotor?Off();
+  RightMotor?On();
+  MiddleMotor?Left();
+  MiddleSensor!Block();
+  MiddleMotor?Left();
+  MiddleSensor!BlockPassed();
+  MiddleMotor?Right();
+  MiddleSensor!Block();
+  MiddleMotor?Right();
+  LeftSensor!BlockPassed();
+  RightMotor?On();
+  LeftSensor!Block()
+initial method call
+  Environment_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  RightMotor_Start()()
+    |  |
+    RightMotor?On();
+    RightMotor_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Off()()
+    |  |
+    sel
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Start()()
+    |  |
+    LeftMotor?On();
+    LeftMotor_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  RightMotor_Off()()
+    |  |
+    sel
+      RightMotor?On();
+      BlockRight := true;
+      RightMotor_Running()()
+    or
+      RightMotor?Off();
+      RightMotor_Off()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  RightMotor_Running()()
+    |  |
+    sel
+      RightMotor?Off();
+      RightMotor_Off()()
+    or
+      RightSensor!Block();
+      RightSensor!BlockPassed();
+      RightMotor_Running()()
+    or
+      RightMotor?On();
+      RightMotor_Running()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Right()()
+    |  |
+    sel
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      [(BlockRight=true)]skip;
+      EnvironmentMiddleMotorBlockFellOff := true;
+      BlockRight := false;
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    or
+      [(BlockLeft=true)]skip;
+      MiddleSensor!Block();
+      MiddleSensor!BlockPassed();
+      BlockLeft := false;
+      MiddleMotor_Right()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Left()()
+    |  |
+    sel
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      [(BlockLeft=true)]skip;
+      EnvironmentMiddleMotorBlockFellOff := true;
+      BlockLeft := false;
+      MiddleMotor_Left()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    or
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      [(BlockRight=true)]skip;
+      MiddleSensor!Block();
+      MiddleSensor!BlockPassed();
+      BlockRight := false;
+      MiddleMotor_Left()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Off()()
+    |  |
+    sel
+      LeftMotor?On();
+      BlockLeft := true;
+      LeftMotor_Running()()
+    or
+      LeftMotor?Off();
+      LeftMotor_Off()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Running()()
+    |  |
+    sel
+      LeftMotor?Off();
+      LeftMotor_Off()()
+    or
+      LeftSensor!Block();
+      LeftSensor!BlockPassed();
+      LeftMotor_Running()()
+    or
+      LeftMotor?On();
+      LeftMotor_Running()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Environment_initial()()
+    |  |
+    BlockLeft := false;
+    BlockRight := false;
+    EnvironmentMiddleMotorBlockFellOff := false;
+    par
+      RightMotor_Start()()
+    and
+      MiddleMotor_Off()()
+    and
+      LeftMotor_Start()()
+    rap
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Single_as()
+instance variables
+
+communication channels
+  Sensor,
+  Motor,
+  Middle_in,
+  Middle_out
+message interface
+  Motor!On();
+  Sensor?BlockPassed();
+  Middle_out!Signal(Object);
+  Middle_in?Signal(String);
+  Motor!On();
+  Motor!Off();
+  Sensor?Block()
+initial method call
+  Single_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Single_Start()()
+    |  |
+    Motor!On();
+    Single_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Single_Running()()
+    |   var_10: String |
+    Sensor?Block();
+    Sensor?BlockPassed();
+    Motor!Off();
+    Middle_out!Signal("Send_Block");
+    Middle_in?Signal(var_10|(var_10="Acknowledge_Block"));
+    Motor!On();
+    Single_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Single_as_initial()()
+    |  |
+    Single_Start()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Middle_as()
+instance variables
+
+communication channels
+  Sensor,
+  Motor,
+  Right_in,
+  Right_out,
+  Left_in,
+  Left_out
+message interface
+  Right_out!Signal(Object);
+  Left_out!Signal(Object);
+  Left_in?Signal(String);
+  Motor!Off();
+  Motor!Right();
+  Sensor?Block();
+  Right_in?Signal(String);
+  Motor!Left();
+  Sensor?BlockPassed()
+initial method call
+  Middle_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Middle_Idle()()
+    |   var_3: String,  var_2: String |
+    sel
+      Left_in?Signal(var_3|(var_3="Send_Block"));
+      Left_out!Signal("Acknowledge_Block");
+      Motor!Right();
+      Middle_Running()()
+    or
+      Right_in?Signal(var_2|(var_2="Send_Block"));
+      Right_out!Signal("Acknowledge_Block");
+      Motor!Left();
+      Middle_Running()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_Running()()
+    |  |
+    Sensor?Block();
+    Sensor?BlockPassed();
+    Motor!Off();
+    Middle_Idle()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_initial()()
+    |  |
+    Middle_Idle()()
+  .
+
+
+cluster class aClass()
+
+communication channels
+
+message interface
+
+behaviour specification
+  (
+   Right_as: Single_as[
+     RMotor_to_ERightMotor_as/Motor,
+     RMiddle_to_MRight_as_1_to_2/Middle_out,
+     ERightSensor_to_RSensor_as/Sensor,
+     RMiddle_to_MRight_as_2_to_1/Middle_in
+   ]
+  ||
+   Left_as: Single_as[
+     LMotor_to_ELeftMotor_as/Motor,
+     LMiddle_to_MLeft_as_1_to_2/Middle_out,
+     ELeftSensor_to_LSensor_as/Sensor,
+     LMiddle_to_MLeft_as_2_to_1/Middle_in
+   ]
+  ||
+   Middle_as: Middle_as[
+     MMotor_to_EMiddleMotor_as/Motor,
+     RMiddle_to_MRight_as_2_to_1/Right_out,
+     LMiddle_to_MLeft_as_2_to_1/Left_out,
+     EMiddleSensor_to_MSensor_as/Sensor,
+     RMiddle_to_MRight_as_1_to_2/Right_in,
+     LMiddle_to_MLeft_as_1_to_2/Left_in
+   ]
+  ||
+   Environment: Environment[
+     ELeftSensor_to_LSensor_as/LeftSensor,
+     ERightSensor_to_RSensor_as/RightSensor,
+     EMiddleSensor_to_MSensor_as/MiddleSensor,
+     LMotor_to_ELeftMotor_as/LeftMotor,
+     RMotor_to_ERightMotor_as/RightMotor,
+     MMotor_to_EMiddleMotor_as/MiddleMotor
+   ]
+  )
+  \
+  {ELeftSensor_to_LSensor_as, LMotor_to_ELeftMotor_as, ERightSensor_to_RSensor_as, RMotor_to_ERightMotor_as, EMiddleSensor_to_MSensor_as, MMotor_to_EMiddleMotor_as, RMiddle_to_MRight_as_1_to_2, LMiddle_to_MLeft_as_1_to_2, RMiddle_to_MRight_as_2_to_1, LMiddle_to_MLeft_as_2_to_1}
+'

@@ -1,0 +1,193 @@
+model dve_mcs_1 {
+classes
+	GlobalClass {
+		variables
+			Integer[3] next := [255,255,255]
+			Integer[3] locked
+			Integer tail := 255
+		state machines
+			P_0 {
+				variables
+					Integer pred
+				initial NCS
+				states  p2 p3 p4 p5 p6 CS p9 p13 p10
+				transitions
+					from NCS to p2 {
+						next[0] := 255
+					}
+
+					from p2 to p3 {
+						pred := tail;tail := 0
+					}
+
+					from p3 to CS {
+						pred = 255
+					}
+
+					from p3 to p4 {
+						pred <> 255
+					}
+
+					from p4 to p5 {
+						locked[0] := 1
+					}
+
+					from p5 to p6 {
+						next[pred] := 0
+					}
+
+					from p6 to CS {
+						locked[0] = 0
+					}
+
+					from CS to p9 {
+						next[0] = 255
+					}
+
+					from CS to p13 {
+						next[0] <> 255
+					}
+
+					from p9 to NCS {
+						tail = 0; tail := 255
+					}
+
+					from p9 to p10 {
+						tail <> 0
+					}
+
+					from p10 to p13 {
+						next[0] <> 255
+					}
+
+					from p13 to NCS {
+						locked[next[0]] := 0
+					}
+
+				}
+	
+			P_1 {
+				variables
+					Integer pred
+				initial NCS
+				states  p2 p3 p4 p5 p6 CS p9 p13 p10
+				transitions
+					from NCS to p2 {
+						next[1] := 255
+					}
+
+					from p2 to p3 {
+						pred := tail;tail := 1
+					}
+
+					from p3 to CS {
+						pred = 255
+					}
+
+					from p3 to p4 {
+						pred <> 255
+					}
+
+					from p4 to p5 {
+						locked[1] := 1
+					}
+
+					from p5 to p6 {
+						next[pred] := 1
+					}
+
+					from p6 to CS {
+						locked[1] = 0
+					}
+
+					from CS to p9 {
+						next[1] = 255
+					}
+
+					from CS to p13 {
+						next[1] <> 255
+					}
+
+					from p9 to NCS {
+						tail = 1; tail := 255
+					}
+
+					from p9 to p10 {
+						tail <> 1
+					}
+
+					from p10 to p13 {
+						next[1] <> 255
+					}
+
+					from p13 to NCS {
+						locked[next[1]] := 0
+					}
+
+				}
+	
+			P_2 {
+				variables
+					Integer pred
+				initial NCS
+				states  p2 p3 p4 p5 p6 CS p9 p13 p10
+				transitions
+					from NCS to p2 {
+						next[2] := 255
+					}
+
+					from p2 to p3 {
+						pred := tail;tail := 2
+					}
+
+					from p3 to CS {
+						pred = 255
+					}
+
+					from p3 to p4 {
+						pred <> 255
+					}
+
+					from p4 to p5 {
+						locked[2] := 1
+					}
+
+					from p5 to p6 {
+						next[pred] := 2
+					}
+
+					from p6 to CS {
+						locked[2] = 0
+					}
+
+					from CS to p9 {
+						next[2] = 255
+					}
+
+					from CS to p13 {
+						next[2] <> 255
+					}
+
+					from p9 to NCS {
+						tail = 2; tail := 255
+					}
+
+					from p9 to p10 {
+						tail <> 2
+					}
+
+					from p10 to p13 {
+						next[2] <> 255
+					}
+
+					from p13 to NCS {
+						locked[next[2]] := 0
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

@@ -1,0 +1,20 @@
+
+digraph MergeChannels_mc {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_a{
+    label = "a: A";
+    node [shape = box];
+    a_A_port[label = A_port]
+  }
+
+  subgraph cluster_b{
+    label = "b: B";
+    node [shape = box];
+    b_B_port[label = B_port]
+  }
+
+  
+ a_A_port -> b_B_port [label = "A_port_to_B_port()"];
+
+}

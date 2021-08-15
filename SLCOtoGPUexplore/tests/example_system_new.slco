@@ -1,0 +1,96 @@
+model Test {
+  actions a b
+  classes
+  P {
+    variables
+      Boolean v
+      Byte m    
+    ports In1 In2 InOut    
+
+    state machines
+    REC1 {
+      
+      initial R1_0 
+
+      transitions
+      R1_0 -> R1_0 {
+        receive P(v | not v) from In1
+      }
+    }
+    
+    REC2 {
+      
+      initial R2_0 states R2_1
+
+      transitions
+      R2_0 -> R2_1 {
+        receive Q(m | m >= 0) from In2
+      }
+      
+      R2_1 -> R2_0 {
+        m := m + 1
+      }
+    }
+    
+    SENDREC {
+      
+      initial S0 states S1 S2
+
+      transitions
+      S0 -> S1 {
+        m = 5
+      }
+      
+      S1 -> S2 {
+        send S() to InOut
+      }
+      
+      S2 -> S0 {
+        receive T() from InOut
+      }
+    }
+  }
+  
+  Q {
+    variables
+      Byte[2] y    
+    ports Out1 Out2 InOut    
+
+    state machines
+    COM {
+      variables
+        Boolean x      
+      initial Com0 states Com1 Com2 SimpleState0 SimpleState1
+
+      transitions
+      1: Com0 -> Com1 {
+        send P(false) to Out1
+      }
+      
+      Com1 -> SimpleState0 {
+        send Q(y[0]) to Out2
+      }
+      
+      Com1 -> Com2 {
+        receive S() from InOut
+      }
+      
+      Com2 -> SimpleState1 {
+        y[x] := 0
+      }
+      
+      SimpleState0 -> Com1 {
+        y[0] := y[0] + 1
+      }
+      
+      SimpleState1 -> Com0 {
+        send T() to InOut
+      }
+    }
+  }
+  objects p: P(), q: Q()
+  channels
+    c1(Boolean) async lossless from q.Out1 to p.In1
+    c2(Integer) async lossy from q.Out2 to p.In2
+    c3() sync between p.InOut and q.InOut
+}

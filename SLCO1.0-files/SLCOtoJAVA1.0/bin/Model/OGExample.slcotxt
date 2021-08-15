@@ -1,0 +1,30 @@
+model OGExample {
+  classes
+    VarX {
+      variables
+        Integer x = 0
+      state machines
+	    IncrThreadAB {
+		  initial
+		    A
+		  final
+		    B
+		  transitions
+		  	AtoB from A to B {
+		  	  x := x+1
+		  	}
+	    }
+	    IncrThreadCD {
+		  initial
+		    C
+		  final
+		    D
+		  transitions
+		  	CtoD from C to D {
+		  	  x := x+1
+		  	}
+	    }
+    }
+	objects
+	  varx: VarX	 	 
+}

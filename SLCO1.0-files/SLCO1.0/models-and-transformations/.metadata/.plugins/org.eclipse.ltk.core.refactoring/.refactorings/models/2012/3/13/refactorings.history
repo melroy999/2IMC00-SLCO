@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;models/slco_text/ProducersConsumer&apos; to &apos;ProducersConsumer.slcotxt&apos;" description="Rename resource &apos;ProducersConsumer&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="slco_text/ProducersConsumer" name="ProducersConsumer.slcotxt" stamp="1333118670141" updateReferences="true"/>
+</session>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/slco2nqc.emf/src"
+    modelPluginID="slco2nqc.emf" modelName="Slco2nqc" importerID="org.eclipse.emf.importer.ecore"
+    complianceLevel="6.0" copyrightFields="false" usedGenPackages="platform:/plugin/nqc.emf/model/NQC.genmodel#//NQC platform:/plugin/slco.emf/model/slco.genmodel#//slco">
+  <foreignModel>slco2nqc.ecore</foreignModel>
+  <genPackages prefix="Slco2nqc" disposableProviderFactory="true" ecorePackage="slco2nqc.ecore#/">
+    <genClasses ecoreClass="slco2nqc.ecore#//Signal2MotorList">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//Signal2MotorList/signal2Motors"/>
+    </genClasses>
+    <genClasses ecoreClass="slco2nqc.ecore#//Signal2SensorList">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//Signal2SensorList/signal2Sensors"/>
+    </genClasses>
+    <genClasses ecoreClass="slco2nqc.ecore#//MotorInitList">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//MotorInitList/motorInits"/>
+    </genClasses>
+    <genClasses ecoreClass="slco2nqc.ecore#//MotorInit">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//MotorInit/port"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute slco2nqc.ecore#//MotorInit/power"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute slco2nqc.ecore#//MotorInit/outputName"/>
+    </genClasses>
+    <genClasses ecoreClass="slco2nqc.ecore#//ClassList">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//ClassList/classes"/>
+    </genClasses>
+    <genClasses ecoreClass="slco2nqc.ecore#//Signal2Motor">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute slco2nqc.ecore#//Signal2Motor/signalName"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//Signal2Motor/port"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute slco2nqc.ecore#//Signal2Motor/outputMode"/>
+    </genClasses>
+    <genClasses ecoreClass="slco2nqc.ecore#//Signal2MotorWithDirection">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute slco2nqc.ecore#//Signal2MotorWithDirection/outputDirection"/>
+    </genClasses>
+    <genClasses ecoreClass="slco2nqc.ecore#//Signal2Sensor">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute slco2nqc.ecore#//Signal2Sensor/signalName"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//Signal2Sensor/port"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute slco2nqc.ecore#//Signal2Sensor/sensorIsHigh"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute slco2nqc.ecore#//Signal2Sensor/treshold"/>
+    </genClasses>
+    <genClasses ecoreClass="slco2nqc.ecore#//Slco2NQC">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//Slco2NQC/signal2MotorList"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//Slco2NQC/signal2SensorList"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//Slco2NQC/motorInitList"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//Slco2NQC/classList"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//Slco2NQC/sensorInitList"/>
+    </genClasses>
+    <genClasses ecoreClass="slco2nqc.ecore#//SensorInitList">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//SensorInitList/sensorInits"/>
+    </genClasses>
+    <genClasses ecoreClass="slco2nqc.ecore#//SensorInit">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute slco2nqc.ecore#//SensorInit/sensorName"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute slco2nqc.ecore#//SensorInit/sensorConfiguration"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference slco2nqc.ecore#//SensorInit/port"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

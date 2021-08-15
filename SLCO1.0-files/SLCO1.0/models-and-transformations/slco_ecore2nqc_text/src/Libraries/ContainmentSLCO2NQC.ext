@@ -1,0 +1,47 @@
+import slco;
+import slco2nqc;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension Libraries::Equality;
+
+// ####################################################################################
+// ------------------------------------------------------------------------------------
+// Containment functions
+// ------------------------------------------------------------------------------------
+// ####################################################################################
+
+Boolean classListContainsClass(slco2nqc::ClassList classList, slco::Class class) :
+   classList.classes.exists(
+      c
+   |
+      c.classEqualsClass(class)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+Boolean signal2SensorListContainsSignalReception(
+   slco2nqc::Signal2SensorList sensorList, slco::SignalReception reception
+) :
+   sensorList.signal2Sensors.exists(
+      s
+   |
+      s.signalName == reception.signalName
+      &&
+      s.port.portEqualsPort(reception.port)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+Boolean signal2MotorListContainsStatement(
+   slco2nqc::Signal2MotorList motorList, slco::SendSignal statement
+) :
+   motorList.signal2Motors.exists(
+      s
+   |
+      s.signalName == statement.signalName
+      &&
+      s.port.portEqualsPort(statement.port)
+   )
+;

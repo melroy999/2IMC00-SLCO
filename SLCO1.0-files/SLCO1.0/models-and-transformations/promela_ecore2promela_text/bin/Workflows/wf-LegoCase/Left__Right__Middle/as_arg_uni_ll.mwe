@@ -1,0 +1,22 @@
+<workflow>
+
+  <property name='inputname' value='LegoCase_as_arg_uni_ll_uni' />
+  <property name='inputfile' value='${inputname}.promela' />
+
+  <property name='sourcedir' value='../models/LegoCase/Left__Right__Middle/promela_ecore'/>
+  <property name='targetdir' value='../models/LegoCase/Left__Right__Middle/promela_text'/>
+
+  <component class="org.eclipse.emf.mwe.utils.Reader">
+    <uri value="${sourcedir}/${inputfile}"/>
+    <modelSlot value="PromelaModel"/>
+  </component>
+
+  <component class='org.eclipse.xpand2.Generator'>
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="promela.PromelaPackage"/>
+    </metaModel>
+    <expand value='Transformations::PROMELA2Code::generateSpec FOR PromelaModel'/>
+    <genPath value='${targetdir}'/>
+  </component>
+  
+</workflow>

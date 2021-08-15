@@ -1,0 +1,22 @@
+digraph Left_as_Single {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Start_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Start Start_extra -> Start
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Running
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Running_s_Signal_abl_RunningToBlock
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running
+
+
+
+Start -> Running [label = "send On() to Left_as_Motor"];
+
+Running -> Running_s_Signal_abl_RunningToBlock [label = "receive Block() from Left_as_Sensor;\n receive BlockPassed() from Left_as_Sensor;\n send Off() to Left_as_Motor;\n Left_as_Middle_out_Original_to_Sender_name := 0;\n Left_as_Middle_out_Original_to_Sender_arg_0 := 3;\n Left_as_Middle_out_Original_to_Sender_abl := 1"];
+
+Running_s_Signal_abl_RunningToBlock -> Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running [label = "Left_as_Middle_in_Receiver_to_Original_abl == 1 && Left_as_Middle_in_Receiver_to_Original_name == 0 && Left_as_Middle_in_Receiver_to_Original_arg_0 == 2;\n Left_as_Middle_in_Receiver_to_Original_abl := 2"];
+
+Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running -> Running [label = "Left_as_Middle_in_Receiver_to_Original_abl == 3;\n Left_as_Middle_in_Receiver_to_Original_abl := 0;\n Left_as_Middle_out_Original_to_Sender_abl == 2;\n Left_as_Middle_out_Original_to_Sender_abl := 3;\n Left_as_Middle_out_Original_to_Sender_abl == 0;\n send On() to Left_as_Motor"];
+
+Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running -> Running_s_Signal_abl_RunningToBlock [label = "Left_as_Middle_in_Receiver_to_Original_abl == 0"];
+
+}

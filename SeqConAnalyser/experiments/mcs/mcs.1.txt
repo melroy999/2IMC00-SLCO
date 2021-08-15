@@ -1,0 +1,132 @@
+int next[3] = {255,255,255};
+int locked[3];
+int tail = 255;
+
+proctype p1 {
+int pred = 0;
+int tmp;
+int tmp2;
+int id = 0;
+do
+:: true ->
+	store(next[id],255);
+	pred = loadval(tail);
+	store(tail,id);
+	if
+	:: pred == 255 ->
+		skip;
+	:: pred != 255 ->
+		store(locked[id], 1);
+		store(next[pred], id);
+		store(locked[id], 0);
+		skip;
+	fi;
+	tmp = loadval(next[id]);
+	if
+	:: tmp == 255 ->
+		do
+		:: true ->
+			tmp = loadval(next[id]);
+			tmp2 = loadval(tail);
+			if
+			:: tmp2 == id ->
+				store(tail, 255);
+				break;
+			:: tmp2 != id && tmp != 255 ->
+				store(locked[tmp], 0);
+				break;
+			:: tmp2 != id && tmp == 255 ->
+				skip;
+			fi;
+		od;
+	:: tmp != 255 ->
+		store(locked[tmp], 0);
+	fi;
+od;
+}
+
+proctype p2 {
+int pred = 0;
+int tmp;
+int tmp2;
+int id = 1;
+do
+:: true ->
+	store(next[id],255);
+	pred = loadval(tail);
+	store(tail,id);
+	if
+	:: pred == 255 ->
+		skip;
+	:: pred != 255 ->
+		store(locked[id], 1);
+		store(next[pred], id);
+		store(locked[id], 0);
+		skip;
+	fi;
+	tmp = loadval(next[id]);
+	if
+	:: tmp == 255 ->
+		do
+		:: true ->
+			tmp = loadval(next[id]);
+			tmp2 = loadval(tail);
+			if
+			:: tmp2 == id ->
+				store(tail, 255);
+				break;
+			:: tmp2 != id && tmp != 255 ->
+				store(locked[tmp], 0);
+				break;
+			:: tmp2 != id && tmp == 255 ->
+				skip;
+			fi;
+		od;
+	:: tmp != 255 ->
+		store(locked[tmp], 0);
+	fi;
+od;
+}
+
+proctype p3 {
+int pred = 0;
+int tmp;
+int tmp2;
+int id = 2;
+do
+:: true ->
+	store(next[id],255);
+	pred = loadval(tail);
+	store(tail,id);
+	if
+	:: pred == 255 ->
+		skip;
+	:: pred != 255 ->
+		store(locked[id], 1);
+		store(next[pred], id);
+		store(locked[id], 0);
+		skip;
+	fi;
+	tmp = loadval(next[id]);
+	if
+	:: tmp == 255 ->
+		do
+		:: true ->
+			tmp = loadval(next[id]);
+			tmp2 = loadval(tail);
+			if
+			:: tmp2 == id ->
+				store(tail, 255);
+				break;
+			:: tmp2 != id && tmp != 255 ->
+				store(locked[tmp], 0);
+				break;
+			:: tmp2 != id && tmp == 255 ->
+				skip;
+			fi;
+		od;
+	:: tmp != 255 ->
+		store(locked[tmp], 0);
+	fi;
+od;
+}

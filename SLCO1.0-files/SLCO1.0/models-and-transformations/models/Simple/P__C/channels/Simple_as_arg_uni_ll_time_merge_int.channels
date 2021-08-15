@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channels:ChannelList xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:channels="channels" xmlns:slco="slco">
+  <channels xsi:type="slco:UnidirectionalChannel" href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time_merge_int.slco#//@channels.3"/>
+  <channels xsi:type="slco:UnidirectionalChannel" href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time_merge_int.slco#//@channels.2"/>
+  <channels xsi:type="slco:UnidirectionalChannel" href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time_merge_int.slco#//@channels.1"/>
+  <channels xsi:type="slco:UnidirectionalChannel" href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time_merge_int.slco#//@channels.0"/>
+</channels:ChannelList>

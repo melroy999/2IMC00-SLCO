@@ -1,0 +1,320 @@
+import slco;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension org::eclipse::xtend::util::stdlib::cloning;
+extension Libraries::Clone;
+extension Libraries::Equality;
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// Modification of models
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+slco::Model modifyModel(
+   slco::Model model, List[slco::Channel] channels, String suffix
+) :
+   let objects = channels.getObjectsFromChannels() :
+      objects.addClass(model, suffix)
+   -> objects.updateObject(suffix)
+   -> channels.updateChannel(suffix)
+   -> model.channels.without(channels).updateConnectedChannel(channels, suffix)
+   -> model
+;
+
+// ----------------------------------------------------------------------------
+
+private create Set[slco::Object] getObjectsFromChannels(
+   List[slco::Channel] channels
+) :
+   this.addAll(
+      channels.getObjectsFromChannel()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create Set[slco::Object] getObjectsFromChannel(
+   slco::Channel channel
+) :
+   syserr(
+     "Encountered an unknown Channel type "
+     +
+     channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create Set[slco::Object] getObjectsFromChannel(
+   slco::UnidirectionalChannel channel
+) :
+   this.add(
+      channel.sourceObject
+   )
+-> this.add(
+      channel.targetObject
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[slco::Object] getObjectsFromChannel(
+   slco::BidirectionalChannel channel
+) :
+   this.add(
+      channel.object1
+   )
+-> this.add(
+      channel.object2
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addClass(
+   slco::Object object, slco::Model model, String suffix
+) :
+   model.classes.add(
+      object.class.copyClass(suffix)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private cached slco::Class copyClass(
+   slco::Class class, String suffix
+) :
+   let c = ((slco::Class) class.cachedClone()) :
+      c.setName(c.name + suffix)
+   -> c
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateChannel(slco::Channel channel, String suffix) :
+   syserr(
+     "ModifyModel - UpdateChannel - Unknown channel type: "
+     +
+     channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateChannel(
+   slco::UnidirectionalChannel channel, String suffix
+) :
+   channel.setSourcePort(
+      channel.sourcePort.getClonedPort(
+         channel.sourceObject.class
+      )
+   )
+-> channel.setTargetPort(
+      channel.targetPort.getClonedPort(
+         channel.targetObject.class
+      )
+   )
+-> channel.setName(channel.name + suffix)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateChannel(slco::BidirectionalChannel channel, String suffix) :
+   channel.setPort1(
+      channel.port1.getClonedPort(
+         channel.object1.class
+      )
+   )
+-> channel.setPort2(
+      channel.port2.getClonedPort(
+         channel.object2.class
+      )
+   )
+-> channel.setName(channel.name + suffix)
+;
+
+// ----------------------------------------------------------------------------
+
+private cached slco::Object updateObject(
+   slco::Object object, String suffix
+) :
+   object.setClass(
+      object.class.copyClass(suffix)
+   )
+-> object.setName(object.name + suffix)
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean channelConnectedToObject(
+   slco::Channel channel, slco::Object object
+) :
+   syserr(
+     "ModifyModel - channelConnectedToObject: unknown channel type: "
+     +
+     channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean channelConnectedToObject(
+   slco::BidirectionalChannel channel, slco::Object object
+) :
+   channel.object1.objectEqualsObject(object)
+   ||
+   channel.object2.objectEqualsObject(object)
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean channelConnectedToObject(
+   slco::UnidirectionalChannel channel, slco::Object object
+) :
+   channel.sourceObject.objectEqualsObject(object)
+   ||
+   channel.targetObject.objectEqualsObject(object)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateConnectedChannel(
+   slco::Channel channel, List[slco::Channel] channels, String suffix
+) :
+   syserr(
+      "ModifyModel - updateConnectedChannel: unknown channel type: "
+      +
+      channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateConnectedChannel(
+   slco::BidirectionalChannel channel, List[slco::Channel] channels,
+   String suffix
+) :
+   if (
+      (
+         channels.exists(
+            c
+         |
+            c.channelConnectedToObject(channel.object1)
+         )
+      )
+      &&
+      (
+         channels.exists(
+            c
+         |
+            c.channelConnectedToObject(channel.object2)
+         )
+      )
+   ) then (
+      channel.setPort1(
+         channel.port1.getClonedPort(
+            channel.object1.class
+         )
+      )
+   ->  channel.setPort2(
+         channel.port2.getClonedPort(
+            channel.object2.class
+         )
+      )
+   -> channel.setName(channel.name + suffix)
+   ) else if (
+      channels.exists(
+         c
+      |
+         c.channelConnectedToObject(channel.object1)
+      )
+   ) then (
+      channel.setPort1(
+         channel.port1.getClonedPort(
+            channel.object1.class
+         )
+      )
+   -> channel.setName(channel.name + suffix)
+   ) else if (
+      channels.exists(
+         c
+      |
+         c.channelConnectedToObject(channel.object2)
+      )
+   ) then (
+      channel.setPort2(
+         channel.port2.getClonedPort(
+            channel.object2.class
+         )
+      )
+   -> channel.setName(channel.name + suffix)
+   ) else (
+      channel
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateConnectedChannel(
+   slco::UnidirectionalChannel channel, List[slco::Channel] channels,
+   String suffix
+) :
+   if (
+      (
+         channels.exists(
+            c
+         |
+            c.channelConnectedToObject(channel.sourceObject)
+         )
+      )
+      &&
+      (
+         channels.exists(
+            c
+         |
+            c.channelConnectedToObject(channel.targetObject)
+         )
+      )
+   ) then (
+      channel.setSourcePort(
+         channel.sourcePort.getClonedPort(
+            channel.sourceObject.class
+         )
+      )
+   ->  channel.setTargetPort(
+         channel.targetPort.getClonedPort(
+            channel.targetObject.class
+         )
+      )
+   -> channel.setName(channel.name + suffix)
+   ) else if (
+      channels.exists(
+         c
+      |
+         c.channelConnectedToObject(channel.sourceObject)
+      )
+   ) then (
+      channel.setSourcePort(
+         channel.sourcePort.getClonedPort(
+            channel.sourceObject.class
+         )
+      )
+   -> channel.setName(channel.name + suffix)
+   ) else if (
+      channels.exists(
+         c
+      |
+         c.channelConnectedToObject(channel.targetObject)
+      )
+   ) then (
+      channel.setTargetPort(
+         channel.targetPort.getClonedPort(
+            channel.targetObject.class
+         )
+      )
+   -> channel.setName(channel.name + suffix)
+   ) else (
+      channel
+   )
+;

@@ -1,0 +1,20 @@
+digraph A1 {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Initial_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Initial Initial_extra -> Initial
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] ns4
+node [shape = "Mrecord", height = "0.8", width = "1.6"] ns5
+
+node [shape = "doublecircle", height = "0.2", width = "0.2", style = "filled", color = "black", label = ""] Final_extra node [shape = "Mrecord", height = "0.8", width = "1.6", style = "solid", label="Final"] Final Final -> Final_extra
+
+
+Initial -> ns4 [label = "n := n"];
+
+ns5 -> Final [label = "n := n"];
+
+ns4 -> ns5 [label = "send S() to Out_A1_B1"];
+
+ns4 -> ns5 [label = "send S() to Out_A1_B2"];
+
+}

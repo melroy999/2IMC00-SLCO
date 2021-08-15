@@ -1,0 +1,1242 @@
+///////////
+//-------//
+// Model //
+//-------//
+///////////
+
+system specification LegoCase_as_arg_uni_ll_time_merge_ic_int_arg()
+
+behaviour specification
+  (
+   Environment: Environment[
+     ELeftSensor_to_LSensor_as/LeftSensor,
+     ERightSensor_to_RSensor_as/RightSensor,
+     EMiddleSensor_to_MSensor_as/MiddleSensor,
+     LMotor_to_ELeftMotor_as/LeftMotor,
+     RMotor_to_ERightMotor_as/RightMotor,
+     MMotor_to_EMiddleMotor_as/MiddleMotor
+   ]
+  ||
+   L_L_L_L_L: L_L_L_L_L[
+     LMotor_to_ELeftMotor_as/Left_as_Motor,
+     Left_as_Middle_out_Sender_to_Receiver/Left_as_Middle_outABP_Sender_ASReceiver,
+     Middle_as_Left_out_AS_to_AR/Left_as_Middle_inABP_AS_AASAR,
+     ELeftSensor_to_LSensor_as/Left_as_Sensor,
+     Left_as_Middle_out_AS_to_AR/Left_as_Middle_outABP_AR_AARAS,
+     Middle_as_Left_out_Sender_to_Receiver/Left_as_Middle_inABP_Receiver_ARSender
+   ]
+  ||
+   M_M_M_M_M_M_M_M_M: M_M_M_M_M_M_M_M_M[
+     MMotor_to_EMiddleMotor_as/Middle_as_Motor,
+     Right_as_Middle_out_AS_to_AR/Middle_as_Right_inABP_AS_AASAR,
+     Left_as_Middle_out_AS_to_AR/Middle_as_Left_inABP_AS_AASAR,
+     Middle_as_Right_out_Sender_to_Receiver/Middle_as_Right_outABP_Sender_ASReceiver,
+     Middle_as_Left_out_Sender_to_Receiver/Middle_as_Left_outABP_Sender_ASReceiver,
+     EMiddleSensor_to_MSensor_as/Middle_as_Sensor,
+     Right_as_Middle_out_Sender_to_Receiver/Middle_as_Right_inABP_Receiver_ARSender,
+     Left_as_Middle_out_Sender_to_Receiver/Middle_as_Left_inABP_Receiver_ARSender,
+     Middle_as_Right_out_AS_to_AR/Middle_as_Right_outABP_AR_AARAS,
+     Middle_as_Left_out_AS_to_AR/Middle_as_Left_outABP_AR_AARAS
+   ]
+  ||
+   R_R_R_R_R: R_R_R_R_R[
+     RMotor_to_ERightMotor_as/Right_as_Motor,
+     Right_as_Middle_out_Sender_to_Receiver/Right_as_Middle_outABP_Sender_ASReceiver,
+     Middle_as_Right_out_AS_to_AR/Right_as_Middle_inABP_AS_AASAR,
+     ERightSensor_to_RSensor_as/Right_as_Sensor,
+     Right_as_Middle_out_AS_to_AR/Right_as_Middle_outABP_AR_AARAS,
+     Middle_as_Right_out_Sender_to_Receiver/Right_as_Middle_inABP_Receiver_ARSender
+   ]
+  )
+  \
+  {ELeftSensor_to_LSensor_as, LMotor_to_ELeftMotor_as, ERightSensor_to_RSensor_as, RMotor_to_ERightMotor_as, EMiddleSensor_to_MSensor_as, MMotor_to_EMiddleMotor_as, Right_as_Middle_out_Sender_to_Receiver, Right_as_Middle_out_AS_to_AR, Left_as_Middle_out_Sender_to_Receiver, Left_as_Middle_out_AS_to_AR, Middle_as_Right_out_Sender_to_Receiver, Middle_as_Right_out_AS_to_AR, Middle_as_Left_out_Sender_to_Receiver, Middle_as_Left_out_AS_to_AR}
+ 
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class Environment()
+instance variables
+  BlockLeft: Boolean,
+  BlockRight: Boolean,
+  EnvironmentMiddleMotorBlockFellOff: Boolean
+initial method call
+  Environment_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  RightMotor_Start()()
+    |  |
+    RightMotor?On();
+    RightMotor_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Off()()
+    |  |
+    sel
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Start()()
+    |  |
+    LeftMotor?On();
+    LeftMotor_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  RightMotor_Off()()
+    |  |
+    sel
+      RightMotor?On();
+      BlockRight := true;
+      RightMotor_Running()()
+    or
+      RightMotor?Off();
+      RightMotor_Off()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  RightMotor_Running()()
+    |  |
+    sel
+      RightMotor?Off();
+      RightMotor_Off()()
+    or
+      RightSensor!Block();
+      RightSensor!BlockPassed();
+      RightMotor_Running()()
+    or
+      RightMotor?On();
+      RightMotor_Running()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Right()()
+    |  |
+    sel
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      [(BlockRight=true)]skip;
+      EnvironmentMiddleMotorBlockFellOff := true;
+      BlockRight := false;
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    or
+      [(BlockLeft=true)]skip;
+      MiddleSensor!Block();
+      MiddleSensor!BlockPassed();
+      BlockLeft := false;
+      MiddleMotor_Right()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Left()()
+    |  |
+    sel
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      [(BlockLeft=true)]skip;
+      EnvironmentMiddleMotorBlockFellOff := true;
+      BlockLeft := false;
+      MiddleMotor_Left()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    or
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      [(BlockRight=true)]skip;
+      MiddleSensor!Block();
+      MiddleSensor!BlockPassed();
+      BlockRight := false;
+      MiddleMotor_Left()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Off()()
+    |  |
+    sel
+      LeftMotor?On();
+      BlockLeft := true;
+      LeftMotor_Running()()
+    or
+      LeftMotor?Off();
+      LeftMotor_Off()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Running()()
+    |  |
+    sel
+      LeftMotor?Off();
+      LeftMotor_Off()()
+    or
+      LeftSensor!Block();
+      LeftSensor!BlockPassed();
+      LeftMotor_Running()()
+    or
+      LeftMotor?On();
+      LeftMotor_Running()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Environment_initial()()
+    |  |
+    BlockLeft := false;
+    BlockRight := false;
+    EnvironmentMiddleMotorBlockFellOff := false;
+    par
+      RightMotor_Start()()
+    and
+      MiddleMotor_Off()()
+    and
+      LeftMotor_Start()()
+    rap
+  .
+
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class R_R_R_R_R()
+instance variables
+  Right_as_Middle_out_Original_to_Sender_abl: Integer,
+  Right_as_Middle_out_Original_to_Sender_name: Integer,
+  Right_as_Middle_out_Original_to_Sender_arg_0: Integer,
+  Right_as_Middle_out_AR_to_Sender_abl: Integer,
+  Right_as_Middle_out_AR_to_Sender_name: Integer,
+  Right_as_Middle_in_Receiver_to_Original_abl: Integer,
+  Right_as_Middle_in_Receiver_to_Original_name: Integer,
+  Right_as_Middle_in_Receiver_to_Original_arg_0: Integer,
+  Right_as_Middle_in_Receiver_to_AS_abl: Integer,
+  Right_as_Middle_in_Receiver_to_AS_name: Integer,
+  R_R_R_R_RRight_as_Middle_outABP_Sender_Senders: Integer,
+  R_R_R_R_RRight_as_Middle_outABP_Sender_Senderd: Integer,
+  R_R_R_R_RRight_as_Middle_outABP_AR_ARb: Integer,
+  R_R_R_R_RRight_as_Middle_inABP_Receiver_Receiverr: Integer,
+  R_R_R_R_RRight_as_Middle_inABP_Receiver_Receiverd: Integer,
+  R_R_R_R_RRight_as_Middle_inABP_AS_ASb: Integer
+initial method call
+  R_R_R_R_R_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Right_as_Single_Start()()
+    |  |
+    Right_as_Motor!On();
+    Right_as_Single_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Middle_outABP_Sender_Sender_Zero()()
+    |  |
+    [((Right_as_Middle_out_Original_to_Sender_abl=1)&(Right_as_Middle_out_Original_to_Sender_name=2))]skip;
+    Right_as_Middle_out_Original_to_Sender_abl := 2;
+    Right_as_Middle_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Middle_outABP_AR_AR_Zero()()
+    |   var_29: String,  var_12: Integer,  var_18: String,  var_27: Integer |
+    sel
+      Right_as_Middle_outABP_AR_AARAS?Signal(var_29,var_12|((var_29="Acknowledge_1")&(var_12=R_R_R_R_RRight_as_Middle_outABP_AR_ARb)));
+      Right_as_Middle_out_AR_to_Sender_name := 1;
+      Right_as_Middle_out_AR_to_Sender_abl := 1;
+      Right_as_Middle_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    or
+      Right_as_Middle_outABP_AR_AARAS?Signal(var_18,var_27|((var_18="Acknowledge_1")&(var_27=(1-R_R_R_R_RRight_as_Middle_outABP_AR_ARb))));
+      Right_as_Middle_outABP_AR_AR_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Middle_inABP_Receiver_Receiver_Zero()()
+    |   var_11: String,  var_21: Integer,  var_30: String,  var_7: Integer |
+    sel
+      Right_as_Middle_inABP_Receiver_ARSender?Signal(var_11,R_R_R_R_RRight_as_Middle_inABP_Receiver_Receiverd,var_21|((var_11="Message_1")&(var_21=R_R_R_R_RRight_as_Middle_inABP_Receiver_Receiverr)));
+      Right_as_Middle_in_Receiver_to_Original_name := 2;
+      Right_as_Middle_in_Receiver_to_Original_arg_0 := R_R_R_R_RRight_as_Middle_inABP_Receiver_Receiverd;
+      Right_as_Middle_in_Receiver_to_Original_abl := 1;
+      Right_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    or
+      Right_as_Middle_inABP_Receiver_ARSender?Signal(var_30,R_R_R_R_RRight_as_Middle_inABP_Receiver_Receiverd,var_7|((var_30="Message_1")&(var_7=(1-R_R_R_R_RRight_as_Middle_inABP_Receiver_Receiverr))));
+      Right_as_Middle_inABP_Receiver_Receiver_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Middle_inABP_AS_AS_Zero()()
+    |  |
+    sel
+      delay (900);
+      Right_as_Middle_inABP_AS_AASAR!Signal("Acknowledge_1",R_R_R_R_RRight_as_Middle_inABP_AS_ASb);
+      Right_as_Middle_inABP_AS_AS_Zero()()
+    or
+      [((Right_as_Middle_in_Receiver_to_AS_abl=1)&(Right_as_Middle_in_Receiver_to_AS_name=1))]skip;
+      Right_as_Middle_in_Receiver_to_AS_abl := 2;
+      Right_as_Middle_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Single_Running()()
+    |  |
+    Right_as_Sensor?Block();
+    Right_as_Sensor?BlockPassed();
+    Right_as_Motor!Off();
+    Right_as_Middle_out_Original_to_Sender_name := 2;
+    Right_as_Middle_out_Original_to_Sender_arg_0 := 3;
+    Right_as_Middle_out_Original_to_Sender_abl := 1;
+    Right_as_Single_Running_s_Signal_abl_RunningToBlock()()
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Single_Running_s_Signal_abl_RunningToBlock()()
+    |  |
+    [(((Right_as_Middle_in_Receiver_to_Original_abl=1)&(Right_as_Middle_in_Receiver_to_Original_name=2))&(Right_as_Middle_in_Receiver_to_Original_arg_0=0))]skip;
+    Right_as_Middle_in_Receiver_to_Original_abl := 2;
+    Right_as_Single_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Single_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running()()
+    |  |
+    sel
+      [(Right_as_Middle_in_Receiver_to_Original_abl=3)]skip;
+      Right_as_Middle_in_Receiver_to_Original_abl := 0;
+      [(Right_as_Middle_out_Original_to_Sender_abl=2)]skip;
+      Right_as_Middle_out_Original_to_Sender_abl := 3;
+      [(Right_as_Middle_out_Original_to_Sender_abl=0)]skip;
+      Right_as_Motor!On();
+      Right_as_Single_Running()()
+    or
+      [(Right_as_Middle_in_Receiver_to_Original_abl=0)]skip;
+      Right_as_Single_Running_s_Signal_abl_RunningToBlock()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Middle_outABP_Sender_Sender_One()()
+    |  |
+    sel
+      delay (900);
+      Right_as_Middle_outABP_Sender_ASReceiver!Signal("Message_1",R_R_R_R_RRight_as_Middle_outABP_Sender_Senderd,R_R_R_R_RRight_as_Middle_outABP_Sender_Senders);
+      Right_as_Middle_outABP_Sender_Sender_One()()
+    or
+      [((Right_as_Middle_out_AR_to_Sender_abl=1)&(Right_as_Middle_out_AR_to_Sender_name=1))]skip;
+      Right_as_Middle_out_AR_to_Sender_abl := 2;
+      Right_as_Middle_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Middle_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+    |  |
+    sel
+      [(Right_as_Middle_out_Original_to_Sender_abl=3)]skip;
+      R_R_R_R_RRight_as_Middle_outABP_Sender_Senderd := Right_as_Middle_out_Original_to_Sender_arg_0;
+      Right_as_Middle_out_Original_to_Sender_abl := 0;
+      Right_as_Middle_outABP_Sender_Sender_One()()
+    or
+      [(Right_as_Middle_out_Original_to_Sender_abl=0)]skip;
+      Right_as_Middle_outABP_Sender_Sender_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Middle_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    |  |
+    sel
+      [(Right_as_Middle_out_AR_to_Sender_abl=3)]skip;
+      Right_as_Middle_out_AR_to_Sender_abl := 0;
+      R_R_R_R_RRight_as_Middle_outABP_Sender_Senders := (1-R_R_R_R_RRight_as_Middle_outABP_Sender_Senders);
+      Right_as_Middle_outABP_Sender_Sender_Zero()()
+    or
+      [(Right_as_Middle_out_AR_to_Sender_abl=0)]skip;
+      Right_as_Middle_outABP_Sender_Sender_One()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Middle_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    |  |
+    [(Right_as_Middle_out_AR_to_Sender_abl=2)]skip;
+    Right_as_Middle_out_AR_to_Sender_abl := 3;
+    [(Right_as_Middle_out_AR_to_Sender_abl=0)]skip;
+    R_R_R_R_RRight_as_Middle_outABP_AR_ARb := (1-R_R_R_R_RRight_as_Middle_outABP_AR_ARb);
+    Right_as_Middle_outABP_AR_AR_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    |  |
+    [(Right_as_Middle_in_Receiver_to_Original_abl=2)]skip;
+    Right_as_Middle_in_Receiver_to_Original_abl := 3;
+    [(Right_as_Middle_in_Receiver_to_Original_abl=0)]skip;
+    Right_as_Middle_in_Receiver_to_AS_name := 1;
+    Right_as_Middle_in_Receiver_to_AS_abl := 1;
+    Right_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+    |  |
+    [(Right_as_Middle_in_Receiver_to_AS_abl=2)]skip;
+    Right_as_Middle_in_Receiver_to_AS_abl := 3;
+    [(Right_as_Middle_in_Receiver_to_AS_abl=0)]skip;
+    R_R_R_R_RRight_as_Middle_inABP_Receiver_Receiverr := (1-R_R_R_R_RRight_as_Middle_inABP_Receiver_Receiverr);
+    Right_as_Middle_inABP_Receiver_Receiver_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  Right_as_Middle_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    |  |
+    sel
+      [(Right_as_Middle_in_Receiver_to_AS_abl=3)]skip;
+      Right_as_Middle_in_Receiver_to_AS_abl := 0;
+      R_R_R_R_RRight_as_Middle_inABP_AS_ASb := (1-R_R_R_R_RRight_as_Middle_inABP_AS_ASb);
+      Right_as_Middle_inABP_AS_AS_Zero()()
+    or
+      [(Right_as_Middle_in_Receiver_to_AS_abl=0)]skip;
+      Right_as_Middle_inABP_AS_AS_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  R_R_R_R_R_initial()()
+    |  |
+    Right_as_Middle_out_Original_to_Sender_abl := 0;
+    Right_as_Middle_out_AR_to_Sender_abl := 0;
+    Right_as_Middle_in_Receiver_to_Original_abl := 0;
+    Right_as_Middle_in_Receiver_to_AS_abl := 0;
+    R_R_R_R_RRight_as_Middle_outABP_Sender_Senders := 0;
+    R_R_R_R_RRight_as_Middle_outABP_AR_ARb := 0;
+    R_R_R_R_RRight_as_Middle_inABP_Receiver_Receiverr := 0;
+    R_R_R_R_RRight_as_Middle_inABP_AS_ASb := 1;
+    par
+      Right_as_Single_Start()()
+    and
+      Right_as_Middle_outABP_Sender_Sender_Zero()()
+    and
+      Right_as_Middle_outABP_AR_AR_Zero()()
+    and
+      Right_as_Middle_inABP_Receiver_Receiver_Zero()()
+    and
+      Right_as_Middle_inABP_AS_AS_Zero()()
+    rap
+  .
+
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class M_M_M_M_M_M_M_M_M()
+instance variables
+  Middle_as_Right_out_Original_to_Sender_abl: Integer,
+  Middle_as_Right_out_Original_to_Sender_name: Integer,
+  Middle_as_Right_out_Original_to_Sender_arg_0: Integer,
+  Middle_as_Left_out_Original_to_Sender_abl: Integer,
+  Middle_as_Left_out_Original_to_Sender_name: Integer,
+  Middle_as_Left_out_Original_to_Sender_arg_0: Integer,
+  Middle_as_Right_in_Receiver_to_Original_abl: Integer,
+  Middle_as_Right_in_Receiver_to_Original_name: Integer,
+  Middle_as_Right_in_Receiver_to_Original_arg_0: Integer,
+  Middle_as_Right_in_Receiver_to_AS_abl: Integer,
+  Middle_as_Right_in_Receiver_to_AS_name: Integer,
+  Middle_as_Left_in_Receiver_to_Original_abl: Integer,
+  Middle_as_Left_in_Receiver_to_Original_name: Integer,
+  Middle_as_Left_in_Receiver_to_Original_arg_0: Integer,
+  Middle_as_Left_in_Receiver_to_AS_abl: Integer,
+  Middle_as_Left_in_Receiver_to_AS_name: Integer,
+  Middle_as_Right_out_AR_to_Sender_abl: Integer,
+  Middle_as_Right_out_AR_to_Sender_name: Integer,
+  Middle_as_Left_out_AR_to_Sender_abl: Integer,
+  Middle_as_Left_out_AR_to_Sender_name: Integer,
+  M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_Receiver_Receiverr: Integer,
+  M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_Receiver_Receiverd: Integer,
+  M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_AS_ASb: Integer,
+  M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_Receiver_Receiverr: Integer,
+  M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_Receiver_Receiverd: Integer,
+  M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_AS_ASb: Integer,
+  M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_Sender_Senders: Integer,
+  M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_Sender_Senderd: Integer,
+  M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_AR_ARb: Integer,
+  M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_Sender_Senders: Integer,
+  M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_Sender_Senderd: Integer,
+  M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_AR_ARb: Integer
+initial method call
+  M_M_M_M_M_M_M_M_M_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Middle_as_Middle_Idle()()
+    |  |
+    sel
+      [(((Middle_as_Right_in_Receiver_to_Original_abl=1)&(Middle_as_Right_in_Receiver_to_Original_name=2))&(Middle_as_Right_in_Receiver_to_Original_arg_0=3))]skip;
+      Middle_as_Right_in_Receiver_to_Original_abl := 2;
+      Middle_as_Middle_Idle_r_Signal_rbl_IdleToLeft()()
+    or
+      [(((Middle_as_Left_in_Receiver_to_Original_abl=1)&(Middle_as_Left_in_Receiver_to_Original_name=2))&(Middle_as_Left_in_Receiver_to_Original_arg_0=3))]skip;
+      Middle_as_Left_in_Receiver_to_Original_abl := 2;
+      Middle_as_Middle_Idle_r_Signal_rbl_IdleToRight()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Right_inABP_Receiver_Receiver_Zero()()
+    |   var_17: String,  var_18: Integer,  var_11: String,  var_6: Integer |
+    sel
+      Middle_as_Right_inABP_Receiver_ARSender?Signal(var_17,M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_Receiver_Receiverd,var_18|((var_17="Message_1")&(var_18=M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_Receiver_Receiverr)));
+      Middle_as_Right_in_Receiver_to_Original_name := 2;
+      Middle_as_Right_in_Receiver_to_Original_arg_0 := M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_Receiver_Receiverd;
+      Middle_as_Right_in_Receiver_to_Original_abl := 1;
+      Middle_as_Right_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    or
+      Middle_as_Right_inABP_Receiver_ARSender?Signal(var_11,M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_Receiver_Receiverd,var_6|((var_11="Message_1")&(var_6=(1-M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_Receiver_Receiverr))));
+      Middle_as_Right_inABP_Receiver_Receiver_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Right_inABP_AS_AS_Zero()()
+    |  |
+    sel
+      delay (900);
+      Middle_as_Right_inABP_AS_AASAR!Signal("Acknowledge_1",M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_AS_ASb);
+      Middle_as_Right_inABP_AS_AS_Zero()()
+    or
+      [((Middle_as_Right_in_Receiver_to_AS_abl=1)&(Middle_as_Right_in_Receiver_to_AS_name=1))]skip;
+      Middle_as_Right_in_Receiver_to_AS_abl := 2;
+      Middle_as_Right_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Left_inABP_Receiver_Receiver_Zero()()
+    |   var_49: String,  var_33: Integer,  var_50: String,  var_35: Integer |
+    sel
+      Middle_as_Left_inABP_Receiver_ARSender?Signal(var_49,M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_Receiver_Receiverd,var_33|((var_49="Message_0")&(var_33=M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_Receiver_Receiverr)));
+      Middle_as_Left_in_Receiver_to_Original_name := 2;
+      Middle_as_Left_in_Receiver_to_Original_arg_0 := M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_Receiver_Receiverd;
+      Middle_as_Left_in_Receiver_to_Original_abl := 1;
+      Middle_as_Left_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    or
+      Middle_as_Left_inABP_Receiver_ARSender?Signal(var_50,M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_Receiver_Receiverd,var_35|((var_50="Message_0")&(var_35=(1-M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_Receiver_Receiverr))));
+      Middle_as_Left_inABP_Receiver_Receiver_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Left_inABP_AS_AS_Zero()()
+    |  |
+    sel
+      delay (900);
+      Middle_as_Left_inABP_AS_AASAR!Signal("Acknowledge_0",M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_AS_ASb);
+      Middle_as_Left_inABP_AS_AS_Zero()()
+    or
+      [((Middle_as_Left_in_Receiver_to_AS_abl=1)&(Middle_as_Left_in_Receiver_to_AS_name=1))]skip;
+      Middle_as_Left_in_Receiver_to_AS_abl := 2;
+      Middle_as_Left_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Right_outABP_Sender_Sender_Zero()()
+    |  |
+    [((Middle_as_Right_out_Original_to_Sender_abl=1)&(Middle_as_Right_out_Original_to_Sender_name=2))]skip;
+    Middle_as_Right_out_Original_to_Sender_abl := 2;
+    Middle_as_Right_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Right_outABP_AR_AR_Zero()()
+    |   var_17: String,  var_34: Integer,  var_30: String,  var_13: Integer |
+    sel
+      Middle_as_Right_outABP_AR_AARAS?Signal(var_17,var_34|((var_17="Acknowledge_1")&(var_34=M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_AR_ARb)));
+      Middle_as_Right_out_AR_to_Sender_name := 1;
+      Middle_as_Right_out_AR_to_Sender_abl := 1;
+      Middle_as_Right_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    or
+      Middle_as_Right_outABP_AR_AARAS?Signal(var_30,var_13|((var_30="Acknowledge_1")&(var_13=(1-M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_AR_ARb))));
+      Middle_as_Right_outABP_AR_AR_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Left_outABP_Sender_Sender_Zero()()
+    |  |
+    [((Middle_as_Left_out_Original_to_Sender_abl=1)&(Middle_as_Left_out_Original_to_Sender_name=2))]skip;
+    Middle_as_Left_out_Original_to_Sender_abl := 2;
+    Middle_as_Left_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Left_outABP_AR_AR_Zero()()
+    |   var_10: String,  var_32: Integer,  var_1: String,  var_21: Integer |
+    sel
+      Middle_as_Left_outABP_AR_AARAS?Signal(var_10,var_32|((var_10="Acknowledge_0")&(var_32=M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_AR_ARb)));
+      Middle_as_Left_out_AR_to_Sender_name := 1;
+      Middle_as_Left_out_AR_to_Sender_abl := 1;
+      Middle_as_Left_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    or
+      Middle_as_Left_outABP_AR_AARAS?Signal(var_1,var_21|((var_1="Acknowledge_0")&(var_21=(1-M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_AR_ARb))));
+      Middle_as_Left_outABP_AR_AR_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Middle_Running()()
+    |  |
+    Middle_as_Sensor?Block();
+    Middle_as_Sensor?BlockPassed();
+    Middle_as_Motor!Off();
+    Middle_as_Middle_Idle()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Middle_Idle_r_Signal_rbl_IdleToLeft()()
+    |  |
+    sel
+      [(Middle_as_Right_in_Receiver_to_Original_abl=3)]skip;
+      Middle_as_Right_in_Receiver_to_Original_abl := 0;
+      Middle_as_Right_out_Original_to_Sender_name := 2;
+      Middle_as_Right_out_Original_to_Sender_arg_0 := 0;
+      Middle_as_Right_out_Original_to_Sender_abl := 1;
+      Middle_as_Middle_Idle_r_Signal_rbl_IdleToLeft_s_Signal_abl_Idle_r_Signal_rbl_IdleToLeft_to_Running()()
+    or
+      [(Middle_as_Right_in_Receiver_to_Original_abl=0)]skip;
+      Middle_as_Middle_Idle()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Middle_Idle_r_Signal_rbl_IdleToRight()()
+    |  |
+    sel
+      [(Middle_as_Left_in_Receiver_to_Original_abl=3)]skip;
+      Middle_as_Left_in_Receiver_to_Original_abl := 0;
+      Middle_as_Left_out_Original_to_Sender_name := 2;
+      Middle_as_Left_out_Original_to_Sender_arg_0 := 0;
+      Middle_as_Left_out_Original_to_Sender_abl := 1;
+      Middle_as_Middle_Idle_r_Signal_rbl_IdleToRight_s_Signal_abl_Idle_r_Signal_rbl_IdleToRight_to_Running()()
+    or
+      [(Middle_as_Left_in_Receiver_to_Original_abl=0)]skip;
+      Middle_as_Middle_Idle()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Middle_Idle_r_Signal_rbl_IdleToLeft_s_Signal_abl_Idle_r_Signal_rbl_IdleToLeft_to_Running()()
+    |  |
+    [(Middle_as_Right_out_Original_to_Sender_abl=2)]skip;
+    Middle_as_Right_out_Original_to_Sender_abl := 3;
+    [(Middle_as_Right_out_Original_to_Sender_abl=0)]skip;
+    Middle_as_Motor!Left();
+    Middle_as_Middle_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Middle_Idle_r_Signal_rbl_IdleToRight_s_Signal_abl_Idle_r_Signal_rbl_IdleToRight_to_Running()()
+    |  |
+    [(Middle_as_Left_out_Original_to_Sender_abl=2)]skip;
+    Middle_as_Left_out_Original_to_Sender_abl := 3;
+    [(Middle_as_Left_out_Original_to_Sender_abl=0)]skip;
+    Middle_as_Motor!Right();
+    Middle_as_Middle_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Right_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    |  |
+    [(Middle_as_Right_in_Receiver_to_Original_abl=2)]skip;
+    Middle_as_Right_in_Receiver_to_Original_abl := 3;
+    [(Middle_as_Right_in_Receiver_to_Original_abl=0)]skip;
+    Middle_as_Right_in_Receiver_to_AS_name := 1;
+    Middle_as_Right_in_Receiver_to_AS_abl := 1;
+    Middle_as_Right_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Right_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+    |  |
+    [(Middle_as_Right_in_Receiver_to_AS_abl=2)]skip;
+    Middle_as_Right_in_Receiver_to_AS_abl := 3;
+    [(Middle_as_Right_in_Receiver_to_AS_abl=0)]skip;
+    M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_Receiver_Receiverr := (1-M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_Receiver_Receiverr);
+    Middle_as_Right_inABP_Receiver_Receiver_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Right_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    |  |
+    sel
+      [(Middle_as_Right_in_Receiver_to_AS_abl=3)]skip;
+      Middle_as_Right_in_Receiver_to_AS_abl := 0;
+      M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_AS_ASb := (1-M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_AS_ASb);
+      Middle_as_Right_inABP_AS_AS_Zero()()
+    or
+      [(Middle_as_Right_in_Receiver_to_AS_abl=0)]skip;
+      Middle_as_Right_inABP_AS_AS_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Left_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    |  |
+    [(Middle_as_Left_in_Receiver_to_Original_abl=2)]skip;
+    Middle_as_Left_in_Receiver_to_Original_abl := 3;
+    [(Middle_as_Left_in_Receiver_to_Original_abl=0)]skip;
+    Middle_as_Left_in_Receiver_to_AS_name := 1;
+    Middle_as_Left_in_Receiver_to_AS_abl := 1;
+    Middle_as_Left_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Left_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+    |  |
+    [(Middle_as_Left_in_Receiver_to_AS_abl=2)]skip;
+    Middle_as_Left_in_Receiver_to_AS_abl := 3;
+    [(Middle_as_Left_in_Receiver_to_AS_abl=0)]skip;
+    M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_Receiver_Receiverr := (1-M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_Receiver_Receiverr);
+    Middle_as_Left_inABP_Receiver_Receiver_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Left_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    |  |
+    sel
+      [(Middle_as_Left_in_Receiver_to_AS_abl=3)]skip;
+      Middle_as_Left_in_Receiver_to_AS_abl := 0;
+      M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_AS_ASb := (1-M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_AS_ASb);
+      Middle_as_Left_inABP_AS_AS_Zero()()
+    or
+      [(Middle_as_Left_in_Receiver_to_AS_abl=0)]skip;
+      Middle_as_Left_inABP_AS_AS_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Right_outABP_Sender_Sender_One()()
+    |  |
+    sel
+      delay (900);
+      Middle_as_Right_outABP_Sender_ASReceiver!Signal("Message_1",M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_Sender_Senderd,M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_Sender_Senders);
+      Middle_as_Right_outABP_Sender_Sender_One()()
+    or
+      [((Middle_as_Right_out_AR_to_Sender_abl=1)&(Middle_as_Right_out_AR_to_Sender_name=1))]skip;
+      Middle_as_Right_out_AR_to_Sender_abl := 2;
+      Middle_as_Right_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Right_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+    |  |
+    sel
+      [(Middle_as_Right_out_Original_to_Sender_abl=3)]skip;
+      M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_Sender_Senderd := Middle_as_Right_out_Original_to_Sender_arg_0;
+      Middle_as_Right_out_Original_to_Sender_abl := 0;
+      Middle_as_Right_outABP_Sender_Sender_One()()
+    or
+      [(Middle_as_Right_out_Original_to_Sender_abl=0)]skip;
+      Middle_as_Right_outABP_Sender_Sender_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Right_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    |  |
+    sel
+      [(Middle_as_Right_out_AR_to_Sender_abl=3)]skip;
+      Middle_as_Right_out_AR_to_Sender_abl := 0;
+      M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_Sender_Senders := (1-M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_Sender_Senders);
+      Middle_as_Right_outABP_Sender_Sender_Zero()()
+    or
+      [(Middle_as_Right_out_AR_to_Sender_abl=0)]skip;
+      Middle_as_Right_outABP_Sender_Sender_One()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Right_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    |  |
+    [(Middle_as_Right_out_AR_to_Sender_abl=2)]skip;
+    Middle_as_Right_out_AR_to_Sender_abl := 3;
+    [(Middle_as_Right_out_AR_to_Sender_abl=0)]skip;
+    M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_AR_ARb := (1-M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_AR_ARb);
+    Middle_as_Right_outABP_AR_AR_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Left_outABP_Sender_Sender_One()()
+    |  |
+    sel
+      delay (900);
+      Middle_as_Left_outABP_Sender_ASReceiver!Signal("Message_0",M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_Sender_Senderd,M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_Sender_Senders);
+      Middle_as_Left_outABP_Sender_Sender_One()()
+    or
+      [((Middle_as_Left_out_AR_to_Sender_abl=1)&(Middle_as_Left_out_AR_to_Sender_name=1))]skip;
+      Middle_as_Left_out_AR_to_Sender_abl := 2;
+      Middle_as_Left_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Left_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+    |  |
+    sel
+      [(Middle_as_Left_out_Original_to_Sender_abl=3)]skip;
+      M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_Sender_Senderd := Middle_as_Left_out_Original_to_Sender_arg_0;
+      Middle_as_Left_out_Original_to_Sender_abl := 0;
+      Middle_as_Left_outABP_Sender_Sender_One()()
+    or
+      [(Middle_as_Left_out_Original_to_Sender_abl=0)]skip;
+      Middle_as_Left_outABP_Sender_Sender_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Left_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    |  |
+    sel
+      [(Middle_as_Left_out_AR_to_Sender_abl=3)]skip;
+      Middle_as_Left_out_AR_to_Sender_abl := 0;
+      M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_Sender_Senders := (1-M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_Sender_Senders);
+      Middle_as_Left_outABP_Sender_Sender_Zero()()
+    or
+      [(Middle_as_Left_out_AR_to_Sender_abl=0)]skip;
+      Middle_as_Left_outABP_Sender_Sender_One()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_Left_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    |  |
+    [(Middle_as_Left_out_AR_to_Sender_abl=2)]skip;
+    Middle_as_Left_out_AR_to_Sender_abl := 3;
+    [(Middle_as_Left_out_AR_to_Sender_abl=0)]skip;
+    M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_AR_ARb := (1-M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_AR_ARb);
+    Middle_as_Left_outABP_AR_AR_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  M_M_M_M_M_M_M_M_M_initial()()
+    |  |
+    Middle_as_Right_out_Original_to_Sender_abl := 0;
+    Middle_as_Left_out_Original_to_Sender_abl := 0;
+    Middle_as_Right_in_Receiver_to_Original_abl := 0;
+    Middle_as_Right_in_Receiver_to_AS_abl := 0;
+    Middle_as_Left_in_Receiver_to_Original_abl := 0;
+    Middle_as_Left_in_Receiver_to_AS_abl := 0;
+    Middle_as_Right_out_AR_to_Sender_abl := 0;
+    Middle_as_Left_out_AR_to_Sender_abl := 0;
+    M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_Receiver_Receiverr := 0;
+    M_M_M_M_M_M_M_M_MMiddle_as_Right_inABP_AS_ASb := 1;
+    M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_Receiver_Receiverr := 0;
+    M_M_M_M_M_M_M_M_MMiddle_as_Left_inABP_AS_ASb := 1;
+    M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_Sender_Senders := 0;
+    M_M_M_M_M_M_M_M_MMiddle_as_Right_outABP_AR_ARb := 0;
+    M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_Sender_Senders := 0;
+    M_M_M_M_M_M_M_M_MMiddle_as_Left_outABP_AR_ARb := 0;
+    par
+      Middle_as_Middle_Idle()()
+    and
+      Middle_as_Right_inABP_Receiver_Receiver_Zero()()
+    and
+      Middle_as_Right_inABP_AS_AS_Zero()()
+    and
+      Middle_as_Left_inABP_Receiver_Receiver_Zero()()
+    and
+      Middle_as_Left_inABP_AS_AS_Zero()()
+    and
+      Middle_as_Right_outABP_Sender_Sender_Zero()()
+    and
+      Middle_as_Right_outABP_AR_AR_Zero()()
+    and
+      Middle_as_Left_outABP_Sender_Sender_Zero()()
+    and
+      Middle_as_Left_outABP_AR_AR_Zero()()
+    rap
+  .
+
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class L_L_L_L_L()
+instance variables
+  Left_as_Middle_out_Original_to_Sender_abl: Integer,
+  Left_as_Middle_out_Original_to_Sender_name: Integer,
+  Left_as_Middle_out_Original_to_Sender_arg_0: Integer,
+  Left_as_Middle_out_AR_to_Sender_abl: Integer,
+  Left_as_Middle_out_AR_to_Sender_name: Integer,
+  Left_as_Middle_in_Receiver_to_Original_abl: Integer,
+  Left_as_Middle_in_Receiver_to_Original_name: Integer,
+  Left_as_Middle_in_Receiver_to_Original_arg_0: Integer,
+  Left_as_Middle_in_Receiver_to_AS_abl: Integer,
+  Left_as_Middle_in_Receiver_to_AS_name: Integer,
+  L_L_L_L_LLeft_as_Middle_outABP_Sender_Senders: Integer,
+  L_L_L_L_LLeft_as_Middle_outABP_Sender_Senderd: Integer,
+  L_L_L_L_LLeft_as_Middle_outABP_AR_ARb: Integer,
+  L_L_L_L_LLeft_as_Middle_inABP_Receiver_Receiverr: Integer,
+  L_L_L_L_LLeft_as_Middle_inABP_Receiver_Receiverd: Integer,
+  L_L_L_L_LLeft_as_Middle_inABP_AS_ASb: Integer
+initial method call
+  L_L_L_L_L_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Left_as_Single_Start()()
+    |  |
+    Left_as_Motor!On();
+    Left_as_Single_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Middle_outABP_Sender_Sender_Zero()()
+    |  |
+    [((Left_as_Middle_out_Original_to_Sender_abl=1)&(Left_as_Middle_out_Original_to_Sender_name=2))]skip;
+    Left_as_Middle_out_Original_to_Sender_abl := 2;
+    Left_as_Middle_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Middle_outABP_AR_AR_Zero()()
+    |   var_16: String,  var_4: Integer,  var_20: String,  var_3: Integer |
+    sel
+      Left_as_Middle_outABP_AR_AARAS?Signal(var_16,var_4|((var_16="Acknowledge_0")&(var_4=L_L_L_L_LLeft_as_Middle_outABP_AR_ARb)));
+      Left_as_Middle_out_AR_to_Sender_name := 1;
+      Left_as_Middle_out_AR_to_Sender_abl := 1;
+      Left_as_Middle_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    or
+      Left_as_Middle_outABP_AR_AARAS?Signal(var_20,var_3|((var_20="Acknowledge_0")&(var_3=(1-L_L_L_L_LLeft_as_Middle_outABP_AR_ARb))));
+      Left_as_Middle_outABP_AR_AR_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Middle_inABP_Receiver_Receiver_Zero()()
+    |   var_38: String,  var_14: Integer,  var_52: String,  var_39: Integer |
+    sel
+      Left_as_Middle_inABP_Receiver_ARSender?Signal(var_38,L_L_L_L_LLeft_as_Middle_inABP_Receiver_Receiverd,var_14|((var_38="Message_0")&(var_14=L_L_L_L_LLeft_as_Middle_inABP_Receiver_Receiverr)));
+      Left_as_Middle_in_Receiver_to_Original_name := 2;
+      Left_as_Middle_in_Receiver_to_Original_arg_0 := L_L_L_L_LLeft_as_Middle_inABP_Receiver_Receiverd;
+      Left_as_Middle_in_Receiver_to_Original_abl := 1;
+      Left_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    or
+      Left_as_Middle_inABP_Receiver_ARSender?Signal(var_52,L_L_L_L_LLeft_as_Middle_inABP_Receiver_Receiverd,var_39|((var_52="Message_0")&(var_39=(1-L_L_L_L_LLeft_as_Middle_inABP_Receiver_Receiverr))));
+      Left_as_Middle_inABP_Receiver_Receiver_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Middle_inABP_AS_AS_Zero()()
+    |  |
+    sel
+      delay (900);
+      Left_as_Middle_inABP_AS_AASAR!Signal("Acknowledge_0",L_L_L_L_LLeft_as_Middle_inABP_AS_ASb);
+      Left_as_Middle_inABP_AS_AS_Zero()()
+    or
+      [((Left_as_Middle_in_Receiver_to_AS_abl=1)&(Left_as_Middle_in_Receiver_to_AS_name=1))]skip;
+      Left_as_Middle_in_Receiver_to_AS_abl := 2;
+      Left_as_Middle_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Single_Running()()
+    |  |
+    Left_as_Sensor?Block();
+    Left_as_Sensor?BlockPassed();
+    Left_as_Motor!Off();
+    Left_as_Middle_out_Original_to_Sender_name := 2;
+    Left_as_Middle_out_Original_to_Sender_arg_0 := 3;
+    Left_as_Middle_out_Original_to_Sender_abl := 1;
+    Left_as_Single_Running_s_Signal_abl_RunningToBlock()()
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Single_Running_s_Signal_abl_RunningToBlock()()
+    |  |
+    [(((Left_as_Middle_in_Receiver_to_Original_abl=1)&(Left_as_Middle_in_Receiver_to_Original_name=2))&(Left_as_Middle_in_Receiver_to_Original_arg_0=0))]skip;
+    Left_as_Middle_in_Receiver_to_Original_abl := 2;
+    Left_as_Single_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Single_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running()()
+    |  |
+    sel
+      [(Left_as_Middle_in_Receiver_to_Original_abl=3)]skip;
+      Left_as_Middle_in_Receiver_to_Original_abl := 0;
+      [(Left_as_Middle_out_Original_to_Sender_abl=2)]skip;
+      Left_as_Middle_out_Original_to_Sender_abl := 3;
+      [(Left_as_Middle_out_Original_to_Sender_abl=0)]skip;
+      Left_as_Motor!On();
+      Left_as_Single_Running()()
+    or
+      [(Left_as_Middle_in_Receiver_to_Original_abl=0)]skip;
+      Left_as_Single_Running_s_Signal_abl_RunningToBlock()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Middle_outABP_Sender_Sender_One()()
+    |  |
+    sel
+      delay (900);
+      Left_as_Middle_outABP_Sender_ASReceiver!Signal("Message_0",L_L_L_L_LLeft_as_Middle_outABP_Sender_Senderd,L_L_L_L_LLeft_as_Middle_outABP_Sender_Senders);
+      Left_as_Middle_outABP_Sender_Sender_One()()
+    or
+      [((Left_as_Middle_out_AR_to_Sender_abl=1)&(Left_as_Middle_out_AR_to_Sender_name=1))]skip;
+      Left_as_Middle_out_AR_to_Sender_abl := 2;
+      Left_as_Middle_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Middle_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+    |  |
+    sel
+      [(Left_as_Middle_out_Original_to_Sender_abl=3)]skip;
+      L_L_L_L_LLeft_as_Middle_outABP_Sender_Senderd := Left_as_Middle_out_Original_to_Sender_arg_0;
+      Left_as_Middle_out_Original_to_Sender_abl := 0;
+      Left_as_Middle_outABP_Sender_Sender_One()()
+    or
+      [(Left_as_Middle_out_Original_to_Sender_abl=0)]skip;
+      Left_as_Middle_outABP_Sender_Sender_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Middle_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    |  |
+    sel
+      [(Left_as_Middle_out_AR_to_Sender_abl=3)]skip;
+      Left_as_Middle_out_AR_to_Sender_abl := 0;
+      L_L_L_L_LLeft_as_Middle_outABP_Sender_Senders := (1-L_L_L_L_LLeft_as_Middle_outABP_Sender_Senders);
+      Left_as_Middle_outABP_Sender_Sender_Zero()()
+    or
+      [(Left_as_Middle_out_AR_to_Sender_abl=0)]skip;
+      Left_as_Middle_outABP_Sender_Sender_One()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Middle_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    |  |
+    [(Left_as_Middle_out_AR_to_Sender_abl=2)]skip;
+    Left_as_Middle_out_AR_to_Sender_abl := 3;
+    [(Left_as_Middle_out_AR_to_Sender_abl=0)]skip;
+    L_L_L_L_LLeft_as_Middle_outABP_AR_ARb := (1-L_L_L_L_LLeft_as_Middle_outABP_AR_ARb);
+    Left_as_Middle_outABP_AR_AR_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    |  |
+    [(Left_as_Middle_in_Receiver_to_Original_abl=2)]skip;
+    Left_as_Middle_in_Receiver_to_Original_abl := 3;
+    [(Left_as_Middle_in_Receiver_to_Original_abl=0)]skip;
+    Left_as_Middle_in_Receiver_to_AS_name := 1;
+    Left_as_Middle_in_Receiver_to_AS_abl := 1;
+    Left_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+    |  |
+    [(Left_as_Middle_in_Receiver_to_AS_abl=2)]skip;
+    Left_as_Middle_in_Receiver_to_AS_abl := 3;
+    [(Left_as_Middle_in_Receiver_to_AS_abl=0)]skip;
+    L_L_L_L_LLeft_as_Middle_inABP_Receiver_Receiverr := (1-L_L_L_L_LLeft_as_Middle_inABP_Receiver_Receiverr);
+    Left_as_Middle_inABP_Receiver_Receiver_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  Left_as_Middle_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    |  |
+    sel
+      [(Left_as_Middle_in_Receiver_to_AS_abl=3)]skip;
+      Left_as_Middle_in_Receiver_to_AS_abl := 0;
+      L_L_L_L_LLeft_as_Middle_inABP_AS_ASb := (1-L_L_L_L_LLeft_as_Middle_inABP_AS_ASb);
+      Left_as_Middle_inABP_AS_AS_Zero()()
+    or
+      [(Left_as_Middle_in_Receiver_to_AS_abl=0)]skip;
+      Left_as_Middle_inABP_AS_AS_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  L_L_L_L_L_initial()()
+    |  |
+    Left_as_Middle_out_Original_to_Sender_abl := 0;
+    Left_as_Middle_out_AR_to_Sender_abl := 0;
+    Left_as_Middle_in_Receiver_to_Original_abl := 0;
+    Left_as_Middle_in_Receiver_to_AS_abl := 0;
+    L_L_L_L_LLeft_as_Middle_outABP_Sender_Senders := 0;
+    L_L_L_L_LLeft_as_Middle_outABP_AR_ARb := 0;
+    L_L_L_L_LLeft_as_Middle_inABP_Receiver_Receiverr := 0;
+    L_L_L_L_LLeft_as_Middle_inABP_AS_ASb := 1;
+    par
+      Left_as_Single_Start()()
+    and
+      Left_as_Middle_outABP_Sender_Sender_Zero()()
+    and
+      Left_as_Middle_outABP_AR_AR_Zero()()
+    and
+      Left_as_Middle_inABP_Receiver_Receiver_Zero()()
+    and
+      Left_as_Middle_inABP_AS_AS_Zero()()
+    rap
+  .
+
+
+/*========================*/
+/*------------------------*/
+/* Primitive Data Classes */
+/*------------------------*/
+/*========================*/
+
+data class Object
+instance variables
+instance methods
+	error(ErrorMessage: String): Object primitive.
+	deepCopy: Object primitive.
+	=  (Operand2: Object): Boolean primitive.
+	!= (Operand2: Object): Boolean primitive.
+	== (Operand2: Object): Boolean primitive.
+	!==(Operand2: Object): Boolean primitive.
+	printString: String primitive.
+	shallowCopy: Object primitive.
+
+data class Number
+extends Object
+instance variables
+instance methods
+
+data class Integer
+extends Object
+instance variables
+instance methods
+	+  (Operand2: Number): Number primitive.
+	/  (Operand2: Number): Number primitive.
+	*  (Operand2: Number): Number primitive.
+	-  (Operand2: Number): Number primitive.
+	<  (Operand2: Number): Boolean primitive.
+	>  (Operand2: Number): Boolean primitive.
+	<= (Operand2: Number): Boolean primitive.
+	>= (Operand2: Number): Boolean primitive.
+	unaryMinus: Integer primitive.
+
+	abs: Integer primitive.
+
+	&  (Operand2: Integer): Integer primitive.
+	|  (Operand2: Integer): Integer primitive.
+	not: Integer primitive.
+
+	sqrt: Number primitive.
+	power(Operand2: Number): Number primitive.
+	sqr: Integer primitive.
+
+	div(Operand2: Integer): Integer primitive.
+	modulo(Operand2: Number): Number primitive.
+
+	asInteger: Integer primitive.
+	asReal: Real primitive.
+	asString: String primitive.
+	printString: String primitive.
+
+	fac: Integer primitive.
+	monus(n: Integer): Integer if n > self then 0 else self - n fi.
+
+data class Real
+extends Object
+instance variables
+instance methods
+	+  (Operand2: Number): Real primitive.
+	/  (Operand2: Number): Real primitive.
+	*  (Operand2: Number): Real primitive.
+	-  (Operand2: Number): Real primitive.
+	<  (Operand2: Number): Boolean primitive.
+	>  (Operand2: Number): Boolean primitive.
+	<= (Operand2: Number): Boolean primitive.
+	>= (Operand2: Number): Boolean primitive.
+	unaryMinus: Real primitive.
+
+	acos: Real primitive.
+	asin: Real primitive.
+	atan: Real primitive.
+	atan2(Denom: Real): Real primitive.
+	cos: Real primitive.
+	sin: Real primitive.
+	tan: Real primitive.
+
+	abs: Real primitive.
+
+	log: Real primitive.
+	ln: Real primitive.
+	sqrt: Real primitive.
+	exp: Real primitive.
+	power(Operand2: Number): Real primitive.
+	sqr: Real primitive.
+	
+	ceiling: Integer primitive.
+	floor: Integer primitive.
+	round: Integer primitive.
+
+	div(Operand2: Number): Integer primitive.
+	modulo(Operand2: Number): Real primitive.
+
+	asInteger: Integer primitive.
+	asReal: Real primitive.
+	asString: String primitive.
+	printString: String primitive.
+
+primitive data class Boolean
+extends Object
+instance variables
+instance methods
+	&  (Operand2: Boolean): Boolean primitive.
+	|  (Operand2: Boolean): Boolean primitive.
+	not: Boolean primitive.
+	printString: String primitive.
+
+primitive data class Char
+extends Object
+instance variables
+instance methods
+	printString: String primitive.
+
+primitive data class Array
+extends Object
+instance variables
+instance methods
+	get(FromPosition: Integer): Object primitive.
+	getSize: Integer primitive.
+	size(newSize: Integer): Array primitive.
+	printString: String
+		| i, s: Integer, Str: String |
+		Str := "Array ("; i := 0; s := self getSize;
+		while i < s do Str append(self get(i := i + 1) printString) append(if i < s then "," else ")" fi) od;
+		Str.
+	put(AtPosition: Integer, Element: Object): Array primitive.
+	putAll(Element: Object): Array primitive.
+
+primitive data class String
+extends Object
+instance variables
+instance methods
+	+  (aString: String): String primitive.
+	<  (Operand2: String): Boolean primitive.
+	>  (Operand2: String): Boolean primitive.
+	<= (Operand2: String): Boolean primitive.
+	>= (Operand2: String): Boolean primitive.    
+	append(aString: String): String primitive.
+	copy(From, To: Integer): String primitive.
+	concat(aString: String): String primitive.
+	cr: String primitive.
+	get(FromPosition: Integer): Char primitive.
+	length: Integer primitive.
+	printString: String primitive.
+	put(AtPosition: Integer, aChar: Char): String primitive.
+	tab: String primitive.
+
+primitive data class RandomGenerator
+extends Object
+instance variables
+instance methods
+	random: Real primitive.
+	randomInt(n: Integer): Integer primitive.
+	randomiseSeed: RandomGenerator primitive.
+	setSeed(aSeed: Integer): RandomGenerator primitive.
+
+primitive data class FileOut
+extends Object
+instance variables
+instance methods
+	append: FileOut primitive.
+	destination(FileName: String): FileOut primitive.
+	close: Object primitive.
+	open: FileOut primitive.
+	write(anObject: Object): FileOut
+		self writeString(anObject printString append(' ')).
+	writeln(anObject: Object): FileOut
+		self writeString(anObject printString cr).
+	writeString(aString: String): FileOut primitive.
+
+primitive data class FileIn
+extends Object
+instance variables
+instance methods
+	open: FileIn primitive.
+	close: Object primitive.
+	readString: String primitive.
+	readInteger: Integer primitive.
+	readNumber: Object primitive.
+	readReal: Real primitive.
+	readBoolean: Boolean primitive.
+	readChar: Char primitive.
+	source(FileName: String): FileIn primitive.
+

@@ -1,0 +1,51 @@
+model TestA {
+  classes
+  P {
+    variables Integer[2] v := [2,2] Boolean b0 := false b1 := false
+    state machines
+    SM0 {
+      variables Integer x := 0
+      initial S0
+      states S1 S2 S3 S4
+      transitions
+      S0 -> S1 {
+        b0 := true
+      }
+      S1 -> S2 {
+        b1
+      }
+      S2 -> S3 {
+        b0 := false
+      }
+      S3 -> S4 {
+        [v[x] := v[x] - 1]
+      }
+      S4 -> S0 {
+      	v[x] > 0
+      }
+    }
+
+    SM1 {
+      variables Integer x := 1
+      initial S0
+      states S1 S2 S3 S4
+      transitions
+      S0 -> S1 {
+        b1 := true
+      }
+      S1 -> S2 {
+	      b0
+      }
+      S2 -> S3 {
+	      b1 := false
+      }
+      S3 -> S4 {
+        [v[x] := v[x] - 1]
+      }
+      S4 -> S0 {
+	      v[x] > 0
+      }
+    }
+  }
+  objects p: P()
+}

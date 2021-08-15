@@ -1,0 +1,56 @@
+/**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
+ */
+package NQC;
+
+
+/**
+ * <!-- begin-user-doc -->
+ * A representation of the model object '<em><b>Serial Packet Constant</b></em>'.
+ * <!-- end-user-doc -->
+ *
+ * <p>
+ * The following features are supported:
+ * <ul>
+ *   <li>{@link NQC.SerialPacketConstant#getSerialPacket <em>Serial Packet</em>}</li>
+ * </ul>
+ * </p>
+ *
+ * @see NQC.NQCPackage#getSerialPacketConstant()
+ * @model
+ * @generated
+ */
+public interface SerialPacketConstant extends ConstantExpression {
+	/**
+	 * Returns the value of the '<em><b>Serial Packet</b></em>' attribute.
+	 * The literals are from the enumeration {@link NQC.SerialPacketEnum}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Serial Packet</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Serial Packet</em>' attribute.
+	 * @see NQC.SerialPacketEnum
+	 * @see #setSerialPacket(SerialPacketEnum)
+	 * @see NQC.NQCPackage#getSerialPacketConstant_SerialPacket()
+	 * @model required="true"
+	 * @generated
+	 */
+	SerialPacketEnum getSerialPacket();
+
+	/**
+	 * Sets the value of the '{@link NQC.SerialPacketConstant#getSerialPacket <em>Serial Packet</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Serial Packet</em>' attribute.
+	 * @see NQC.SerialPacketEnum
+	 * @see #getSerialPacket()
+	 * @generated
+	 */
+	void setSerialPacket(SerialPacketEnum value);
+
+} // SerialPacketConstant

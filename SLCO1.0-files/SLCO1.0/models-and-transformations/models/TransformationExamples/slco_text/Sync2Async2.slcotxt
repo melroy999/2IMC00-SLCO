@@ -1,0 +1,58 @@
+model Sync2Async2 {
+  classes
+    A {
+      ports
+        In
+        Out
+
+      state machines
+        A {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinalSendA from Initial to Final {
+              send A() to Out
+            }
+
+            InitialToFinalSendA from Initial to Final {
+              receive B() from In
+            }
+        }
+    }
+
+    B {
+      ports
+        In
+        Out
+
+      state machines
+        B {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              receive A() from In
+            }
+
+            InitialToFinalSendA from Initial to Final {
+              send B() to Out
+            }
+        }
+    }
+
+  objects
+    a: A
+    b: B
+
+  channels
+    CA() sync from a.Out to b.In
+    CB() sync from b.Out to a.In
+}

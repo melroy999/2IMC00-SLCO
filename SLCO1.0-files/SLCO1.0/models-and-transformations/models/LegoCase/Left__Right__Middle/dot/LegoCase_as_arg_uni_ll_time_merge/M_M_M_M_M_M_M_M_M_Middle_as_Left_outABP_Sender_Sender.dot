@@ -1,0 +1,26 @@
+digraph Middle_as_Left_outABP_Sender_Sender {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Zero_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Zero Zero_extra -> Zero
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] One
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Zero_r_Signal_rbl_ZeroToOne
+node [shape = "Mrecord", height = "0.8", width = "1.6"] One_r_Acknowledge_rbl_OneToZero
+
+
+
+One -> One [label = "after 900 ms;\n send Message(d, s) to Middle_as_Left_outABP_Sender_ASReceiver"];
+
+Zero -> Zero_r_Signal_rbl_ZeroToOne [label = "Middle_as_Left_out_Original_to_Sender_abl == 1 && Middle_as_Left_out_Original_to_Sender_name == \"Signal\";\n Middle_as_Left_out_Original_to_Sender_abl := 2"];
+
+Zero_r_Signal_rbl_ZeroToOne -> One [label = "Middle_as_Left_out_Original_to_Sender_abl == 3;\n d := Middle_as_Left_out_Original_to_Sender_arg_0;\n Middle_as_Left_out_Original_to_Sender_abl := 0"];
+
+Zero_r_Signal_rbl_ZeroToOne -> Zero [label = "Middle_as_Left_out_Original_to_Sender_abl == 0"];
+
+One -> One_r_Acknowledge_rbl_OneToZero [label = "Middle_as_Left_out_AR_to_Sender_abl == 1 && Middle_as_Left_out_AR_to_Sender_name == \"Acknowledge\";\n Middle_as_Left_out_AR_to_Sender_abl := 2"];
+
+One_r_Acknowledge_rbl_OneToZero -> Zero [label = "Middle_as_Left_out_AR_to_Sender_abl == 3;\n Middle_as_Left_out_AR_to_Sender_abl := 0;\n s := 1 - s"];
+
+One_r_Acknowledge_rbl_OneToZero -> One [label = "Middle_as_Left_out_AR_to_Sender_abl == 0"];
+
+}

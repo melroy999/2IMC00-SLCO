@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ASCII"?>
+<slco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:slco="slco" name="Sync2Async2">
+  <classes name="A">
+    <stateMachines name="A">
+      <vertices xsi:type="slco:Initial" name="Initial" outgoing="//@classes.0/@stateMachines.0/@transitions.0 //@classes.0/@stateMachines.0/@transitions.1"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.0/@stateMachines.0/@transitions.0 //@classes.0/@stateMachines.0/@transitions.1"/>
+      <transitions name="InitialToFinalSendA" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.1" signalName="A"/>
+      </transitions>
+      <transitions name="InitialToFinalSendA" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.0/@ports.0" signalName="B"/>
+      </transitions>
+    </stateMachines>
+    <ports name="In"/>
+    <ports name="Out"/>
+  </classes>
+  <classes name="B">
+    <stateMachines name="B">
+      <vertices xsi:type="slco:Initial" name="Initial" outgoing="//@classes.1/@stateMachines.0/@transitions.0 //@classes.1/@stateMachines.0/@transitions.1"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.1/@stateMachines.0/@transitions.0 //@classes.1/@stateMachines.0/@transitions.1"/>
+      <transitions name="InitialToFinal" source="//@classes.1/@stateMachines.0/@vertices.0" target="//@classes.1/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.0" signalName="A"/>
+      </transitions>
+      <transitions name="InitialToFinalSendA" source="//@classes.1/@stateMachines.0/@vertices.0" target="//@classes.1/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.1" signalName="B"/>
+      </transitions>
+    </stateMachines>
+    <ports name="In"/>
+    <ports name="Out"/>
+  </classes>
+  <objects name="a" class="//@classes.0"/>
+  <objects name="b" class="//@classes.1"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="CA" channelType="sync" sourcePort="//@classes.0/@ports.1" targetPort="//@classes.1/@ports.0" sourceObject="a" targetObject="b"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="CB" channelType="sync" sourcePort="//@classes.1/@ports.1" targetPort="//@classes.0/@ports.0" sourceObject="b" targetObject="a"/>
+</slco:Model>

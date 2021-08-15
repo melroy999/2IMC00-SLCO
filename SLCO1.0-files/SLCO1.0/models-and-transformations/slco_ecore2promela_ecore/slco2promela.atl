@@ -1,0 +1,555 @@
+-- @nsURI slco=slco
+module slco2promela; -- Module Template
+create OUT: promela from IN: slco;
+
+helper def: allChannels : OrderedSet(slco!UnidirectionalChannel) =
+	slco!UnidirectionalChannel.allInstances();
+
+helper def: senders : Set(TupleType(port: slco!Port, class: slco!Class)) =
+	slco!SendSignal.allInstances()->collect(i | Tuple{port = i.port, class = i.getClass()});
+
+helper def: receivers : Set(TupleType(port: slco!Port, class: slco!Class)) =
+	slco!SignalReception.allInstances()->collect(i | Tuple{port = i.port, class = i.getClass()});
+
+helper context OclAny def: getClass(): slco!Class =
+	let container : OclAny = self.refImmediateComposite()
+	in	if   container.oclIsTypeOf(slco!Class)
+		then container
+		else container.getClass()
+		endif;	
+
+helper def: vertexList : OrderedSet(slco!Vertex) =
+	slco!Vertex.allInstances();
+
+helper def: getPROMELABinOp(binop: slco!OperatorEnum): promela!binarop =
+	let binOpMap: Map(slco!OperatorEnum, promela!binarop) = Map{ (#atLeast,	#GEQ),
+		                                                         (#atMost,	#LEQ),
+																 (#add,		#PLUS),
+																 (#"and",	#"AND"),
+																 (#"or",	#"OR"),
+																 (#equals,	#EQUALS),
+																 (#differs,	#DIFFERS),
+																 (#subtract,#MINUS)}
+	in  binOpMap.get(binop);
+
+rule Model2Spec{
+  from	m_in : slco!Model
+  to	s_out: promela!spec(
+  			name		<- m_in.name,
+			mtypes		<- slco!SendSignal.allInstances() -- Generate an mtype for all signal names and string constants
+								->collect(i | i.signalName)
+								->union(slco!StringConstantExpression.allInstances()
+											-> collect(c | c.value)
+								)
+									->collect(s | thisModule.String2Mtype(s)),
+			one_decls	<- m_in.objects
+								->collect(i | i.class.variables
+											    ->collect(j | thisModule.Var2Var(j, i))
+										  )
+								->union(m_in.channels
+										 ->collect(i | thisModule.resolveTemp(i, 'o_out'))
+								  ),
+			proctypes	<- m_in.objects
+								->collect(i | i.class.stateMachines
+												->collect(j | thisModule.SM2ProcType(j, i))
+								  ),
+			primitivetypes	<- Sequence{chan_type, byte_type, mtype_type, int_type, bool_type}
+ 		),
+		
+		chan_type: promela!primitivetype(
+			primitivetype	<- #CHAN
+		),
+		
+		byte_type: promela!primitivetype(
+			primitivetype	<- #BYTE
+		),
+		
+		mtype_type: promela!primitivetype(
+			primitivetype	<- #MTYPE
+		),
+		
+		int_type: promela!primitivetype(
+			primitivetype	<- #INT
+		),
+		
+		bool_type: promela!primitivetype(
+			primitivetype	<- #BOOL
+		)
+}
+
+unique lazy rule String2Mtype{
+-- Unique because we want all mtypes only once.
+  from	s_in : SLCO!EString
+  to	m_out: promela!mtype(
+  			name	<- s_in
+  		)	
+}
+
+lazy rule SM2ProcType{
+  from	s_in : slco!StateMachine,
+  		o_in : slco!Object
+		
+ -- targetid is created in iterator
+ using { sortedvertices : Sequence(slco!Vertex) = s_in.vertices->select(i | i.oclIsTypeOf(slco!Initial))->union(
+  												  s_in.vertices->select(i | i.oclIsTypeOf(slco!State)))->union(
+												  s_in.vertices->select(i | i.oclIsTypeOf(slco!Final)));
+  	   }
+ 
+
+  to	p_out: promela!proctype(
+  			active	 <- 1,	--Instantiate once
+  			name	 <- o_in.name + '_' + s_in.name,
+			sequence <- s_in.variables
+						 ->collect(i | thisModule.Var2Var(i, o_in))
+						 ->union(sortedvertices
+						 			->collect(i | if   not(i.oclIsTypeOf(slco!Final))
+						 						  then thisModule.Vertex2If_Stmnt(thisModule.vertexList->indexOf(i).toString() + '_' + o_in.name, i, o_in)
+												  else thisModule.Final2Stmnt(thisModule.vertexList->indexOf(i).toString() + '_' + o_in.name, i, o_in)
+									   			  endif
+											 )
+								)
+						)
+}
+
+unique lazy rule Vertex2If_Stmnt{
+-- This part is generated in a unique lazy rule, because resolveTemp does not work on tuples for some reason.
+-- The first argument is added, since unique lazy rules only look at the first argument. It is the concatenation of the index of the vertex in thisModule.vertexList and object name, with an underscore in between.
+  from	id : String,
+  		v_in : slco!Vertex,
+  		o_in : slco!Object
+
+  using {targetid: String = thisModule.vertexList->indexOf(v_in).toString() + '_' + o_in.name;}		
+		
+  to	b_out: promela!block_stmnt(
+			label	<- 'Label_' + v_in.name,
+			sequence <- i_out
+		),
+		
+		i_out: promela!if_stmnt(
+			options	<-	o_out		
+		),
+
+		o_out: promela!options(
+			sequence <-	v_in.outgoing
+						 ->collect(i | thisModule.Transition2Sequence(i, o_in))
+		)
+}
+
+unique lazy rule Final2Stmnt{
+-- This part is generated in a unique lazy rule, because resolveTemp does not work on tuples for some reason.
+-- The first argument is added, since unique lazy rules only look at the first argument. It is the concatenation of the index of the vertex in thisModule.vertexList and object name, with an underscore in between.
+  from	id : String,
+		f_in : slco!Final,
+  		o_in : slco!Object
+		
+  to	i_out: promela!enum_const(
+			label		<- 'Label_' + f_in.name,
+			const_enum	<- #SKIP
+		)
+}
+
+lazy rule Transition2Sequence{
+  from	t_in : slco!Transition,
+  		o_in : slco!Object
+		
+using {targetid: String = thisModule.vertexList->indexOf(t_in.target).toString() + '_' + o_in.name;}
+
+  to	b_out: promela!block_stmnt(
+			sequence	<- t_in.statements
+							->collect(i | if   i.oclIsTypeOf(slco!Assignment)
+										  then thisModule.Assignment2assign_std(i, o_in)
+										  else if   i.oclIsTypeOf(slco!SendSignal)
+										  	   then thisModule.SendSignal2step_stmnt(i, o_in)
+											   else if i.oclIsTypeOf(slco!VariableExpression)
+					  				                then thisModule.VariableExpression2VarRef(i, o_in)
+					   				                else if i.oclIsTypeOf(slco!BinaryOperatorExpression)
+											             then thisModule.BinaryExpression2BinaryOperatorExpression(i, o_in)
+											             else if i.oclIsTypeOf(slco!IntegerConstantExpression)
+									 			              then thisModule.IntegerConstantExpression2num_const(i)
+									 			              else if i.oclIsTypeOf(slco!BooleanConstantExpression)
+									 	  			               then thisModule.BooleanConstantExpression2enum_const(i)
+										  			               else if i.oclIsTypeOf(slco!SignalReception)
+					   					                                then thisModule.SignalReception2Receive(i, o_in)
+																		else if i.oclIsTypeOf(slco!Delay)
+																		     then thisModule.Delay2enum_const(i)
+																			 else OclUndefined
+																			 endif
+																		endif
+										  			               endif
+									 			              endif
+											             endif
+					   				                endif
+											   endif
+										  endif
+									  )
+							 ->append(g_out)
+									
+  		),
+
+		g_out: promela!goto_stmnt(
+			stmnt	<- if	t_in.target.oclIsTypeOf(slco!Final)
+					   then	thisModule.Final2Stmnt(targetid, t_in.target, o_in)
+					   else	thisModule.Vertex2If_Stmnt(targetid, t_in.target, o_in)
+					   endif
+		)
+}
+
+lazy rule Assignment2assign_std{
+  from	s_in : slco!AssignmentStatement,
+  		o_in : slco!Object
+  
+  to	a_out: promela!assign_std(
+  			varref		<- thisModule.Variable2VarRef(s_in.variable, o_in),
+  			any_expr	<- if 	s_in.expression.oclIsTypeOf(slco!VariableExpression)
+						   then thisModule.VariableExpression2VarRef(s_in.expression, o_in)
+						   else if   s_in.expression.oclIsTypeOf(slco!BinaryOperatorExpression)
+						   		then thisModule.BinaryExpression2BinaryOperatorExpression(s_in.expression, o_in)
+								else if	  s_in.expression.oclIsTypeOf(slco!IntegerConstantExpression)
+									 then thisModule.IntegerConstantExpression2num_const(s_in.expression)
+									 else if   s_in.expression.oclIsTypeOf(slco!BooleanConstantExpression)
+									 	  then thisModule.BooleanConstantExpression2enum_const(s_in.expression)
+										  else if	s_in.expression.oclIsTypeOf(slco!StringConstantExpression)
+										  	   then thisModule.StringConstantExpression2mtype_const(s_in.expression)
+											   else
+										  		OclUndefined
+											   endif
+										  endif
+									 endif
+								endif
+						   endif
+  		)
+}
+
+lazy rule SendSignal2step_stmnt{
+  from	s_in : slco!SendSignalStatement,
+  		o_in : slco!Object
+		
+  using{ channels : Sequence(slco!UnidirectionalChannel) = thisModule.allChannels
+  												->select(i | 	 ( 	  i.sourceObject = o_in	
+  															  	  and i.sourcePort   = s_in.port)
+													  		or ( 	  i.targetObject = o_in	
+  													  	  		and i.targetPort   = s_in.port)
+														);
+
+		 channel : slco!UnidirectionalChannel = channels->first();-- There should be only one (this is checked in the do section).
+		 
+		 channelname : String = if   channel.sourceObject = o_in
+		 						then channel.name + '__' + channel.sourceObject.name + '_2_' + channel.targetObject.name --sender 2 receiver
+								else channel.name + '__' + channel.targetObject.name + '_2_' + channel.sourceObject.name
+								endif;
+  		}
+  
+  to	s_out: promela!send(
+			varref		<- v_out,
+			send_args	<- s_in.arguments
+							->collect(i | if   i.oclIsTypeOf(slco!VariableExpression)
+						   				  then thisModule.VariableExpression2VarRef(i, o_in)
+						   				  else if   i.oclIsTypeOf(slco!BinaryOperatorExpression)
+						   					   then thisModule.BinaryExpression2BinaryOperatorExpression(i, o_in)
+											   else if i.oclIsTypeOf(slco!IntegerConstantExpression)
+									 				then thisModule.IntegerConstantExpression2num_const(i)
+									 				else if   i.oclIsTypeOf(slco!BooleanConstantExpression)
+									 	  				 then thisModule.BooleanConstantExpression2enum_const(i)
+														 else if	i.oclIsTypeOf(slco!StringConstantExpression)
+														 	  then thisModule.StringConstantExpression2mtype_const(i)
+										  				 	  else OclUndefined
+															  endif
+										  				 endif
+									 				endif
+											   endif
+						   				  endif
+									 )
+							->prepend(mc_out),
+			sendtype	<- #normal_fifo
+		),
+		
+		mc_out: promela!mtype_const(
+			mtype		<- thisModule.String2Mtype(s_in.signalName)
+		),
+		
+		v_out: promela!varref(
+  			var_name	<- channelname
+  		)
+		
+  do{ if channels->size() > 1
+		then 'Error'.println()
+		else OclUndefined -- do nothing
+		endif;
+	}
+}
+
+
+lazy rule SignalReception2Receive{
+  from	s_in : slco!SignalReception,
+  		o_in : slco!Object
+		
+  using{ channels : Sequence(slco!UnidirectionalChannel) = thisModule.allChannels
+  												->select(i | 	 ( 	  i.sourceObject = o_in	
+  															  	  and i.sourcePort   = s_in.port)
+													  		or ( 	  i.targetObject = o_in	
+  													  	  		and i.targetPort   = s_in.port)
+														);
+
+		 channel : slco!UnidirectionalChannel = channels->first();-- There should be only one (this is checked in the do section).
+		 
+		 channelname : String = if   channel.targetObject = o_in
+		 						then channel.name + '__' + channel.sourceObject.name + '_2_' + channel.targetObject.name --sender 2 receiver
+								else channel.name + '__' + channel.targetObject.name + '_2_' + channel.sourceObject.name
+								endif;
+  		}
+		
+  to	n_out: promela!receive(
+			varref		<- v_out,
+			recv_args	<- s_in.arguments
+								->collect(i | if (i.oclIsTypeOf(slco!SignalArgumentVariable))
+											  then thisModule.Variable2Recv_arg_varref(i.variable, o_in)
+											  else thisModule.Expression2Recv_arg_eval_expr(i.expression, o_in)
+											  endif
+										  )
+								->prepend(mc_out),
+			receivetype	<- #normal
+  		),
+		
+		mc_out: promela!mtype_const(
+			mtype		<- thisModule.String2Mtype(s_in.signalName)
+		),
+		
+		v_out: promela!varref(
+  			var_name	<- channelname
+			-- This name should be constructed in the same way as the name of the channel declaration.
+			-- Actually the metamodel should be adapted such that it has a reference to the variable.
+  		)
+		
+	do{ if channels->size() > 1
+		then 'Error'.println()
+		else OclUndefined -- do nothing
+		endif;
+	}
+}
+
+lazy rule Variable2Recv_arg_varref{
+  from	v_in : slco!Variable, 
+  		o_in : slco!Object
+
+  to	r_out: promela!recv_arg_varref(
+  			varref	<- thisModule.Variable2VarRef(v_in, o_in)
+  		)  
+}
+
+lazy rule Expression2Recv_arg_eval_expr{
+  from	e_in : slco!Expression, 
+  		o_in : slco!Object
+
+  to	r_out: promela!recv_arg_eval_expr(
+  			expr	<- if 	e_in.oclIsTypeOf(slco!VariableExpression)
+					   then thisModule.VariableExpression2VarRef(e_in, o_in)
+					   else if   e_in.oclIsTypeOf(slco!BinaryOperatorExpression)
+						   	then thisModule.BinaryExpression2BinaryOperatorExpression(e_in, o_in)
+							else if	  e_in.oclIsTypeOf(slco!IntegerConstantExpression)
+								 then thisModule.IntegerConstantExpression2num_const(e_in)
+								 else if   e_in.oclIsTypeOf(slco!BooleanConstantExpression)
+									  then thisModule.BooleanConstantExpression2enum_const(e_in)
+									  else if	e_in.oclIsTypeOf(slco!StringConstantExpression)
+									  	   then thisModule.StringConstantExpression2mtype_const(e_in)
+									  	   else OclUndefined
+										   endif
+									  endif
+								 endif
+							endif
+					    endif 
+  		)  
+}
+
+lazy rule Var2Var{
+  from	v_in : slco!Variable, 
+  		o_in : slco!Object
+
+  to    o_out: promela!one_decl(
+  			visible		<- #SHOW,
+			ivars		<- Sequence{i_out},
+			typename	<- if   v_in.type = #"String"
+						   then thisModule.resolveTemp(o_in.refImmediateComposite(), 'mtype_type')
+						   else if v_in.type = #"Integer"
+								then thisModule.resolveTemp(o_in.refImmediateComposite(), 'int_type')
+								else thisModule.resolveTemp(o_in.refImmediateComposite(), 'bool_type')
+							    endif
+						   endif
+  		),
+
+		i_out: promela!ivar(
+			name	 			<- o_in.name + '_' + v_in.name,
+			any_expr_or_ch_init <- if 	v_in.initialValue.oclIsTypeOf(slco!VariableExpression)
+					    		   then thisModule.VariableExpression2VarRef(v_in.initialValue, o_in)
+								   else if   v_in.initialValue.oclIsTypeOf(slco!BinaryOperatorExpression)
+										then thisModule.BinaryExpression2BinaryOperatorExpression(v_in.initialValue, o_in)
+										else if	  v_in.initialValue.oclIsTypeOf(slco!IntegerConstantExpression)
+											 then thisModule.IntegerConstantExpression2num_const(v_in.initialValue)
+											 else if   v_in.initialValue.oclIsTypeOf(slco!BooleanConstantExpression)
+												  then thisModule.BooleanConstantExpression2enum_const(v_in.initialValue)
+												  else OclUndefined
+												  endif
+											 endif
+										 endif
+								    endif
+		)
+}
+
+unique lazy rule ArgumentType{
+  from	a_in : slco!ArgumentType
+
+  to	p_out: promela!primitivetype(
+  			primitivetype <- if   a_in.type = #"Integer" 
+					  		 then #INT
+					  		 else if a_in.type = #"String"
+							 	  then #MTYPE
+								  else #BOOL
+								  endif
+					  		 endif
+		)
+}
+
+rule UnidirectionalChannels{
+  from	c_in : slco!UnidirectionalChannel
+  --Assumption: There are no bidirectional channels (this is tested)
+  
+  using { channelname: String = c_in.name + '__' + c_in.sourceObject.name + '_2_' + c_in.targetObject.name;
+								
+  		}
+
+  to	o_out: promela!one_decl(
+  			visible		<- #SHOW,
+			ivars		<- Sequence{i_out},
+			typename	<- thisModule.resolveTemp(c_in.refImmediateComposite(), 'chan_type')
+  		),
+
+		i_out: promela!ivar(
+			name	 			<- channelname,
+			any_expr_or_ch_init	<- c_out
+		),
+		
+		c_out: promela!ch_init(
+			constant	<- if   c_in.channelType = #sync
+						   then 0
+						   else 1
+						   endif,
+			typenames	<- Sequence{thisModule.resolveTemp(c_in.refImmediateComposite(), 'mtype_type')}
+								->union(c_in.argumentTypes->collect(i|thisModule.ArgumentType(i)))
+								--unames as arguments cannot be used
+		)
+		--Always add mtype for the signalname
+}
+
+lazy rule Variable2VarRef{
+  from	v_in : slco!Variable,
+  		o_in : slco!Object
+
+  to	v_out: promela!varref(
+  			var_name			<- o_in.name + '_' + v_in.name
+		)
+}
+
+lazy rule VariableExpression2VarRef{
+  from	v_in : slco!VariableExpression,
+  		o_in : slco!Object
+
+  to	v_out: promela!varref(
+  			var_name	<- o_in.name + '_' + v_in.variable.name
+  		)
+}
+
+lazy rule BinaryExpression2BinaryOperatorExpression{
+  from	b_in : slco!BinaryExpression,
+  		o_in : slco!Object
+
+  to	b_out: promela!bin_expr(
+			operator	<- thisModule.getPROMELABinOp(b_in.operator),
+ 			operand1	<- if 	b_in.operand1.oclIsTypeOf(slco!VariableExpression)
+						   then thisModule.VariableExpression2VarRef(b_in.operand1, o_in)
+						   else if   b_in.operand1.oclIsTypeOf(slco!BinaryOperatorExpression)
+						   		then thisModule.BinaryExpression2BinaryOperatorExpression(b_in.operand1, o_in)
+								else if	  b_in.operand1.oclIsTypeOf(slco!IntegerConstantExpression)
+									 then thisModule.IntegerConstantExpression2num_const(b_in.operand1)
+									 else if   b_in.operand1.oclIsTypeOf(slco!BooleanConstantExpression)
+									 	  then thisModule.BooleanConstantExpression2enum_const(b_in.operand1)
+										  else if	b_in.operand1.oclIsTypeOf(slco!StringConstantExpression)
+										  	   then thisModule.StringConstantExpression2mtype_const(b_in.operand1)
+										  	   else OclUndefined
+											   endif
+										  endif
+									 endif
+								endif
+						   endif,
+			operand2	<- if 	b_in.operand2.oclIsTypeOf(slco!VariableExpression)
+						   then thisModule.VariableExpression2VarRef(b_in.operand2, o_in)
+						   else if   b_in.operand2.oclIsTypeOf(slco!BinaryOperatorExpression)
+						   		then thisModule.BinaryExpression2BinaryOperatorExpression(b_in.operand2, o_in)
+								else if	  b_in.operand2.oclIsTypeOf(slco!IntegerConstantExpression)
+									 then thisModule.IntegerConstantExpression2num_const(b_in.operand2)
+									 else if   b_in.operand2.oclIsTypeOf(slco!BooleanConstantExpression)
+									 	  then thisModule.BooleanConstantExpression2enum_const(b_in.operand2)
+										  else if	b_in.operand2.oclIsTypeOf(slco!StringConstantExpression)
+										  	   then thisModule.StringConstantExpression2mtype_const(b_in.operand2)
+										  	   else OclUndefined
+											   endif
+										  endif
+									 endif
+								endif
+						   endif
+  		)
+}
+
+lazy rule BooleanConstantExpression2enum_const{
+  from	b_in : slco!BooleanConstantExpression
+  to	b_out: promela!enum_const(
+  			const_enum	<- if	b_in.value
+						   then	#"TRUE"
+						   else	#"FALSE"
+						   endif
+  		)
+}
+
+lazy rule IntegerConstantExpression2num_const{
+  from	i_in : slco!IntegerConstantExpression
+  to	i_out: promela!num_const(
+  			number	<- i_in.value
+  		)
+}
+
+lazy rule StringConstantExpression2mtype_const{
+	from	s_in : slco!StringConstantExpression
+	to		s_out : promela!mtype_const(
+				mtype <- thisModule.String2Mtype(s_in.value)
+			)
+}
+
+lazy rule Delay2enum_const{
+  from	b_in : slco!Delay
+  to	b_out: promela!enum_const(
+  			const_enum	<- #SKIP
+  		)
+}
+
+
+
+
+-- PROMELA unsupported features --
+rule BiDirectionalChannels_Illegal{
+  from	c_in : slco!BidirectionalChannel
+  do{
+  	'The model should not contain any bidirectional channels'.println();
+  	'The channel named ' + c_in.name + ' is bidirectional'.println();
+  }
+}
+
+rule ConditionalSignalReception_Illegal{
+  from	sr_in : slco!SignalReception (not sr_in.condition.oclIsUndefined())
+  do{
+  	'The model should not contain any SignalReceptions with a "general" condition'.println();
+  	'The signal that is to be received is named ' + sr_in.signalName + '.'.println();
+  }
+}
+
+rule TextualStatement_Illegal{
+  from	t_in:  slco!TextualStatement
+  do{'The model should not contain any TextualStatements'.println();}
+}

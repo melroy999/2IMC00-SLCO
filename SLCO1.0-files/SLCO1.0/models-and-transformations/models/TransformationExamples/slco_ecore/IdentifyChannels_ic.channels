@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channels:ChannelLists xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:channels="channels" xmlns:slco="slco">
+  <channelLists>
+    <channels xsi:type="slco:UnidirectionalChannel" href="IdentifyChannels.slco#//@channels.0"/>
+  </channelLists>
+  <channelLists>
+    <channels xsi:type="slco:UnidirectionalChannel" href="IdentifyChannels.slco#//@channels.1"/>
+  </channelLists>
+</channels:ChannelLists>

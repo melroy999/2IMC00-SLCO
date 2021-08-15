@@ -1,0 +1,261 @@
+int b[3] = {0,0,2};
+int readers;
+int sem = 1;
+int changeto;
+
+proctype slave1 {
+int tmp;
+int tmp2;
+int tmp3;
+do
+:: true ->
+	if
+	:: load(sem,1) -> store(sem,0);
+	fi;
+	tmp = loadval(b[0]);
+	tmp2 = loadval(b[1]);
+	tmp3 = loadval(b[2]);
+	if
+	:: tmp == 1 -> store(b[0],0);
+	:: tmp2 == 1 -> store(b[1],0);
+	:: tmp3 == 1 -> store(b[2],0);
+	:: tmp != 1 && tmp2 != 1 && tmp3 != 1 ->
+		skip;
+	fi;
+	tmp = loadval(b[0]);
+	tmp2 = loadval(b[1]);
+	tmp3 = loadval(b[2]);
+	if
+	:: tmp == 2 -> store(b[0],1);
+	:: tmp2 == 2 -> store(b[1],1);
+	:: tmp3 == 2 -> store(b[2],1);
+	:: tmp != 2 && tmp2 != 2 && tmp3 != 2 ->
+		break;
+	fi;
+	tmp = loadval(b[0]);
+	tmp2 = loadval(b[1]);
+	tmp3 = loadval(b[2]);
+	if
+	:: tmp == 0 -> store(b[0],2);
+	:: tmp2 == 0 -> store(b[1],2);
+	:: tmp3 == 0 -> store(b[2],2);
+	:: tmp != 0 && tmp2 != 0 && tmp3 != 0 ->
+		break;
+	fi;
+	store(sem,1);
+od;
+}
+
+proctype slave2 {
+int tmp;
+int tmp2;
+int tmp3;
+do
+:: true ->
+	if
+	:: load(sem,1) -> store(sem,0);
+	fi;
+	tmp = loadval(b[0]);
+	tmp2 = loadval(b[1]);
+	tmp3 = loadval(b[2]);
+	if
+	:: tmp == 1 -> store(b[0],0);
+	:: tmp2 == 1 -> store(b[1],0);
+	:: tmp3 == 1 -> store(b[2],0);
+	:: tmp != 1 && tmp2 != 1 && tmp3 != 1 ->
+		skip;
+	fi;
+	tmp = loadval(b[0]);
+	tmp2 = loadval(b[1]);
+	tmp3 = loadval(b[2]);
+	if
+	:: tmp == 2 -> store(b[0],1);
+	:: tmp2 == 2 -> store(b[1],1);
+	:: tmp3 == 2 -> store(b[2],1);
+	:: tmp != 2 && tmp2 != 2 && tmp3 != 2 ->
+		break;
+	fi;
+	tmp = loadval(b[0]);
+	tmp2 = loadval(b[1]);
+	tmp3 = loadval(b[2]);
+	if
+	:: tmp == 0 -> store(b[0],2);
+	:: tmp2 == 0 -> store(b[1],2);
+	:: tmp3 == 0 -> store(b[2],2);
+	:: tmp != 0 && tmp2 != 0 && tmp3 != 0 ->
+		break;
+	fi;
+	store(sem,1);
+od;
+}
+
+proctype master1 {
+int tmp;
+int tmp2;
+int tmp3;
+do
+:: true ->
+	if
+	:: load(sem,1) -> store(sem,0);
+	fi;
+	do
+	:: true ->
+		tmp = loadval(b[0]);
+		tmp2 = loadval(b[1]);
+		tmp3 = loadval(b[2]);
+		if
+		:: tmp == 3 || tmp2 == 3 || tmp3 == 3 -> skip;
+		:: tmp != 3 && tmp2 != 3 && tmp3 != 3 ->
+			if
+			:: tmp == 1 -> store(b[0],3);
+			:: tmp2 == 1 -> store(b[1],3);
+			:: tmp3 == 1 -> store(b[2],3);
+			:: tmp != 1 && tmp2 != 1 && tmp3 != 1 ->
+				store(sem,1);
+				break;
+			fi;
+		fi;
+		tmp = loadval(readers);
+		store(readers,tmp+1);
+		store(sem,1);
+		if
+		:: load(sem,1) ->
+			store(sem,0);
+			tmp = loadval(readers);
+			store(readers,tmp-1);
+		fi;
+		tmp = loadval(readers);
+		if
+		:: tmp == 0 ->
+			tmp2 = loadval(b[0]);
+			if
+			:: tmp2 == 1 -> store(changeto,0);
+			:: tmp2 != 1 -> store(changeto,1);
+			fi;
+			if
+			:: load(b[0],3) ->
+				tmp2 = loadval(changeto);
+				store(b[0],tmp2);
+			fi;
+		:: tmp != 0 ->
+			skip;
+		fi;
+		store(sem,1);
+		break;
+	od;
+od;
+}
+
+proctype master2 {
+int tmp;
+int tmp2;
+int tmp3;
+do
+:: true ->
+	if
+	:: load(sem,1) -> store(sem,0);
+	fi;
+	do
+	:: true ->
+		tmp = loadval(b[0]);
+		tmp2 = loadval(b[1]);
+		tmp3 = loadval(b[2]);
+		if
+		:: tmp == 3 || tmp2 == 3 || tmp3 == 3 -> skip;
+		:: tmp != 3 && tmp2 != 3 && tmp3 != 3 ->
+			if
+			:: tmp == 1 -> store(b[0],3);
+			:: tmp2 == 1 -> store(b[1],3);
+			:: tmp3 == 1 -> store(b[2],3);
+			:: tmp != 1 && tmp2 != 1 && tmp3 != 1 ->
+				store(sem,1);
+				break;
+			fi;
+		fi;
+		tmp = loadval(readers);
+		store(readers,tmp+1);
+		store(sem,1);
+		if
+		:: load(sem,1) ->
+			store(sem,0);
+			tmp = loadval(readers);
+			store(readers,tmp-1);
+		fi;
+		tmp = loadval(readers);
+		if
+		:: tmp == 0 ->
+			tmp2 = loadval(b[0]);
+			if
+			:: tmp2 == 1 -> store(changeto,0);
+			:: tmp2 != 1 -> store(changeto,1);
+			fi;
+			if
+			:: load(b[0],3) ->
+				tmp2 = loadval(changeto);
+				store(b[0],tmp2);
+			fi;
+		:: tmp != 0 ->
+			skip;
+		fi;
+		store(sem,1);
+		break;
+	od;
+od;
+}
+
+proctype master3 {
+int tmp;
+int tmp2;
+int tmp3;
+do
+:: true ->
+	if
+	:: load(sem,1) -> store(sem,0);
+	fi;
+	do
+	:: true ->
+		tmp = loadval(b[0]);
+		tmp2 = loadval(b[1]);
+		tmp3 = loadval(b[2]);
+		if
+		:: tmp == 3 || tmp2 == 3 || tmp3 == 3 -> skip;
+		:: tmp != 3 && tmp2 != 3 && tmp3 != 3 ->
+			if
+			:: tmp == 1 -> store(b[0],3);
+			:: tmp2 == 1 -> store(b[1],3);
+			:: tmp3 == 1 -> store(b[2],3);
+			:: tmp != 1 && tmp2 != 1 && tmp3 != 1 ->
+				store(sem,1);
+				break;
+			fi;
+		fi;
+		tmp = loadval(readers);
+		store(readers,tmp+1);
+		store(sem,1);
+		if
+		:: load(sem,1) ->
+			store(sem,0);
+			tmp = loadval(readers);
+			store(readers,tmp-1);
+		fi;
+		tmp = loadval(readers);
+		if
+		:: tmp == 0 ->
+			tmp2 = loadval(b[0]);
+			if
+			:: tmp2 == 1 -> store(changeto,0);
+			:: tmp2 != 1 -> store(changeto,1);
+			fi;
+			if
+			:: load(b[0],3) ->
+				tmp2 = loadval(changeto);
+				store(b[0],tmp2);
+			fi;
+		:: tmp != 0 ->
+			skip;
+		fi;
+		store(sem,1);
+		break;
+	od;
+od;
+}

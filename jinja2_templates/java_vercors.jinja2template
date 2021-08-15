@@ -1,0 +1,98 @@
+// main class
+public class {{model.name}} {
+  // Transition functions
+  {% for o in model.objects %}
+  {% set c = o.type %}
+  {% for sm in c.statemachines %}
+  {% for s in sm.states %}
+  {% for t in s|outgoingtrans(sm.transitions) %}
+  {% set trloop = loop %}
+
+  /*@
+  {% for st in t.statements %}
+  {% for v in st|statement_write_varobjects %}
+  {% if v.type.size > 0 %}
+  pure {{v.type|javatype(True)}} value_{{t.source.name}}_{{trloop.index0}}_{{v.name}}(int {{v.name}}_index, {% for v1 in st|get_vercors_aux_vars_list(v) %}{{', ' if not loop.first }}{{v1[0][0]}} {{v1[0][1]}}, {{v1[1][0]}} {{v1[1][1]}}{% endfor %}, {{v.type|javatype(True)}} {{v.name}}_old) {
+  	return {% for v1 in st|get_vercors_aux_vars_list(v) %}(({{v.name}}_index == {{v1[0][1]}}) ? {{v1[1][1]}} : {% endfor %}{{v.name}}_old{% for v1 in st|get_vercors_aux_vars_list(v) %}){% endfor %};
+  }
+
+  {% endif %}
+  {% endfor %}
+  {% endfor %}
+  {% for v in sm|sm_variables %}
+  given {{v.type|javatype(False)}} {{v.name}};
+  {% endfor %}
+  {% for st in t.statements %}
+  {% for v in st|get_vercors_auxiliary_vars %}
+  given {{v[0]}} {{v[1]}};
+  {% endfor %}
+  {% endfor %}
+  {% for v in sm|sm_variables %}
+  {% if v.type.size > 0 %}
+  invariant {{v.name}} != null;
+  {% endif %}
+  {% endfor %}
+  {% for st in t.statements %}
+  {% for v in st|statement_varobjects %}
+  {% if v.type.size > 0 %}
+  context (\forall* int slco_i ; 0 <= slco_i < {{v.name}}.length ; Perm({{v.name}}[slco_i],write));
+  {% endif %}
+  {% endfor %}
+  {% endfor %}
+  {% set Alist = t.statements[0]|used_array_indices_for_guard %}
+  {% if Alist != [] %}
+  {% for a, index in Alist %}
+  requires 0 <= {{index}} < {{a}}.length;
+  {% endfor %}
+  {% endif %}
+  {% set g = t.statements[0]|get_vercors_guard_auxiliary_var %}
+  {% if g != "" %}
+  ensures {{g}} ==> \result == true;
+  ensures !{{g}} ==> \result == false;
+  {% else %}
+  ensures \result == true;
+  {% endif %}
+  {% for st in t.statements %}
+  {% for v in st|statement_write_varobjects %}
+  {% if v.type.size == 0 %}
+  ensures{% if g != "" %} {{g}} ==>{% endif %} ({{v.name}} == {{st|get_vercors_last_associated_aux_var(v)}});
+  {% else %}
+  ensures{% if g != "" %} {{g}} ==>{% endif %} (\forall* int slco_i ; 0 <= slco_i < {{v.name}}.length ; {{v.name}}[slco_i] == value_{{t.source.name}}_{{trloop.index0}}_{{v.name}}(slco_i, {% for v1 in st|get_vercors_aux_vars_list(v) %}{{', ' if not loop.first }}{{v1[0][1]}}, {{v1[1][1]}}{% endfor %}, \old({{v.name}}[slco_i])));
+  {% endif %}
+  {% if g != "" %}
+  {% if v.type.size == 0 %}
+  ensures !{{g}} ==> ({{v.name}} == \old({{v.name}}));
+  {% else %}
+  ensures !{{g}} ==> (\forall* int slco_i ; 0 <= slco_i < {{v.name}}.length ; {{v.name}}[slco_i] == \old({{v.name}}[slco_i]));
+  {% endif %}
+  {% endif %}
+  {% endfor %}
+  {% endfor %}
+  @*/
+  boolean execute_{{t.source.name}}_{{trloop.index0}}() {
+    {% for st in t.statements %}
+    {% set stloop = loop %}
+    // SLCO statement: {{st|getlabel}}
+    {% set varids = st|getvarids(sm) %}
+    {{st|javastatement(varids|length,4,True,o,False,True)}}
+    {% endfor %}
+    return true;
+  }
+  {% endfor %}
+  {% endfor %}
+  {% endfor %}
+
+  /*@
+  {% for v in c.variables %}
+  given {{v.type|javatype(False)}} {{v.name}};
+  {% endfor %}
+  @*/
+  // Constructor for main class
+  {{model.name}}() {
+    // Instantiate global variables
+    {% for v in c.variables %}
+    {{v.name}} = {% if v.type.size > 0 %}new {{v.type|javatype(False)}} {% endif %}{{v|initialvalue(o)}};
+    {% endfor %}
+  }
+  {% endfor %}
+}

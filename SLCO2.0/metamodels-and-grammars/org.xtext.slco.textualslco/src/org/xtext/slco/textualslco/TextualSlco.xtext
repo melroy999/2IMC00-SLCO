@@ -1,0 +1,161 @@
+grammar org.xtext.slco.textualslco.TextualSlco with org.eclipse.xtext.common.Terminals
+
+generate textualSlco "http://www.xtext.org/slco/textualslco/TextualSlco"
+
+Model:
+  ('actions' (actions+=Action)*)?
+  'model' name=ID '{'
+  ('classes' (classes+=Class)*)?
+  ('objects' (objects+=Object)*)?
+  ('channels' (channels+=Channel)*)?
+  '}'
+;
+
+Class:
+  name=ID '{'
+    ('variables' (variables+=Variable)*)?
+  	('ports' (ports+=Port)*)?
+	('state machines' (stateMachines+=StateMachine)* )?
+  '}'
+;
+
+StateMachine:
+  name=ID '{'
+	('variables' 	(variables+=Variable)*)?
+	('initial' 	 	(vertices+=Initial  )*)?
+	('state'   	 	(vertices+=State   	)*)?
+	('final'     	(vertices+=Final  	)*)?
+	('transitions' 	(transitions+=Transition)*)?
+  '}'
+;
+
+Vertex:
+	Initial | State | Final;
+
+Initial:
+  name=ID ;
+
+State:
+  name=ID ;
+
+Final:
+  name=ID ;
+
+Transition:
+  (priority=INT':')?
+  'from' source=[Vertex] 'to' target=[Vertex] 
+  ('{' 
+  	(statements+=Statement (';' statements+=Statement)*)? 
+  '}' )?
+;
+
+Statement: // non-LL* due to recursion in assignment expression
+  (Composite | Assignment | SignalReception | SendSignal | Delay | DoAction | Expression)
+;
+
+Delay:
+  'after' length=INT 'ms';
+
+Action:
+  name=ID;
+
+DoAction:
+  'do' name=ID;
+
+SignalReception:
+  'receive' signalName=ID '(' (arguments += SignalArgument (',' arguments += SignalArgument)*)?
+	('|' condition = Expression)? ')' 'from' port = [Port];
+
+SignalArgument :
+  SignalArgumentVariable | SignalArgumentExpression;
+
+SignalArgumentVariable :
+  variable = [Variable];
+
+SignalArgumentExpression :
+  '[[' expression = Expression ']]';
+
+Assignment:
+  variable=VariableReference ':=' expression=Expression;
+  
+SendSignal:
+  'send' signal=ID '(' (params+=Expression (',' params+=Expression)*)? ')' 'to' target=[Port]
+;
+
+Object:
+  name=ID ':' class=[Class] ('(' (assignments+=Assignment)(','assignments+=Assignment)* ')')?
+;
+
+Port:
+  name=ID;
+  
+Channel:
+	UnidirectionalChannel | BidirectionalChannel;
+
+UnidirectionalChannel:
+  name=ID '(' (argumentTypes += ArgumentType (',' argumentTypes += ArgumentType)*)? ')'
+  channelType = ChannelType 'from' 
+  source=[Object]'.'sourcePort=[Port] 'to'
+  target=[Object]'.'targetPort=[Port];
+
+BidirectionalChannel:
+  name=ID '(' (argumentTypes += ArgumentType (',' argumentTypes += ArgumentType)*)? ')'
+  channelType = ChannelType 'between' 
+  source=[Object]'.'port1=[Port] 'and'
+  target=[Object]'.'port2=[Port];
+
+ArgumentType :
+  type = VariableType;
+
+Variable:
+  type=VariableType name=ID (':=' initialValue = (Expression | ConstantArray) )?;
+
+ConstantArray:
+  '['values+=Expression (',' values+=Expression)* ']';
+
+VariableType:
+  base=PrimitiveType ('[' size=INT ']')?;
+  
+enum PrimitiveType:
+	Integer | Boolean;
+
+ChannelType :
+    Synchronous ?= 'sync' 
+  | Asynchronous ?= 'async' ('[' size=INT']')? (losstype='lossless'|losstype='lossy');
+
+Composite:
+  '[' (=> guard=Expression ';')? assignments+=Assignment (';' assignments+=Assignment)* ']'
+;
+
+Expression :
+  (=> TerminalExpression) ({BinaryOperatorExpression.operand1 = current} operator = Operator  operand2 = Expression)?;
+
+TerminalExpression returns Expression :
+  BooleanConstantExpression |
+  IntegerConstantExpression |
+  BracketExpression |
+  VariableExpression;
+
+enum Operator :
+    moreThan = '>' | lessThan = '<' | atLeast = '>=' | atMost = '<=' 
+  | and = '&&' | or = '||' | equals = '==' | differs = '!=' 
+  | mutiplication = '*' | add = '+' | subtract = '-' | modulo = '%'
+;
+
+BooleanConstantExpression :
+  value = BOOLEAN;
+
+IntegerConstantExpression :
+  value = INT;
+  
+VariableReference:
+  var=[Variable] ('['index=Expression']')?;  
+
+VariableExpression :
+  variable=VariableReference;
+
+BracketExpression returns Expression:
+  "(" Expression ")";
+
+terminal BOOLEAN :
+  'true' | 'false';

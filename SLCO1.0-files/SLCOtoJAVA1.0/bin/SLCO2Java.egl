@@ -1,0 +1,8 @@
+package GeneratedCode;
+public class SLCO2Java {
+	public static void main(String[] args) throws InterruptedException {
+		// TODO Auto-generated method stub
+	   [%var m = Model.allInstances().first();%]
+		Slco[%= m.name %] slco[%= m.name %] = new Slco[%= m.name %]("slco[%= m.name %]");
+	}
+}

@@ -1,0 +1,126 @@
+model dve_dekker {
+
+  classes
+  GlobalClass {
+    variables
+      Boolean f1 f2 f3
+      Integer turn    
+    
+
+    state machines
+    thr1 {
+      
+      initial S0 states S1 S2 S3 STOP SimpleState
+
+      transitions
+      S0 -> S1 {
+        f1 := true
+      }
+      
+      S1 -> S2 {
+        f2 or f3
+      }
+      
+      1: S1 -> SimpleState {
+        turn := 1
+      }
+      
+      S2 -> S1 {
+        turn = 0
+      }
+      
+      1: S2 -> S3 {
+        f1 := false
+      }
+      
+      S3 -> S3 {
+        not (turn = 0)
+      }
+      
+      1: S3 -> S1 {
+				f1 := true
+      }
+      
+      SimpleState -> STOP {
+        f1 := false
+      }
+    }
+    
+		thr2 {
+      
+      initial S0 states S1 S2 S3 STOP SimpleState
+
+      transitions
+      S0 -> S1 {
+        f2 := true
+      }
+      
+      S1 -> S2 {
+        f1 or f3
+      }
+      
+      1: S1 -> SimpleState {
+        turn := 2
+      }
+      
+      S2 -> S1 {
+        turn = 1
+      }
+      
+      1: S2 -> S3 {
+        f2 := false
+      }
+      
+      S3 -> S3 {
+        not (turn = 1)
+      }
+      
+      1: S3 -> S1 {
+				f2 := true
+      }
+      
+      SimpleState -> STOP {
+        f2 := false
+      }
+    }
+
+    thr3 {
+      
+      initial S0 states S1 S2 S3 STOP SimpleState
+
+      transitions
+      S0 -> S1 {
+        f3 := true
+      }
+      
+      S1 -> S2 {
+        f1 or f2
+      }
+      
+      1: S1 -> SimpleState {
+        turn := 0
+      }
+      
+      S2 -> S1 {
+        turn = 2
+      }
+      
+      1: S2 -> S3 {
+        f3 := false
+      }
+      
+      S3 -> S3 {
+        not (turn = 2)
+      }
+      
+      1: S3 -> S1 {
+				f3 := true
+      }
+      
+      SimpleState -> STOP {
+        f3 := false
+      }
+    }
+  }
+  objects globalObject: GlobalClass()
+}

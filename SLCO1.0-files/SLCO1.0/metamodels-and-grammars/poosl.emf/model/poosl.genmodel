@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/poosl.emf/src" modelPluginID="poosl.emf" modelName="Poosl"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="6.0" copyrightFields="false">
+  <foreignModel>poosl.ecore</foreignModel>
+  <genPackages prefix="Poosl" disposableProviderFactory="true" ecorePackage="poosl.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="poosl.ecore#//PrimitiveTypeEnum">
+      <genEnumLiterals ecoreEnumLiteral="poosl.ecore#//PrimitiveTypeEnum/string"/>
+      <genEnumLiterals ecoreEnumLiteral="poosl.ecore#//PrimitiveTypeEnum/boolean"/>
+      <genEnumLiterals ecoreEnumLiteral="poosl.ecore#//PrimitiveTypeEnum/integer"/>
+      <genEnumLiterals ecoreEnumLiteral="poosl.ecore#//PrimitiveTypeEnum/real"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="poosl.ecore#//PrimitiveDataMethodEnum">
+      <genEnumLiterals ecoreEnumLiteral="poosl.ecore#//PrimitiveDataMethodEnum/add"/>
+      <genEnumLiterals ecoreEnumLiteral="poosl.ecore#//PrimitiveDataMethodEnum/atLeast"/>
+      <genEnumLiterals ecoreEnumLiteral="poosl.ecore#//PrimitiveDataMethodEnum/and"/>
+      <genEnumLiterals ecoreEnumLiteral="poosl.ecore#//PrimitiveDataMethodEnum/equals"/>
+      <genEnumLiterals ecoreEnumLiteral="poosl.ecore#//PrimitiveDataMethodEnum/differs"/>
+      <genEnumLiterals ecoreEnumLiteral="poosl.ecore#//PrimitiveDataMethodEnum/subtract"/>
+      <genEnumLiterals ecoreEnumLiteral="poosl.ecore#//PrimitiveDataMethodEnum/atMost"/>
+      <genEnumLiterals ecoreEnumLiteral="poosl.ecore#//PrimitiveDataMethodEnum/or"/>
+    </genEnums>
+    <genClasses ecoreClass="poosl.ecore#//Abort">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//Abort/body"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//Abort/condition"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//Assignment">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//Assignment/rightHandSide"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//Assignment/leftHandSide"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//Atomic">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//Atomic/statements"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//Channel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//Channel/name"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//Channel/port1"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//Channel/port2"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//Channel/processInstance1"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//Channel/processInstance2"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="poosl.ecore#//Class">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//Class/name"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//ConditionalExpression">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ConditionalExpression/condition"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ConditionalExpression/thenClause"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ConditionalExpression/elseClause"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//ConditionalStatement">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//ConditionalStatement/condition"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//ConditionalStatement/thenClause"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//ConditionalStatement/elseClause"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//Constant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//Constant/integer"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//Constant/string"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//Constant/boolean"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//Constant/real"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//Constant/type"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//ConstantExpression">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ConstantExpression/constant"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//CurrentTime"/>
+    <genClasses ecoreClass="poosl.ecore#//DataClass">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//DataClass/variables"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//DataClass/methods"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//DataClass/superClass"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//DataMethod">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//DataMethod/parameters"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//DataMethod/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//DataMethod/variables"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//DataMethod/body"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//DataMethod/returnType"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//DataMethodCall">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//DataMethodCall/super"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//DataMethodCall/objectExpressions"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//DataMethodCall/parameterExpressionLists"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//DataMethodCall/dataMethod"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//PrimitiveDataMethodCall">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//PrimitiveDataMethodCall/objectExpressions"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//PrimitiveDataMethodCall/parameterExpressionLists"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//PrimitiveDataMethodCall/primitiveDataMethod"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//DataObjectCreation">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//DataObjectCreation/dataClass"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="poosl.ecore#//Expression"/>
+    <genClasses ecoreClass="poosl.ecore#//ExpressionList">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ExpressionList/expressions"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//GuardedExecution">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//GuardedExecution/statement"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//GuardedExecution/guard"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//IncomingMessage"/>
+    <genClasses ecoreClass="poosl.ecore#//Interrupt">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//Interrupt/body"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//Interrupt/condition"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//LoopExpression">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//LoopExpression/condition"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//LoopExpression/body"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//LoopStatement">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//LoopStatement/body"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//LoopStatement/condition"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//Message">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//Message/name"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//Message/parameterTypes"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//MessageReceive">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//MessageReceive/message"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//MessageReceive/port"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//MessageReceive/variables"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//MessageReceive/condition"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//MessageReceive/expressions"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//MessageSend">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//MessageSend/message"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//MessageSend/port"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//MessageSend/expressions"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//MessageSend/expressionLists"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//Model">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//Model/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//Model/classes"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//Model/processInstances"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//Model/channels"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//Model/primitiveTypes"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//OutgoingMessage"/>
+    <genClasses ecoreClass="poosl.ecore#//ParallelComposition">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ParallelComposition/statementLists"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//Parameter">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//Parameter/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//Parameter/name"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//ParameterExpression">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//ParameterExpression/Parameter"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//PrimitiveType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//PrimitiveType/primitiveTypeEnum"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//ProcessClass">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessClass/variables"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessClass/methods"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessClass/superClass"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessClass/parameters"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessClass/ports"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessClass/initialMethodCall"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//ProcessInstance">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//ProcessInstance/name"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessInstance/class"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//ProcessMethod">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessMethod/inputParameters"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessMethod/outputParameters"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessMethod/variables"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//ProcessMethod/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessMethod/body"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//ProcessMethodCall">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessMethodCall/method"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessMethodCall/parameterExpressions"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//ProcessMethodCall/variables"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//Port">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//Port/name"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//ReferenceSelf"/>
+    <genClasses ecoreClass="poosl.ecore#//ReturnExpression">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//ReturnExpression/returnExpressions"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//Selection">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//Selection/statementLists"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//Skip"/>
+    <genClasses ecoreClass="poosl.ecore#//Statement"/>
+    <genClasses ecoreClass="poosl.ecore#//StatementList">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//StatementList/statements"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//TimeSynchronisation">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference poosl.ecore#//TimeSynchronisation/duration"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="poosl.ecore#//Type"/>
+    <genClasses ecoreClass="poosl.ecore#//Variable">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute poosl.ecore#//Variable/name"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//Variable/type"/>
+    </genClasses>
+    <genClasses ecoreClass="poosl.ecore#//VariableExpression">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference poosl.ecore#//VariableExpression/variable"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

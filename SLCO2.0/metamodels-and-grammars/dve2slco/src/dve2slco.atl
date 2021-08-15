@@ -1,0 +1,145 @@
+module dve2slco;
+
+-- @path DVE=/org.xtext.dve/model/generated/DVE.ecore
+-- @path SLCO=/org.xtext.slco.textualslco/model/generated/TextualSlco.ecore
+
+create OUT: SLCO from IN: DVE;
+
+helper def : getTupleVars (varlists : Sequence(DVE!VarList)) 
+	: Sequence(TupleType(type : DVE!PrimitiveType, var : DVE!Var)) =
+		varlists->collect(i | i.variables->collect(j | Tuple{type = i.type, var = j}))->flatten();
+
+rule DVEModel2SLCOModel {
+	from dve : DVE!DVEModel
+	using {
+		varlists : Sequence(DVE!VarList) = dve.declarations->select(i | i.oclIsTypeOf(DVE!VarList));
+		procs    : Sequence(DVE!Process) = dve.declarations->select(i | i.oclIsTypeOf(DVE!Process));
+		vars 	 : Sequence(TupleType(type : DVE!PrimitiveType, var : DVE!Var)) 
+						= thisModule.getTupleVars(varlists);
+	}
+	to 	slco : SLCO!Model (
+			name 	<- 'dveModel',
+			--actions
+			classes <- Sequence{globalClass},
+			objects <- Sequence{singleObject}
+			--channels
+		),
+		globalClass : SLCO!Class(
+			name 			<- 'globalClass',
+			variables 		<- vars->collect(i | thisModule.VarTuple2Variable(i)), 
+			-- ports
+			stateMachines 	<- procs
+		),
+		singleObject : SLCO!Object(
+			name <- 'singleObject',
+			class <- globalClass
+		)
+}
+
+helper def : mapPrimitiveType(src : DVE!PrimitiveType) : SLCO!PrimitiveType = 
+	Map{(#ByteType,#"Integer"),
+		(#IntType ,#"Integer"),
+		(#BoolType,#"Boolean")}.get(src);
+
+lazy rule VarTuple2Variable {
+	from tup : TupleType(type : DVE!PrimitiveType, var : DVE!Var)
+	to 	svar : SLCO!Variable (
+			type <- dvarType,
+			name <- tup.var.name,
+			initialValue <- tup.var.initialValue
+		),
+		dvarType : SLCO!VariableType (base <- thisModule.mapPrimitiveType(tup.type), size <- tup.var.length)
+}
+
+
+rule Process2StateMachine {
+	from proc : DVE!Process
+	using {
+		non_init_states : Sequence(DVE!State) = proc.states->excluding(proc.init);
+		vars 	 : Sequence(TupleType(type : DVE!PrimitiveType, var : DVE!Var)) 
+						= thisModule.getTupleVars(proc.varlists);
+	}
+	to 	obj : SLCO!StateMachine (
+			name <- proc.name,
+			variables <- vars->collect(i | thisModule.VarTuple2Variable(i)),
+			vertices <- non_init_states->collect(i | thisModule.State2State(i))->
+										 append(thisModule.State2Initial(proc.init)),
+			transitions <- proc.transitions
+		)
+}
+
+lazy rule State2State {
+	from dstate : DVE!State
+	to 	sstate : SLCO!State(name <- dstate.name)
+}
+
+lazy rule State2Initial {
+	from dstate : DVE!State
+	to 	sstate : SLCO!Initial(name <- dstate.name)
+}
+
+rule Transition2Transition {
+	from dtrans : DVE!Transition
+	using {
+		assigns : Sequence(DVE!Assignment) = dtrans.effects->collect(i | i.assignments)->flatten();
+	}
+	to 	strans : SLCO!Transition(
+			source <- thisModule.resolveTemp(dtrans.source, 'sstate'),
+			target <- thisModule.resolveTemp(dtrans.source, 'sstate'),
+			statements <- Sequence{composite}
+		),
+		composite : SLCO!Composite(guard <- dtrans.guard, assignments <- assigns)
+}
+
+rule Assignment2Assignment {
+	from das : DVE!Assignment
+	to 	sas : SLCO!Assignment(
+			variable <- varRef,
+			expression <- das.expression
+		),
+		varRef : SLCO!VariableReference(
+			var <- thisModule.resolveTemp(das.variable, 'svar'),
+			index <- das.index
+		)
+}
+
+rule ArrayConstantExpression2ConstantArray {
+	from dexpr : DVE!ArrayConstantExpression
+	to 	sexpr : SLCO!ConstantArray (
+			values <- dexpr.values
+		)
+}
+
+rule BooleanConstantExpression2BooleanConstantExpression {
+	from dexpr : DVE!BooleanConstantExpression
+	to 	sexpr : SLCO!BooleanConstantExpression(
+			value <- dexpr.value
+		)
+}
+
+rule IntegerConstantExpression2IntegerConstantExpression {
+	from dexpr : DVE!IntegerConstantExpression
+	to 	sexpr : SLCO!IntegerConstantExpression(
+			value <- dexpr.value
+		)
+}
+
+rule VariableExpression2VariableExpression {
+	from dexpr : DVE!VariableExpression
+	to 	sexpr : SLCO!VariableExpression(
+			variable <- varRef
+		),
+		varRef : SLCO!VariableReference(
+			var <- thisModule.resolveTemp(dexpr.variable, 'svar'),
+			index <- dexpr.index
+		)
+}
+
+rule BinaryOperatorExpression2BinaryOperatorExpression {
+	from dexpr : DVE!BinaryOperatorExpression
+	to 	sexpr : SLCO!BinaryOperatorExpression(
+			operand1 <- dexpr.operand1,
+			operator <- dexpr.operator,
+			operand2 <- dexpr.operand2
+		)
+}

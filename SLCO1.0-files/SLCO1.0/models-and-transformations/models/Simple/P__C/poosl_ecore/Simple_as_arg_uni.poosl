@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="ASCII"?>
+<poosl:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:poosl="poosl" name="Simple_as_arg_uni">
+  <classes xsi:type="poosl:ProcessClass" name="Producer_as">
+    <methods name="Producer_State">
+      <variables name="var_1" type="//@primitiveTypes.0"/>
+      <body xsi:type="poosl:MessageSend" port="//@classes.0/@ports.1">
+        <message name="Signal"/>
+        <expressionLists>
+          <expressions xsi:type="poosl:ConstantExpression">
+            <constant string="Send_Bericht"/>
+          </expressions>
+        </expressionLists>
+      </body>
+      <body xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.0" variables="//@classes.0/@methods.0/@variables.0">
+        <message name="Signal"/>
+        <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.0/@methods.0/@variables.0"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant string="Acknowledge_Bericht"/>
+            </expressions>
+          </parameterExpressionLists>
+        </condition>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.0"/>
+    </methods>
+    <methods name="Producer_as_initial">
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.0"/>
+    </methods>
+    <ports name="C_in"/>
+    <ports name="C_out"/>
+    <initialMethodCall method="//@classes.0/@methods.1"/>
+  </classes>
+  <classes xsi:type="poosl:ProcessClass" name="Consumer_as">
+    <methods name="Consumer_State">
+      <variables name="var_4" type="//@primitiveTypes.0"/>
+      <body xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.0" variables="//@classes.1/@methods.0/@variables.0">
+        <message name="Signal"/>
+        <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@methods.0/@variables.0"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant string="Send_Bericht"/>
+            </expressions>
+          </parameterExpressionLists>
+        </condition>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.1/@ports.1">
+        <message name="Signal"/>
+        <expressionLists>
+          <expressions xsi:type="poosl:ConstantExpression">
+            <constant string="Acknowledge_Bericht"/>
+          </expressions>
+        </expressionLists>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.0"/>
+    </methods>
+    <methods name="Consumer_as_initial">
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.0"/>
+    </methods>
+    <ports name="P_in"/>
+    <ports name="P_out"/>
+    <initialMethodCall method="//@classes.1/@methods.1"/>
+  </classes>
+  <processInstances name="P_as" class="//@classes.0"/>
+  <processInstances name="C_as" class="//@classes.1"/>
+  <channels name="Producer_To_Consumer_as_1_to_2" port1="//@classes.0/@ports.1" port2="//@classes.1/@ports.0" processInstance1="//@processInstances.0" processInstance2="//@processInstances.1"/>
+  <channels name="Producer_To_Consumer_as_2_to_1" port1="//@classes.1/@ports.1" port2="//@classes.0/@ports.0" processInstance1="//@processInstances.1" processInstance2="//@processInstances.0"/>
+  <primitiveTypes/>
+</poosl:Model>

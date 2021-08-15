@@ -1,0 +1,19 @@
+model AddDelays_time {
+  classes
+    A {
+      state machines
+        A {
+          initial
+            Initial
+
+          transitions
+            InitialToInitial from Initial to Initial {
+              after 100 ms
+            }
+        }
+    }
+
+  objects
+
+  channels
+}

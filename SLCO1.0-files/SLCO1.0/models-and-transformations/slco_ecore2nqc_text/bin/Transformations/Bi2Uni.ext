@@ -1,0 +1,218 @@
+import slco;
+import channels;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension org::eclipse::xtend::util::stdlib::cloning;
+extension Libraries::Equality;
+extension Libraries::Clone;
+extension Libraries::ModifyModel;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// These functions replace a bidirectional channel by two unidirectional
+// channels.
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// Copy the classes that need to be modified
+// and update all references to these classes.
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+slco::Model modifyModelB2U(slco::Model model, channels::ChannelList channels) :
+   let cl = model.channels.select(
+      c1
+   |
+      channels.channels.exists(
+         c2 
+      |
+         c1.channelEqualsChannel(c2)
+      )
+   ).typeSelect(slco::BidirectionalChannel) :
+      model.modifyModelB2U(cl)
+;
+
+// ----------------------------------------------------------------------------
+
+slco::Model modifyModelB2U(slco::Model model) :
+   let cl = model.channels.typeSelect(slco::BidirectionalChannel) :
+      model.modifyModelB2U(cl)
+;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// 
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+private slco::Model modifyModelB2U(
+   slco::Model model, List[slco::BidirectionalChannel] channels
+) :
+   model.modifyModel(channels, "")
+-> model.channels.addAll(
+      channels.createUnidirectionalChannel12("_1_to_2")
+   )
+-> model.channels.addAll(
+      channels.createUnidirectionalChannel21("_2_to_1")
+   )
+-> channels.modifyClasses()
+-> model.cleanModel(channels)
+-> model.setName(
+      model.name + "_uni"
+   )
+-> model
+;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// 
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+slco::Model bi2Uni(slco::Model model, channels::ChannelList channels) :
+   let cl = model.channels.select(
+      c1
+   |
+      channels.channels.exists(
+         c2 
+      |
+         c1.channelEqualsChannel(c2)
+      )
+   ).typeSelect(slco::BidirectionalChannel) :
+      model.bi2Uni(cl)
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Model bi2Uni(
+   slco::Model model, List[slco::BidirectionalChannel] channels
+) :
+   model.channels.addAll(
+      channels.createUnidirectionalChannel12("_1_to_2")
+   )
+-> model.channels.addAll(
+      channels.createUnidirectionalChannel21("_2_to_1")
+   )
+-> channels.modifyClasses()
+-> model.cleanModel(channels)
+-> model.setName(
+      model.name + "_uni"
+   )
+-> model
+;
+
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// 
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+private create slco::UnidirectionalChannel createUnidirectionalChannel12(
+   slco::BidirectionalChannel channel, String postfix
+) :
+   this.setName(channel.name + postfix)
+-> this.setArgumentTypes(channel.argumentTypes.clone())
+-> this.setChannelType(channel.channelType)
+-> this.setSourceObject(channel.object1)
+-> this.setSourcePort(channel.port1)
+-> this.setTargetObject(channel.object2)
+-> this.setTargetPort(channel.port2)
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::UnidirectionalChannel createUnidirectionalChannel21(
+   slco::BidirectionalChannel channel, String postfix
+) :
+   this.setName(channel.name + postfix)
+-> this.setArgumentTypes(channel.argumentTypes.clone())
+-> this.setChannelType(channel.channelType)
+-> this.setSourceObject(channel.object2)
+-> this.setSourcePort(channel.port2)
+-> this.setTargetObject(channel.object1)
+-> this.setTargetPort(channel.port1)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void cleanModel(
+   slco::Model model, List[slco::BidirectionalChannel] channels
+) :
+   let in = model.classes.stateMachines.transitions.statements.typeSelect(
+      slco::SignalReception
+   ).port :
+   let out = model.classes.stateMachines.transitions.statements.typeSelect(
+      slco::SendSignal
+   ).port :
+   let used = in.union(out) :
+      model.classes.cleanClass(used)
+   -> model.channels.removeAll(
+         channels
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void cleanClass(slco::Class class, Set[slco::Port] ports) :
+   class.ports.removeAll(
+     class.ports.select(
+        p
+     |
+        !ports.contains(p)
+     )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClasses(slco::BidirectionalChannel channel) :
+   channel.object1.class.modifyClass(channel.port1)
+-> channel.object2.class.modifyClass(channel.port2)
+-> channel.createUnidirectionalChannel12("_1_to_2").renamePorts()
+-> channel.createUnidirectionalChannel21("_2_to_1").renamePorts()
+;
+
+// ----------------------------------------------------------------------------
+
+private Void renamePorts(slco::UnidirectionalChannel channel) :
+   channel.setSourcePort(channel.sourcePort.createPort("_out"))
+-> channel.setTargetPort(channel.targetPort.createPort("_in"))
+;
+
+// ----------------------------------------------------------------------------
+
+private cached Void modifyClass(slco::Class class, slco::Port port) :
+   class.ports.add(port.createPort("_in"))
+-> class.ports.add(port.createPort("_out"))
+-> class.stateMachines.transitions.statements.typeSelect(
+      slco::SendSignal
+   ).select(
+      s
+   |
+      s.port == port
+   ).setPort(port.createPort("_out"))
+-> class.stateMachines.transitions.statements.typeSelect(
+      slco::SignalReception
+   ).select(
+      s
+   |
+      s.port == port
+   ).setPort(port.createPort("_in"))
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Port createPort(slco::Port port, String postfix) :
+   this.setName(port.name + postfix)
+;

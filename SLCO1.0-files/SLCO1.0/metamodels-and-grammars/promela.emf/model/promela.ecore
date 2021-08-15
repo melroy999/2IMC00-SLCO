@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="promela" nsURI="promela" nsPrefix="promela">
+  <eClassifiers xsi:type="ecore:EClass" name="spec">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="utypes" upperBound="-1"
+        eType="#//utype" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="mtypes" upperBound="-1"
+        eType="#//mtype" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="one_decls" upperBound="-1"
+        eType="#//one_decl" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="proctypes" upperBound="-1"
+        eType="#//proctype" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="inits" upperBound="-1"
+        eType="#//init" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="nevers" upperBound="-1"
+        eType="#//never" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="traces" upperBound="-1"
+        eType="#//trace" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="primitivetypes" upperBound="-1"
+        eType="#//primitivetype" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="proctype">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="active" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="one_decls" upperBound="-1"
+        eType="#//one_decl" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="priority" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="enabler" eType="#//expr"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sequence" lowerBound="1"
+        upperBound="-1" eType="#//step" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="init">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="priority" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sequence" lowerBound="1"
+        upperBound="-1" eType="#//step" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="never">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sequence" lowerBound="1"
+        upperBound="-1" eType="#//step" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="trace">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sequence" lowerBound="1"
+        upperBound="-1" eType="#//step" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="utype">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="one_decls" lowerBound="1"
+        upperBound="-1" eType="#//one_decl" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="mtype">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="one_decl" eSuperTypes="#//step">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="visible" eType="#//visibleenum"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="typename" lowerBound="1"
+        eType="#//typename"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ivars" lowerBound="1" upperBound="-1"
+        eType="#//ivar" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="visibleenum">
+    <eLiterals name="HIDDEN"/>
+    <eLiterals name="SHOW" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="typename" abstract="true"/>
+  <eClassifiers xsi:type="ecore:EClass" name="primitivetype" eSuperTypes="#//typename">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="primitivetype" lowerBound="1"
+        eType="#//primitivetypeenum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="primitivetypeenum">
+    <eLiterals name="BIT"/>
+    <eLiterals name="BOOL" value="1"/>
+    <eLiterals name="BYTE" value="2"/>
+    <eLiterals name="SHORT" value="3"/>
+    <eLiterals name="INT" value="4"/>
+    <eLiterals name="MTYPE" value="5"/>
+    <eLiterals name="CHAN" value="6"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="uname" eSuperTypes="#//typename">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="step" abstract="true"/>
+  <eClassifiers xsi:type="ecore:EClass" name="stmnt" abstract="true" eSuperTypes="#//step">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="label" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="unless" eType="#//stmnt"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="chanassert" eSuperTypes="#//step">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="channel_assertion" lowerBound="1"
+        eType="#//channelassertion"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="varrefs" lowerBound="1"
+        upperBound="-1" eType="#//varref" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="channelassertion">
+    <eLiterals name="XR"/>
+    <eLiterals name="XS" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ivar">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="constant" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="any_expr_or_ch_init" eType="#//any_expr_or_ch_init"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="any_expr_or_ch_init" abstract="true"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ch_init" eSuperTypes="#//any_expr_or_ch_init">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="constant" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="typenames" lowerBound="1"
+        upperBound="-1" eType="#//typename"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="varref" eSuperTypes="#//any_expr">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="var_name" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="any_expr" eType="#//any_expr"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="varref" eType="#//varref"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="send" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="varref" lowerBound="1"
+        eType="#//varref" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="send_args" lowerBound="1"
+        upperBound="-1" eType="#//any_expr" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sendtype" lowerBound="1"
+        eType="#//sendtypeenum" defaultValueLiteral="0"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="sendtypeenum">
+    <eLiterals name="normal_fifo"/>
+    <eLiterals name="sorted" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="receive" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="varref" lowerBound="1"
+        eType="#//varref" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="recv_args" lowerBound="1"
+        upperBound="-1" eType="#//recv_arg" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="receivetype" lowerBound="1"
+        eType="#//receivetypeenum" defaultValueLiteral="0"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="receivetypeenum">
+    <eLiterals name="normal"/>
+    <eLiterals name="random" value="1"/>
+    <eLiterals name="normal_poll_side_effect" value="2"/>
+    <eLiterals name="random_poll_side_effect" value="3"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="poll" abstract="true" eSuperTypes="#//any_expr">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="varref" lowerBound="1"
+        eType="#//varref" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="recv_args" lowerBound="1"
+        upperBound="-1" eType="#//recv_arg" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="polltype" lowerBound="1"
+        eType="#//polltypeenum" defaultValueLiteral="0"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="polltypeenum">
+    <eLiterals name="normal_poll_no_side_effect"/>
+    <eLiterals name="random_poll_no_side_effect" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="recv_arg" abstract="true"/>
+  <eClassifiers xsi:type="ecore:EClass" name="recv_arg_varref" eSuperTypes="#//recv_arg">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="varref" lowerBound="1"
+        eType="#//varref" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="recv_arg_eval_expr" eSuperTypes="#//recv_arg">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="expr" lowerBound="1" eType="#//any_expr"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="assign" abstract="true" eSuperTypes="#//stmnt"/>
+  <eClassifiers xsi:type="ecore:EClass" name="assign_std" eSuperTypes="#//assign">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="varref" lowerBound="1"
+        eType="#//varref" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="any_expr" lowerBound="1"
+        eType="#//any_expr" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="assign_inc" eSuperTypes="#//assign">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="varref" lowerBound="1"
+        eType="#//varref" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="assign_dec" eSuperTypes="#//assign">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="varref" lowerBound="1"
+        eType="#//varref" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="if_stmnt" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="options" lowerBound="1"
+        eType="#//options" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="do_stmnt" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="options" lowerBound="1"
+        eType="#//options" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="atomic_stmnt" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sequence" lowerBound="1"
+        upperBound="-1" eType="#//step" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="d_step_stmnt" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sequence" lowerBound="1"
+        upperBound="-1" eType="#//step" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="block_stmnt" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sequence" lowerBound="1"
+        upperBound="-1" eType="#//step" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="else_stmnt" eSuperTypes="#//stmnt"/>
+  <eClassifiers xsi:type="ecore:EClass" name="break_stmnt" eSuperTypes="#//stmnt"/>
+  <eClassifiers xsi:type="ecore:EClass" name="goto_stmnt" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="stmnt" lowerBound="1" eType="#//stmnt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="print_stmnt" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="string" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="arg_lst" upperBound="-1"
+        eType="#//any_expr" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="assert_stmnt" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="expr" lowerBound="1" eType="#//expr"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="c_code" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="embedded_c_code" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="c_expr" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="embedded_c_code" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="c_decl" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="embedded_c_code" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="c_track" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="embedded_c_code" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="c_state" eSuperTypes="#//stmnt">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="embedded_c_code" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="options">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sequence" lowerBound="1"
+        upperBound="-1" eType="#//step" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="andor">
+    <eLiterals name="AND"/>
+    <eLiterals name="OR" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="binarop">
+    <eLiterals name="PLUS"/>
+    <eLiterals name="MINUS" value="1"/>
+    <eLiterals name="TIMES" value="2"/>
+    <eLiterals name="DIV" value="3"/>
+    <eLiterals name="MOD" value="4"/>
+    <eLiterals name="AMPERSAND" value="5"/>
+    <eLiterals name="CARET" value="6"/>
+    <eLiterals name="BAR" value="7"/>
+    <eLiterals name="GREATER" value="8"/>
+    <eLiterals name="SMALLER" value="9"/>
+    <eLiterals name="GEQ" value="10"/>
+    <eLiterals name="LEQ" value="11"/>
+    <eLiterals name="EQUALS" value="12"/>
+    <eLiterals name="DIFFERS" value="13"/>
+    <eLiterals name="SHIFT_RIGHT" value="14"/>
+    <eLiterals name="SHIFT_LEFT" value="15"/>
+    <eLiterals name="AND" value="16"/>
+    <eLiterals name="OR" value="17"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="unarop">
+    <eLiterals name="NOT"/>
+    <eLiterals name="NEG" value="1"/>
+    <eLiterals name="NOT1" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="any_expr" abstract="true" eSuperTypes="#//expr #//any_expr_or_ch_init"/>
+  <eClassifiers xsi:type="ecore:EClass" name="bin_expr" eSuperTypes="#//any_expr">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="operator" lowerBound="1"
+        eType="#//binarop"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="operand1" lowerBound="1"
+        eType="#//any_expr" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="operand2" lowerBound="1"
+        eType="#//any_expr" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="un_expr" eSuperTypes="#//any_expr">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="operator" lowerBound="1"
+        eType="#//unarop"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="operand" lowerBound="1"
+        eType="#//any_expr" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="cond_expr" eSuperTypes="#//any_expr">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="expr1" lowerBound="1" eType="#//any_expr"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="expr2" lowerBound="1" eType="#//any_expr"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="expr3" lowerBound="1" eType="#//any_expr"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="len_expr" eSuperTypes="#//any_expr">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="varref" lowerBound="1"
+        eType="#//varref"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="timeout_expr" eSuperTypes="#//any_expr"/>
+  <eClassifiers xsi:type="ecore:EClass" name="np__expr" eSuperTypes="#//any_expr"/>
+  <eClassifiers xsi:type="ecore:EClass" name="enabled_expr" eSuperTypes="#//any_expr">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="any_expr" lowerBound="1"
+        eType="#//any_expr" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="pc_value_expr" eSuperTypes="#//any_expr">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="any_expr" lowerBound="1"
+        eType="#//any_expr" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="name_expr" eSuperTypes="#//any_expr">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="any_expr" eType="#//any_expr"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="at_name" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="run_expr" eSuperTypes="#//any_expr">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="proc" lowerBound="1" eType="#//proctype"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="arg_lst" upperBound="-1"
+        eType="#//any_expr" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="priority" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="expr" abstract="true" eSuperTypes="#//stmnt"/>
+  <eClassifiers xsi:type="ecore:EClass" name="andor_expr" eSuperTypes="#//expr">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="operator" lowerBound="1"
+        eType="#//andor"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="operand1" lowerBound="1"
+        eType="#//expr" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="operand2" lowerBound="1"
+        eType="#//expr" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="chanpoll_expr" eSuperTypes="#//expr">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="chan_poll" lowerBound="1"
+        eType="#//chanpoll"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="varref" lowerBound="1"
+        eType="#//varref" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="chanpoll">
+    <eLiterals name="FULL" literal=""/>
+    <eLiterals name="EMPTY" value="1"/>
+    <eLiterals name="NFULL" value="2"/>
+    <eLiterals name="NEMTPY" value="3"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="constant" abstract="true" eSuperTypes="#//any_expr"/>
+  <eClassifiers xsi:type="ecore:EClass" name="num_const" eSuperTypes="#//constant #//recv_arg">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="number" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="enum_const" eSuperTypes="#//constant">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="const_enum" lowerBound="1"
+        eType="#//constenum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="mtype_const" eSuperTypes="#//constant #//recv_arg">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="mtype" lowerBound="1" eType="#//mtype"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="constenum">
+    <eLiterals name="TRUE"/>
+    <eLiterals name="FALSE" value="1"/>
+    <eLiterals name="SKIP" value="2"/>
+  </eClassifiers>
+</ecore:EPackage>

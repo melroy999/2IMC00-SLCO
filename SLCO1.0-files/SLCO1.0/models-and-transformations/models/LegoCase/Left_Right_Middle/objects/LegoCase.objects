@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects:ObjectLists xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:objects="objects">
+  <objectLists>
+    <objects href="../../../slco_ecore/LegoCase.slco#Left"/>
+    <objects href="../../../slco_ecore/LegoCase.slco#Middle"/>
+    <objects href="../../../slco_ecore/LegoCase.slco#Right"/>
+  </objectLists>
+</objects:ObjectLists>

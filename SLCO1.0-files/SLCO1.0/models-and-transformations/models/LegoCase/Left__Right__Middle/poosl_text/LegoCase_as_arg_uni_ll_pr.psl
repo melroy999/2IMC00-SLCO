@@ -1,0 +1,471 @@
+/*=================*/
+/*-----------------*/
+/* Process Classes */
+/*-----------------*/
+/*=================*/
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Environment()
+instance variables
+  BlockLeft: Boolean,
+  BlockRight: Boolean,
+  EnvironmentMiddleMotorBlockFellOff: Boolean
+communication channels
+  LeftSensor,
+  LeftMotor,
+  MiddleSensor,
+  MiddleMotor,
+  RightSensor,
+  RightMotor
+message interface
+  RightMotor?Off();
+  MiddleMotor?Right();
+  RightMotor?On();
+  RightSensor!Block();
+  MiddleMotor?Off();
+  RightMotor?On();
+  LeftMotor?Off();
+  LeftMotor?On();
+  RightMotor?Off();
+  RightSensor!BlockPassed();
+  MiddleMotor?Off();
+  MiddleSensor!Block();
+  MiddleMotor?Left();
+  LeftMotor?Off();
+  LeftMotor?On();
+  RightMotor?On();
+  MiddleMotor?Right();
+  LeftSensor!BlockPassed();
+  MiddleMotor?Left();
+  LeftMotor?On();
+  MiddleSensor!BlockPassed();
+  LeftSensor!Block();
+  MiddleMotor?Left();
+  MiddleMotor?Off();
+  MiddleSensor!BlockPassed();
+  MiddleSensor!Block();
+  MiddleMotor?Right()
+initial method call
+  Environment_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  RightMotor_Start()()
+    |  |
+    RightMotor?On();
+    RightMotor_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Off()()
+    |  |
+    sel
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Start()()
+    |  |
+    LeftMotor?On();
+    LeftMotor_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  RightMotor_Off()()
+    |  |
+    sel
+      RightMotor?On();
+      BlockRight := true;
+      RightMotor_Running()()
+    or
+      RightMotor?Off();
+      RightMotor_Off()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  RightMotor_Running()()
+    |  |
+    sel
+      RightMotor?Off();
+      RightMotor_Off()()
+    or
+      RightSensor!Block();
+      RightSensor!BlockPassed();
+      RightMotor_Running()()
+    or
+      RightMotor?On();
+      RightMotor_Running()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Right()()
+    |  |
+    sel
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      [(BlockRight=true)]skip;
+      EnvironmentMiddleMotorBlockFellOff := true;
+      BlockRight := false;
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    or
+      [(BlockLeft=true)]skip;
+      MiddleSensor!Block();
+      MiddleSensor!BlockPassed();
+      BlockLeft := false;
+      MiddleMotor_Right()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Left()()
+    |  |
+    sel
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      [(BlockLeft=true)]skip;
+      EnvironmentMiddleMotorBlockFellOff := true;
+      BlockLeft := false;
+      MiddleMotor_Left()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    or
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      [(BlockRight=true)]skip;
+      MiddleSensor!Block();
+      MiddleSensor!BlockPassed();
+      BlockRight := false;
+      MiddleMotor_Left()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Off()()
+    |  |
+    sel
+      LeftMotor?On();
+      BlockLeft := true;
+      LeftMotor_Running()()
+    or
+      LeftMotor?Off();
+      LeftMotor_Off()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Running()()
+    |  |
+    sel
+      LeftMotor?Off();
+      LeftMotor_Off()()
+    or
+      LeftSensor!Block();
+      LeftSensor!BlockPassed();
+      LeftMotor_Running()()
+    or
+      LeftMotor?On();
+      LeftMotor_Running()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Environment_initial()()
+    |  |
+    BlockLeft := false;
+    BlockRight := false;
+    EnvironmentMiddleMotorBlockFellOff := false;
+    par
+      RightMotor_Start()()
+    and
+      MiddleMotor_Off()()
+    and
+      LeftMotor_Start()()
+    rap
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Single_as()
+instance variables
+
+communication channels
+  Sensor,
+  Motor,
+  Middle_in,
+  Middle_out
+message interface
+  Sensor?BlockPassed();
+  Middle_out!Signal(Object);
+  Motor!On();
+  Middle_in?Signal(String);
+  Motor!Off();
+  Motor!On();
+  Sensor?Block()
+initial method call
+  Single_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Single_Start()()
+    |  |
+    Motor!On();
+    Single_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Single_Running()()
+    |   var_3: String |
+    Sensor?Block();
+    Sensor?BlockPassed();
+    Motor!Off();
+    Middle_out!Signal("Send_Block");
+    Middle_in?Signal(var_3|(var_3="Acknowledge_Block"));
+    Motor!On();
+    Single_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Single_as_initial()()
+    |  |
+    Single_Start()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Middle_as()
+instance variables
+
+communication channels
+  Sensor,
+  Motor,
+  Right_in,
+  Right_out,
+  Left_in,
+  Left_out
+message interface
+  Motor!Left();
+  Left_out!Signal(Object);
+  Sensor?Block();
+  Motor!Right();
+  Sensor?BlockPassed();
+  Motor!Off();
+  Right_out!Signal(Object);
+  Left_in?Signal(String);
+  Right_in?Signal(String)
+initial method call
+  Middle_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Middle_Idle()()
+    |   var_8: String,  var_0: String |
+    sel
+      Left_in?Signal(var_8|(var_8="Send_Block"));
+      Left_out!Signal("Acknowledge_Block");
+      Motor!Right();
+      Middle_Running()()
+    or
+      Right_in?Signal(var_0|(var_0="Send_Block"));
+      Right_out!Signal("Acknowledge_Block");
+      Motor!Left();
+      Middle_Running()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_Running()()
+    |  |
+    Sensor?Block();
+    Sensor?BlockPassed();
+    Motor!Off();
+    Middle_Idle()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_initial()()
+    |  |
+    Middle_Idle()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_Sender()
+instance variables
+  ABP_SenderSenders: Integer,
+  ABP_SenderSenderd: String
+communication channels
+  ASOriginal,
+  ASReceiver,
+  ASAR
+message interface
+  ASAR?Acknowledge();
+  ASOriginal?Signal(String);
+  ASReceiver!Message(Object,Object)
+initial method call
+  ABP_Sender_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Sender_Zero()()
+    |  |
+    ASOriginal?Signal(ABP_SenderSenderd);
+    Sender_One()()
+  .
+/* ------ ProcessMethod ------ */
+  Sender_One()()
+    |  |
+    sel
+      ASAR?Acknowledge();
+      ABP_SenderSenders := (1-ABP_SenderSenders);
+      Sender_Zero()()
+    or
+      ASReceiver!Message(ABP_SenderSenderd,ABP_SenderSenders);
+      Sender_One()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_Sender_initial()()
+    |  |
+    ABP_SenderSenders := 0;
+    Sender_Zero()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_AR()
+instance variables
+  ABP_ARARb: Integer
+communication channels
+  AARAS,
+  AARSender
+message interface
+  AARAS?Acknowledge(Integer);
+  AARAS?Acknowledge(Integer);
+  AARSender!Acknowledge()
+initial method call
+  ABP_AR_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  AR_Zero()()
+    |   var_9: Integer,  var_7: Integer |
+    sel
+      AARAS?Acknowledge(var_9|(var_9=ABP_ARARb));
+      AARSender!Acknowledge();
+      ABP_ARARb := (1-ABP_ARARb);
+      AR_Zero()()
+    or
+      AARAS?Acknowledge(var_7|(var_7=(1-ABP_ARARb)));
+      AR_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_AR_initial()()
+    |  |
+    ABP_ARARb := 0;
+    AR_Zero()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_Receiver()
+instance variables
+  ABP_ReceiverReceiverr: Integer,
+  ABP_ReceiverReceiverd: String
+communication channels
+  AROriginal,
+  ARSender,
+  ARAS
+message interface
+  AROriginal!Signal(Object);
+  ARSender?Message(String,Integer);
+  ARAS!Acknowledge();
+  ARSender?Message(String,Integer)
+initial method call
+  ABP_Receiver_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Receiver_Zero()()
+    |   var_12: Integer,  var_13: Integer |
+    sel
+      ARSender?Message(ABP_ReceiverReceiverd,var_12|(var_12=ABP_ReceiverReceiverr));
+      AROriginal!Signal(ABP_ReceiverReceiverd);
+      ARAS!Acknowledge();
+      ABP_ReceiverReceiverr := (1-ABP_ReceiverReceiverr);
+      Receiver_Zero()()
+    or
+      ARSender?Message(ABP_ReceiverReceiverd,var_13|(var_13=(1-ABP_ReceiverReceiverr)));
+      Receiver_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_Receiver_initial()()
+    |  |
+    ABP_ReceiverReceiverr := 0;
+    Receiver_Zero()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_AS()
+instance variables
+  ABP_ASASb: Integer
+communication channels
+  AASAR,
+  AASReceiver
+message interface
+  AASReceiver?Acknowledge();
+  AASAR!Acknowledge(Object)
+initial method call
+  ABP_AS_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  AS_Zero()()
+    |  |
+    sel
+      AASReceiver?Acknowledge();
+      ABP_ASASb := (1-ABP_ASASb);
+      AS_Zero()()
+    or
+      AASAR!Acknowledge(ABP_ASASb);
+      AS_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_AS_initial()()
+    |  |
+    ABP_ASASb := 1;
+    AS_Zero()()
+  .
+

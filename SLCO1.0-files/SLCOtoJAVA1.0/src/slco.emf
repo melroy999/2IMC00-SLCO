@@ -1,0 +1,176 @@
+@namespace(uri="slco", prefix="slco")
+package slco;
+
+enum ChannelTypeEnum {
+  async_lossless = 1;
+  async_lossy = 2;
+  sync = 3;
+}
+
+enum OperatorEnum {
+  atLeast = 1;
+  add = 2;
+  and = 3;
+  equals = 4;
+  differs = 5;
+  subtract = 6;
+  atMost = 7;
+  or = 8;
+}
+
+enum PrimitiveTypeEnum {
+  Integer = 1;
+  Boolean = 2;
+  String = 3;
+}
+
+class ArgumentType {
+  attr PrimitiveTypeEnum[1] type;
+}
+
+class Assignment extends Statement {
+  ref Variable[1] variable;
+  !ordered val Expression[1] expression;
+}
+
+class BidirectionalChannel extends Channel {
+  ref Port[1] port1;
+  ref Port[1] port2;
+  ref Object[1] object1;
+  ref Object[1] object2;
+}
+
+class BinaryOperatorExpression extends Expression {
+  attr OperatorEnum[1] operator;
+  !ordered val Expression[1] operand1;
+  !ordered val Expression[1] operand2;
+}
+
+class BooleanConstantExpression extends ConstantExpression {
+  !unique !ordered attr boolean[1] value;
+}
+
+abstract class Channel {
+  val ArgumentType[*] argumentTypes;
+  attr String[1] name;
+  attr ChannelTypeEnum[1] channelType;
+}
+
+class Class {
+  val StateMachine[*] stateMachines;
+  val Port[*] ports;
+  val Variable[*] variables;
+  attr String[1] name;
+}
+
+abstract class ConstantExpression extends Expression {
+}
+
+class Delay extends Statement {
+  attr int[1] value = 0;
+}
+
+abstract class Expression extends Statement {
+}
+
+class Final extends Vertex {
+}
+
+class Initial extends Vertex {
+}
+
+class IntegerConstantExpression extends ConstantExpression {
+  !unique !ordered attr int[1] value;
+}
+
+class Model {
+  val Class[*] classes;
+  val Object[*] objects;
+  id attr String[1] name;
+  val Channel[*] channels;
+}
+
+class Object {
+  id attr String[1] name;
+  ref Class[1] ~class;
+}
+
+class Port {
+  attr String[1] name;
+}
+
+class SendSignal extends Statement {
+  !ordered ref Port[1] port;
+  attr String[1] signalName;
+  val Expression[*] arguments;
+}
+
+abstract class SignalArgument {
+}
+
+class SignalArgumentExpression extends SignalArgument {
+  val Expression expression;
+}
+
+class SignalArgumentVariable extends SignalArgument {
+  ref Variable variable;
+}
+
+class SignalReception extends Statement {
+  ref Port[1] port;
+  attr String[1] signalName;
+  val SignalArgument[*] arguments;
+  val Expression condition;
+}
+
+class State extends Vertex {
+}
+
+class StateMachine {
+  attr String[1] name;
+  val Vertex[*] vertices;
+  val Transition[*] transitions;
+  val Variable[*] variables;
+}
+
+abstract class Statement {
+}
+
+class StringConstantExpression extends ConstantExpression {
+  attr String[1] value;
+}
+
+class TextualStatement extends Statement {
+  attr String[1] statement;
+}
+
+class Transition {
+  attr String[1] name;
+  ref Vertex[1]#outgoing source;
+  ref Vertex[1]#incoming target;
+  val Statement[*] statements;
+}
+
+class UnidirectionalChannel extends Channel {
+  ref Port[1] sourcePort;
+  ref Port[1] targetPort;
+  ref Object[1] sourceObject;
+  ref Object[1] targetObject;
+}
+
+class Variable {
+  attr String[1] name;
+  val Expression initialValue;
+  attr PrimitiveTypeEnum[1] type;
+}
+
+class VariableExpression extends Expression {
+  ref Variable[1] variable;
+}
+
+abstract class Vertex {
+  attr String[1] name;
+  ref Transition[*]#target incoming;
+  ref Transition[*]#source outgoing;
+}
+

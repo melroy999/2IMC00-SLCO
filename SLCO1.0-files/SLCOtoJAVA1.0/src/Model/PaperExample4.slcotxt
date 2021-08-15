@@ -1,0 +1,30 @@
+model PaperExample4 {
+classes
+ SimpleClass {
+ 	variables
+ 	 Integer i = 0
+ 	state machines
+ 	 SM1 {
+ 	 	initial A
+ 	 	final B 	 	
+ 	 	transitions
+ 	 	 A2B from A to B {
+ 	 	 	 i==0;
+ 	 	 	 i := i + 1;
+ 	 	 	 i := i + 1
+ 	 	 }	 
+ 	 }	 	 
+ 	 SM2 {
+ 	 	initial C
+ 	 	final D	 	 	
+ 	 	transitions
+ 	 	 C2D from C to D {
+ 	 	      i==2;
+ 	 	 	 i := i - 2
+ 	 	 }	 
+ 	 }	 	 
+ }
+objects
+ simple : SimpleClass
+}
+

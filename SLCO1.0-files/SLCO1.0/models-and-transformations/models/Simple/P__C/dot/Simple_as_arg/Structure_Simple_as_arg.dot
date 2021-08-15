@@ -1,0 +1,17 @@
+
+digraph Simple_as_arg {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+Producer_as_13
+ [label="{Producer_as||}"]
+Producer_as_13_Producer [label="{Producer||}", style=filled, fillcolor=gray95]
+Producer_as_13 -> Producer_as_13_Producer
+
+Consumer_as_19
+ [label="{Consumer_as||}"]
+Consumer_as_19_Consumer [label="{Consumer||}", style=filled, fillcolor=gray95]
+Consumer_as_19 -> Consumer_as_19_Consumer
+
+
+}

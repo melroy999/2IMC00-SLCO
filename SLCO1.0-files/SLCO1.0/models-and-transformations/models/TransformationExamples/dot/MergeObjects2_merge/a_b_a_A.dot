@@ -1,0 +1,17 @@
+digraph a_A {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Initial_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Initial Initial_extra -> Initial
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Initial_s_S_abl_InitialToFinalSend
+
+node [shape = "doublecircle", height = "0.2", width = "0.2", style = "filled", color = "black", label = ""] Final_extra node [shape = "Mrecord", height = "0.8", width = "1.6", style = "solid", label="Final"] Final Final -> Final_extra
+
+
+Initial -> Initial_s_S_abl_InitialToFinalSend [label = "v := true;\n C_name := \"S\";\n C_abl := 1"];
+
+Initial -> Final [label = ""];
+
+Initial_s_S_abl_InitialToFinalSend -> Final [label = "C_abl == 2;\n C_abl := 3;\n C_abl == 0"];
+
+}

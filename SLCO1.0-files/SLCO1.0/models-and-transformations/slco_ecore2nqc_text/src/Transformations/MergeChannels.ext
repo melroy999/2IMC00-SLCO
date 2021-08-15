@@ -1,0 +1,252 @@
+import slco;
+import channels;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension org::eclipse::xtend::util::stdlib::cloning;
+extension Libraries::CreationSLCO;
+extension Libraries::Equality;
+extension Libraries::Clone;
+extension Libraries::ModifyModel;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// These functions replace a number of channels by one channel.
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// Copy the classes that need to be modified
+// and update all references to these classes.
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+slco::Model modifyModelChan(
+   slco::Model model, channels::ChannelList channels
+) :
+   let cl = model.channels.select(
+      c1
+   |
+      channels.channels.exists(
+         c2 
+      |
+         c1.channelEqualsChannel(c2)
+      )
+   ) :
+      cl.checkChannels()
+   -> model.modifyModel(cl, "")
+   -> model.setName(
+         model.name + "_mc"
+      )
+   -> cl.modifyClassesChan(model)
+   -> model
+;
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// 
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+slco::Model mergeChannels(
+   slco::Model model, channels::ChannelList channels
+) :
+   let cl = model.channels.select(
+      c1
+   |
+      channels.channels.exists(
+         c2 
+      |
+         c1.channelEqualsChannel(c2)
+      )
+   ) :
+      cl.checkChannels()
+   -> model.setName(
+         model.name + "_mc"
+      )
+   -> cl.modifyClassesChan(model)
+   -> model
+;
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// 
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+private Void modifyClassesChan(List[slco::Channel] channels, slco::Model model) :
+   model.channels.add(
+      channels.first().createChannel(model, channels)
+   )
+-> channels.first().modifyClassesChan(channels)
+-> model.channels.removeAll(channels)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClassesChan(slco::Channel channel, List[slco::Channel] channels) :
+   syserr(
+      "MergeChannels - modifyClassesChan - unknown channel type: "
+      +
+      channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClassesChan(slco::BidirectionalChannel channel, List[slco::Channel] channels) :
+   channel.object1.class.modifyClassChannels(channels)
+-> channel.object2.class.modifyClassChannels(channels)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClassesChan(slco::UnidirectionalChannel channel, List[slco::Channel] channels) :
+   channel.sourceObject.class.modifyClassChannels(channels)
+-> channel.targetObject.class.modifyClassChannels(channels)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void checkChannels(List[slco::Channel] channels) :
+   let first = channels.first() :
+      if (
+         !channels.forAll(
+            c
+         |
+            first.metaType == c.metaType
+            &&
+            first.channelType == c.channelType
+            &&
+            first.argumentTypes.size == c.argumentTypes.size
+            &&
+            first.argumentTypes.forAll(
+               at
+            |
+               at == c.argumentTypes.get(first.argumentTypes.indexOf(at))
+            )
+         )
+      ) then (
+         syserr(
+           "The channels that need to be merged "
+           +
+           "have different characteristics."
+         )
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Channel createChannel(
+   slco::Channel channel, slco::Model model, List[slco::Channel] channels
+) :
+   syserr(
+      "MergeChannels - createChannel - unknown channel type: "
+      +
+      channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Channel createChannel(
+   slco::BidirectionalChannel channel, slco::Model model, List[slco::Channel] channels
+) :
+   let c = (slco::BidirectionalChannel) channel.clone() :
+      c.setName(
+         channel.object1.class.createPort().name +
+         "_to_" +
+         channel.object2.class.createPort().name
+      )
+   -> c.setPort1(
+         channel.object1.class.createPort()
+      )
+   -> c.setPort2(
+         channel.object2.class.createPort()
+      )
+   -> c
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Channel createChannel(
+   slco::UnidirectionalChannel channel, slco::Model model, List[slco::Channel] channels
+) :
+   let c = (slco::UnidirectionalChannel) channel.clone() :
+      c.setName(
+         channel.sourceObject.class.createPort().name +
+         "_to_" +
+         channel.targetObject.class.createPort().name
+      )
+   -> c.setSourcePort(
+         channel.sourceObject.class.createPort()
+      )
+   -> c.setTargetPort(
+         channel.targetObject.class.createPort()
+      )
+   -> c
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Port createPort(slco::Class class) :
+   this.setName(class.name + "_port")
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClassChannels(slco::Class class, List[slco::Channel] channels) :
+   class.ports.add(
+      class.createPort()
+   )
+-> class.modifyClassPorts(channels.typeSelect(slco::BidirectionalChannel).port1, channels)
+-> class.modifyClassPorts(channels.typeSelect(slco::BidirectionalChannel).port2, channels)
+-> class.modifyClassPorts(channels.typeSelect(slco::UnidirectionalChannel).sourcePort, channels)
+-> class.modifyClassPorts(channels.typeSelect(slco::UnidirectionalChannel).targetPort, channels)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClassPorts(
+   slco::Class class, List[slco::Port] ports, List[slco::Channel] channels
+) :
+   class.stateMachines.transitions.statements.typeSelect(
+      slco::SignalReception
+   ).select(
+      sr
+   |
+      ports.contains(sr.port)
+   ).updateSignalReception(class, ports, channels)
+-> class.stateMachines.transitions.statements.typeSelect(
+      slco::SendSignal
+   ).select(
+      sss
+   |
+      ports.contains(sss.port)
+   ).updateSendSignalStatement(class, ports, channels)
+-> class.ports.removeAll(ports)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateSignalReception(
+   slco::SignalReception signalReception, slco::Class class,
+   List[slco::Port] ports, List[slco::Channel] channels
+) :
+   signalReception.setPort(
+      class.createPort()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateSendSignalStatement(
+   slco::SendSignal sendSignalStatement, slco::Class class,
+   List[slco::Port] ports, List[slco::Channel] channels
+) :
+   sendSignalStatement.setPort(
+      class.createPort()
+   )
+;

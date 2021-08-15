@@ -1,0 +1,83 @@
+<workflow>
+  
+  <property name='inputname' value='Simple_as' />
+  <property name='inputfile' value='${inputname}.slco' />
+
+  <property name='uni_outputfile' value='${inputname}_uni.slco' />
+
+  <property name='sourcedir' value='../models/Simple/P__C/nqc_slco_ecore'/>
+  <property name='targetdir' value='../models/Simple/P__C/promela_slco_ecore'/>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${sourcedir}/${inputfile}"/>
+    <outputSlot value="Model"/>
+  </component>
+
+  <component id="b2u" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::Bi2Uni::modifyModelB2U(Model)"/>
+    <outputSlot value="IUNIModel"/>
+  </component>
+
+  <component id="ruc_uni" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::RemoveUnusedClasses::modifyModelRUC(IUNIModel)"/>
+    <outputSlot value="UNIModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${uni_outputfile}"/>
+    <inputSlot value="UNIModel"/>
+  </component>
+
+  <property name='inputname' value='Simple_as_arg' />
+  <property name='inputfile' value='${inputname}.slco' />
+
+  <property name='uni_outputfile' value='${inputname}_uni.slco' />
+
+  <property name='sourcedir' value='../models/Simple/P__C/nqc_slco_ecore'/>
+  <property name='targetdir' value='../models/Simple/P__C/promela_slco_ecore'/>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${sourcedir}/${inputfile}"/>
+    <outputSlot value="Model"/>
+  </component>
+
+  <component id="b2u" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::Bi2Uni::modifyModelB2U(Model)"/>
+    <outputSlot value="IUNIModel"/>
+  </component>
+
+  <component id="ruc_uni" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::RemoveUnusedClasses::modifyModelRUC(IUNIModel)"/>
+    <outputSlot value="UNIModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${uni_outputfile}"/>
+    <inputSlot value="UNIModel"/>
+  </component>
+
+</workflow>

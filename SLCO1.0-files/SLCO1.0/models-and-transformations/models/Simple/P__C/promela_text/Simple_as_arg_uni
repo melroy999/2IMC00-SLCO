@@ -1,0 +1,55 @@
+mtype {Signal, Bericht, Acknowledge_Bericht}
+
+chan Producer_To_Consumer_1_to_2__P_2_C = [1] of { mtype , mtype  }; 
+chan Producer_To_Consumer_2_to_1__C_2_P = [1] of { mtype , mtype  }
+
+active [1] proctype P_Producer() {
+
+Label_Start: {
+ if
+ ::{goto Label_State;
+};
+ fi;
+goto Label_Start;
+};
+Label_State: {
+ if
+ ::{Producer_To_Consumer_1_to_2__P_2_C!Signal,Bericht;
+goto Label_State_1;
+};
+ fi;
+goto Label_State;
+};
+Label_State_1: {
+ if
+ ::{Producer_To_Consumer_2_to_1__C_2_P?Signal,eval( Acknowledge_Bericht );
+goto Label_State;
+};
+ fi;
+goto Label_State_1;
+};
+}
+
+active [1] proctype C_Consumer() {
+
+Label_Start: {
+ if
+ ::{goto Label_State;
+};
+ fi;
+goto Label_Start;
+};
+Label_State: {
+ if
+ ::{Producer_To_Consumer_1_to_2__P_2_C?Signal,eval( Bericht );
+Producer_To_Consumer_2_to_1__C_2_P!Signal,Acknowledge_Bericht;
+goto Label_State;
+};
+ fi;
+goto Label_State;
+};
+}
+
+
+
+

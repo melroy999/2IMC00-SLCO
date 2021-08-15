@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="ASCII"?>
+<poosl:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:poosl="poosl" name="Simple_as">
+  <classes xsi:type="poosl:ProcessClass" name="Producer_as">
+    <methods name="Producer_State">
+      <body xsi:type="poosl:MessageSend" port="//@classes.0/@ports.0">
+        <message name="Send_Bericht"/>
+      </body>
+      <body xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.0">
+        <message name="Acknowledge_Bericht"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.0"/>
+    </methods>
+    <methods name="Producer_as_initial">
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.0"/>
+    </methods>
+    <ports name="C"/>
+    <initialMethodCall method="//@classes.0/@methods.1"/>
+  </classes>
+  <classes xsi:type="poosl:ProcessClass" name="Consumer_as">
+    <methods name="Consumer_State">
+      <body xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.0">
+        <message name="Send_Bericht"/>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.1/@ports.0">
+        <message name="Acknowledge_Bericht"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.0"/>
+    </methods>
+    <methods name="Consumer_as_initial">
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.0"/>
+    </methods>
+    <ports name="P"/>
+    <initialMethodCall method="//@classes.1/@methods.1"/>
+  </classes>
+  <processInstances name="P_as" class="//@classes.0"/>
+  <processInstances name="C_as" class="//@classes.1"/>
+  <channels name="Producer_To_Consumer_as" port1="//@classes.0/@ports.0" port2="//@classes.1/@ports.0" processInstance1="//@processInstances.0" processInstance2="//@processInstances.1"/>
+</poosl:Model>

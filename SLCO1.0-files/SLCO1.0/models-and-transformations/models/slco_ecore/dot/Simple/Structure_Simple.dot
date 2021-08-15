@@ -1,0 +1,17 @@
+
+digraph Simple {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+Producer_2
+ [label="{Producer||}"]
+Producer_2_Producer [label="{Producer||}", style=filled, fillcolor=gray95]
+Producer_2 -> Producer_2_Producer
+
+Consumer_5
+ [label="{Consumer||}"]
+Consumer_5_Consumer [label="{Consumer||}", style=filled, fillcolor=gray95]
+Consumer_5 -> Consumer_5_Consumer
+
+
+}

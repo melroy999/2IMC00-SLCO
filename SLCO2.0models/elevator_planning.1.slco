@@ -1,0 +1,112 @@
+model dve_elevator_planning_1 {
+classes
+	GlobalClass {
+		variables
+			Byte[5] person := [0,1,2,3,4]
+			Byte[5] conflictA := [1,0,0,1,1]
+			Byte[5] conflictB := [0,1,1]
+			Byte[5] dvenotalone := [1,1,0,0,0]
+			Byte at := 0
+			Byte inA := 0
+			Byte inB := 0
+			Byte in := 0
+			Byte alone := 0
+			Byte i := 0
+		state machines
+			Elevator {
+				variables
+					
+				initial q
+				states  done
+				transitions
+					from q to done {
+						person[0]=0  and person[1]=0  and person[2]=0  and person[3]=0  and person[4]=0
+					}
+
+					from q to q {
+						[person[0] = at and in <3 and 
+		(conflictA[0]=0 or inB=0) and 
+		(conflictB[0]=0 or inA=0) and 
+		(dvenotalone[0]=0 or in>0); person[0] := 255;in := in+1;inA := inA + conflictA[0];inB := inB + conflictB[0];alone := alone + dvenotalone[0]]
+					}
+
+					from q to q {
+						[person[1] = at and in <3 and 
+		(conflictA[1]=0 or inB=0) and 
+		(conflictB[1]=0 or inA=0) and 
+		(dvenotalone[1]=0 or in>0); person[1] := 255;in := in+1;inA := inA + conflictA[1];inB := inB + conflictB[1];alone := alone + dvenotalone[1]]
+					}
+
+					from q to q {
+						[person[2] = at and in <3 and 
+		(conflictA[2]=0 or inB=0) and 
+		(conflictB[2]=0 or inA=0) and 
+		(dvenotalone[2]=0 or in>0); person[2] := 255;in := in+1;inA := inA + conflictA[2];inB := inB + conflictB[2];alone := alone + dvenotalone[2]]
+					}
+
+					from q to q {
+						[person[3] = at and in <3 and 
+		(conflictA[3]=0 or inB=0) and 
+		(conflictB[3]=0 or inA=0) and 
+		(dvenotalone[3]=0 or in>0); person[3] := 255;in := in+1;inA := inA + conflictA[3];inB := inB + conflictB[3];alone := alone + dvenotalone[3]]
+					}
+
+					from q to q {
+						[person[4] = at and in <3 and 
+		(conflictA[4]=0 or inB=0) and 
+		(conflictB[4]=0 or inA=0) and 
+		(dvenotalone[4]=0 or in>0); person[4] := 255;in := in+1;inA := inA + conflictA[4];inB := inB + conflictB[4];alone := alone + dvenotalone[4]]
+					}
+
+					from q to q {
+						[person[0] = 255 and 
+		(in>2 or (alone - dvenotalone[0]=0)); person[0] := at;in := in-1;inA := inA - conflictA[0];inB := inB - conflictB[0];alone := alone - dvenotalone[0]]
+					}
+
+					from q to q {
+						[person[1] = 255 and 
+		(in>2 or (alone - dvenotalone[1]=0)); person[1] := at;in := in-1;inA := inA - conflictA[1];inB := inB - conflictB[1];alone := alone - dvenotalone[1]]
+					}
+
+					from q to q {
+						[person[2] = 255 and 
+		(in>2 or (alone - dvenotalone[2]=0)); person[2] := at;in := in-1;inA := inA - conflictA[2];inB := inB - conflictB[2];alone := alone - dvenotalone[2]]
+					}
+
+					from q to q {
+						[person[3] = 255 and 
+		(in>2 or (alone - dvenotalone[3]=0)); person[3] := at;in := in-1;inA := inA - conflictA[3];inB := inB - conflictB[3];alone := alone - dvenotalone[3]]
+					}
+
+					from q to q {
+						[person[4] = 255 and 
+		(in>2 or (alone - dvenotalone[4]=0)); person[4] := at;in := in-1;inA := inA - conflictA[4];inB := inB - conflictB[4];alone := alone - dvenotalone[4]]
+					}
+
+					from q to q {
+						[at := 0]
+					}
+
+					from q to q {
+						[at := 1]
+					}
+
+					from q to q {
+						[at := 2]
+					}
+
+					from q to q {
+						[at := 3]
+					}
+
+					from q to q {
+						[at := 4]
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

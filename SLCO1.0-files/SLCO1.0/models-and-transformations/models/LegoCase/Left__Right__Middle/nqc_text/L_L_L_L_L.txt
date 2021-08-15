@@ -1,0 +1,346 @@
+/*--------------------------------------------------*/
+/*--------------------------------------------------*/
+/*-                                                -*/
+/*- Class : L_L_L_L_L
+/*-                                                -*/
+/*--------------------------------------------------*/
+/*--------------------------------------------------*/
+int Left_as_Middle_out_Original_to_Sender_abl = 0;
+int Left_as_Middle_out_Original_to_Sender_name;
+int Left_as_Middle_out_Original_to_Sender_arg_0;
+int Left_as_Middle_out_AR_to_Sender_abl = 0;
+int Left_as_Middle_out_AR_to_Sender_name;
+int Left_as_Middle_in_Receiver_to_Original_abl = 0;
+int Left_as_Middle_in_Receiver_to_Original_name;
+int Left_as_Middle_in_Receiver_to_Original_arg_0;
+int Left_as_Middle_in_Receiver_to_AS_abl = 0;
+int Left_as_Middle_in_Receiver_to_AS_name;
+int L_L_L_L_L_sensor_1_null;
+int L_L_L_L_L_sensor_1_temp;
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: main
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task main() {
+
+    ClearMessage();
+    SetSensor(SENSOR_1, SENSOR_LIGHT);
+    L_L_L_L_L_sensor_1_null = 0;
+    repeat (10) {
+    L_L_L_L_L_sensor_1_temp = SENSOR_1;
+    if ((L_L_L_L_L_sensor_1_temp > L_L_L_L_L_sensor_1_null)) L_L_L_L_L_sensor_1_null = L_L_L_L_L_sensor_1_temp;
+  }
+
+    SetPower(OUT_A, 7);
+    start Left_as_Single;
+    start Left_as_Middle_outABP_Sender_Sender;
+    start Left_as_Middle_outABP_AR_AR;
+    start Left_as_Middle_inABP_Receiver_Receiver;
+    start Left_as_Middle_inABP_AS_AS;
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: Left_as_Single
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task Left_as_Single() {
+
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Single_Start:
+  SetOutput(OUT_A, OUT_ON);
+    goto Left_as_Single_Running;
+    goto Left_as_Single_Start;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Single_Running:
+  if ((SENSOR_1 >= (L_L_L_L_L_sensor_1_null + 4))) {
+    /* skip */; until ((SENSOR_1 <= (L_L_L_L_L_sensor_1_null + 2)));
+    SetOutput(OUT_A, OUT_OFF);
+    Left_as_Middle_out_Original_to_Sender_name = 0;
+    Left_as_Middle_out_Original_to_Sender_arg_0 = 3;
+    Left_as_Middle_out_Original_to_Sender_abl = 1;
+    goto Left_as_Single_Running_s_Signal_abl_RunningToBlock;
+  }
+
+    goto Left_as_Single_Running;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Single_Running_s_Signal_abl_RunningToBlock:
+  if ((((Left_as_Middle_in_Receiver_to_Original_abl == 1) && (Left_as_Middle_in_Receiver_to_Original_name == 0)) && (Left_as_Middle_in_Receiver_to_Original_arg_0 == 2))) {
+    Left_as_Middle_in_Receiver_to_Original_abl = 2;
+    goto Left_as_Single_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running;
+  }
+
+    goto Left_as_Single_Running_s_Signal_abl_RunningToBlock;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Single_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running:
+  if ((Left_as_Middle_in_Receiver_to_Original_abl == 3)) {
+    Left_as_Middle_in_Receiver_to_Original_abl = 0;
+    /* skip */; until ((Left_as_Middle_out_Original_to_Sender_abl == 2));
+    Left_as_Middle_out_Original_to_Sender_abl = 3;
+    /* skip */; until ((Left_as_Middle_out_Original_to_Sender_abl == 0));
+    SetOutput(OUT_A, OUT_ON);
+    goto Left_as_Single_Running;
+  }
+
+    if ((Left_as_Middle_in_Receiver_to_Original_abl == 0)) {
+    goto Left_as_Single_Running_s_Signal_abl_RunningToBlock;
+  }
+
+    goto Left_as_Single_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running;
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: Left_as_Middle_outABP_Sender_Sender
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task Left_as_Middle_outABP_Sender_Sender() {
+int s = 0;
+int d;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Middle_outABP_Sender_Sender_Zero:
+  if (((Left_as_Middle_out_Original_to_Sender_abl == 1) && (Left_as_Middle_out_Original_to_Sender_name == 0))) {
+    Left_as_Middle_out_Original_to_Sender_abl = 2;
+    goto Left_as_Middle_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne;
+  }
+
+    goto Left_as_Middle_outABP_Sender_Sender_Zero;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Middle_outABP_Sender_Sender_One:
+  if ((FastTimer(0) >= (900 / 10))) {
+    SendMessage(((d + 1) | ((128 * s) | (16 * 3))));
+    ClearTimer(0);
+    goto Left_as_Middle_outABP_Sender_Sender_One;
+  }
+
+    if (((Left_as_Middle_out_AR_to_Sender_abl == 1) && (Left_as_Middle_out_AR_to_Sender_name == 1))) {
+    Left_as_Middle_out_AR_to_Sender_abl = 2;
+    goto Left_as_Middle_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero;
+  }
+
+    goto Left_as_Middle_outABP_Sender_Sender_One;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Middle_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne:
+  if ((Left_as_Middle_out_Original_to_Sender_abl == 3)) {
+    d = Left_as_Middle_out_Original_to_Sender_arg_0;
+    Left_as_Middle_out_Original_to_Sender_abl = 0;
+    ClearTimer(0);
+    goto Left_as_Middle_outABP_Sender_Sender_One;
+  }
+
+    if ((Left_as_Middle_out_Original_to_Sender_abl == 0)) {
+    goto Left_as_Middle_outABP_Sender_Sender_Zero;
+  }
+
+    goto Left_as_Middle_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Middle_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero:
+  if ((Left_as_Middle_out_AR_to_Sender_abl == 3)) {
+    Left_as_Middle_out_AR_to_Sender_abl = 0;
+    s = (1 - s);
+    goto Left_as_Middle_outABP_Sender_Sender_Zero;
+  }
+
+    if ((Left_as_Middle_out_AR_to_Sender_abl == 0)) {
+    ClearTimer(0);
+    goto Left_as_Middle_outABP_Sender_Sender_One;
+  }
+
+    goto Left_as_Middle_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero;
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: Left_as_Middle_outABP_AR_AR
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task Left_as_Middle_outABP_AR_AR() {
+int b = 0;
+int temp_Left_as_Middle_outABP_AR_AR;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Middle_outABP_AR_AR_Zero:
+  temp_Left_as_Middle_outABP_AR_AR = Message();
+    if (((temp_Left_as_Middle_outABP_AR_AR != 0) && ((((temp_Left_as_Middle_outABP_AR_AR & 112) / 16) == 2) && (((temp_Left_as_Middle_outABP_AR_AR & 128) / 128) == b)))) {
+    Left_as_Middle_out_AR_to_Sender_name = 1;
+    Left_as_Middle_out_AR_to_Sender_abl = 1;
+    goto Left_as_Middle_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck;
+  }
+
+    temp_Left_as_Middle_outABP_AR_AR = Message();
+    if (((temp_Left_as_Middle_outABP_AR_AR != 0) && ((((temp_Left_as_Middle_outABP_AR_AR & 112) / 16) == 2) && (((temp_Left_as_Middle_outABP_AR_AR & 128) / 128) == (1 - b))))) {
+    goto Left_as_Middle_outABP_AR_AR_Zero;
+  }
+
+    goto Left_as_Middle_outABP_AR_AR_Zero;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Middle_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck:
+  if ((Left_as_Middle_out_AR_to_Sender_abl == 2)) {
+    Left_as_Middle_out_AR_to_Sender_abl = 3;
+    /* skip */; until ((Left_as_Middle_out_AR_to_Sender_abl == 0));
+    b = (1 - b);
+    goto Left_as_Middle_outABP_AR_AR_Zero;
+  }
+
+    goto Left_as_Middle_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck;
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: Left_as_Middle_inABP_Receiver_Receiver
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task Left_as_Middle_inABP_Receiver_Receiver() {
+int r = 0;
+int d;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Middle_inABP_Receiver_Receiver_Zero:
+  d = Message();
+    if (((d != 0) && ((((d & 112) / 16) == 3) && (((d & 128) / 128) == r)))) {
+    d = ((d & 15) - 1);
+    Left_as_Middle_in_Receiver_to_Original_name = 0;
+    Left_as_Middle_in_Receiver_to_Original_arg_0 = d;
+    Left_as_Middle_in_Receiver_to_Original_abl = 1;
+    goto Left_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck;
+  }
+
+    d = Message();
+    if (((d != 0) && ((((d & 112) / 16) == 3) && (((d & 128) / 128) == (1 - r))))) {
+    d = ((d & 15) - 1);
+    goto Left_as_Middle_inABP_Receiver_Receiver_Zero;
+  }
+
+    goto Left_as_Middle_inABP_Receiver_Receiver_Zero;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck:
+  if ((Left_as_Middle_in_Receiver_to_Original_abl == 2)) {
+    Left_as_Middle_in_Receiver_to_Original_abl = 3;
+    /* skip */; until ((Left_as_Middle_in_Receiver_to_Original_abl == 0));
+    Left_as_Middle_in_Receiver_to_AS_name = 1;
+    Left_as_Middle_in_Receiver_to_AS_abl = 1;
+    goto Left_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero;
+  }
+
+    goto Left_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero:
+  if ((Left_as_Middle_in_Receiver_to_AS_abl == 2)) {
+    Left_as_Middle_in_Receiver_to_AS_abl = 3;
+    /* skip */; until ((Left_as_Middle_in_Receiver_to_AS_abl == 0));
+    r = (1 - r);
+    goto Left_as_Middle_inABP_Receiver_Receiver_Zero;
+  }
+
+    goto Left_as_Middle_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero;
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: Left_as_Middle_inABP_AS_AS
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task Left_as_Middle_inABP_AS_AS() {
+int b = 1;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Middle_inABP_AS_AS_Zero:
+  if ((FastTimer(1) >= (900 / 10))) {
+    SendMessage((1 | ((128 * b) | (16 * 2))));
+    ClearTimer(1);
+    goto Left_as_Middle_inABP_AS_AS_Zero;
+  }
+
+    if (((Left_as_Middle_in_Receiver_to_AS_abl == 1) && (Left_as_Middle_in_Receiver_to_AS_name == 1))) {
+    Left_as_Middle_in_Receiver_to_AS_abl = 2;
+    goto Left_as_Middle_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck;
+  }
+
+    goto Left_as_Middle_inABP_AS_AS_Zero;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_as_Middle_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck:
+  if ((Left_as_Middle_in_Receiver_to_AS_abl == 3)) {
+    Left_as_Middle_in_Receiver_to_AS_abl = 0;
+    b = (1 - b);
+    ClearTimer(1);
+    goto Left_as_Middle_inABP_AS_AS_Zero;
+  }
+
+    if ((Left_as_Middle_in_Receiver_to_AS_abl == 0)) {
+    ClearTimer(1);
+    goto Left_as_Middle_inABP_AS_AS_Zero;
+  }
+
+    goto Left_as_Middle_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck;
+}

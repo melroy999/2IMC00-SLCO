@@ -1,0 +1,21 @@
+/**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
+ */
+package NQC;
+
+
+/**
+ * <!-- begin-user-doc -->
+ * A representation of the model object '<em><b>Empty Statement</b></em>'.
+ * <!-- end-user-doc -->
+ *
+ *
+ * @see NQC.NQCPackage#getEmptyStatement()
+ * @model
+ * @generated
+ */
+public interface EmptyStatement extends Statement {
+} // EmptyStatement

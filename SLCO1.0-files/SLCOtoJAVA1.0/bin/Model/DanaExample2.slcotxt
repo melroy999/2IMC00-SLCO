@@ -1,0 +1,42 @@
+model PaperExample1 {
+  classes
+    P {
+      variables
+        Integer m = 0
+      state machines
+		Rec2 {
+		  initial
+		    Rec2a
+		  state
+		    Rec2b 
+		    Rec2c
+		  transitions
+		  	Rec2a2Rec2b from Rec2a to Rec2b {
+              m := m+1	  	
+            }
+		  	Rec2b2Rec2c from Rec2b to Rec2c {
+		  	  m := m+1
+		  	}
+		  	Rec2c2Rec2a from Rec2c to Rec2a {
+		  	  m <= 4
+		  	}
+		}
+		SendRec {
+		  variables
+		    String s = ""
+		  initial
+            SendRec0
+          state
+		    SendRec1
+		  transitions
+		    SendRec02SendRec1 from SendRec0 to SendRec1 {
+		  	   m := m+1	
+		    }
+		    SendRec12SendRec0 from SendRec1 to SendRec0 {
+		  	   m <= 4	
+		    }
+        }
+    }
+	objects
+	  p: P 
+}

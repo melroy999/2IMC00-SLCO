@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 1 element(s) from project &apos;models&apos;&#x0D;&#x0A;- Original project: &apos;models&apos;&#x0D;&#x0A;- Original element: &apos;LegoCase-plain-as-arg-ll-uni-merge.channels&apos;" description="Delete element" element1="LegoCase-plain-(Left-Right)-Middle/LegoCase-plain-as-arg-ll-uni-merge.channels" elements="0" flags="589830" id="org.eclipse.jdt.ui.delete" resources="1" stamp="1261649206240" subPackages="false" version="1.0"/>
+</session>

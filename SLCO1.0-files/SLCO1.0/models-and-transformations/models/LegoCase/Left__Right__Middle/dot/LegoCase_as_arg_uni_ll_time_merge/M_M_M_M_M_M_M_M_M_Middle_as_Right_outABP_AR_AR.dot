@@ -1,0 +1,16 @@
+digraph Middle_as_Right_outABP_AR_AR {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Zero_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Zero Zero_extra -> Zero
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Zero_s_Acknowledge_abl_ZeroToZeroAck
+
+
+
+Zero -> Zero_s_Acknowledge_abl_ZeroToZeroAck [label = "receive Acknowledge([[b]]) from Middle_as_Right_outABP_AR_AARAS;\n Middle_as_Right_out_AR_to_Sender_name := \"Acknowledge\";\n Middle_as_Right_out_AR_to_Sender_abl := 1"];
+
+Zero -> Zero [label = "receive Acknowledge([[1 - b]]) from Middle_as_Right_outABP_AR_AARAS"];
+
+Zero_s_Acknowledge_abl_ZeroToZeroAck -> Zero [label = "Middle_as_Right_out_AR_to_Sender_abl == 2;\n Middle_as_Right_out_AR_to_Sender_abl := 3;\n Middle_as_Right_out_AR_to_Sender_abl == 0;\n b := 1 - b"];
+
+}

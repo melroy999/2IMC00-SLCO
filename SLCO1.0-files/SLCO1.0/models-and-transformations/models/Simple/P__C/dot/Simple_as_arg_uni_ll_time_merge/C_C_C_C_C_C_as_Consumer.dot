@@ -1,0 +1,19 @@
+digraph C_as_Consumer {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] State_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] State State_extra -> State
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] State_r_Signal_rbl_StateToState
+node [shape = "Mrecord", height = "0.8", width = "1.6"] State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State
+
+
+
+State -> State_r_Signal_rbl_StateToState [label = "C_as_P_in_Receiver_to_Original_abl == 1 && C_as_P_in_Receiver_to_Original_name == \"Signal\" && C_as_P_in_Receiver_to_Original_arg_0 == \"Send_Bericht\";\n C_as_P_in_Receiver_to_Original_abl := 2"];
+
+State_r_Signal_rbl_StateToState -> State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State [label = "C_as_P_in_Receiver_to_Original_abl == 3;\n C_as_P_in_Receiver_to_Original_abl := 0;\n C_as_P_out_Original_to_Sender_name := \"Signal\";\n C_as_P_out_Original_to_Sender_arg_0 := \"Acknowledge_Bericht\";\n C_as_P_out_Original_to_Sender_abl := 1"];
+
+State_r_Signal_rbl_StateToState -> State [label = "C_as_P_in_Receiver_to_Original_abl == 0"];
+
+State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State -> State [label = "C_as_P_out_Original_to_Sender_abl == 2;\n C_as_P_out_Original_to_Sender_abl := 3;\n C_as_P_out_Original_to_Sender_abl == 0"];
+
+}

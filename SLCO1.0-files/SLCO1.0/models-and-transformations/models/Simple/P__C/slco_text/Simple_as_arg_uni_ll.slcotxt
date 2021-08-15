@@ -1,0 +1,178 @@
+model Simple_as_arg_uni_ll {
+  classes
+    Producer_as {
+      ports
+        C_in
+        C_out
+
+      state machines
+        Producer {
+          initial
+            State
+
+          transitions
+            StateToState from State to State {
+              send Signal("Send_Bericht") to C_out;
+              receive Signal([["Acknowledge_Bericht"]]) from C_in
+            }
+        }
+    }
+
+    Consumer_as {
+      ports
+        P_in
+        P_out
+
+      state machines
+        Consumer {
+          initial
+            State
+
+          transitions
+            StateToState from State to State {
+              receive Signal([["Send_Bericht"]]) from P_in;
+              send Signal("Acknowledge_Bericht") to P_out
+            }
+        }
+    }
+
+    ABP_Sender {
+      ports
+        ASOriginal
+        ASReceiver
+        ASAR
+
+      state machines
+        Sender {
+          variables
+            Integer s = 0
+            String d
+
+          initial
+            Zero
+
+          state
+            One
+
+          transitions
+            ZeroToOne from Zero to One {
+              receive Signal(d) from ASOriginal
+            }
+
+            OneToZero from One to Zero {
+              receive Acknowledge() from ASAR;
+              s := (1 - s)
+            }
+
+            SenderOneToOne from One to One {
+              send Message(d, s) to ASReceiver
+            }
+        }
+    }
+
+    ABP_AR {
+      ports
+        AARAS
+        AARSender
+
+      state machines
+        AR {
+          variables
+            Integer b = 0
+
+          initial
+            Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero {
+              receive Acknowledge([[b]]) from AARAS;
+              send Acknowledge() to AARSender;
+              b := (1 - b)
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Acknowledge([[(1 - b)]]) from AARAS
+            }
+        }
+    }
+
+    ABP_Receiver {
+      ports
+        AROriginal
+        ARSender
+        ARAS
+
+      state machines
+        Receiver {
+          variables
+            Integer r = 0
+            String d
+
+          initial
+            Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero {
+              receive Message(d, [[r]]) from ARSender;
+              send Signal(d) to AROriginal;
+              send Acknowledge() to ARAS;
+              r := (1 - r)
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Message(d, [[(1 - r)]]) from ARSender
+            }
+        }
+    }
+
+    ABP_AS {
+      ports
+        AASAR
+        AASReceiver
+
+      state machines
+        AS {
+          variables
+            Integer b = 1
+
+          initial
+            Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero {
+              receive Acknowledge() from AASReceiver;
+              b := (1 - b)
+            }
+
+            ASZeroToZero from Zero to Zero {
+              send Acknowledge(b) to AASAR
+            }
+        }
+    }
+
+  objects
+    P_as: Producer_as
+    C_as: Consumer_as
+    P_as_C_outABP_Sender: ABP_Sender
+    P_as_C_outABP_AR: ABP_AR
+    C_as_P_inABP_Receiver: ABP_Receiver
+    C_as_P_inABP_AS: ABP_AS
+    C_as_P_outABP_Sender: ABP_Sender
+    C_as_P_outABP_AR: ABP_AR
+    P_as_C_inABP_Receiver: ABP_Receiver
+    P_as_C_inABP_AS: ABP_AS
+
+  channels
+    P_as_C_out_Original_to_Sender(String) sync from P_as.C_out to P_as_C_outABP_Sender.ASOriginal
+    P_as_C_out_AR_to_Sender() sync from P_as_C_outABP_AR.AARSender to P_as_C_outABP_Sender.ASAR
+    C_as_P_in_Receiver_to_Original(String) sync from C_as_P_inABP_Receiver.AROriginal to C_as.P_in
+    C_as_P_in_Receiver_to_AS() sync from C_as_P_inABP_Receiver.ARAS to C_as_P_inABP_AS.AASReceiver
+    P_as_C_out_Sender_to_Receiver(String, Integer) async lossy from P_as_C_outABP_Sender.ASReceiver to C_as_P_inABP_Receiver.ARSender
+    P_as_C_out_AS_to_AR(Integer) async lossy from C_as_P_inABP_AS.AASAR to P_as_C_outABP_AR.AARAS
+    C_as_P_out_Original_to_Sender(String) sync from C_as.P_out to C_as_P_outABP_Sender.ASOriginal
+    C_as_P_out_AR_to_Sender() sync from C_as_P_outABP_AR.AARSender to C_as_P_outABP_Sender.ASAR
+    P_as_C_in_Receiver_to_Original(String) sync from P_as_C_inABP_Receiver.AROriginal to P_as.C_in
+    P_as_C_in_Receiver_to_AS() sync from P_as_C_inABP_Receiver.ARAS to P_as_C_inABP_AS.AASReceiver
+    C_as_P_out_Sender_to_Receiver(String, Integer) async lossy from C_as_P_outABP_Sender.ASReceiver to P_as_C_inABP_Receiver.ARSender
+    C_as_P_out_AS_to_AR(Integer) async lossy from P_as_C_inABP_AS.AASAR to C_as_P_outABP_AR.AARAS
+}

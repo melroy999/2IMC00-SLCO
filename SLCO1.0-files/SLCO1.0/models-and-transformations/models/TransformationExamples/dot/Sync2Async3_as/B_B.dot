@@ -1,0 +1,19 @@
+digraph B {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Initial_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Initial Initial_extra -> Initial
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Initial_1_0_A_1
+
+node [shape = "doublecircle", height = "0.2", width = "0.2", style = "filled", color = "black", label = ""] Final_extra node [shape = "Mrecord", height = "0.8", width = "1.6", style = "solid", label="Final"] Final Final -> Final_extra
+
+
+Initial -> Initial_1_0_A_1 [label = "recvar_In == 1;\n send A(2) to In"];
+
+Initial_1_0_A_1 -> Final [label = "recvar_In == 3;\n send A(0) to In"];
+
+Initial -> Initial [label = "recvar_In == 4;\n recvar_In := 3;\n send A(0) to In"];
+
+Initial_1_0_A_1 -> Initial [label = "recvar_In == 4"];
+
+}

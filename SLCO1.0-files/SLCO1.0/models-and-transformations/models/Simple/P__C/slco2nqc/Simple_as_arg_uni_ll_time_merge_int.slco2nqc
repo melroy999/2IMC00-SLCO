@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<slco2nqc:Slco2Nqc xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:slco2nqc="slco2nqc">
+  <signal2MotorList/>
+  <signal2SensorList/>
+  <motorInitList/>
+  <classList>
+    <classes href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time_merge_int.slco#//@classes.0"/>
+    <classes href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time_merge_int.slco#//@classes.1"/>
+  </classList>
+  <sensorInitList/>
+</slco2nqc:Slco2Nqc>

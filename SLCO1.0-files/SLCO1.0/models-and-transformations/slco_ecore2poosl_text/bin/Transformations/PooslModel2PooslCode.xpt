@@ -1,0 +1,697 @@
+«IMPORT poosl»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateModel FOR Model-»
+«FILE this.name.toFirstUpper() + "_cl.psl"-»«ENDFILE»
+«FILE this.name.toFirstUpper() + "_dt.psl"-»
+/*==============*/
+/*--------------*/
+/* Data Classes */
+/*--------------*/
+/*==============*/
+
+«EXPAND generateDataClass FOREACH this.classes-»
+«ENDFILE-»
+«FILE this.name.toFirstUpper() + "_pr.psl"-»
+/*=================*/
+/*-----------------*/
+/* Process Classes */
+/*-----------------*/
+/*=================*/
+
+«EXPAND generateProcessClass FOREACH this.classes-»
+«ENDFILE-»
+«FILE this.name.toFirstUpper() + "_tl.top"-»
+drawing
+system
+
+instances
+«EXPAND generateInstanceForTop FOREACH this.processInstances-»
+
+channels
+«EXPAND generateChannelForTop FOREACH this.channels-»
+
+scenarios
+'all', 'normal'
+
+poosl specification
+'
+«EXPAND generateClassForTop FOREACH this.classes»
+cluster class aClass()
+
+communication channels
+
+message interface
+
+behaviour specification
+  (
+«EXPAND generateProcessInstance FOREACH this.processInstances SEPARATOR "
+  ||
+"»
+  )
+  \
+  {«EXPAND generateChannel FOREACH this.channels SEPARATOR ", "»}
+'
+«ENDFILE-»
+  «FILE this.name.toFirstUpper() + ".p4r"-»
+///////////
+//-------//
+// Model //
+//-------//
+///////////
+
+system specification «this.name»()
+
+behaviour specification
+  (
+«EXPAND generateProcessInstance FOREACH this.processInstances SEPARATOR "
+  ||
+"»
+  )
+  \
+  {«EXPAND generateChannel FOREACH this.channels SEPARATOR ", "»}
+ 
+«EXPAND generateClass FOREACH this.classes-»
+«EXPAND generatePrimitiveDataTypes FOR this»
+«ENDFILE-»
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateClass FOR Class-»
+///////////
+//-------//
+// Class //
+//-------//
+///////////
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateClass FOR DataClass-»
+  «IF !this.methods.body.isEmpty-»
+///////////////
+//-----------//
+// DataClass //
+//-----------//
+///////////////
+
+data class «this.name-»
+    «IF this.superClass != null-»extends «this.superClass.name-»«ENDIF»
+    «IF this.superClass == null-»extends Object«ENDIF»
+instance variables
+«EXPAND generateVariableDeclaration FOREACH this.variables SEPARATOR ",
+"»
+instance methods
+«EXPAND generateDataMethod FOREACH this.methods»
+  «ENDIF-»
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateClass FOR ProcessClass-»
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class «this.name»(«EXPAND generateParameterDeclaration FOREACH this.parameters SEPARATOR ","»)
+  «IF this.superClass != null-»extends «this.superClass.name»«ENDIF-»
+instance variables
+«EXPAND generateVariableDeclaration FOREACH this.variables SEPARATOR ",
+"»
+initial method call
+  «EXPAND generateStatement FOR this.initialMethodCall»
+instance methods
+«EXPAND generateProcessMethod FOREACH this.methods»
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateInstanceForTop FOR ProcessInstance»
+process of class '«this.class.name»' in 0@0 to 50@50 name '«this.name»' at 5@5
+connectors
+«EXPAND generateConnectors FOREACH this.class.ports-»
+scenarios
+'normal'
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateConnectors FOR Port-»
+  '«this.name»' at 0@0 name at 0@0
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateChannelForTop FOR Channel»
+name '«this.name»' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket '«this.port1.name»' of instance '«this.processInstance1.name»' to socket '«this.port2.name»' of instance '«this.processInstance2.name»'
+
+scenarios
+  'normal'
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateProcessInstance FOR ProcessInstance»   «this.name»: «this.class.name»[
+«EXPAND generateConnections FOR this»
+   ]«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateConnections FOR ProcessInstance-»
+«FOREACH ((poosl::Model) this.class.eContainer).channels.select(c|c.processInstance1 == this) AS c SEPARATOR ",
+"-»
+     «c.name-»/«this.class.ports.select(p|c.port1 == p).first().name-»«ENDFOREACH-»
+«IF (!((poosl::Model) this.class.eContainer).channels.select(c|c.processInstance2 == this).isEmpty && !((poosl::Model) this.class.eContainer).channels.select(c|c.processInstance1 == this).isEmpty)-»,«ENDIF»
+«FOREACH ((poosl::Model) this.class.eContainer).channels.select(c|c.processInstance2 == this) AS c SEPARATOR ",
+"-»
+     «c.name»/«this.class.ports.select(p|c.port2 == p).first().name»«ENDFOREACH-»
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateChannel FOR Channel»«this.name»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateDataClass FOR Class-»
+  «IF this.metaType == poosl::DataClass-»
+/*===========*/
+/*-----------*/
+/* DataClass */
+/*-----------*/
+/*===========*/
+
+data class «this.name-»
+    «IF ((poosl::DataClass) this).superClass != null-»extends «((poosl::DataClass) this).superClass.name-»«ENDIF»
+    «IF ((poosl::DataClass) this).superClass == null-»extends Object«ENDIF»
+instance variables
+«EXPAND generateVariableDeclaration FOREACH ((poosl::DataClass) this).variables SEPARATOR ",
+"»
+instance methods
+«EXPAND generateDataMethod FOREACH ((poosl::DataClass) this).methods»
+  «ENDIF-»
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateProcessClass FOR Class-»
+«IF this.metaType == poosl::ProcessClass-»
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class «this.name»(«EXPAND generateParameterDeclaration FOREACH ((poosl::ProcessClass) this).parameters SEPARATOR ","»)
+  «IF ((poosl::ProcessClass) this).superClass != null-»extends «((poosl::ProcessClass) this).superClass.name»«ENDIF-»
+instance variables
+«EXPAND generateVariableDeclaration FOREACH ((poosl::ProcessClass) this).variables SEPARATOR ",
+"»
+communication channels
+«EXPAND generatePortName FOREACH ((poosl::ProcessClass) this).ports SEPARATOR ",
+"»
+message interface
+«EXPAND generateMessageInterface FOREACH ((poosl::ProcessClass) this).eAllContents.typeSelect(poosl::Statement).select(s|s.metaType == poosl::MessageReceive || s.metaType == poosl::MessageSend) SEPARATOR ";
+"»
+initial method call
+  «EXPAND generateStatement FOR ((poosl::ProcessClass) this).initialMethodCall»
+instance methods
+«EXPAND generateProcessMethod FOREACH ((poosl::ProcessClass) this).methods»
+«ENDIF-»
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateClassForTop FOR Class-»
+/*=======*/
+/*-------*/
+/* Class */
+/*-------*/
+/*=======*/
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateClassForTop FOR DataClass-»
+  «IF !this.methods.body.isEmpty-»
+/*===========*/
+/*-----------*/
+/* DataClass */
+/*-----------*/
+/*===========*/
+
+data class «this.name-»
+    «IF this.superClass != null-»extends «this.superClass.name-»«ENDIF»
+    «IF this.superClass == null-»extends Object«ENDIF»
+instance variables
+«EXPAND generateVariableDeclaration FOREACH this.variables SEPARATOR ",
+"»
+instance methods
+«EXPAND generateDataMethod FOREACH this.methods»
+  «ENDIF-»
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateClassForTop FOR ProcessClass-»
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class «this.name»(«EXPAND generateParameterDeclaration FOREACH this.parameters SEPARATOR ","»)
+  «IF this.superClass != null-»extends «this.superClass.name»«ENDIF-»
+instance variables
+«EXPAND generateVariableDeclaration FOREACH this.variables SEPARATOR ",
+"»
+communication channels
+«EXPAND generatePortName FOREACH this.ports SEPARATOR ",
+"»
+message interface
+«EXPAND generateMessageInterface FOREACH ((poosl::ProcessClass) this).eAllContents.typeSelect(poosl::Statement).select(s|s.metaType == poosl::MessageReceive || s.metaType == poosl::MessageSend) SEPARATOR ";
+"»
+initial method call
+  «EXPAND generateStatement FOR this.initialMethodCall»
+instance methods
+«EXPAND generateProcessMethod FOREACH this.methods»
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generatePortName FOR Port-»
+  «this.name-»
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateMessageInterface FOR Statement-»
+  /* MessageInterface «this.metaType.toString()» */
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateMessageInterface FOR MessageReceive-»
+  «this.port.name»?«this.message.name»(«EXPAND generateTypeName FOREACH this.variables.type SEPARATOR ","»)«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateMessageInterface FOR MessageSend-»
+  «this.port.name»!«this.message.name»(«EXPAND generateObjectString FOREACH this.expressionLists SEPARATOR ","»)«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateObjectString FOR ExpressionList»Object«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateVariableDeclaration FOR Variable-»
+  «this.name»: «EXPAND generateTypeName FOR this.type-»
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateParameterDeclaration FOR Parameter-»
+«this.name»: «EXPAND generateTypeName FOR this.type-»
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateTypeName FOR Type-»
+«IF this.metaType == poosl::PrimitiveType-»«((poosl::PrimitiveType) this ).primitiveTypeEnum.toString().toFirstUpper()»«ELSE-»«IF this.metaType == poosl::DataClass»«((poosl::Class) this).name»«ENDIF-»«ENDIF-»
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateDataMethod FOR DataMethod-»
+/* ------ DataMethod ------ */
+  «this.name»(«EXPAND generateParameterDeclaration FOREACH this.parameters SEPARATOR ","»): «EXPAND generateTypeName FOR this.returnType»
+  «IF this.body.isEmpty-»
+    primitive
+  «ELSE-»
+    | «EXPAND generateVariableDeclaration FOREACH this.variables SEPARATOR ","» |
+    «EXPAND generateExpression FOREACH this.body SEPARATOR ";
+    "»
+  «ENDIF-»
+  .
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateProcessMethod FOR ProcessMethod-»
+/* ------ ProcessMethod ------ */
+  «this.name»(«EXPAND generateParameterDeclaration FOREACH this.inputParameters SEPARATOR ","»)(«EXPAND generateParameterDeclaration FOREACH this.outputParameters SEPARATOR ","»)
+  «IF this.body.isEmpty-»
+    primitive
+  «ELSE-»
+    | «EXPAND generateVariableDeclaration FOREACH this.variables SEPARATOR ","» |
+    «EXPAND generateStatement FOREACH this.body SEPARATOR ";
+    "»
+  «ENDIF-»
+  .
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateExpression FOR Expression»
+/* Expression «this.metaType.toString()» */
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateExpression FOR PrimitiveDataMethodCall-»
+(«EXPAND generateExpression FOREACH this.objectExpressions-»
+«EXPAND generatePrimitiveDataMethod FOR this.primitiveDataMethod-»
+«EXPAND generateExpression FOREACH this.parameterExpressionLists.first().expressions-»)«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generatePrimitiveDataMethod FOR PrimitiveDataMethodEnum-»
+«IF this == poosl::PrimitiveDataMethodEnum::add-»+«ELSEIF this == poosl::PrimitiveDataMethodEnum::atLeast-»>=«ELSEIF this == poosl::PrimitiveDataMethodEnum::atMost-»<=«ELSEIF this == poosl::PrimitiveDataMethodEnum::and-»&«ELSEIF this == poosl::PrimitiveDataMethodEnum::or-»|«ELSEIF this == poosl::PrimitiveDataMethodEnum::equals-»=«ELSEIF this == poosl::PrimitiveDataMethodEnum::differs-»!=«ELSEIF this == poosl::PrimitiveDataMethodEnum::subtract-»-«ELSEIF true-»"unknown operator"«ENDIF-»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateExpression FOR Assignment»«this.leftHandSide.name» := «EXPAND generateExpression FOREACH this.rightHandSide SEPARATOR ";"»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateExpression FOR LoopExpression»
+  while («this.condition») do
+    «EXPAND generateExpression FOREACH this.body SEPARATOR ";"-»
+  od
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateExpression FOR ConditionalExpression-»
+  if («this.condition») then
+    «EXPAND generateExpression FOREACH this.thenClause SEPARATOR ";
+    "-»
+  «IF this.elseClause.size > 0»
+    else
+    «EXPAND generateExpression FOREACH this.elseClause SEPARATOR ";
+    "-»
+  «ENDIF-»
+  fi
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateExpression FOR DataObjectCreation»new(«this.dataClass.name»)«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateExpression FOR VariableExpression»«this.variable.name-»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateExpression FOR ParameterExpression»«this.Parameter.name-»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateExpression FOR ReturnExpression»return («EXPAND generateExpression FOREACH this.returnExpressions SEPARATOR ";"-»)«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateExpression FOR DataMethodCall»«EXPAND generateExpression FOREACH this.objectExpressions SEPARATOR ";"» «IF this.dataMethod.body.isEmpty»«IF this.dataMethod.name == "atLeast"»>=«ELSEIF this.dataMethod.name == "add"»+«ENDIF» «EXPAND generateExpressionList FOR this.parameterExpressionLists.first()»«ELSE»«this.dataMethod.name»(«EXPAND generateExpressionList FOREACH this.parameterExpressionLists SEPARATOR ","»)«ENDIF»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateExpression FOR ReferenceSelf»self«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateExpression FOR ConstantExpression»«EXPAND generateConstant FOR this.constant»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateExpressionList FOR ExpressionList-»«EXPAND generateExpression FOREACH this.expressions SEPARATOR ";"»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateConstant FOR Constant»«IF this.type == poosl::PrimitiveTypeEnum::integer»«this.integer»«ELSEIF this.type == poosl::PrimitiveTypeEnum::boolean»«this.boolean.toString()»«ELSEIF this.type == poosl::PrimitiveTypeEnum::string»"«this.string»"«ELSE»*UNKNOWN CONSTANT*«ENDIF»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateStatement FOR Statement»
+/* Statement «this.metaType.toString()» */
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateStatementList FOR StatementList-»
+      «EXPAND generateStatement FOREACH this.statements SEPARATOR ";
+      "-»
+«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateStatement FOR Selection-»
+    sel
+«EXPAND generateStatementList FOREACH this.statementLists SEPARATOR "
+    or
+"»
+    les«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateStatement FOR ParallelComposition-»
+    par
+«EXPAND generateStatementList FOREACH this.statementLists SEPARATOR "
+    and
+"»
+    rap«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateStatement FOR TimeSynchronisation»delay («EXPAND generateExpression FOREACH this.duration SEPARATOR ";"»)«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateStatement FOR MessageSend»«this.port.name»!«this.message.name»(«EXPAND generateExpressionList FOREACH this.expressionLists SEPARATOR ","»)«IF !this.expressions.isEmpty»{«EXPAND generateExpression FOREACH this.expressions SEPARATOR ","»}«ENDIF»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateStatement FOR MessageReceive»«this.port.name»?«this.message.name»(«EXPAND generateVariable FOREACH this.variables SEPARATOR ","»«IF !this.condition.isEmpty»|«EXPAND generateExpression FOREACH this.condition SEPARATOR ";"»«ENDIF»)«IF !this.expressions.isEmpty»{«EXPAND generateExpression FOREACH this.expressions SEPARATOR ","»}«ENDIF»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateStatement FOR Assignment»«EXPAND generateExpression FOR this»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateStatement FOR DataMethodCall»«EXPAND generateExpression FOR this»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateStatement FOR ProcessMethodCall»«this.method.name»(«EXPAND generateExpressionList FOREACH this.parameterExpressions SEPARATOR ","»)(«EXPAND generateVariable FOREACH this.variables SEPARATOR ","»)«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateStatement FOR Skip»skip«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateStatement FOR GuardedExecution»[«EXPAND generateExpression FOREACH this.guard»]«EXPAND generateStatement FOR this.statement»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateVariable FOR Variable»«this.name»«ENDDEFINE»
+
+«DEFINE generatePrimitiveDataTypes FOR Model»
+/*========================*/
+/*------------------------*/
+/* Primitive Data Classes */
+/*------------------------*/
+/*========================*/
+
+data class Object
+instance variables
+instance methods
+	error(ErrorMessage: String): Object primitive.
+	deepCopy: Object primitive.
+	=  (Operand2: Object): Boolean primitive.
+	!= (Operand2: Object): Boolean primitive.
+	== (Operand2: Object): Boolean primitive.
+	!==(Operand2: Object): Boolean primitive.
+	printString: String primitive.
+	shallowCopy: Object primitive.
+
+data class Number
+extends Object
+instance variables
+instance methods
+
+data class Integer
+extends Object
+instance variables
+instance methods
+	+  (Operand2: Number): Number primitive.
+	/  (Operand2: Number): Number primitive.
+	*  (Operand2: Number): Number primitive.
+	-  (Operand2: Number): Number primitive.
+	<  (Operand2: Number): Boolean primitive.
+	>  (Operand2: Number): Boolean primitive.
+	<= (Operand2: Number): Boolean primitive.
+	>= (Operand2: Number): Boolean primitive.
+	unaryMinus: Integer primitive.
+
+	abs: Integer primitive.
+
+	&  (Operand2: Integer): Integer primitive.
+	|  (Operand2: Integer): Integer primitive.
+	not: Integer primitive.
+
+	sqrt: Number primitive.
+	power(Operand2: Number): Number primitive.
+	sqr: Integer primitive.
+
+	div(Operand2: Integer): Integer primitive.
+	modulo(Operand2: Number): Number primitive.
+
+	asInteger: Integer primitive.
+	asReal: Real primitive.
+	asString: String primitive.
+	printString: String primitive.
+
+	fac: Integer primitive.
+	monus(n: Integer): Integer if n > self then 0 else self - n fi.
+
+data class Real
+extends Object
+instance variables
+instance methods
+	+  (Operand2: Number): Real primitive.
+	/  (Operand2: Number): Real primitive.
+	*  (Operand2: Number): Real primitive.
+	-  (Operand2: Number): Real primitive.
+	<  (Operand2: Number): Boolean primitive.
+	>  (Operand2: Number): Boolean primitive.
+	<= (Operand2: Number): Boolean primitive.
+	>= (Operand2: Number): Boolean primitive.
+	unaryMinus: Real primitive.
+
+	acos: Real primitive.
+	asin: Real primitive.
+	atan: Real primitive.
+	atan2(Denom: Real): Real primitive.
+	cos: Real primitive.
+	sin: Real primitive.
+	tan: Real primitive.
+
+	abs: Real primitive.
+
+	log: Real primitive.
+	ln: Real primitive.
+	sqrt: Real primitive.
+	exp: Real primitive.
+	power(Operand2: Number): Real primitive.
+	sqr: Real primitive.
+	
+	ceiling: Integer primitive.
+	floor: Integer primitive.
+	round: Integer primitive.
+
+	div(Operand2: Number): Integer primitive.
+	modulo(Operand2: Number): Real primitive.
+
+	asInteger: Integer primitive.
+	asReal: Real primitive.
+	asString: String primitive.
+	printString: String primitive.
+
+primitive data class Boolean
+extends Object
+instance variables
+instance methods
+	&  (Operand2: Boolean): Boolean primitive.
+	|  (Operand2: Boolean): Boolean primitive.
+	not: Boolean primitive.
+	printString: String primitive.
+
+primitive data class Char
+extends Object
+instance variables
+instance methods
+	printString: String primitive.
+
+primitive data class Array
+extends Object
+instance variables
+instance methods
+	get(FromPosition: Integer): Object primitive.
+	getSize: Integer primitive.
+	size(newSize: Integer): Array primitive.
+	printString: String
+		| i, s: Integer, Str: String |
+		Str := "Array ("; i := 0; s := self getSize;
+		while i < s do Str append(self get(i := i + 1) printString) append(if i < s then "," else ")" fi) od;
+		Str.
+	put(AtPosition: Integer, Element: Object): Array primitive.
+	putAll(Element: Object): Array primitive.
+
+primitive data class String
+extends Object
+instance variables
+instance methods
+	+  (aString: String): String primitive.
+	<  (Operand2: String): Boolean primitive.
+	>  (Operand2: String): Boolean primitive.
+	<= (Operand2: String): Boolean primitive.
+	>= (Operand2: String): Boolean primitive.    
+	append(aString: String): String primitive.
+	copy(From, To: Integer): String primitive.
+	concat(aString: String): String primitive.
+	cr: String primitive.
+	get(FromPosition: Integer): Char primitive.
+	length: Integer primitive.
+	printString: String primitive.
+	put(AtPosition: Integer, aChar: Char): String primitive.
+	tab: String primitive.
+
+primitive data class RandomGenerator
+extends Object
+instance variables
+instance methods
+	random: Real primitive.
+	randomInt(n: Integer): Integer primitive.
+	randomiseSeed: RandomGenerator primitive.
+	setSeed(aSeed: Integer): RandomGenerator primitive.
+
+primitive data class FileOut
+extends Object
+instance variables
+instance methods
+	append: FileOut primitive.
+	destination(FileName: String): FileOut primitive.
+	close: Object primitive.
+	open: FileOut primitive.
+	write(anObject: Object): FileOut
+		self writeString(anObject printString append(' ')).
+	writeln(anObject: Object): FileOut
+		self writeString(anObject printString cr).
+	writeString(aString: String): FileOut primitive.
+
+primitive data class FileIn
+extends Object
+instance variables
+instance methods
+	open: FileIn primitive.
+	close: Object primitive.
+	readString: String primitive.
+	readInteger: Integer primitive.
+	readNumber: Object primitive.
+	readReal: Real primitive.
+	readBoolean: Boolean primitive.
+	readChar: Char primitive.
+	source(FileName: String): FileIn primitive.
+«ENDDEFINE»

@@ -1,0 +1,67 @@
+model MergeChannels {
+  classes
+    A {
+      ports
+        Out_A1
+        Out_A2
+
+      state machines
+        A1 {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              send S() to Out_A1
+            }
+        }
+
+        A2 {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              send S() to Out_A2
+            }
+        }
+    }
+
+    B {
+      ports
+        In_A1
+        In_A2
+
+      state machines
+        B {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal_A1 from Initial to Final {
+              receive S() from In_A1
+            }
+
+            InitialToFinal_A2 from Initial to Final {
+              receive S() from In_A2
+            }
+        }
+    }
+
+  objects
+    a: A
+    b: B
+
+  channels
+    Out_A1_to_In_A1() sync from a.Out_A1 to b.In_A1
+    Out_A2_to_In_A2() sync from a.Out_A2 to b.In_A2
+}

@@ -1,0 +1,226 @@
+
+digraph LegoCase_as_arg_uni_ll_time {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_Right_as{
+    label = "Right_as: Single_as";
+    node [shape = box];
+    Right_as_Sensor[label = Sensor]
+    Right_as_Motor[label = Motor]
+    Right_as_Middle_in[label = Middle_in]
+    Right_as_Middle_out[label = Middle_out]
+  }
+
+  subgraph cluster_Left_as{
+    label = "Left_as: Single_as";
+    node [shape = box];
+    Left_as_Sensor[label = Sensor]
+    Left_as_Motor[label = Motor]
+    Left_as_Middle_in[label = Middle_in]
+    Left_as_Middle_out[label = Middle_out]
+  }
+
+  subgraph cluster_Middle_as{
+    label = "Middle_as: Middle_as";
+    node [shape = box];
+    Middle_as_Sensor[label = Sensor]
+    Middle_as_Motor[label = Motor]
+    Middle_as_Right_in[label = Right_in]
+    Middle_as_Right_out[label = Right_out]
+    Middle_as_Left_in[label = Left_in]
+    Middle_as_Left_out[label = Left_out]
+  }
+
+  subgraph cluster_Environment{
+    label = "Environment: Environment";
+    node [shape = box];
+    Environment_LeftSensor[label = LeftSensor]
+    Environment_LeftMotor[label = LeftMotor]
+    Environment_MiddleSensor[label = MiddleSensor]
+    Environment_MiddleMotor[label = MiddleMotor]
+    Environment_RightSensor[label = RightSensor]
+    Environment_RightMotor[label = RightMotor]
+  }
+
+  subgraph cluster_Right_as_Middle_outABP_Sender{
+    label = "Right_as_Middle_outABP_Sender: ABP_Sender";
+    node [shape = box];
+    Right_as_Middle_outABP_Sender_ASOriginal[label = ASOriginal]
+    Right_as_Middle_outABP_Sender_ASReceiver[label = ASReceiver]
+    Right_as_Middle_outABP_Sender_ASAR[label = ASAR]
+  }
+
+  subgraph cluster_Right_as_Middle_outABP_AR{
+    label = "Right_as_Middle_outABP_AR: ABP_AR";
+    node [shape = box];
+    Right_as_Middle_outABP_AR_AARAS[label = AARAS]
+    Right_as_Middle_outABP_AR_AARSender[label = AARSender]
+  }
+
+  subgraph cluster_Middle_as_Right_inABP_Receiver{
+    label = "Middle_as_Right_inABP_Receiver: ABP_Receiver";
+    node [shape = box];
+    Middle_as_Right_inABP_Receiver_AROriginal[label = AROriginal]
+    Middle_as_Right_inABP_Receiver_ARSender[label = ARSender]
+    Middle_as_Right_inABP_Receiver_ARAS[label = ARAS]
+  }
+
+  subgraph cluster_Middle_as_Right_inABP_AS{
+    label = "Middle_as_Right_inABP_AS: ABP_AS";
+    node [shape = box];
+    Middle_as_Right_inABP_AS_AASAR[label = AASAR]
+    Middle_as_Right_inABP_AS_AASReceiver[label = AASReceiver]
+  }
+
+  subgraph cluster_Left_as_Middle_outABP_Sender{
+    label = "Left_as_Middle_outABP_Sender: ABP_Sender";
+    node [shape = box];
+    Left_as_Middle_outABP_Sender_ASOriginal[label = ASOriginal]
+    Left_as_Middle_outABP_Sender_ASReceiver[label = ASReceiver]
+    Left_as_Middle_outABP_Sender_ASAR[label = ASAR]
+  }
+
+  subgraph cluster_Left_as_Middle_outABP_AR{
+    label = "Left_as_Middle_outABP_AR: ABP_AR";
+    node [shape = box];
+    Left_as_Middle_outABP_AR_AARAS[label = AARAS]
+    Left_as_Middle_outABP_AR_AARSender[label = AARSender]
+  }
+
+  subgraph cluster_Middle_as_Left_inABP_Receiver{
+    label = "Middle_as_Left_inABP_Receiver: ABP_Receiver";
+    node [shape = box];
+    Middle_as_Left_inABP_Receiver_AROriginal[label = AROriginal]
+    Middle_as_Left_inABP_Receiver_ARSender[label = ARSender]
+    Middle_as_Left_inABP_Receiver_ARAS[label = ARAS]
+  }
+
+  subgraph cluster_Middle_as_Left_inABP_AS{
+    label = "Middle_as_Left_inABP_AS: ABP_AS";
+    node [shape = box];
+    Middle_as_Left_inABP_AS_AASAR[label = AASAR]
+    Middle_as_Left_inABP_AS_AASReceiver[label = AASReceiver]
+  }
+
+  subgraph cluster_Middle_as_Right_outABP_Sender{
+    label = "Middle_as_Right_outABP_Sender: ABP_Sender";
+    node [shape = box];
+    Middle_as_Right_outABP_Sender_ASOriginal[label = ASOriginal]
+    Middle_as_Right_outABP_Sender_ASReceiver[label = ASReceiver]
+    Middle_as_Right_outABP_Sender_ASAR[label = ASAR]
+  }
+
+  subgraph cluster_Middle_as_Right_outABP_AR{
+    label = "Middle_as_Right_outABP_AR: ABP_AR";
+    node [shape = box];
+    Middle_as_Right_outABP_AR_AARAS[label = AARAS]
+    Middle_as_Right_outABP_AR_AARSender[label = AARSender]
+  }
+
+  subgraph cluster_Right_as_Middle_inABP_Receiver{
+    label = "Right_as_Middle_inABP_Receiver: ABP_Receiver";
+    node [shape = box];
+    Right_as_Middle_inABP_Receiver_AROriginal[label = AROriginal]
+    Right_as_Middle_inABP_Receiver_ARSender[label = ARSender]
+    Right_as_Middle_inABP_Receiver_ARAS[label = ARAS]
+  }
+
+  subgraph cluster_Right_as_Middle_inABP_AS{
+    label = "Right_as_Middle_inABP_AS: ABP_AS";
+    node [shape = box];
+    Right_as_Middle_inABP_AS_AASAR[label = AASAR]
+    Right_as_Middle_inABP_AS_AASReceiver[label = AASReceiver]
+  }
+
+  subgraph cluster_Middle_as_Left_outABP_Sender{
+    label = "Middle_as_Left_outABP_Sender: ABP_Sender";
+    node [shape = box];
+    Middle_as_Left_outABP_Sender_ASOriginal[label = ASOriginal]
+    Middle_as_Left_outABP_Sender_ASReceiver[label = ASReceiver]
+    Middle_as_Left_outABP_Sender_ASAR[label = ASAR]
+  }
+
+  subgraph cluster_Middle_as_Left_outABP_AR{
+    label = "Middle_as_Left_outABP_AR: ABP_AR";
+    node [shape = box];
+    Middle_as_Left_outABP_AR_AARAS[label = AARAS]
+    Middle_as_Left_outABP_AR_AARSender[label = AARSender]
+  }
+
+  subgraph cluster_Left_as_Middle_inABP_Receiver{
+    label = "Left_as_Middle_inABP_Receiver: ABP_Receiver";
+    node [shape = box];
+    Left_as_Middle_inABP_Receiver_AROriginal[label = AROriginal]
+    Left_as_Middle_inABP_Receiver_ARSender[label = ARSender]
+    Left_as_Middle_inABP_Receiver_ARAS[label = ARAS]
+  }
+
+  subgraph cluster_Left_as_Middle_inABP_AS{
+    label = "Left_as_Middle_inABP_AS: ABP_AS";
+    node [shape = box];
+    Left_as_Middle_inABP_AS_AASAR[label = AASAR]
+    Left_as_Middle_inABP_AS_AASReceiver[label = AASReceiver]
+  }
+
+  
+ Environment_LeftSensor -> Left_as_Sensor [label = "ELeftSensor_to_LSensor_as()"];
+
+ Left_as_Motor -> Environment_LeftMotor [label = "LMotor_to_ELeftMotor_as()"];
+
+ Environment_RightSensor -> Right_as_Sensor [label = "ERightSensor_to_RSensor_as()"];
+
+ Right_as_Motor -> Environment_RightMotor [label = "RMotor_to_ERightMotor_as()"];
+
+ Environment_MiddleSensor -> Middle_as_Sensor [label = "EMiddleSensor_to_MSensor_as()"];
+
+ Middle_as_Motor -> Environment_MiddleMotor [label = "MMotor_to_EMiddleMotor_as()"];
+
+ Right_as_Middle_out -> Right_as_Middle_outABP_Sender_ASOriginal [label = "Right_as_Middle_out_Original_to_Sender(String)"];
+
+ Right_as_Middle_outABP_AR_AARSender -> Right_as_Middle_outABP_Sender_ASAR [label = "Right_as_Middle_out_AR_to_Sender()"];
+
+ Middle_as_Right_inABP_Receiver_AROriginal -> Middle_as_Right_in [label = "Middle_as_Right_in_Receiver_to_Original(String)"];
+
+ Middle_as_Right_inABP_Receiver_ARAS -> Middle_as_Right_inABP_AS_AASReceiver [label = "Middle_as_Right_in_Receiver_to_AS()"];
+
+ Right_as_Middle_outABP_Sender_ASReceiver -> Middle_as_Right_inABP_Receiver_ARSender [label = "Right_as_Middle_out_Sender_to_Receiver(String, Integer)", style=dotted];
+
+ Middle_as_Right_inABP_AS_AASAR -> Right_as_Middle_outABP_AR_AARAS [label = "Right_as_Middle_out_AS_to_AR(Integer)", style=dotted];
+
+ Left_as_Middle_out -> Left_as_Middle_outABP_Sender_ASOriginal [label = "Left_as_Middle_out_Original_to_Sender(String)"];
+
+ Left_as_Middle_outABP_AR_AARSender -> Left_as_Middle_outABP_Sender_ASAR [label = "Left_as_Middle_out_AR_to_Sender()"];
+
+ Middle_as_Left_inABP_Receiver_AROriginal -> Middle_as_Left_in [label = "Middle_as_Left_in_Receiver_to_Original(String)"];
+
+ Middle_as_Left_inABP_Receiver_ARAS -> Middle_as_Left_inABP_AS_AASReceiver [label = "Middle_as_Left_in_Receiver_to_AS()"];
+
+ Left_as_Middle_outABP_Sender_ASReceiver -> Middle_as_Left_inABP_Receiver_ARSender [label = "Left_as_Middle_out_Sender_to_Receiver(String, Integer)", style=dotted];
+
+ Middle_as_Left_inABP_AS_AASAR -> Left_as_Middle_outABP_AR_AARAS [label = "Left_as_Middle_out_AS_to_AR(Integer)", style=dotted];
+
+ Middle_as_Right_out -> Middle_as_Right_outABP_Sender_ASOriginal [label = "Middle_as_Right_out_Original_to_Sender(String)"];
+
+ Middle_as_Right_outABP_AR_AARSender -> Middle_as_Right_outABP_Sender_ASAR [label = "Middle_as_Right_out_AR_to_Sender()"];
+
+ Right_as_Middle_inABP_Receiver_AROriginal -> Right_as_Middle_in [label = "Right_as_Middle_in_Receiver_to_Original(String)"];
+
+ Right_as_Middle_inABP_Receiver_ARAS -> Right_as_Middle_inABP_AS_AASReceiver [label = "Right_as_Middle_in_Receiver_to_AS()"];
+
+ Middle_as_Right_outABP_Sender_ASReceiver -> Right_as_Middle_inABP_Receiver_ARSender [label = "Middle_as_Right_out_Sender_to_Receiver(String, Integer)", style=dotted];
+
+ Right_as_Middle_inABP_AS_AASAR -> Middle_as_Right_outABP_AR_AARAS [label = "Middle_as_Right_out_AS_to_AR(Integer)", style=dotted];
+
+ Middle_as_Left_out -> Middle_as_Left_outABP_Sender_ASOriginal [label = "Middle_as_Left_out_Original_to_Sender(String)"];
+
+ Middle_as_Left_outABP_AR_AARSender -> Middle_as_Left_outABP_Sender_ASAR [label = "Middle_as_Left_out_AR_to_Sender()"];
+
+ Left_as_Middle_inABP_Receiver_AROriginal -> Left_as_Middle_in [label = "Left_as_Middle_in_Receiver_to_Original(String)"];
+
+ Left_as_Middle_inABP_Receiver_ARAS -> Left_as_Middle_inABP_AS_AASReceiver [label = "Left_as_Middle_in_Receiver_to_AS()"];
+
+ Middle_as_Left_outABP_Sender_ASReceiver -> Left_as_Middle_inABP_Receiver_ARSender [label = "Middle_as_Left_out_Sender_to_Receiver(String, Integer)", style=dotted];
+
+ Left_as_Middle_inABP_AS_AASAR -> Middle_as_Left_outABP_AR_AARAS [label = "Middle_as_Left_out_AS_to_AR(Integer)", style=dotted];
+
+}

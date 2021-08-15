@@ -1,0 +1,392 @@
+mtype {Acknowledge, Message}
+
+int C_C_C_C_C_C_as_P_out_Original_to_Sender_abl = 0; 
+int C_C_C_C_C_C_as_P_out_Original_to_Sender_name; 
+int C_C_C_C_C_C_as_P_out_Original_to_Sender_arg_0; 
+int C_C_C_C_C_C_as_P_in_Receiver_to_Original_abl = 0; 
+int C_C_C_C_C_C_as_P_in_Receiver_to_Original_name; 
+int C_C_C_C_C_C_as_P_in_Receiver_to_Original_arg_0; 
+int C_C_C_C_C_C_as_P_in_Receiver_to_AS_abl = 0; 
+int C_C_C_C_C_C_as_P_in_Receiver_to_AS_name; 
+int C_C_C_C_C_C_as_P_out_AR_to_Sender_abl = 0; 
+int C_C_C_C_C_C_as_P_out_AR_to_Sender_name; 
+int P_P_P_P_P_P_as_C_out_Original_to_Sender_abl = 0; 
+int P_P_P_P_P_P_as_C_out_Original_to_Sender_name; 
+int P_P_P_P_P_P_as_C_out_Original_to_Sender_arg_0; 
+int P_P_P_P_P_P_as_C_out_AR_to_Sender_abl = 0; 
+int P_P_P_P_P_P_as_C_out_AR_to_Sender_name; 
+int P_P_P_P_P_P_as_C_in_Receiver_to_Original_abl = 0; 
+int P_P_P_P_P_P_as_C_in_Receiver_to_Original_name; 
+int P_P_P_P_P_P_as_C_in_Receiver_to_Original_arg_0; 
+int P_P_P_P_P_P_as_C_in_Receiver_to_AS_abl = 0; 
+int P_P_P_P_P_P_as_C_in_Receiver_to_AS_name; 
+chan P_as_C_out_Sender_to_Receiver__P_P_P_P_P_2_C_C_C_C_C = [1] of { mtype , int , int  }; 
+chan P_as_C_out_AS_to_AR__C_C_C_C_C_2_P_P_P_P_P = [1] of { mtype , int  }; 
+chan C_as_P_out_Sender_to_Receiver__C_C_C_C_C_2_P_P_P_P_P = [1] of { mtype , int , int  }; 
+chan C_as_P_out_AS_to_AR__P_P_P_P_P_2_C_C_C_C_C = [1] of { mtype , int  }
+
+active [1] proctype C_C_C_C_C_C_as_Consumer() {
+
+Label_State: {
+ if
+ ::{C_C_C_C_C_C_as_P_in_Receiver_to_Original_abl == 1 && C_C_C_C_C_C_as_P_in_Receiver_to_Original_name == 0 && C_C_C_C_C_C_as_P_in_Receiver_to_Original_arg_0 == 2;
+C_C_C_C_C_C_as_P_in_Receiver_to_Original_abl = 2;
+goto Label_State_r_Signal_rbl_StateToState;
+};
+ fi;
+};
+Label_State_r_Signal_rbl_StateToState: {
+ if
+ ::{C_C_C_C_C_C_as_P_in_Receiver_to_Original_abl == 3;
+C_C_C_C_C_C_as_P_in_Receiver_to_Original_abl = 0;
+C_C_C_C_C_C_as_P_out_Original_to_Sender_name = 0;
+C_C_C_C_C_C_as_P_out_Original_to_Sender_arg_0 = 3;
+C_C_C_C_C_C_as_P_out_Original_to_Sender_abl = 1;
+goto Label_State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State;
+};
+::{C_C_C_C_C_C_as_P_in_Receiver_to_Original_abl == 0;
+goto Label_State;
+};
+ fi;
+};
+Label_State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State: {
+ if
+ ::{C_C_C_C_C_C_as_P_out_Original_to_Sender_abl == 2;
+C_C_C_C_C_C_as_P_out_Original_to_Sender_abl = 3;
+C_C_C_C_C_C_as_P_out_Original_to_Sender_abl == 0;
+goto Label_State;
+};
+ fi;
+};
+}
+
+active [1] proctype C_C_C_C_C_C_as_P_inABP_Receiver_Receiver() {
+
+int C_C_C_C_C_r = 0;
+int C_C_C_C_C_d;
+Label_Zero: {
+ if
+ ::{P_as_C_out_Sender_to_Receiver__P_P_P_P_P_2_C_C_C_C_C?Message,C_C_C_C_C_d,eval( C_C_C_C_C_r );
+C_C_C_C_C_C_as_P_in_Receiver_to_Original_name = 0;
+C_C_C_C_C_C_as_P_in_Receiver_to_Original_arg_0 = C_C_C_C_C_d;
+C_C_C_C_C_C_as_P_in_Receiver_to_Original_abl = 1;
+goto Label_Zero_s_Signal_abl_ZeroToZeroAck;
+};
+::{P_as_C_out_Sender_to_Receiver__P_P_P_P_P_2_C_C_C_C_C?Message,C_C_C_C_C_d,eval( 1 - C_C_C_C_C_r );
+goto Label_Zero;
+};
+ fi;
+};
+Label_Zero_s_Signal_abl_ZeroToZeroAck: {
+ if
+ ::{C_C_C_C_C_C_as_P_in_Receiver_to_Original_abl == 2;
+C_C_C_C_C_C_as_P_in_Receiver_to_Original_abl = 3;
+C_C_C_C_C_C_as_P_in_Receiver_to_Original_abl == 0;
+C_C_C_C_C_C_as_P_in_Receiver_to_AS_name = 1;
+C_C_C_C_C_C_as_P_in_Receiver_to_AS_abl = 1;
+goto Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero;
+};
+ fi;
+};
+Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero: {
+ if
+ ::{C_C_C_C_C_C_as_P_in_Receiver_to_AS_abl == 2;
+C_C_C_C_C_C_as_P_in_Receiver_to_AS_abl = 3;
+C_C_C_C_C_C_as_P_in_Receiver_to_AS_abl == 0;
+C_C_C_C_C_r = 1 - C_C_C_C_C_r;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype C_C_C_C_C_C_as_P_inABP_AS_AS() {
+
+int C_C_C_C_C_b = 1;
+Label_Zero: {
+ if
+ ::{skip;
+P_as_C_out_AS_to_AR__C_C_C_C_C_2_P_P_P_P_P!Acknowledge,C_C_C_C_C_b;
+goto Label_Zero;
+};
+::{C_C_C_C_C_C_as_P_in_Receiver_to_AS_abl == 1 && C_C_C_C_C_C_as_P_in_Receiver_to_AS_name == 1;
+C_C_C_C_C_C_as_P_in_Receiver_to_AS_abl = 2;
+goto Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck;
+};
+ fi;
+};
+Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck: {
+ if
+ ::{C_C_C_C_C_C_as_P_in_Receiver_to_AS_abl == 3;
+C_C_C_C_C_C_as_P_in_Receiver_to_AS_abl = 0;
+C_C_C_C_C_b = 1 - C_C_C_C_C_b;
+goto Label_Zero;
+};
+::{C_C_C_C_C_C_as_P_in_Receiver_to_AS_abl == 0;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype C_C_C_C_C_C_as_P_outABP_Sender_Sender() {
+
+int C_C_C_C_C_s = 0;
+int C_C_C_C_C_d;
+Label_Zero: {
+ if
+ ::{C_C_C_C_C_C_as_P_out_Original_to_Sender_abl == 1 && C_C_C_C_C_C_as_P_out_Original_to_Sender_name == 0;
+C_C_C_C_C_C_as_P_out_Original_to_Sender_abl = 2;
+goto Label_Zero_r_Signal_rbl_ZeroToOne;
+};
+ fi;
+};
+Label_One: {
+ if
+ ::{skip;
+C_as_P_out_Sender_to_Receiver__C_C_C_C_C_2_P_P_P_P_P!Message,C_C_C_C_C_d,C_C_C_C_C_s;
+goto Label_One;
+};
+::{C_C_C_C_C_C_as_P_out_AR_to_Sender_abl == 1 && C_C_C_C_C_C_as_P_out_AR_to_Sender_name == 1;
+C_C_C_C_C_C_as_P_out_AR_to_Sender_abl = 2;
+goto Label_One_r_Acknowledge_rbl_OneToZero;
+};
+ fi;
+};
+Label_Zero_r_Signal_rbl_ZeroToOne: {
+ if
+ ::{C_C_C_C_C_C_as_P_out_Original_to_Sender_abl == 3;
+C_C_C_C_C_d = C_C_C_C_C_C_as_P_out_Original_to_Sender_arg_0;
+C_C_C_C_C_C_as_P_out_Original_to_Sender_abl = 0;
+goto Label_One;
+};
+::{C_C_C_C_C_C_as_P_out_Original_to_Sender_abl == 0;
+goto Label_Zero;
+};
+ fi;
+};
+Label_One_r_Acknowledge_rbl_OneToZero: {
+ if
+ ::{C_C_C_C_C_C_as_P_out_AR_to_Sender_abl == 3;
+C_C_C_C_C_C_as_P_out_AR_to_Sender_abl = 0;
+C_C_C_C_C_s = 1 - C_C_C_C_C_s;
+goto Label_Zero;
+};
+::{C_C_C_C_C_C_as_P_out_AR_to_Sender_abl == 0;
+goto Label_One;
+};
+ fi;
+};
+}
+
+active [1] proctype C_C_C_C_C_C_as_P_outABP_AR_AR() {
+
+int C_C_C_C_C_b = 0;
+Label_Zero: {
+ if
+ ::{C_as_P_out_AS_to_AR__P_P_P_P_P_2_C_C_C_C_C?Acknowledge,eval( C_C_C_C_C_b );
+C_C_C_C_C_C_as_P_out_AR_to_Sender_name = 1;
+C_C_C_C_C_C_as_P_out_AR_to_Sender_abl = 1;
+goto Label_Zero_s_Acknowledge_abl_ZeroToZeroAck;
+};
+::{C_as_P_out_AS_to_AR__P_P_P_P_P_2_C_C_C_C_C?Acknowledge,eval( 1 - C_C_C_C_C_b );
+goto Label_Zero;
+};
+ fi;
+};
+Label_Zero_s_Acknowledge_abl_ZeroToZeroAck: {
+ if
+ ::{C_C_C_C_C_C_as_P_out_AR_to_Sender_abl == 2;
+C_C_C_C_C_C_as_P_out_AR_to_Sender_abl = 3;
+C_C_C_C_C_C_as_P_out_AR_to_Sender_abl == 0;
+C_C_C_C_C_b = 1 - C_C_C_C_C_b;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype P_P_P_P_P_P_as_Producer() {
+
+Label_State: {
+ if
+ ::{P_P_P_P_P_P_as_C_out_Original_to_Sender_name = 0;
+P_P_P_P_P_P_as_C_out_Original_to_Sender_arg_0 = 2;
+P_P_P_P_P_P_as_C_out_Original_to_Sender_abl = 1;
+goto Label_State_s_Signal_abl_StateToState;
+};
+ fi;
+};
+Label_State_s_Signal_abl_StateToState: {
+ if
+ ::{P_P_P_P_P_P_as_C_in_Receiver_to_Original_abl == 1 && P_P_P_P_P_P_as_C_in_Receiver_to_Original_name == 0 && P_P_P_P_P_P_as_C_in_Receiver_to_Original_arg_0 == 3;
+P_P_P_P_P_P_as_C_in_Receiver_to_Original_abl = 2;
+goto Label_State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State;
+};
+ fi;
+};
+Label_State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State: {
+ if
+ ::{P_P_P_P_P_P_as_C_in_Receiver_to_Original_abl == 3;
+P_P_P_P_P_P_as_C_in_Receiver_to_Original_abl = 0;
+P_P_P_P_P_P_as_C_out_Original_to_Sender_abl == 2;
+P_P_P_P_P_P_as_C_out_Original_to_Sender_abl = 3;
+P_P_P_P_P_P_as_C_out_Original_to_Sender_abl == 0;
+goto Label_State;
+};
+::{P_P_P_P_P_P_as_C_in_Receiver_to_Original_abl == 0;
+goto Label_State_s_Signal_abl_StateToState;
+};
+ fi;
+};
+}
+
+active [1] proctype P_P_P_P_P_P_as_C_outABP_Sender_Sender() {
+
+int P_P_P_P_P_s = 0;
+int P_P_P_P_P_d;
+Label_Zero: {
+ if
+ ::{P_P_P_P_P_P_as_C_out_Original_to_Sender_abl == 1 && P_P_P_P_P_P_as_C_out_Original_to_Sender_name == 0;
+P_P_P_P_P_P_as_C_out_Original_to_Sender_abl = 2;
+goto Label_Zero_r_Signal_rbl_ZeroToOne;
+};
+ fi;
+};
+Label_One: {
+ if
+ ::{skip;
+P_as_C_out_Sender_to_Receiver__P_P_P_P_P_2_C_C_C_C_C!Message,P_P_P_P_P_d,P_P_P_P_P_s;
+goto Label_One;
+};
+::{P_P_P_P_P_P_as_C_out_AR_to_Sender_abl == 1 && P_P_P_P_P_P_as_C_out_AR_to_Sender_name == 1;
+P_P_P_P_P_P_as_C_out_AR_to_Sender_abl = 2;
+goto Label_One_r_Acknowledge_rbl_OneToZero;
+};
+ fi;
+};
+Label_Zero_r_Signal_rbl_ZeroToOne: {
+ if
+ ::{P_P_P_P_P_P_as_C_out_Original_to_Sender_abl == 3;
+P_P_P_P_P_d = P_P_P_P_P_P_as_C_out_Original_to_Sender_arg_0;
+P_P_P_P_P_P_as_C_out_Original_to_Sender_abl = 0;
+goto Label_One;
+};
+::{P_P_P_P_P_P_as_C_out_Original_to_Sender_abl == 0;
+goto Label_Zero;
+};
+ fi;
+};
+Label_One_r_Acknowledge_rbl_OneToZero: {
+ if
+ ::{P_P_P_P_P_P_as_C_out_AR_to_Sender_abl == 3;
+P_P_P_P_P_P_as_C_out_AR_to_Sender_abl = 0;
+P_P_P_P_P_s = 1 - P_P_P_P_P_s;
+goto Label_Zero;
+};
+::{P_P_P_P_P_P_as_C_out_AR_to_Sender_abl == 0;
+goto Label_One;
+};
+ fi;
+};
+}
+
+active [1] proctype P_P_P_P_P_P_as_C_outABP_AR_AR() {
+
+int P_P_P_P_P_b = 0;
+Label_Zero: {
+ if
+ ::{P_as_C_out_AS_to_AR__C_C_C_C_C_2_P_P_P_P_P?Acknowledge,eval( P_P_P_P_P_b );
+P_P_P_P_P_P_as_C_out_AR_to_Sender_name = 1;
+P_P_P_P_P_P_as_C_out_AR_to_Sender_abl = 1;
+goto Label_Zero_s_Acknowledge_abl_ZeroToZeroAck;
+};
+::{P_as_C_out_AS_to_AR__C_C_C_C_C_2_P_P_P_P_P?Acknowledge,eval( 1 - P_P_P_P_P_b );
+goto Label_Zero;
+};
+ fi;
+};
+Label_Zero_s_Acknowledge_abl_ZeroToZeroAck: {
+ if
+ ::{P_P_P_P_P_P_as_C_out_AR_to_Sender_abl == 2;
+P_P_P_P_P_P_as_C_out_AR_to_Sender_abl = 3;
+P_P_P_P_P_P_as_C_out_AR_to_Sender_abl == 0;
+P_P_P_P_P_b = 1 - P_P_P_P_P_b;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype P_P_P_P_P_P_as_C_inABP_Receiver_Receiver() {
+
+int P_P_P_P_P_r = 0;
+int P_P_P_P_P_d;
+Label_Zero: {
+ if
+ ::{C_as_P_out_Sender_to_Receiver__C_C_C_C_C_2_P_P_P_P_P?Message,P_P_P_P_P_d,eval( P_P_P_P_P_r );
+P_P_P_P_P_P_as_C_in_Receiver_to_Original_name = 0;
+P_P_P_P_P_P_as_C_in_Receiver_to_Original_arg_0 = P_P_P_P_P_d;
+P_P_P_P_P_P_as_C_in_Receiver_to_Original_abl = 1;
+goto Label_Zero_s_Signal_abl_ZeroToZeroAck;
+};
+::{C_as_P_out_Sender_to_Receiver__C_C_C_C_C_2_P_P_P_P_P?Message,P_P_P_P_P_d,eval( 1 - P_P_P_P_P_r );
+goto Label_Zero;
+};
+ fi;
+};
+Label_Zero_s_Signal_abl_ZeroToZeroAck: {
+ if
+ ::{P_P_P_P_P_P_as_C_in_Receiver_to_Original_abl == 2;
+P_P_P_P_P_P_as_C_in_Receiver_to_Original_abl = 3;
+P_P_P_P_P_P_as_C_in_Receiver_to_Original_abl == 0;
+P_P_P_P_P_P_as_C_in_Receiver_to_AS_name = 1;
+P_P_P_P_P_P_as_C_in_Receiver_to_AS_abl = 1;
+goto Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero;
+};
+ fi;
+};
+Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero: {
+ if
+ ::{P_P_P_P_P_P_as_C_in_Receiver_to_AS_abl == 2;
+P_P_P_P_P_P_as_C_in_Receiver_to_AS_abl = 3;
+P_P_P_P_P_P_as_C_in_Receiver_to_AS_abl == 0;
+P_P_P_P_P_r = 1 - P_P_P_P_P_r;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype P_P_P_P_P_P_as_C_inABP_AS_AS() {
+
+int P_P_P_P_P_b = 1;
+Label_Zero: {
+ if
+ ::{skip;
+C_as_P_out_AS_to_AR__P_P_P_P_P_2_C_C_C_C_C!Acknowledge,P_P_P_P_P_b;
+goto Label_Zero;
+};
+::{P_P_P_P_P_P_as_C_in_Receiver_to_AS_abl == 1 && P_P_P_P_P_P_as_C_in_Receiver_to_AS_name == 1;
+P_P_P_P_P_P_as_C_in_Receiver_to_AS_abl = 2;
+goto Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck;
+};
+ fi;
+};
+Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck: {
+ if
+ ::{P_P_P_P_P_P_as_C_in_Receiver_to_AS_abl == 3;
+P_P_P_P_P_P_as_C_in_Receiver_to_AS_abl = 0;
+P_P_P_P_P_b = 1 - P_P_P_P_P_b;
+goto Label_Zero;
+};
+::{P_P_P_P_P_P_as_C_in_Receiver_to_AS_abl == 0;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+
+
+

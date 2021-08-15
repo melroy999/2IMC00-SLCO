@@ -1,0 +1,56 @@
+/**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
+ */
+package NQC;
+
+
+/**
+ * <!-- begin-user-doc -->
+ * A representation of the model object '<em><b>Sensor Config Constant</b></em>'.
+ * <!-- end-user-doc -->
+ *
+ * <p>
+ * The following features are supported:
+ * <ul>
+ *   <li>{@link NQC.SensorConfigConstant#getSensorConfig <em>Sensor Config</em>}</li>
+ * </ul>
+ * </p>
+ *
+ * @see NQC.NQCPackage#getSensorConfigConstant()
+ * @model
+ * @generated
+ */
+public interface SensorConfigConstant extends ConstantExpression {
+	/**
+	 * Returns the value of the '<em><b>Sensor Config</b></em>' attribute.
+	 * The literals are from the enumeration {@link NQC.SensorConfigEnum}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Sensor Config</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Sensor Config</em>' attribute.
+	 * @see NQC.SensorConfigEnum
+	 * @see #setSensorConfig(SensorConfigEnum)
+	 * @see NQC.NQCPackage#getSensorConfigConstant_SensorConfig()
+	 * @model required="true"
+	 * @generated
+	 */
+	SensorConfigEnum getSensorConfig();
+
+	/**
+	 * Sets the value of the '{@link NQC.SensorConfigConstant#getSensorConfig <em>Sensor Config</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Sensor Config</em>' attribute.
+	 * @see NQC.SensorConfigEnum
+	 * @see #getSensorConfig()
+	 * @generated
+	 */
+	void setSensorConfig(SensorConfigEnum value);
+
+} // SensorConfigConstant

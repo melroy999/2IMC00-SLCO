@@ -1,0 +1,42 @@
+import slco;
+import channels;
+
+extension org::eclipse::xtend::util::stdlib::io;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// This function removes each class that isn't used as a type in the model
+// provided as input.
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+slco::Model modifyModelRUC(slco::Model model) :
+   let cl = model.classes.select(
+      c
+   |
+      (
+         model.objects.notExists(
+            o
+         |
+            o.class == c
+         )
+      &&
+         model.classes.stateMachines.variables.notExists(
+            v
+         |
+            v.type == c
+         )
+      &&
+         model.classes.variables.notExists(
+            v
+         |
+            v.type == c
+         )
+      )
+   ) :
+   model.classes.removeAll(cl)
+-> model.setName(model.name + "")
+-> model
+;

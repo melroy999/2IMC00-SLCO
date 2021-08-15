@@ -1,0 +1,55 @@
+model Bi2Uni {
+  classes
+    A {
+      ports
+        Port
+
+      state machines
+        A {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinalSend from Initial to Final {
+              send S() to Port
+            }
+
+            InitialToFinalReceive from Initial to Final {
+              receive S() from Port
+            }
+        }
+    }
+
+    B {
+      ports
+        Port
+
+      state machines
+        B {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinalSend from Initial to Final {
+              send S() to Port
+            }
+
+            InitialToFinalReceive from Initial to Final {
+              receive S() from Port
+            }
+        }
+    }
+
+  objects
+    a: A
+    b: B
+
+  channels
+    C() sync between a.Port and b.Port
+}

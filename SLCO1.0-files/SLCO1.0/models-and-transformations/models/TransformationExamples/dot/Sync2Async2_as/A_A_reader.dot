@@ -1,0 +1,13 @@
+digraph A_reader {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] A_reader_is_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] A_reader_is A_reader_is_extra -> A_reader_is
+
+
+
+
+A_reader_is -> A_reader_is [label = "receive A(sendvar_Out) from Out"];
+
+A_reader_is -> A_reader_is [label = "receive B(recvar_In) from In"];
+
+}

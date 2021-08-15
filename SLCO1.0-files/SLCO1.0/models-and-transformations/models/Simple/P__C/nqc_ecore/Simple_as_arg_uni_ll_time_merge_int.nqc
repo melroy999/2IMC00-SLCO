@@ -1,0 +1,1314 @@
+<?xml version="1.0" encoding="ASCII"?>
+<nqc:Programs xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:nqc="nqc">
+  <Programs Name="P_P_P_P_P">
+    <Tasks Name="main">
+      <Statements xsi:type="nqc:NullaryBuiltInFunctionCall" NullaryBuiltInFunction="ClearMessage"/>
+      <Statements xsi:type="nqc:StartStatement" Task="//@Programs.0/@Tasks.1"/>
+      <Statements xsi:type="nqc:StartStatement" Task="//@Programs.0/@Tasks.2"/>
+      <Statements xsi:type="nqc:StartStatement" Task="//@Programs.0/@Tasks.3"/>
+      <Statements xsi:type="nqc:StartStatement" Task="//@Programs.0/@Tasks.4"/>
+      <Statements xsi:type="nqc:StartStatement" Task="//@Programs.0/@Tasks.5"/>
+    </Tasks>
+    <Tasks Name="P_as_Producer">
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Label Label="P_as_Producer_State"/>
+        <Variable Variable="//@Programs.0/@GlobalVariables.1"/>
+        <Expression xsi:type="nqc:IntegerConstant"/>
+      </Statements>
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Variable Variable="//@Programs.0/@GlobalVariables.2"/>
+        <Expression xsi:type="nqc:IntegerConstant" Value="2"/>
+      </Statements>
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Variable Variable="//@Programs.0/@GlobalVariables.0"/>
+        <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.1/@Statements.5/@Label"/>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.1/@Statements.0/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="P_as_Producer_State_s_Signal_abl_StateToState"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="and">
+            <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.5"/>
+              <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+            </Operand1>
+            <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.6"/>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Operand2>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.7"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="3"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.5"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="2"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.1/@Statements.7/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.1/@Statements.5/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="P_as_Producer_State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.5"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="3"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.5"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.0"/>
+              <Operand2 xsi:type="nqc:IntegerConstant" Value="2"/>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.0"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="3"/>
+          </Statements>
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.0"/>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.1/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.5"/>
+          <Operand2 xsi:type="nqc:IntegerConstant"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.1/@Statements.5/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.1/@Statements.7/@Label"/>
+    </Tasks>
+    <Tasks Name="P_as_C_outABP_Sender_Sender">
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="P_as_C_outABP_Sender_Sender_Zero"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.0"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.1"/>
+            <Operand2 xsi:type="nqc:IntegerConstant"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.0"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="2"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.5/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.0/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="P_as_C_outABP_Sender_Sender_One"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="geq">
+          <Operand1 xsi:type="nqc:UnaryBuiltInValueFunctionCall" UnaryBuiltInValueFunction="FastTimer">
+            <Parameter xsi:type="nqc:IntegerConstant"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="div">
+            <Operand1 xsi:type="nqc:IntegerConstant" Value="900"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="10"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="SendMessage">
+            <Parameter xsi:type="nqc:BinaryExpression" Operator="bitor">
+              <Operand1 xsi:type="nqc:BinaryExpression">
+                <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.2/@LocalVariables.1"/>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:BinaryExpression" Operator="bitor">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="times">
+                  <Operand1 xsi:type="nqc:IntegerConstant" Value="128"/>
+                  <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.2/@LocalVariables.0"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:BinaryExpression" Operator="times">
+                  <Operand1 xsi:type="nqc:IntegerConstant" Value="16"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+                </Operand2>
+              </Operand2>
+            </Parameter>
+          </Statements>
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="ClearTimer">
+            <Parameter xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.2/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.3"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.4"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.3"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="2"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.8/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.2/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="P_as_C_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.0"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="3"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@Tasks.2/@LocalVariables.1"/>
+            <Expression xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.2"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.0"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="ClearTimer">
+            <Parameter xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.2/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.0"/>
+          <Operand2 xsi:type="nqc:IntegerConstant"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.5/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="P_as_C_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.3"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="3"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.3"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@Tasks.2/@LocalVariables.0"/>
+            <Expression xsi:type="nqc:BinaryExpression" Operator="minus">
+              <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.2/@LocalVariables.0"/>
+            </Expression>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.3"/>
+          <Operand2 xsi:type="nqc:IntegerConstant"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="ClearTimer">
+            <Parameter xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.2/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.2/@Statements.8/@Label"/>
+      <LocalVariables Name="s">
+        <InitialValue xsi:type="nqc:IntegerConstant"/>
+      </LocalVariables>
+      <LocalVariables Name="d"/>
+    </Tasks>
+    <Tasks Name="P_as_C_outABP_AR_AR">
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Label Label="P_as_C_outABP_AR_AR_Zero"/>
+        <Variable Variable="//@Programs.0/@Tasks.3/@LocalVariables.1"/>
+        <Expression xsi:type="nqc:NullaryBuiltInValueFunctionCall" NullaryBuiltInValueFunction="Message"/>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="notequal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.3/@LocalVariables.1"/>
+            <Operand2 xsi:type="nqc:IntegerConstant"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="and">
+            <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.3/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="112"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="16"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Operand1>
+            <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.3/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.3/@LocalVariables.0"/>
+            </Operand2>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.4"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.3"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.5/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Variable Variable="//@Programs.0/@Tasks.3/@LocalVariables.1"/>
+        <Expression xsi:type="nqc:NullaryBuiltInValueFunctionCall" NullaryBuiltInValueFunction="Message"/>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="notequal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.3/@LocalVariables.1"/>
+            <Operand2 xsi:type="nqc:IntegerConstant"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="and">
+            <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.3/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="112"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="16"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Operand1>
+            <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.3/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:BinaryExpression" Operator="minus">
+                <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+                <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.3/@LocalVariables.0"/>
+              </Operand2>
+            </Operand2>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.0/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="P_as_C_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.3"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="2"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.3"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="3"/>
+          </Statements>
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.3"/>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@Tasks.3/@LocalVariables.0"/>
+            <Expression xsi:type="nqc:BinaryExpression" Operator="minus">
+              <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.3/@LocalVariables.0"/>
+            </Expression>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.3/@Statements.5/@Label"/>
+      <LocalVariables Name="b">
+        <InitialValue xsi:type="nqc:IntegerConstant"/>
+      </LocalVariables>
+      <LocalVariables Name="temp_P_as_C_outABP_AR_AR"/>
+    </Tasks>
+    <Tasks Name="P_as_C_inABP_Receiver_Receiver">
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Label Label="P_as_C_inABP_Receiver_Receiver_Zero"/>
+        <Variable Variable="//@Programs.0/@Tasks.4/@LocalVariables.1"/>
+        <Expression xsi:type="nqc:NullaryBuiltInValueFunctionCall" NullaryBuiltInValueFunction="Message"/>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="notequal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.4/@LocalVariables.1"/>
+            <Operand2 xsi:type="nqc:IntegerConstant"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="and">
+            <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.4/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="112"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="16"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+            </Operand1>
+            <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.4/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.4/@LocalVariables.0"/>
+            </Operand2>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@Tasks.4/@LocalVariables.1"/>
+            <Expression xsi:type="nqc:BinaryExpression" Operator="minus">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.4/@LocalVariables.1"/>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="15"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+            </Expression>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.6"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.7"/>
+            <Expression xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.4/@LocalVariables.1"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.5"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.4/@Statements.5/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Variable Variable="//@Programs.0/@Tasks.4/@LocalVariables.1"/>
+        <Expression xsi:type="nqc:NullaryBuiltInValueFunctionCall" NullaryBuiltInValueFunction="Message"/>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="notequal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.4/@LocalVariables.1"/>
+            <Operand2 xsi:type="nqc:IntegerConstant"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="and">
+            <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.4/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="112"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="16"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+            </Operand1>
+            <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.4/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:BinaryExpression" Operator="minus">
+                <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+                <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.4/@LocalVariables.0"/>
+              </Operand2>
+            </Operand2>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@Tasks.4/@LocalVariables.1"/>
+            <Expression xsi:type="nqc:BinaryExpression" Operator="minus">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.4/@LocalVariables.1"/>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="15"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+            </Expression>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.4/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.4/@Statements.0/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.5"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="2"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.5"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="3"/>
+          </Statements>
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.5"/>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.9"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.8"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.4/@Statements.7/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.4/@Statements.5/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.8"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="2"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.8"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="3"/>
+          </Statements>
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.8"/>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@Tasks.4/@LocalVariables.0"/>
+            <Expression xsi:type="nqc:BinaryExpression" Operator="minus">
+              <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.4/@LocalVariables.0"/>
+            </Expression>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.4/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.4/@Statements.7/@Label"/>
+      <LocalVariables Name="r">
+        <InitialValue xsi:type="nqc:IntegerConstant"/>
+      </LocalVariables>
+      <LocalVariables Name="d"/>
+    </Tasks>
+    <Tasks Name="P_as_C_inABP_AS_AS">
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="P_as_C_inABP_AS_AS_Zero"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="geq">
+          <Operand1 xsi:type="nqc:UnaryBuiltInValueFunctionCall" UnaryBuiltInValueFunction="FastTimer">
+            <Parameter xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="div">
+            <Operand1 xsi:type="nqc:IntegerConstant" Value="900"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="10"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="SendMessage">
+            <Parameter xsi:type="nqc:BinaryExpression" Operator="bitor">
+              <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+              <Operand2 xsi:type="nqc:BinaryExpression" Operator="bitor">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="times">
+                  <Operand1 xsi:type="nqc:IntegerConstant" Value="128"/>
+                  <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.5/@LocalVariables.0"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:BinaryExpression" Operator="times">
+                  <Operand1 xsi:type="nqc:IntegerConstant" Value="16"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant"/>
+                </Operand2>
+              </Operand2>
+            </Parameter>
+          </Statements>
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="ClearTimer">
+            <Parameter xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.5/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.8"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.9"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.8"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="2"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.5/@Statements.3/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.5/@Statements.0/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="P_as_C_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.8"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="3"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@GlobalVariables.8"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.0/@Tasks.5/@LocalVariables.0"/>
+            <Expression xsi:type="nqc:BinaryExpression" Operator="minus">
+              <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@Tasks.5/@LocalVariables.0"/>
+            </Expression>
+          </Statements>
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="ClearTimer">
+            <Parameter xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.5/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.0/@GlobalVariables.8"/>
+          <Operand2 xsi:type="nqc:IntegerConstant"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="ClearTimer">
+            <Parameter xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.5/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.0/@Tasks.5/@Statements.3/@Label"/>
+      <LocalVariables Name="b">
+        <InitialValue xsi:type="nqc:IntegerConstant" Value="1"/>
+      </LocalVariables>
+    </Tasks>
+    <GlobalVariables Name="P_as_C_out_Original_to_Sender_abl">
+      <InitialValue xsi:type="nqc:IntegerConstant"/>
+    </GlobalVariables>
+    <GlobalVariables Name="P_as_C_out_Original_to_Sender_name"/>
+    <GlobalVariables Name="P_as_C_out_Original_to_Sender_arg_0"/>
+    <GlobalVariables Name="P_as_C_out_AR_to_Sender_abl">
+      <InitialValue xsi:type="nqc:IntegerConstant"/>
+    </GlobalVariables>
+    <GlobalVariables Name="P_as_C_out_AR_to_Sender_name"/>
+    <GlobalVariables Name="P_as_C_in_Receiver_to_Original_abl">
+      <InitialValue xsi:type="nqc:IntegerConstant"/>
+    </GlobalVariables>
+    <GlobalVariables Name="P_as_C_in_Receiver_to_Original_name"/>
+    <GlobalVariables Name="P_as_C_in_Receiver_to_Original_arg_0"/>
+    <GlobalVariables Name="P_as_C_in_Receiver_to_AS_abl">
+      <InitialValue xsi:type="nqc:IntegerConstant"/>
+    </GlobalVariables>
+    <GlobalVariables Name="P_as_C_in_Receiver_to_AS_name"/>
+  </Programs>
+  <Programs Name="C_C_C_C_C">
+    <Tasks Name="main">
+      <Statements xsi:type="nqc:NullaryBuiltInFunctionCall" NullaryBuiltInFunction="ClearMessage"/>
+      <Statements xsi:type="nqc:StartStatement" Task="//@Programs.1/@Tasks.1"/>
+      <Statements xsi:type="nqc:StartStatement" Task="//@Programs.1/@Tasks.2"/>
+      <Statements xsi:type="nqc:StartStatement" Task="//@Programs.1/@Tasks.3"/>
+      <Statements xsi:type="nqc:StartStatement" Task="//@Programs.1/@Tasks.4"/>
+      <Statements xsi:type="nqc:StartStatement" Task="//@Programs.1/@Tasks.5"/>
+    </Tasks>
+    <Tasks Name="C_as_Consumer">
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="C_as_Consumer_State"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="and">
+            <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.3"/>
+              <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+            </Operand1>
+            <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.4"/>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Operand2>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.5"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="2"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.3"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="2"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.1/@Statements.2/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.1/@Statements.0/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="C_as_Consumer_State_r_Signal_rbl_StateToState"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.3"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="3"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.3"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.1"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.2"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="3"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.0"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.1/@Statements.5/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.3"/>
+          <Operand2 xsi:type="nqc:IntegerConstant"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.1/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.1/@Statements.2/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="C_as_Consumer_State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.0"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="2"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.0"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="3"/>
+          </Statements>
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.0"/>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.1/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.1/@Statements.5/@Label"/>
+    </Tasks>
+    <Tasks Name="C_as_P_inABP_Receiver_Receiver">
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Label Label="C_as_P_inABP_Receiver_Receiver_Zero"/>
+        <Variable Variable="//@Programs.1/@Tasks.2/@LocalVariables.1"/>
+        <Expression xsi:type="nqc:NullaryBuiltInValueFunctionCall" NullaryBuiltInValueFunction="Message"/>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="notequal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.2/@LocalVariables.1"/>
+            <Operand2 xsi:type="nqc:IntegerConstant"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="and">
+            <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.2/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="112"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="16"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+            </Operand1>
+            <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.2/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.2/@LocalVariables.0"/>
+            </Operand2>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@Tasks.2/@LocalVariables.1"/>
+            <Expression xsi:type="nqc:BinaryExpression" Operator="minus">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.2/@LocalVariables.1"/>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="15"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+            </Expression>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.4"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.5"/>
+            <Expression xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.2/@LocalVariables.1"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.3"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.2/@Statements.5/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Variable Variable="//@Programs.1/@Tasks.2/@LocalVariables.1"/>
+        <Expression xsi:type="nqc:NullaryBuiltInValueFunctionCall" NullaryBuiltInValueFunction="Message"/>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="notequal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.2/@LocalVariables.1"/>
+            <Operand2 xsi:type="nqc:IntegerConstant"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="and">
+            <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.2/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="112"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="16"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+            </Operand1>
+            <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.2/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:BinaryExpression" Operator="minus">
+                <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+                <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.2/@LocalVariables.0"/>
+              </Operand2>
+            </Operand2>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@Tasks.2/@LocalVariables.1"/>
+            <Expression xsi:type="nqc:BinaryExpression" Operator="minus">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.2/@LocalVariables.1"/>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="15"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+            </Expression>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.2/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.2/@Statements.0/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="C_as_P_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.3"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="2"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.3"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="3"/>
+          </Statements>
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.3"/>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.7"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.6"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.2/@Statements.7/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.2/@Statements.5/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="C_as_P_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.6"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="2"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.6"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="3"/>
+          </Statements>
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.6"/>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@Tasks.2/@LocalVariables.0"/>
+            <Expression xsi:type="nqc:BinaryExpression" Operator="minus">
+              <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.2/@LocalVariables.0"/>
+            </Expression>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.2/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.2/@Statements.7/@Label"/>
+      <LocalVariables Name="r">
+        <InitialValue xsi:type="nqc:IntegerConstant"/>
+      </LocalVariables>
+      <LocalVariables Name="d"/>
+    </Tasks>
+    <Tasks Name="C_as_P_inABP_AS_AS">
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="C_as_P_inABP_AS_AS_Zero"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="geq">
+          <Operand1 xsi:type="nqc:UnaryBuiltInValueFunctionCall" UnaryBuiltInValueFunction="FastTimer">
+            <Parameter xsi:type="nqc:IntegerConstant"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="div">
+            <Operand1 xsi:type="nqc:IntegerConstant" Value="900"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="10"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="SendMessage">
+            <Parameter xsi:type="nqc:BinaryExpression" Operator="bitor">
+              <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+              <Operand2 xsi:type="nqc:BinaryExpression" Operator="bitor">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="times">
+                  <Operand1 xsi:type="nqc:IntegerConstant" Value="128"/>
+                  <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.3/@LocalVariables.0"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:BinaryExpression" Operator="times">
+                  <Operand1 xsi:type="nqc:IntegerConstant" Value="16"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant"/>
+                </Operand2>
+              </Operand2>
+            </Parameter>
+          </Statements>
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="ClearTimer">
+            <Parameter xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.3/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.6"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.7"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.6"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="2"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.3/@Statements.3/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.3/@Statements.0/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="C_as_P_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.6"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="3"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.6"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@Tasks.3/@LocalVariables.0"/>
+            <Expression xsi:type="nqc:BinaryExpression" Operator="minus">
+              <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.3/@LocalVariables.0"/>
+            </Expression>
+          </Statements>
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="ClearTimer">
+            <Parameter xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.3/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.6"/>
+          <Operand2 xsi:type="nqc:IntegerConstant"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="ClearTimer">
+            <Parameter xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.3/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.3/@Statements.3/@Label"/>
+      <LocalVariables Name="b">
+        <InitialValue xsi:type="nqc:IntegerConstant" Value="1"/>
+      </LocalVariables>
+    </Tasks>
+    <Tasks Name="C_as_P_outABP_Sender_Sender">
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="C_as_P_outABP_Sender_Sender_Zero"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.0"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.1"/>
+            <Operand2 xsi:type="nqc:IntegerConstant"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.0"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="2"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.4/@Statements.5/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.4/@Statements.0/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="C_as_P_outABP_Sender_Sender_One"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="geq">
+          <Operand1 xsi:type="nqc:UnaryBuiltInValueFunctionCall" UnaryBuiltInValueFunction="FastTimer">
+            <Parameter xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="div">
+            <Operand1 xsi:type="nqc:IntegerConstant" Value="900"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="10"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="SendMessage">
+            <Parameter xsi:type="nqc:BinaryExpression" Operator="bitor">
+              <Operand1 xsi:type="nqc:BinaryExpression">
+                <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.4/@LocalVariables.1"/>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:BinaryExpression" Operator="bitor">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="times">
+                  <Operand1 xsi:type="nqc:IntegerConstant" Value="128"/>
+                  <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.4/@LocalVariables.0"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:BinaryExpression" Operator="times">
+                  <Operand1 xsi:type="nqc:IntegerConstant" Value="16"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+                </Operand2>
+              </Operand2>
+            </Parameter>
+          </Statements>
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="ClearTimer">
+            <Parameter xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.4/@Statements.2/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.8"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.9"/>
+            <Operand2 xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.8"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="2"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.4/@Statements.8/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.4/@Statements.2/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="C_as_P_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.0"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="3"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@Tasks.4/@LocalVariables.1"/>
+            <Expression xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.2"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.0"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="ClearTimer">
+            <Parameter xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.4/@Statements.2/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.0"/>
+          <Operand2 xsi:type="nqc:IntegerConstant"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.4/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.4/@Statements.5/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="C_as_P_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.8"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="3"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.8"/>
+            <Expression xsi:type="nqc:IntegerConstant"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@Tasks.4/@LocalVariables.0"/>
+            <Expression xsi:type="nqc:BinaryExpression" Operator="minus">
+              <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.4/@LocalVariables.0"/>
+            </Expression>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.4/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.8"/>
+          <Operand2 xsi:type="nqc:IntegerConstant"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:UnaryBuiltInFunctionCall" UnaryBuiltInFunction="ClearTimer">
+            <Parameter xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.4/@Statements.2/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.4/@Statements.8/@Label"/>
+      <LocalVariables Name="s">
+        <InitialValue xsi:type="nqc:IntegerConstant"/>
+      </LocalVariables>
+      <LocalVariables Name="d"/>
+    </Tasks>
+    <Tasks Name="C_as_P_outABP_AR_AR">
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Label Label="C_as_P_outABP_AR_AR_Zero"/>
+        <Variable Variable="//@Programs.1/@Tasks.5/@LocalVariables.1"/>
+        <Expression xsi:type="nqc:NullaryBuiltInValueFunctionCall" NullaryBuiltInValueFunction="Message"/>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="notequal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.5/@LocalVariables.1"/>
+            <Operand2 xsi:type="nqc:IntegerConstant"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="and">
+            <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.5/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="112"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="16"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Operand1>
+            <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.5/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.5/@LocalVariables.0"/>
+            </Operand2>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.9"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.8"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="1"/>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.5/@Statements.5/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:AssignmentStatement">
+        <Variable Variable="//@Programs.1/@Tasks.5/@LocalVariables.1"/>
+        <Expression xsi:type="nqc:NullaryBuiltInValueFunctionCall" NullaryBuiltInValueFunction="Message"/>
+      </Statements>
+      <Statements xsi:type="nqc:IfStatement">
+        <Condition xsi:type="nqc:BinaryExpression" Operator="and">
+          <Operand1 xsi:type="nqc:BinaryExpression" Operator="notequal">
+            <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.5/@LocalVariables.1"/>
+            <Operand2 xsi:type="nqc:IntegerConstant"/>
+          </Operand1>
+          <Operand2 xsi:type="nqc:BinaryExpression" Operator="and">
+            <Operand1 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.5/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="112"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="16"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Operand1>
+            <Operand2 xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:BinaryExpression" Operator="div">
+                <Operand1 xsi:type="nqc:BinaryExpression" Operator="bitand">
+                  <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.5/@LocalVariables.1"/>
+                  <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+                </Operand1>
+                <Operand2 xsi:type="nqc:IntegerConstant" Value="128"/>
+              </Operand1>
+              <Operand2 xsi:type="nqc:BinaryExpression" Operator="minus">
+                <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+                <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.5/@LocalVariables.0"/>
+              </Operand2>
+            </Operand2>
+          </Operand2>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.5/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.5/@Statements.0/@Label"/>
+      <Statements xsi:type="nqc:IfStatement">
+        <Label Label="C_as_P_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck"/>
+        <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+          <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.8"/>
+          <Operand2 xsi:type="nqc:IntegerConstant" Value="2"/>
+        </Condition>
+        <Consequence xsi:type="nqc:BlockStatement">
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@GlobalVariables.8"/>
+            <Expression xsi:type="nqc:IntegerConstant" Value="3"/>
+          </Statements>
+          <Statements xsi:type="nqc:UntilStatement">
+            <Condition xsi:type="nqc:BinaryExpression" Operator="equal">
+              <Operand1 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@GlobalVariables.8"/>
+              <Operand2 xsi:type="nqc:IntegerConstant"/>
+            </Condition>
+            <Body xsi:type="nqc:EmptyStatement"/>
+          </Statements>
+          <Statements xsi:type="nqc:AssignmentStatement">
+            <Variable Variable="//@Programs.1/@Tasks.5/@LocalVariables.0"/>
+            <Expression xsi:type="nqc:BinaryExpression" Operator="minus">
+              <Operand1 xsi:type="nqc:IntegerConstant" Value="1"/>
+              <Operand2 xsi:type="nqc:VariableExpression" Variable="//@Programs.1/@Tasks.5/@LocalVariables.0"/>
+            </Expression>
+          </Statements>
+          <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.5/@Statements.0/@Label"/>
+        </Consequence>
+      </Statements>
+      <Statements xsi:type="nqc:GoToStatement" JumpLabel="//@Programs.1/@Tasks.5/@Statements.5/@Label"/>
+      <LocalVariables Name="b">
+        <InitialValue xsi:type="nqc:IntegerConstant"/>
+      </LocalVariables>
+      <LocalVariables Name="temp_C_as_P_outABP_AR_AR"/>
+    </Tasks>
+    <GlobalVariables Name="C_as_P_out_Original_to_Sender_abl">
+      <InitialValue xsi:type="nqc:IntegerConstant"/>
+    </GlobalVariables>
+    <GlobalVariables Name="C_as_P_out_Original_to_Sender_name"/>
+    <GlobalVariables Name="C_as_P_out_Original_to_Sender_arg_0"/>
+    <GlobalVariables Name="C_as_P_in_Receiver_to_Original_abl">
+      <InitialValue xsi:type="nqc:IntegerConstant"/>
+    </GlobalVariables>
+    <GlobalVariables Name="C_as_P_in_Receiver_to_Original_name"/>
+    <GlobalVariables Name="C_as_P_in_Receiver_to_Original_arg_0"/>
+    <GlobalVariables Name="C_as_P_in_Receiver_to_AS_abl">
+      <InitialValue xsi:type="nqc:IntegerConstant"/>
+    </GlobalVariables>
+    <GlobalVariables Name="C_as_P_in_Receiver_to_AS_name"/>
+    <GlobalVariables Name="C_as_P_out_AR_to_Sender_abl">
+      <InitialValue xsi:type="nqc:IntegerConstant"/>
+    </GlobalVariables>
+    <GlobalVariables Name="C_as_P_out_AR_to_Sender_name"/>
+  </Programs>
+</nqc:Programs>

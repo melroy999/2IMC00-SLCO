@@ -1,0 +1,442 @@
+///////////
+//-------//
+// Model //
+//-------//
+///////////
+
+system specification Simple_as_arg_uni_ll_time()
+
+behaviour specification
+  (
+   P_as: Producer_as[
+     P_as_C_out_Original_to_Sender/C_out,
+     P_as_C_in_Receiver_to_Original/C_in
+   ]
+  ||
+   C_as: Consumer_as[
+     C_as_P_out_Original_to_Sender/P_out,
+     C_as_P_in_Receiver_to_Original/P_in
+   ]
+  ||
+   P_as_C_outABP_Sender: ABP_Sender[
+     P_as_C_out_Sender_to_Receiver/ASReceiver,
+     P_as_C_out_Original_to_Sender/ASOriginal,
+     P_as_C_out_AR_to_Sender/ASAR
+   ]
+  ||
+   P_as_C_outABP_AR: ABP_AR[
+     P_as_C_out_AR_to_Sender/AARSender,
+     P_as_C_out_AS_to_AR/AARAS
+   ]
+  ||
+   C_as_P_inABP_Receiver: ABP_Receiver[
+     C_as_P_in_Receiver_to_Original/AROriginal,
+     C_as_P_in_Receiver_to_AS/ARAS,
+     P_as_C_out_Sender_to_Receiver/ARSender
+   ]
+  ||
+   C_as_P_inABP_AS: ABP_AS[
+     P_as_C_out_AS_to_AR/AASAR,
+     C_as_P_in_Receiver_to_AS/AASReceiver
+   ]
+  ||
+   C_as_P_outABP_Sender: ABP_Sender[
+     C_as_P_out_Sender_to_Receiver/ASReceiver,
+     C_as_P_out_Original_to_Sender/ASOriginal,
+     C_as_P_out_AR_to_Sender/ASAR
+   ]
+  ||
+   C_as_P_outABP_AR: ABP_AR[
+     C_as_P_out_AR_to_Sender/AARSender,
+     C_as_P_out_AS_to_AR/AARAS
+   ]
+  ||
+   P_as_C_inABP_Receiver: ABP_Receiver[
+     P_as_C_in_Receiver_to_Original/AROriginal,
+     P_as_C_in_Receiver_to_AS/ARAS,
+     C_as_P_out_Sender_to_Receiver/ARSender
+   ]
+  ||
+   P_as_C_inABP_AS: ABP_AS[
+     C_as_P_out_AS_to_AR/AASAR,
+     P_as_C_in_Receiver_to_AS/AASReceiver
+   ]
+  )
+  \
+  {P_as_C_out_Original_to_Sender, P_as_C_out_AR_to_Sender, C_as_P_in_Receiver_to_Original, C_as_P_in_Receiver_to_AS, P_as_C_out_Sender_to_Receiver, P_as_C_out_AS_to_AR, C_as_P_out_Original_to_Sender, C_as_P_out_AR_to_Sender, P_as_C_in_Receiver_to_Original, P_as_C_in_Receiver_to_AS, C_as_P_out_Sender_to_Receiver, C_as_P_out_AS_to_AR}
+ 
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class Producer_as()
+instance variables
+
+initial method call
+  Producer_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Producer_State()()
+    |   var_0: String |
+    C_out!Signal("Send_Bericht");
+    C_in?Signal(var_0|(var_0="Acknowledge_Bericht"));
+    Producer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Producer_as_initial()()
+    |  |
+    Producer_State()()
+  .
+
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class Consumer_as()
+instance variables
+
+initial method call
+  Consumer_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Consumer_State()()
+    |   var_4: String |
+    P_in?Signal(var_4|(var_4="Send_Bericht"));
+    P_out!Signal("Acknowledge_Bericht");
+    Consumer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Consumer_as_initial()()
+    |  |
+    Consumer_State()()
+  .
+
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class ABP_Sender()
+instance variables
+  ABP_SenderSenders: Integer,
+  ABP_SenderSenderd: String
+initial method call
+  ABP_Sender_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Sender_Zero()()
+    |  |
+    ASOriginal?Signal(ABP_SenderSenderd);
+    Sender_One()()
+  .
+/* ------ ProcessMethod ------ */
+  Sender_One()()
+    |  |
+    sel
+      ASAR?Acknowledge();
+      ABP_SenderSenders := (1-ABP_SenderSenders);
+      Sender_Zero()()
+    or
+      delay (900);
+      ASReceiver!Message(ABP_SenderSenderd,ABP_SenderSenders);
+      Sender_One()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_Sender_initial()()
+    |  |
+    ABP_SenderSenders := 0;
+    Sender_Zero()()
+  .
+
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class ABP_AR()
+instance variables
+  ABP_ARARb: Integer
+initial method call
+  ABP_AR_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  AR_Zero()()
+    |   var_8: Integer,  var_2: Integer |
+    sel
+      AARAS?Acknowledge(var_8|(var_8=ABP_ARARb));
+      AARSender!Acknowledge();
+      ABP_ARARb := (1-ABP_ARARb);
+      AR_Zero()()
+    or
+      AARAS?Acknowledge(var_2|(var_2=(1-ABP_ARARb)));
+      AR_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_AR_initial()()
+    |  |
+    ABP_ARARb := 0;
+    AR_Zero()()
+  .
+
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class ABP_Receiver()
+instance variables
+  ABP_ReceiverReceiverr: Integer,
+  ABP_ReceiverReceiverd: String
+initial method call
+  ABP_Receiver_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Receiver_Zero()()
+    |   var_4: Integer,  var_22: Integer |
+    sel
+      ARSender?Message(ABP_ReceiverReceiverd,var_4|(var_4=ABP_ReceiverReceiverr));
+      AROriginal!Signal(ABP_ReceiverReceiverd);
+      ARAS!Acknowledge();
+      ABP_ReceiverReceiverr := (1-ABP_ReceiverReceiverr);
+      Receiver_Zero()()
+    or
+      ARSender?Message(ABP_ReceiverReceiverd,var_22|(var_22=(1-ABP_ReceiverReceiverr)));
+      Receiver_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_Receiver_initial()()
+    |  |
+    ABP_ReceiverReceiverr := 0;
+    Receiver_Zero()()
+  .
+
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class ABP_AS()
+instance variables
+  ABP_ASASb: Integer
+initial method call
+  ABP_AS_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  AS_Zero()()
+    |  |
+    sel
+      AASReceiver?Acknowledge();
+      ABP_ASASb := (1-ABP_ASASb);
+      AS_Zero()()
+    or
+      delay (900);
+      AASAR!Acknowledge(ABP_ASASb);
+      AS_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_AS_initial()()
+    |  |
+    ABP_ASASb := 1;
+    AS_Zero()()
+  .
+
+
+/*========================*/
+/*------------------------*/
+/* Primitive Data Classes */
+/*------------------------*/
+/*========================*/
+
+data class Object
+instance variables
+instance methods
+	error(ErrorMessage: String): Object primitive.
+	deepCopy: Object primitive.
+	=  (Operand2: Object): Boolean primitive.
+	!= (Operand2: Object): Boolean primitive.
+	== (Operand2: Object): Boolean primitive.
+	!==(Operand2: Object): Boolean primitive.
+	printString: String primitive.
+	shallowCopy: Object primitive.
+
+data class Number
+extends Object
+instance variables
+instance methods
+
+data class Integer
+extends Object
+instance variables
+instance methods
+	+  (Operand2: Number): Number primitive.
+	/  (Operand2: Number): Number primitive.
+	*  (Operand2: Number): Number primitive.
+	-  (Operand2: Number): Number primitive.
+	<  (Operand2: Number): Boolean primitive.
+	>  (Operand2: Number): Boolean primitive.
+	<= (Operand2: Number): Boolean primitive.
+	>= (Operand2: Number): Boolean primitive.
+	unaryMinus: Integer primitive.
+
+	abs: Integer primitive.
+
+	&  (Operand2: Integer): Integer primitive.
+	|  (Operand2: Integer): Integer primitive.
+	not: Integer primitive.
+
+	sqrt: Number primitive.
+	power(Operand2: Number): Number primitive.
+	sqr: Integer primitive.
+
+	div(Operand2: Integer): Integer primitive.
+	modulo(Operand2: Number): Number primitive.
+
+	asInteger: Integer primitive.
+	asReal: Real primitive.
+	asString: String primitive.
+	printString: String primitive.
+
+	fac: Integer primitive.
+	monus(n: Integer): Integer if n > self then 0 else self - n fi.
+
+data class Real
+extends Object
+instance variables
+instance methods
+	+  (Operand2: Number): Real primitive.
+	/  (Operand2: Number): Real primitive.
+	*  (Operand2: Number): Real primitive.
+	-  (Operand2: Number): Real primitive.
+	<  (Operand2: Number): Boolean primitive.
+	>  (Operand2: Number): Boolean primitive.
+	<= (Operand2: Number): Boolean primitive.
+	>= (Operand2: Number): Boolean primitive.
+	unaryMinus: Real primitive.
+
+	acos: Real primitive.
+	asin: Real primitive.
+	atan: Real primitive.
+	atan2(Denom: Real): Real primitive.
+	cos: Real primitive.
+	sin: Real primitive.
+	tan: Real primitive.
+
+	abs: Real primitive.
+
+	log: Real primitive.
+	ln: Real primitive.
+	sqrt: Real primitive.
+	exp: Real primitive.
+	power(Operand2: Number): Real primitive.
+	sqr: Real primitive.
+	
+	ceiling: Integer primitive.
+	floor: Integer primitive.
+	round: Integer primitive.
+
+	div(Operand2: Number): Integer primitive.
+	modulo(Operand2: Number): Real primitive.
+
+	asInteger: Integer primitive.
+	asReal: Real primitive.
+	asString: String primitive.
+	printString: String primitive.
+
+primitive data class Boolean
+extends Object
+instance variables
+instance methods
+	&  (Operand2: Boolean): Boolean primitive.
+	|  (Operand2: Boolean): Boolean primitive.
+	not: Boolean primitive.
+	printString: String primitive.
+
+primitive data class Char
+extends Object
+instance variables
+instance methods
+	printString: String primitive.
+
+primitive data class Array
+extends Object
+instance variables
+instance methods
+	get(FromPosition: Integer): Object primitive.
+	getSize: Integer primitive.
+	size(newSize: Integer): Array primitive.
+	printString: String
+		| i, s: Integer, Str: String |
+		Str := "Array ("; i := 0; s := self getSize;
+		while i < s do Str append(self get(i := i + 1) printString) append(if i < s then "," else ")" fi) od;
+		Str.
+	put(AtPosition: Integer, Element: Object): Array primitive.
+	putAll(Element: Object): Array primitive.
+
+primitive data class String
+extends Object
+instance variables
+instance methods
+	+  (aString: String): String primitive.
+	<  (Operand2: String): Boolean primitive.
+	>  (Operand2: String): Boolean primitive.
+	<= (Operand2: String): Boolean primitive.
+	>= (Operand2: String): Boolean primitive.    
+	append(aString: String): String primitive.
+	copy(From, To: Integer): String primitive.
+	concat(aString: String): String primitive.
+	cr: String primitive.
+	get(FromPosition: Integer): Char primitive.
+	length: Integer primitive.
+	printString: String primitive.
+	put(AtPosition: Integer, aChar: Char): String primitive.
+	tab: String primitive.
+
+primitive data class RandomGenerator
+extends Object
+instance variables
+instance methods
+	random: Real primitive.
+	randomInt(n: Integer): Integer primitive.
+	randomiseSeed: RandomGenerator primitive.
+	setSeed(aSeed: Integer): RandomGenerator primitive.
+
+primitive data class FileOut
+extends Object
+instance variables
+instance methods
+	append: FileOut primitive.
+	destination(FileName: String): FileOut primitive.
+	close: Object primitive.
+	open: FileOut primitive.
+	write(anObject: Object): FileOut
+		self writeString(anObject printString append(' ')).
+	writeln(anObject: Object): FileOut
+		self writeString(anObject printString cr).
+	writeString(aString: String): FileOut primitive.
+
+primitive data class FileIn
+extends Object
+instance variables
+instance methods
+	open: FileIn primitive.
+	close: Object primitive.
+	readString: String primitive.
+	readInteger: Integer primitive.
+	readNumber: Object primitive.
+	readReal: Real primitive.
+	readBoolean: Boolean primitive.
+	readChar: Char primitive.
+	source(FileName: String): FileIn primitive.
+

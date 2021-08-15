@@ -1,0 +1,24 @@
+
+digraph Bi2Uni_uni {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_a{
+    label = "a: A";
+    node [shape = box];
+    a_Port_in[label = Port_in]
+    a_Port_out[label = Port_out]
+  }
+
+  subgraph cluster_b{
+    label = "b: B";
+    node [shape = box];
+    b_Port_in[label = Port_in]
+    b_Port_out[label = Port_out]
+  }
+
+  
+ a_Port_out -> b_Port_in [label = "C_1_to_2()"];
+
+ b_Port_out -> a_Port_in [label = "C_2_to_1()"];
+
+}

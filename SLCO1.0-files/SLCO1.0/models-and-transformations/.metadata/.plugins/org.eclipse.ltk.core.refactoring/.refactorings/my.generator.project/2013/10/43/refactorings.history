@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;my.generator.project/src/Slco2Code.xpt&apos; to &apos;template.xpt&apos;" description="Rename resource &apos;Slco2Code.xpt&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/Slco2Code.xpt" name="template.xpt" stamp="1382698496947" updateReferences="true"/>
+</session>

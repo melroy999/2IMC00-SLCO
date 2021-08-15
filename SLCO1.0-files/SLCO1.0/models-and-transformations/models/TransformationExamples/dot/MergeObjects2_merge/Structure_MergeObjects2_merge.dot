@@ -1,0 +1,14 @@
+
+digraph MergeObjects2_merge {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+a_b_16
+ [label="{a_b|Integer C_abl = 0\n String C_name|}"]
+a_b_16_a_A [label="{a_A|Boolean v|}", style=filled, fillcolor=gray95]
+a_b_16 -> a_b_16_a_A
+a_b_16_b_B [label="{b_B||}", style=filled, fillcolor=gray95]
+a_b_16 -> a_b_16_b_B
+
+
+}

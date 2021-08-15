@@ -1,0 +1,21 @@
+
+digraph Sync2Async2_as {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_8
+ [label="{A|Integer sendvar_Out = 0\n Integer recvar_In = 3|}"]
+A_8_A [label="{A||}", style=filled, fillcolor=gray95]
+A_8 -> A_8_A
+A_8_A_reader [label="{A_reader||}", style=filled, fillcolor=gray95]
+A_8 -> A_8_A_reader
+
+B_71
+ [label="{B|Integer recvar_In = 3\n Integer sendvar_Out = 0|}"]
+B_71_B [label="{B||}", style=filled, fillcolor=gray95]
+B_71 -> B_71_B
+B_71_B_reader [label="{B_reader||}", style=filled, fillcolor=gray95]
+B_71 -> B_71_B_reader
+
+
+}

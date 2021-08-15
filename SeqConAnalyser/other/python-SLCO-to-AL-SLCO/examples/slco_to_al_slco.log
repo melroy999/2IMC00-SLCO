@@ -1,0 +1,5 @@
+2018-07-04 15:38:25 - INFO: Starting SLCO Atomicity-Level model transformation
+2018-07-04 15:38:25 - INFO: Input model       : example1.slco
+2018-07-04 15:38:25 - INFO: Input suggestions : reduced.sug
+2018-07-04 15:38:25 - INFO: Output File       : example1.alslco
+2018-07-04 15:38:25 - INFO: Finished, output written to example1.alslco

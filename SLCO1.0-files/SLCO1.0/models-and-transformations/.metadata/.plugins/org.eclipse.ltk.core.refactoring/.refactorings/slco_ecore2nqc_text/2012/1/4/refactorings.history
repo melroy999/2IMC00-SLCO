@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 1 elements(s) to &apos;Sync2Async2_as.mwe&apos;&#x0D;&#x0A;- Original project: &apos;slco_ecore2nqc_text&apos;&#x0D;&#x0A;- Destination element: &apos;Sync2Async2_as.mwe&apos;&#x0D;&#x0A;- Original element: &apos;Sync2Async2_as.mwe&apos;" description="Copy file" element1="src/Workflows/wf-TransformationExamples/Sync2Async2_as.mwe" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1327434984650" target="/slco_ecore2nqc_text/src/Workflows/wf-TransformationExamples/Sync2Async2_as.mwe" units="0" version="1.0"/>
+</session>

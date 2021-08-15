@@ -1,0 +1,32 @@
+
+digraph ExclusiveChannels_ex {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_a{
+    label = "a: A";
+    node [shape = box];
+    a_Out_A1_B1[label = Out_A1_B1]
+    a_Out_A1_B2[label = Out_A1_B2]
+    a_Out_A2_B1[label = Out_A2_B1]
+    a_Out_A2_B2[label = Out_A2_B2]
+  }
+
+  subgraph cluster_b{
+    label = "b: B";
+    node [shape = box];
+    b_In_A1_B1[label = In_A1_B1]
+    b_In_A2_B1[label = In_A2_B1]
+    b_In_A1_B2[label = In_A1_B2]
+    b_In_A2_B2[label = In_A2_B2]
+  }
+
+  
+ a_Out_A1_B1 -> b_In_A1_B1 [label = "Out_A1_to_In_B1()"];
+
+ a_Out_A1_B2 -> b_In_A1_B2 [label = "Out_A1_to_In_B2()"];
+
+ a_Out_A2_B1 -> b_In_A2_B1 [label = "Out_A2_to_In_B1()"];
+
+ a_Out_A2_B2 -> b_In_A2_B2 [label = "Out_A2_to_In_B2()"];
+
+}

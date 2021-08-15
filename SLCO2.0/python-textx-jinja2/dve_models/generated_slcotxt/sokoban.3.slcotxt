@@ -1,0 +1,58 @@
+model dve_sokoban_3 {
+classes
+	GlobalClass {
+		variables
+			Integer[209] a := [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,2,0,2,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,0,1,1,0,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,0,1,1,0,1,1,1,1,1,0,0,0,0,1,1,0,2,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,1,1,1,0,1,0,1,1,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+			Integer x := 11
+			Integer y := 9
+			Integer done := 0
+		state machines
+			P {
+				variables
+					
+				initial q
+				states  
+				transitions
+					from q to q {
+						done=0 and a[74] = 2 and a[75] = 2 and a[85] = 2 and a[86] = 2 and a[96] = 2 and a[97] = 2; done := 1
+					}
+
+					from q to q {
+						done=0 and a[((y)*19+x-1)]=0; x := x-1
+					}
+
+					from q to q {
+						done=0 and a[((y)*19+x+1)]=0; x := x+1
+					}
+
+					from q to q {
+						done=0 and a[((y-1)*19+x)]=0; y := y-1
+					}
+
+					from q to q {
+						done=0 and a[((y+1)*19+x)]=0; y := y+1
+					}
+
+					from q to q {
+						done=0 and a[((y)*19+x-1)]=2 and a[((y)*19+x-2)]=0; a[((y)*19+x-2)] := 2;a[((y)*19+x-1)] := 0;x := x-1
+					}
+
+					from q to q {
+						done=0 and a[((y)*19+x+1)]=2 and a[((y)*19+x+2)]=0; a[((y)*19+x+2)] := 2;a[((y)*19+x+1)] := 0;x := x+1
+					}
+
+					from q to q {
+						done=0 and a[((y-1)*19+x)]=2 and a[((y-2)*19+x)]=0; a[((y-2)*19+x)] := 2;a[((y-1)*19+x)] := 0;y := y-1
+					}
+
+					from q to q {
+						done=0 and a[((y+1)*19+x)]=2 and a[((y+2)*19+x)]=0; a[((y+2)*19+x)] := 2;a[((y+1)*19+x)] := 0;y := y+1
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

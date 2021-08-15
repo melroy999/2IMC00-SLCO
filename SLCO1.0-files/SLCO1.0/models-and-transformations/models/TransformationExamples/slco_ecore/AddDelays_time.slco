@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII"?>
+<slco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:slco="slco" name="AddDelays_time">
+  <classes name="A">
+    <stateMachines name="A">
+      <vertices xsi:type="slco:Initial" name="Initial" incoming="//@classes.0/@stateMachines.0/@transitions.0" outgoing="//@classes.0/@stateMachines.0/@transitions.0"/>
+      <transitions name="InitialToInitial" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:Delay" value="100"/>
+      </transitions>
+    </stateMachines>
+  </classes>
+</slco:Model>

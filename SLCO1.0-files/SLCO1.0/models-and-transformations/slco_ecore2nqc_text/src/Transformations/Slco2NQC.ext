@@ -1,0 +1,1328 @@
+import nqc;
+import slco;
+import slco2nqc;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension Libraries::CreationNQC;
+extension Libraries::ContainmentSLCO2NQC;
+extension Libraries::Equality;
+
+// ----------------------------------------------------------------------------
+
+create nqc::Programs createPrograms(
+   slco::Model model, slco2nqc::Slco2Nqc slco2nqc
+) :
+   this.Programs.addAll(
+      slco2nqc.classList.classes.createProgram(slco2nqc)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create nqc::Program createProgram(
+   slco::Class class, slco2nqc::Slco2Nqc slco2nqc
+) :
+   this.setName(class.name)
+-> this.GlobalVariables.addAll(
+      class.variables.convertVariable()
+   )
+-> if (
+      slco2nqc.sensorInitList.sensorInits.exists(
+         si
+      |
+         class.ports.exists(
+            p
+         |
+            p.portEqualsPort(si.port)
+         )
+      )
+   ) then (
+      this.GlobalVariables.addAll(
+         slco2nqc.sensorInitList.sensorInits.select(
+            si
+         |
+            class.ports.exists(
+               p
+            |
+               p.portEqualsPort(si.port)
+            )
+         ).sensorName.createNullVariable(class)
+      )
+   )
+-> if (
+      slco2nqc.sensorInitList.sensorInits.exists(
+         si
+      |
+         class.ports.exists(
+            p
+         |
+            p.portEqualsPort(si.port)
+         )
+      )
+   ) then (
+      this.GlobalVariables.addAll(
+         slco2nqc.sensorInitList.sensorInits.select(
+            si
+         |
+            class.ports.exists(
+               p
+            |
+               p.portEqualsPort(si.port)
+            )
+         ).sensorName.createTempVariable(class)
+      )
+   )
+-> this.Tasks.add(
+      class.createMainTask(slco2nqc)
+   )
+-> this.Tasks.addAll(
+      class.stateMachines.createTaskFromStateMachine(slco2nqc, class)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create nqc::Task createTaskFromStateMachine(
+   slco::StateMachine stateMachine, slco2nqc::Slco2Nqc slco2nqc,
+   slco::Class class
+) :
+   this.setName(stateMachine.name)
+-> this.LocalVariables.addAll(
+      stateMachine.variables.convertVariable()
+   )
+-> this.Statements.addAll(
+      stateMachine.vertices.typeSelect(
+         slco::Initial
+      ).createStatementListFromVertex(
+         slco2nqc, class
+      )
+   )
+-> this.Statements.addAll(
+      stateMachine.vertices.typeSelect(
+         slco::State
+      ).createStatementListFromVertex(
+         slco2nqc, class
+      )
+   )
+-> this.Statements.addAll(
+      stateMachine.vertices.typeSelect(
+         slco::Final
+      ).createStatementListFromFinal()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create nqc::Label createLabel(slco::Vertex vertex) :
+   this.setLabel(
+      ((slco::StateMachine) vertex.eContainer).name + "_" + vertex.name
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create nqc::Variable createNullVariable(
+   nqc::SensorNameEnum sensorNameEnum, slco::Class class
+) :
+   this.setName(
+      class.name + "_" + sensorNameEnum.toString().toLowerCase() + "_null"
+   )
+-> this.setType(nqc::TypeEnum::Integer)
+;
+
+// ----------------------------------------------------------------------------
+
+private create nqc::Variable createTempVariable(
+   nqc::SensorNameEnum sensorNameEnum, slco::Class class
+) :
+   this.setName(
+      class.name + "_" + sensorNameEnum.toString().toLowerCase() + "_temp"
+   )
+-> this.setType(nqc::TypeEnum::Integer)
+;
+
+// ----------------------------------------------------------------------------
+
+private slco2nqc::Signal2Motor getSignal2Motor(
+   slco2nqc::Signal2MotorList motorList, slco::SendSignal statement
+) :
+   motorList.signal2Motors.selectFirst(
+      s
+   |
+      s.signalName == statement.signalName
+      &&
+      s.port.portEqualsPort(statement.port)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private slco2nqc::MotorInit getMotorInit(
+   slco2nqc::MotorInitList motorInitList, slco::SendSignal statement
+) :
+   motorInitList.motorInits.selectFirst(
+      m
+   |
+      m.port.portEqualsPort(statement.port)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private slco2nqc::Signal2Sensor getSignal2Sensor(
+   slco2nqc::Signal2SensorList sensorList, slco::SignalReception trigger
+) :
+   sensorList.signal2Sensors.selectFirst(
+      s
+   |
+      s.signalName == trigger.signalName
+      &&
+      s.port.portEqualsPort(trigger.port)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private slco2nqc::SensorInit getSensorInit(
+   slco2nqc::SensorInitList sensorInitList,
+   slco::SignalReception signalReception
+) :
+   sensorInitList.sensorInits.selectFirst(
+      s
+   |
+      s.port.portEqualsPort(signalReception.port)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] createStatementListFromVertex(
+   slco::Vertex vertex, slco2nqc::Slco2Nqc slco2nqc, slco::Class class
+) :
+   this.addAll(
+      vertex.outgoing.createStatementListFromTransition(slco2nqc, class)
+   )
+-> this.first().setLabel(
+      vertex.createLabel()
+   )
+-> this.add(
+      createGotoStatement(
+         vertex.createLabel()
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] createStatementListFromTransition(
+   slco::Transition transition, slco2nqc::Slco2Nqc slco2nqc, slco::Class class
+) :
+   if (
+      transition.statements.first().blocks() == true
+   ) then (
+      let stats = (List[nqc::Statement]) {} :
+         stats.addAll(
+            transition.statements.withoutFirst().convertStatement(
+               slco2nqc, class
+            )
+         )
+      -> stats.addGotoToTarget(transition, class)
+      -> this.addAll(
+            transition.statements.first().convertFirstStatement(
+               slco2nqc, class, stats
+            )
+         )
+   ) else (
+      this.addAll(
+         transition.statements.convertStatement(
+            slco2nqc, class
+         )
+      )
+   -> this.addGotoToTarget(transition, class)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean blocks(
+   slco::Statement statement
+) :
+   false
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean blocks(
+   slco::SignalReception signalReception
+) :
+   true
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean blocks(
+   slco::Delay delay
+) :
+   true
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean blocks(
+   slco::BooleanConstantExpression booleanConstantExpression
+) :
+   true
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean blocks(
+   slco::BinaryOperatorExpression binaryOperatorExpression
+) :
+   switch (binaryOperatorExpression.operator) {
+      case slco::OperatorEnum::atLeast : true
+      case slco::OperatorEnum::and : true
+      case slco::OperatorEnum::equals : true
+      case slco::OperatorEnum::differs : true
+      case slco::OperatorEnum::atMost : true
+      case slco::OperatorEnum::or : true
+      case slco::OperatorEnum::add : false
+      case slco::OperatorEnum::subtract : false
+      default :
+         syserr(
+            "Unknown BinaryOperator encountered: "
+         +
+            binaryOperatorExpression.operator.toString()
+         )
+   }   
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean blocks(
+   slco::VariableExpression variableExpression
+) :
+   variableExpression.variable.type == slco::PrimitiveTypeEnum::Boolean
+;
+
+// ----------------------------------------------------------------------------
+
+private List[nqc::Statement] convertFirstStatement(
+   slco::Statement statement, slco2nqc::Slco2Nqc slco2nqc, slco::Class class,
+   List[nqc::Statement] statements
+) :
+   syserr(
+      "Unexpected Statement encountered:" + statement.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] convertFirstStatement(
+   slco::Expression expression, slco2nqc::Slco2Nqc slco2nqc, slco::Class class,
+   List[nqc::Statement] statements
+) :
+   this.add(
+      createIfStatement(
+        expression.convertExpression(),
+         createBlockStatement(statements)
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] convertFirstStatement(
+   slco::Delay delay, slco2nqc::Slco2Nqc slco2nqc, slco::Class class,
+   List[nqc::Statement] statements
+) :
+   let sml = class.stateMachines.select(
+      sm
+   |
+      sm.containsDeadline()
+   ) :
+   let sm = ((slco::StateMachine) delay.eContainer.eContainer) :
+   let i = sml.indexOf(sm) :
+      this.add(
+         createIfStatement(
+            createBinaryExpressionForDelay(i, delay.value),
+            createBlockStatement(statements)
+         )
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] convertFirstStatement(
+   slco::SignalReception signalReception, slco2nqc::Slco2Nqc slco2nqc,
+   slco::Class class, List[nqc::Statement] statements
+) :
+   if (
+      signalReception.signalName == "Signal"
+   &&
+      signalReception.arguments.size == 2
+   ) then (
+      this.addAll(
+         convertFirstReceptionWith2Arguments(
+           signalReception, slco2nqc, class, statements
+         )
+      )
+   ) else if (
+      signalReception.signalName == "Signal"
+   &&
+      signalReception.arguments.size == 3
+   ) then (
+      this.addAll(
+         convertFirstReceptionWith3Arguments(
+            signalReception, slco2nqc, class, statements
+         )
+      )
+   ) else (
+      this.add(
+         createIfStatement(
+            createSignalExpression(
+               signalReception,
+               slco2nqc,
+               class
+            ),
+            createBlockStatement(statements)
+         )
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] convertFirstReceptionWith2Arguments(
+   slco::SignalReception signalReception, slco2nqc::Slco2Nqc slco2nqc,
+   slco::Class class, List[nqc::Statement] statements
+) :
+   let tempVariable = createTempVariable(
+      (
+         (slco::StateMachine) signalReception.eContainer.eContainer
+      ).createTaskFromStateMachine(
+         slco2nqc, class
+      )
+   ) :
+   let innerBlockStatement = createBlockStatement({}) :
+      (
+         (slco::StateMachine) signalReception.eContainer.eContainer
+      ).createTaskFromStateMachine(
+         slco2nqc, class
+      ).addTempVariable()
+   -> this.add(
+         createAssignmentStatement(
+            nqc::AssignmentStatementEnum::assign,
+            createVariableExpression(
+               tempVariable
+            ),
+            createNullaryBuiltInValueFunctionCall(
+               nqc::BuiltInNullaryValueFunctionEnum::Message
+            )
+         )
+      )
+   -> this.add(
+         createIfStatement(
+            signalReception.createConditionFor2Arguments(tempVariable),
+            innerBlockStatement
+         )
+      )
+//   -> innerBlockStatement.Statements.add(
+//        createNullaryBuiltInFunctionCall(
+//            nqc::BuiltInNullaryFunctionEnum::ClearMessage
+//         )
+//      )
+   -> innerBlockStatement.Statements.addAll(
+         statements
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] convertFirstReceptionWith3Arguments(
+   slco::SignalReception signalReception, slco2nqc::Slco2Nqc slco2nqc,
+   slco::Class class, List[nqc::Statement] statements
+) :
+   let innerBlockStatement = createBlockStatement({}) :
+      this.add(
+         createAssignmentStatement(
+            nqc::AssignmentStatementEnum::assign,
+            createVariableExpression(
+               (
+                  (slco::SignalArgumentVariable)
+                  signalReception.arguments.get(1)
+               ).variable.convertVariable()
+            ),
+            createNullaryBuiltInValueFunctionCall(
+               nqc::BuiltInNullaryValueFunctionEnum::Message
+            )
+         )
+      )
+   -> this.add(
+         createIfStatement(
+            signalReception.createConditionFor3Arguments(),
+            innerBlockStatement
+         )
+      )
+//   -> innerBlockStatement.Statements.add(
+//         createNullaryBuiltInFunctionCall(
+//            nqc::BuiltInNullaryFunctionEnum::ClearMessage
+//         )
+//      )
+   -> innerBlockStatement.Statements.add(
+         createAssignmentStatement(
+            nqc::AssignmentStatementEnum::assign,
+            createVariableExpression(
+               (
+                  (slco::SignalArgumentVariable)
+                  signalReception.arguments.get(1)
+               ).variable.convertVariable()
+            ),
+            createBinaryExpression(
+               nqc::BinaryOperatorEnum::minus,
+               createBinaryExpression(
+               nqc::BinaryOperatorEnum::bitand,
+                  createVariableExpression(
+                     (
+                        (slco::SignalArgumentVariable)
+                        signalReception.arguments.get(1)
+                     ).variable.convertVariable()
+                  ),
+                  createIntegerConstant(15)
+               ),
+               createIntegerConstant(1)
+            )
+         )
+      )
+-> innerBlockStatement.Statements.addAll(
+      statements
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private nqc::BinaryExpression createConditionFor2Arguments(
+   slco::SignalReception signalReception, nqc::Variable tempVariable
+) :
+   createBinaryExpression(
+      nqc::BinaryOperatorEnum::and,
+      createBinaryExpression(
+         nqc::BinaryOperatorEnum::notequal,
+         createVariableExpression(
+            tempVariable
+         ),
+         createIntegerConstant(0)
+      ),
+      createBinaryExpression(
+         nqc::BinaryOperatorEnum::and,
+         createBinaryExpression(
+            nqc::BinaryOperatorEnum::equal,
+            createBinaryExpression(
+               nqc::BinaryOperatorEnum::div,
+               createBinaryExpression(
+                  nqc::BinaryOperatorEnum::bitand,
+                  createVariableExpression(
+                     tempVariable
+                  ),
+                  createIntegerConstant(112)
+               ),
+               createIntegerConstant(16)
+            ),
+            (
+               (slco::SignalArgumentExpression)
+               signalReception.arguments.get(0)
+            ).expression.convertExpression()
+         ),
+         createBinaryExpression(
+            nqc::BinaryOperatorEnum::equal,
+            createBinaryExpression(
+               nqc::BinaryOperatorEnum::div,
+               createBinaryExpression(
+               nqc::BinaryOperatorEnum::bitand,
+                  createVariableExpression(
+                     tempVariable
+                  ),
+                  createIntegerConstant(128)
+               ),
+               createIntegerConstant(128)
+            ),
+            (
+               (slco::SignalArgumentExpression)
+               signalReception.arguments.get(1)
+            ).expression.convertExpression()
+         )
+     )                  
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private nqc::BinaryExpression createConditionFor3Arguments(
+   slco::SignalReception signalReception
+) :
+   createBinaryExpression(
+      nqc::BinaryOperatorEnum::and,
+      createBinaryExpression(
+         nqc::BinaryOperatorEnum::notequal,
+         createVariableExpression(
+            (
+               (slco::SignalArgumentVariable)
+               signalReception.arguments.get(1)
+            ).variable.convertVariable()
+         ),
+         createIntegerConstant(0)
+      ),
+      createBinaryExpression(
+         nqc::BinaryOperatorEnum::and,
+         createBinaryExpression(
+            nqc::BinaryOperatorEnum::equal,
+            createBinaryExpression(
+               nqc::BinaryOperatorEnum::div,
+               createBinaryExpression(
+                  nqc::BinaryOperatorEnum::bitand,
+                  createVariableExpression(
+                     (
+                        (slco::SignalArgumentVariable)
+                        signalReception.arguments.get(1)
+                     ).variable.convertVariable()
+                  ),
+                  createIntegerConstant(112)
+               ),
+               createIntegerConstant(16)
+            ),
+            (
+               (slco::SignalArgumentExpression)
+               signalReception.arguments.get(0)
+            ).expression.convertExpression()
+         ),
+         createBinaryExpression(
+            nqc::BinaryOperatorEnum::equal,
+            createBinaryExpression(
+               nqc::BinaryOperatorEnum::div,
+               createBinaryExpression(
+                  nqc::BinaryOperatorEnum::bitand,
+                  createVariableExpression(
+                     (
+                        (slco::SignalArgumentVariable)
+                           signalReception.arguments.get(1)
+                     ).variable.convertVariable()
+                  ),
+                  createIntegerConstant(128)
+               ),
+               createIntegerConstant(128)
+            ),
+            (
+               (slco::SignalArgumentExpression)
+                signalReception.arguments.get(2)
+            ).expression.convertExpression()
+         )
+      )                  
+   )
+;
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] convertStatement(
+   slco::Statement statement, slco2nqc::Slco2Nqc slco2nqc, slco::Class class
+) :
+   syserr(
+      "Unexpected Statement encountered: "
+   +
+      statement.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] convertStatement(
+   slco::Expression expression, slco2nqc::Slco2Nqc slco2nqc, slco::Class class
+) :
+   this.add(
+      createUntilStatement(
+         expression.convertExpression(),
+         createEmptyStatement()
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] convertStatement(
+   slco::Assignment assignment, slco2nqc::Slco2Nqc slco2nqc, slco::Class class
+) :
+   this.add(
+      createAssignmentStatement(
+         nqc::AssignmentStatementEnum::assign,
+         createVariableExpression(assignment.variable.convertVariable()),
+         convertExpression(assignment.expression)
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] convertStatement(
+   slco::SendSignal sendSignal, slco2nqc::Slco2Nqc slco2nqc, slco::Class class
+) :
+   if (
+      sendSignal.arguments.size == 2 && sendSignal.signalName == "Signal"
+   ) then (
+      this.add(
+         createUnaryBuiltInFunctionCall(
+            nqc::BuiltInUnaryFunctionEnum::SendMessage,
+            createBinaryExpression(
+               nqc::BinaryOperatorEnum::bitor,
+               createIntegerConstant(1),
+               createBinaryExpression(
+                  nqc::BinaryOperatorEnum::bitor,
+                  createBinaryExpression(
+                     nqc::BinaryOperatorEnum::times,
+                     createIntegerConstant(128),
+                     sendSignal.arguments.get(1).convertExpression()
+                  ),
+                  createBinaryExpression(
+                     nqc::BinaryOperatorEnum::times,
+                     createIntegerConstant(16),
+                     sendSignal.arguments.get(0).convertExpression()
+                  )
+               )
+            )
+         )
+      )
+   ) else if (
+      sendSignal.arguments.size == 3 && sendSignal.signalName == "Signal"
+   ) then (
+      this.add(
+         createUnaryBuiltInFunctionCall(
+            nqc::BuiltInUnaryFunctionEnum::SendMessage,
+            createBinaryExpression(
+               nqc::BinaryOperatorEnum::bitor,
+               createBinaryExpression(
+                  nqc::BinaryOperatorEnum::plus,
+                  sendSignal.arguments.get(1).convertExpression(),
+                  createIntegerConstant(1)
+               ),
+               createBinaryExpression(
+                  nqc::BinaryOperatorEnum::bitor,
+                  createBinaryExpression(
+                     nqc::BinaryOperatorEnum::times,
+                     createIntegerConstant(128),
+                     sendSignal.arguments.get(2).convertExpression()
+                  ),
+                  createBinaryExpression(
+                     nqc::BinaryOperatorEnum::times,
+                     createIntegerConstant(16),
+                     sendSignal.arguments.get(0).convertExpression()
+                  )
+               )
+            )
+         )
+      )
+   ) else if (
+      slco2nqc.signal2MotorList.signal2MotorListContainsStatement(sendSignal)
+   ) then (
+      let s2m = slco2nqc.signal2MotorList.getSignal2Motor(sendSignal) :
+      let mi = slco2nqc.motorInitList.getMotorInit(sendSignal) :
+         if (s2m.metaType == slco2nqc::Signal2MotorWithDirection) then (
+            this.add(
+               createBinaryBuiltInFunctionCall(
+                  nqc::BuiltInBinaryFunctionEnum::SetDirection,
+                  createOutputPortNameConstant(mi.outputName),
+                  createDirectionConstant(
+                     (
+                        (slco2nqc::Signal2MotorWithDirection) s2m
+                     ).outputDirection
+                  )
+               )
+            )
+         )
+      -> this.add(
+            createBinaryBuiltInFunctionCall(
+               nqc::BuiltInBinaryFunctionEnum::SetOutput,
+               createOutputPortNameConstant(mi.outputName),
+               createOutputModeConstant(s2m.outputMode)
+            )
+         )
+   ) else (
+      syserr(
+         "Unable to transform a SendSignal ("
+         +
+         sendSignal.signalName
+         +
+         " to "
+         +
+         sendSignal.port.name
+         +
+         ")"
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] convertStatement(
+   slco::Delay delay, slco2nqc::Slco2Nqc slco2nqc, slco::Class class
+) :
+   let sml = class.stateMachines.select(
+      sm
+   |
+      sm.containsDeadline()
+   ) :
+   let sm = ((slco::StateMachine) delay.eContainer.eContainer) :
+   let i = sml.indexOf(sm) :
+      if (i > 3) then (
+         syserr("Too many StateMachine with Deadlines encountered.")
+      )
+   -> this.add(
+         createUnaryBuiltInFunctionCall(
+            nqc::BuiltInUnaryFunctionEnum::ClearTimer,
+            createIntegerConstant(i)
+         )
+      )
+   -> this.add(
+         createUntilStatement(
+            createBinaryExpressionForDelay(i, delay.value),
+            createEmptyStatement()
+         )
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] convertStatement(
+   slco::SignalReception signalReception, slco2nqc::Slco2Nqc slco2nqc,
+   slco::Class class
+) :
+   if (
+      signalReception.signalName == "Signal"
+   &&
+      signalReception.arguments.size == 2
+   ) then (
+      this.addAll(
+         convertReceptionWith2Arguments(signalReception, slco2nqc, class)
+      )
+   ) else if (
+      signalReception.signalName == "Signal"
+   &&
+      signalReception.arguments.size == 3
+   ) then (
+      this.addAll(
+         convertReceptionWith3Arguments(signalReception, slco2nqc, class)
+      )
+   ) else (
+      this.add(
+         createUntilStatement(
+            createSignalExpression(
+               signalReception,
+               slco2nqc,
+               class
+            ),
+            createEmptyStatement()
+         )
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] convertReceptionWith2Arguments(
+   slco::SignalReception signalReception, slco2nqc::Slco2Nqc slco2nqc,
+   slco::Class class
+) :
+   let tempVariable = createTempVariable(
+      (
+         (slco::StateMachine) signalReception.eContainer.eContainer
+      ).createTaskFromStateMachine(
+         slco2nqc, class
+      )
+   ) :
+   let innerBlockStatement = createBlockStatement({}) :
+      (
+         (slco::StateMachine) signalReception.eContainer.eContainer
+      ).createTaskFromStateMachine(
+         slco2nqc, class
+      ).addTempVariable()
+   -> this.add(
+         createAssignmentStatement(
+            nqc::AssignmentStatementEnum::assign,
+            createVariableExpression(
+               tempVariable
+            ),
+            createNullaryBuiltInValueFunctionCall(
+               nqc::BuiltInNullaryValueFunctionEnum::Message
+            )
+         )
+      )
+   -> this.add(
+         createUntilStatement(
+            signalReception.createConditionFor2Arguments(tempVariable),
+            createAssignmentStatement(
+               nqc::AssignmentStatementEnum::assign,
+               createVariableExpression(
+                 tempVariable
+               ),
+               createNullaryBuiltInValueFunctionCall(
+                  nqc::BuiltInNullaryValueFunctionEnum::Message
+               )
+            )
+         )
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] convertReceptionWith3Arguments(
+   slco::SignalReception signalReception, slco2nqc::Slco2Nqc slco2nqc,
+   slco::Class class
+) :
+   this.add(
+      createUntilStatement(
+         signalReception.createConditionFor3Arguments(),
+         createAssignmentStatement(
+            nqc::AssignmentStatementEnum::assign,
+            createVariableExpression(
+               (
+                  (slco::SignalArgumentVariable)
+                  signalReception.arguments.get(1)
+               ).variable.convertVariable()
+            ),
+            createNullaryBuiltInValueFunctionCall(
+               nqc::BuiltInNullaryValueFunctionEnum::Message
+            )
+         )
+      )
+   )
+-> this.add(
+      createAssignmentStatement(
+         nqc::AssignmentStatementEnum::assign,
+         createVariableExpression(
+            (
+               (slco::SignalArgumentVariable)
+               signalReception.arguments.get(1)
+            ).variable.convertVariable()
+         ),
+         createBinaryExpression(
+            nqc::BinaryOperatorEnum::minus,
+            createBinaryExpression(
+               nqc::BinaryOperatorEnum::bitand,
+               createVariableExpression(
+                  (
+                     (slco::SignalArgumentVariable)
+                     signalReception.arguments.get(1)
+                  ).variable.convertVariable()
+               ),
+               createIntegerConstant(15)
+            ),
+            createIntegerConstant(1)
+         )
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private nqc::Expression convertExpression(slco::Expression expression) :
+   syserr(
+      "Unknown expression encountered ("
+      +
+      expression.metaType.toString()
+      +
+      ")"
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private nqc::Expression convertExpression(
+   slco::IntegerConstantExpression expression
+) :
+   createIntegerConstant(expression.value)
+;
+
+// ----------------------------------------------------------------------------
+
+private nqc::Expression convertExpression(
+   slco::BooleanConstantExpression expression
+) :
+   createBooleanConstant(expression.value)
+;
+
+// ----------------------------------------------------------------------------
+
+private nqc::Expression convertExpression(
+   slco::VariableExpression expression
+) :
+   createVariableExpression(
+      expression.variable.convertVariable()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private nqc::BinaryExpression convertExpression(
+   slco::BinaryOperatorExpression expression
+) :
+   let exp = new nqc::BinaryExpression :
+      exp.setOperand1(
+         expression.operand1.convertExpression()
+      )
+   -> exp.setOperand2(
+         expression.operand2.convertExpression()
+      )
+   -> switch (expression.operator) {
+         case slco::OperatorEnum::atLeast:
+            exp.setOperator(nqc::BinaryOperatorEnum::geq)
+         case slco::OperatorEnum::add:
+            exp.setOperator(nqc::BinaryOperatorEnum::plus)
+         case slco::OperatorEnum::and:
+            exp.setOperator(nqc::BinaryOperatorEnum::and)
+         case slco::OperatorEnum::equals:
+            exp.setOperator(nqc::BinaryOperatorEnum::equal)
+         case slco::OperatorEnum::differs:
+            exp.setOperator(nqc::BinaryOperatorEnum::notequal)
+         case slco::OperatorEnum::subtract:
+            exp.setOperator(nqc::BinaryOperatorEnum::minus)
+         default:
+            syserr(
+               "Unknown operator encountered ("
+               +
+               expression.operator.toString()
+               +
+               ")"
+            )
+         
+      }
+   -> exp
+;
+
+// ----------------------------------------------------------------------------
+
+nqc::BinaryExpression createBinaryExpressionForDelay(
+   Integer index, Integer delayValue
+) :
+   createBinaryExpression(
+      nqc::BinaryOperatorEnum::geq,
+      createUnaryBuiltInValueFunctionCall(
+         nqc::BuiltInUnaryValueFunctionEnum::FastTimer,
+         createIntegerConstant(index)
+      ),
+      createBinaryExpression(
+         nqc::BinaryOperatorEnum::div,
+         createIntegerConstant(
+            delayValue
+         ),
+         createIntegerConstant(10)
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private cached Void addTempVariable(nqc::Task task) :
+   task.LocalVariables.add(
+      createTempVariable(task)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private cached nqc::Variable createTempVariable(nqc::Task task) :
+   createIntegerVariable("temp_" + task.Name)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addGotoToTarget(
+   List[nqc::Statement] statements, slco::Transition transition,
+   slco::Class class
+) :
+   if (
+      transition.target.outgoing.exists(
+         t
+      |
+         t.statements.first().metaType == slco::Delay
+      )
+   ) then (
+      let sml = class.stateMachines.select(
+         sm
+      |
+         sm.containsDeadline()
+      ) :
+      let sm = ((slco::StateMachine) transition.eContainer) :
+      let i = sml.indexOf(sm) :
+         if (i > 3) then (
+            syserr("Too many StateMachine with Deadlines encountered.")
+         )
+      -> statements.add(
+            createUnaryBuiltInFunctionCall(
+               nqc::BuiltInUnaryFunctionEnum::ClearTimer,
+               createIntegerConstant(i)
+            )
+         )
+   )
+-> statements.add(
+      createGotoStatement(
+         transition.target.createLabel()
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private nqc::BinaryExpression createSignalExpression(
+   slco::SignalReception signalReception, slco2nqc::Slco2Nqc slco2nqc,
+   slco::Class class
+) :
+   if (
+      slco2nqc.signal2SensorList.signal2SensorListContainsSignalReception(
+         signalReception
+      )
+   ) then (
+      let s2s = getSignal2Sensor(slco2nqc.signal2SensorList, signalReception) :
+      let si = getSensorInit(slco2nqc.sensorInitList, signalReception) :
+         if (s2s.sensorIsHigh) then (
+            createBinaryExpression(
+               nqc::BinaryOperatorEnum::geq,
+               createSensorNameConstant(si.sensorName),
+               createBinaryExpression(
+                  nqc::BinaryOperatorEnum::plus,
+                  createVariableExpression(
+                     createNullVariable(si.sensorName, class)
+                  ),
+                  createIntegerConstant(s2s.treshold)
+               )
+            )
+         ) else (
+            createBinaryExpression(
+               nqc::BinaryOperatorEnum::leq,
+               createSensorNameConstant(si.sensorName),
+               createBinaryExpression(
+                  nqc::BinaryOperatorEnum::plus,
+                  createVariableExpression(
+                     createNullVariable(si.sensorName, class)
+                  ),
+                  createIntegerConstant(s2s.treshold)
+               )
+            )
+         )
+   ) else (
+      syserr(
+         "Unable to transform a SignalReception ("
+         +
+         signalReception.signalName
+         +
+         " from "
+         +
+         signalReception.port.name
+         +
+         ")"
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean containsDeadline(slco::StateMachine stateMachine) :
+   stateMachine.transitions.exists(
+      trans
+   |
+      trans.statements.first().metaType == slco::Delay
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[nqc::Statement] createStatementListFromFinal(
+   slco::Final final
+) :
+   this.add(
+      createEmptyStatement()
+   )
+-> this.first().setLabel(
+      createLabel(final)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create nqc::Task createMainTask(
+   slco::Class class, slco2nqc::Slco2Nqc slco2nqc
+) :
+   this.setName("main")
+-> this.Statements.add(
+      createNullaryBuiltInFunctionCall(
+         nqc::BuiltInNullaryFunctionEnum::ClearMessage
+      )
+   )
+-> if (
+      slco2nqc.sensorInitList.sensorInits.exists(
+         si
+      |
+         class.ports.exists(
+            p
+         |
+            si.port.portEqualsPort(p)
+         )
+      )
+   ) then (
+      this.Statements.addAll(
+         slco2nqc.sensorInitList.sensorInits.select(
+            si
+         |
+            class.ports.exists(
+               p
+            |
+               si.port.portEqualsPort(p)
+            )
+         ).createSensorInitialization(class)
+      )
+   )
+-> if (
+      slco2nqc.motorInitList.motorInits.exists(
+         mi
+      |
+         class.ports.exists(
+            p
+         |
+            mi.port.portEqualsPort(p)
+         )
+      )
+   ) then (
+      this.Statements.addAll(
+         slco2nqc.motorInitList.motorInits.select(
+            mi
+         |
+            class.ports.exists(
+               p
+            |
+               mi.port.portEqualsPort(p)
+            )
+         ).createMotorInitialization()
+      )
+   )
+-> this.Statements.addAll(
+      class.stateMachines.createStartStatement(slco2nqc, class)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private List [nqc::Statement] createMotorInitialization(
+   slco2nqc::MotorInit motorInit
+) :
+   let stats = {} :
+      stats.add(
+         createBinaryBuiltInFunctionCall(
+            nqc::BuiltInBinaryFunctionEnum::SetPower,
+            createOutputPortNameConstant(motorInit.outputName),
+            createIntegerConstant(motorInit.power)
+         )
+      )
+   -> stats
+;
+
+// ----------------------------------------------------------------------------
+
+private List [nqc::Statement] createSensorInitialization(
+   slco2nqc::SensorInit sensorInit, slco::Class class
+) :
+   let stats = {} :
+   let blockStatement = createBlockStatement({}) :
+      stats.add(sensorInit.createSensorConfiguration())
+   -> stats.add(
+         createAssignmentStatement(
+            nqc::AssignmentStatementEnum::assign,
+            createVariableExpression(
+               sensorInit.sensorName.createNullVariable(class)
+            ),
+            createIntegerConstant(0)
+         )
+      )
+   -> blockStatement.Statements.add(
+         createAssignmentStatement(
+            nqc::AssignmentStatementEnum::assign,
+            createVariableExpression(
+               sensorInit.sensorName.createTempVariable(class)
+            ),
+            createSensorNameConstant(sensorInit.sensorName)
+         )
+      )
+   -> blockStatement.Statements.add(
+         createIfStatement(
+            createBinaryExpression(
+               nqc::BinaryOperatorEnum::greater,
+               createVariableExpression(
+                  sensorInit.sensorName.createTempVariable(class)
+               ),
+               createVariableExpression(
+                  sensorInit.sensorName.createNullVariable(class)
+               )
+            ),
+            createAssignmentStatement(
+               nqc::AssignmentStatementEnum::assign,
+               createVariableExpression(
+                  sensorInit.sensorName.createNullVariable(class)
+               ),
+               createVariableExpression(
+                  sensorInit.sensorName.createTempVariable(class)
+               )
+            )
+         )
+      )
+   -> stats.add(
+         createRepeatStatement(
+            createIntegerConstant(10),
+            blockStatement
+         )
+      )
+   -> stats
+;
+
+// ----------------------------------------------------------------------------
+
+private nqc::BinaryBuiltInFunctionCall createSensorConfiguration(
+   slco2nqc::SensorInit sensorInit
+) :
+   let stat = new nqc::BinaryBuiltInFunctionCall :
+      stat.setBinaryBuiltInFunction(nqc::BuiltInBinaryFunctionEnum::SetSensor)
+   -> stat.setParameter1(createSensorNameConstant(sensorInit.sensorName))
+   -> stat.setParameter2(
+         createSensorConfigurationConstant(
+            sensorInit.sensorConfiguration
+         )
+      )
+   -> stat
+;
+
+// ----------------------------------------------------------------------------
+
+private create nqc::StartStatement createStartStatement(
+   slco::StateMachine stateMachine, slco2nqc::Slco2Nqc slco2nqc,
+   slco::Class class
+) :
+   this.setTask(stateMachine.createTaskFromStateMachine(slco2nqc, class))
+;
+
+// ----------------------------------------------------------------------------
+
+private create nqc::Variable convertVariable(slco::Variable variable) :
+   this.setName(variable.name)
+-> if (variable.initialValue != null) then (
+      this.setInitialValue(
+         ((nqc::ConstantExpression) variable.initialValue.convertExpression())
+      )
+   )
+-> switch (variable.type) {
+      case slco::PrimitiveTypeEnum::Boolean:
+         this.setType(nqc::TypeEnum::Integer)
+      case slco::PrimitiveTypeEnum::Integer:
+         this.setType(nqc::TypeEnum::Integer)
+      default:
+         syserr(
+            "Unknown primitive type encountered ("
+            +
+            variable.type.toString()
+            +
+            ")"
+         )
+   }
+;

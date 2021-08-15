@@ -1,0 +1,41 @@
+<workflow>
+
+  <property name='inputname' value='Sync2Async1' />
+  <property name='slcoinputfile' value='${inputname}.slco' />
+  <property name='as_channelsinputfile' value='${inputname}_as.channels' />
+
+  <property name='asoutputfile' value='${inputname}_as.slco' />
+
+  <property name='sourcedir' value='../models/TransformationExamples/slco_ecore'/>
+  <property name='targetdir' value='../models/TransformationExamples/slco_ecore'/>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${sourcedir}/${slcoinputfile}"/>
+    <outputSlot value="SLCOModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${sourcedir}/${as_channelsinputfile}"/>
+    <outputSlot value="ASCHANNELS"/>
+  </component>
+
+  <component id="s2as" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::Sync2Async::sync2Async(SLCOModel, ASCHANNELS)"/>
+    <outputSlot value="ASModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${asoutputfile}"/>
+    <inputSlot value="ASModel"/>
+  </component>
+
+</workflow>

@@ -1,0 +1,37 @@
+
+digraph Lossless2Lossy_ll {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_32
+ [label="{A||}"]
+A_32_A [label="{A||}", style=filled, fillcolor=gray95]
+A_32 -> A_32_A
+
+B_88
+ [label="{B||}"]
+B_88_B [label="{B||}", style=filled, fillcolor=gray95]
+B_88 -> B_88_B
+
+ABP_Sender_119
+ [label="{ABP_Sender||}"]
+ABP_Sender_119_Sender [label="{Sender|Integer s = 0\n String d|}", style=filled, fillcolor=gray95]
+ABP_Sender_119 -> ABP_Sender_119_Sender
+
+ABP_AR_39
+ [label="{ABP_AR||}"]
+ABP_AR_39_AR [label="{AR|Integer b = 0|}", style=filled, fillcolor=gray95]
+ABP_AR_39 -> ABP_AR_39_AR
+
+ABP_Receiver_30
+ [label="{ABP_Receiver||}"]
+ABP_Receiver_30_Receiver [label="{Receiver|Integer r = 0\n String d|}", style=filled, fillcolor=gray95]
+ABP_Receiver_30 -> ABP_Receiver_30_Receiver
+
+ABP_AS_77
+ [label="{ABP_AS||}"]
+ABP_AS_77_AS [label="{AS|Integer b = 1|}", style=filled, fillcolor=gray95]
+ABP_AS_77 -> ABP_AS_77_AS
+
+
+}

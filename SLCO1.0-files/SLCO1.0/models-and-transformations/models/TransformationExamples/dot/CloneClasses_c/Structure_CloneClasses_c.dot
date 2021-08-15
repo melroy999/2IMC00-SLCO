@@ -1,0 +1,37 @@
+
+digraph CloneClasses_c {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_3
+ [label="{A||}"]
+A_3_A [label="{A||}", style=filled, fillcolor=gray95]
+A_3 -> A_3_A
+
+B_5
+ [label="{B||}"]
+B_5_B [label="{B||}", style=filled, fillcolor=gray95]
+B_5 -> B_5_B
+
+C_55
+ [label="{C||}"]
+C_55_C [label="{C||}", style=filled, fillcolor=gray95]
+C_55 -> C_55_C
+
+A_c_49
+ [label="{A_c||}"]
+A_c_49_A [label="{A||}", style=filled, fillcolor=gray95]
+A_c_49 -> A_c_49_A
+
+B_c_17
+ [label="{B_c||}"]
+B_c_17_B [label="{B||}", style=filled, fillcolor=gray95]
+B_c_17 -> B_c_17_B
+
+C_c_12
+ [label="{C_c||}"]
+C_c_12_C [label="{C||}", style=filled, fillcolor=gray95]
+C_c_12 -> C_c_12_C
+
+
+}

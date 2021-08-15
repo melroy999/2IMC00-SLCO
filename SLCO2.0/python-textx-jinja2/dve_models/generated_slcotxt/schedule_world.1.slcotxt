@@ -1,0 +1,130 @@
+model dve_schedule_world_1 {
+classes
+	GlobalClass {
+		variables
+			Integer[2] temperature := [0,0]
+			Integer[2] surface := [1,1]
+			Integer[2] shape := [1,1]
+			Integer[2] painted := [0,1]
+			Integer[2] hashole := [0,0]
+			Integer[8] busy := [0,0,0,0,0,0,0,0]
+			Integer[2] scheduled := [0,0]
+			Integer objscheduled := 0
+		state machines
+			P {
+				variables
+					
+				initial q
+				states  done
+				transitions
+					from q to done {
+						shape[1] = 1 and surface[0] = 0 and surface[1] = 0 and hashole[1] = 1 and shape[0] = 0
+					}
+
+					from q to q {
+						busy[0] = 0 and scheduled[0] = 0 and temperature[0] = 0; objscheduled := 1;busy[0] := 1;scheduled[0] := 1;surface[0] := 0
+					}
+
+					from q to q {
+						busy[0] = 0 and scheduled[1] = 0 and temperature[1] = 0; objscheduled := 1;busy[0] := 1;scheduled[1] := 1;surface[1] := 0
+					}
+
+					from q to q {
+						busy[1] = 0 and scheduled[0] = 0; objscheduled := 1;busy[1] := 1;scheduled[0] := 1;shape[0] := 0;temperature[0] := 1;painted[0] := 255;hashole[0] := 255;surface[0] := 255
+					}
+
+					from q to q {
+						busy[1] = 0 and scheduled[1] = 0; objscheduled := 1;busy[1] := 1;scheduled[1] := 1;shape[1] := 0;temperature[1] := 1;painted[1] := 255;hashole[1] := 255;surface[1] := 255
+					}
+
+					from q to q {
+						busy[2] = 0 and scheduled[0] = 0; objscheduled := 1;busy[2] := 1;scheduled[0] := 1;surface[0] := 2;shape[0] := 0;painted[0] := 255
+					}
+
+					from q to q {
+						busy[2] = 0 and scheduled[1] = 0; objscheduled := 1;busy[2] := 1;scheduled[1] := 1;surface[1] := 2;shape[1] := 0;painted[1] := 255
+					}
+
+					from q to q {
+						busy[3] = 0 and scheduled[0] = 0; objscheduled := 1;busy[3] := 1;scheduled[0] := 1;surface[0] := 1;painted[0] := 255
+					}
+
+					from q to q {
+						busy[3] = 0 and scheduled[1] = 0; objscheduled := 1;busy[3] := 1;scheduled[1] := 1;surface[1] := 1;painted[1] := 255
+					}
+
+					from q to q {
+						busy[4] = 0 and scheduled[0] = 0 and temperature[0] = 0 and hashole[0] <>0; objscheduled := 1;busy[4] := 1;scheduled[0] := 1;surface[0] := 2;hashole[0] := 0
+					}
+
+					from q to q {
+						busy[4] = 0 and scheduled[1] = 0 and temperature[1] = 0 and hashole[1] <>0; objscheduled := 1;busy[4] := 1;scheduled[1] := 1;surface[1] := 2;hashole[1] := 0
+					}
+
+					from q to q {
+						busy[4] = 0 and scheduled[0] = 0 and temperature[0] = 0 and hashole[0] <>1; objscheduled := 1;busy[4] := 1;scheduled[0] := 1;surface[0] := 2;hashole[0] := 1
+					}
+
+					from q to q {
+						busy[4] = 0 and scheduled[1] = 0 and temperature[1] = 0 and hashole[1] <>1; objscheduled := 1;busy[4] := 1;scheduled[1] := 1;surface[1] := 2;hashole[1] := 1
+					}
+
+					from q to q {
+						busy[5] = 0 and scheduled[0] = 0 and temperature[0] = 0 and hashole[0] <>0; objscheduled := 1;busy[5] := 1;scheduled[0] := 1;hashole[0] := 0
+					}
+
+					from q to q {
+						busy[5] = 0 and scheduled[1] = 0 and temperature[1] = 0 and hashole[1] <>0; objscheduled := 1;busy[5] := 1;scheduled[1] := 1;hashole[1] := 0
+					}
+
+					from q to q {
+						busy[5] = 0 and scheduled[0] = 0 and temperature[0] = 0 and hashole[0] <>1; objscheduled := 1;busy[5] := 1;scheduled[0] := 1;hashole[0] := 1
+					}
+
+					from q to q {
+						busy[5] = 0 and scheduled[1] = 0 and temperature[1] = 0 and hashole[1] <>1; objscheduled := 1;busy[5] := 1;scheduled[1] := 1;hashole[1] := 1
+					}
+
+					from q to q {
+						busy[6] = 0 and scheduled[0] = 0 and temperature[0] = 0; objscheduled := 1;busy[6] := 1;scheduled[0] := 1;painted[0] := 0
+					}
+
+					from q to q {
+						busy[6] = 0 and scheduled[1] = 0 and temperature[1] = 0; objscheduled := 1;busy[6] := 1;scheduled[1] := 1;painted[1] := 0
+					}
+
+					from q to q {
+						busy[6] = 0 and scheduled[0] = 0 and temperature[0] = 0; objscheduled := 1;busy[6] := 1;scheduled[0] := 1;painted[0] := 1
+					}
+
+					from q to q {
+						busy[6] = 0 and scheduled[1] = 0 and temperature[1] = 0; objscheduled := 1;busy[6] := 1;scheduled[1] := 1;painted[1] := 1
+					}
+
+					from q to q {
+						busy[7] = 0 and scheduled[0] = 0; objscheduled := 1;busy[7] := 1;scheduled[0] := 1;painted[0] := 0
+					}
+
+					from q to q {
+						busy[7] = 0 and scheduled[1] = 0; objscheduled := 1;busy[7] := 1;scheduled[1] := 1;painted[1] := 0
+					}
+
+					from q to q {
+						busy[7] = 0 and scheduled[0] = 0; objscheduled := 1;busy[7] := 1;scheduled[0] := 1;painted[0] := 1
+					}
+
+					from q to q {
+						busy[7] = 0 and scheduled[1] = 0; objscheduled := 1;busy[7] := 1;scheduled[1] := 1;painted[1] := 1
+					}
+
+					from q to q {
+						objscheduled = 1; scheduled[0] := 0;scheduled[1] := 0;busy[0] := 0;busy[1] := 0;busy[2] := 0;busy[3] := 0;busy[4] := 0;busy[5] := 0;busy[6] := 0;busy[7] := 0;objscheduled := 0
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

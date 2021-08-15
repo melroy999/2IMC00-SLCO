@@ -1,0 +1,403 @@
+model LegoCase_as_arg_uni_ll_time {
+  classes
+    Environment {
+      variables
+        Boolean BlockLeft = false
+        Boolean BlockRight = false
+
+      ports
+        LeftSensor
+        LeftMotor
+        MiddleSensor
+        MiddleMotor
+        RightSensor
+        RightMotor
+
+      state machines
+        RightMotor {
+          initial
+            Start
+
+          state
+            Off
+            Running
+
+          transitions
+            Start from Start to Running {
+              receive On() from RightMotor
+            }
+
+            OffToRunning from Off to Running {
+              receive On() from RightMotor;
+              BlockRight := true
+            }
+
+            RunningToOff from Running to Off {
+              receive Off() from RightMotor
+            }
+
+            RunningToRunningBlock from Running to Running {
+              send Block() to RightSensor;
+              send BlockPassed() to RightSensor
+            }
+
+            OffToOff from Off to Off {
+              receive Off() from RightMotor
+            }
+
+            RunningToRunning from Running to Running {
+              receive On() from RightMotor
+            }
+        }
+
+        MiddleMotor {
+          variables
+            Boolean BlockFellOff = false
+
+          initial
+            Off
+
+          state
+            Right
+            Left
+
+          transitions
+            OffToRight from Off to Right {
+              receive Right() from MiddleMotor
+            }
+
+            RightToOff from Right to Off {
+              receive Off() from MiddleMotor
+            }
+
+            OffToOff from Off to Off {
+              receive Off() from MiddleMotor
+            }
+
+            OffToLeft from Off to Left {
+              receive Left() from MiddleMotor
+            }
+
+            LeftToOff from Left to Off {
+              receive Off() from MiddleMotor
+            }
+
+            RightToRightBlockFell from Right to Right {
+              (BlockRight == true);
+              BlockFellOff := true;
+              BlockRight := false
+            }
+
+            LeftToLeftBlockFell from Left to Left {
+              (BlockLeft == true);
+              BlockFellOff := true;
+              BlockLeft := false
+            }
+
+            RightToRight from Right to Right {
+              receive Right() from MiddleMotor
+            }
+
+            LeftToLeft from Left to Left {
+              receive Left() from MiddleMotor
+            }
+
+            RightToLeft from Right to Left {
+              receive Left() from MiddleMotor
+            }
+
+            LeftToRight from Left to Right {
+              receive Right() from MiddleMotor
+            }
+
+            RightToRightBlock from Right to Right {
+              (BlockLeft == true);
+              send Block() to MiddleSensor;
+              send BlockPassed() to MiddleSensor;
+              BlockLeft := false
+            }
+
+            LeftToLeftBlock from Left to Left {
+              (BlockRight == true);
+              send Block() to MiddleSensor;
+              send BlockPassed() to MiddleSensor;
+              BlockRight := false
+            }
+        }
+
+        LeftMotor {
+          initial
+            Start
+
+          state
+            Off
+            Running
+
+          transitions
+            Start from Start to Running {
+              receive On() from LeftMotor
+            }
+
+            OffToRunning from Off to Running {
+              receive On() from LeftMotor;
+              BlockLeft := true
+            }
+
+            RunningToOff from Running to Off {
+              receive Off() from LeftMotor
+            }
+
+            RunningToRunningBlock from Running to Running {
+              send Block() to LeftSensor;
+              send BlockPassed() to LeftSensor
+            }
+
+            OffToOff from Off to Off {
+              receive Off() from LeftMotor
+            }
+
+            RunningToRunning from Running to Running {
+              receive On() from LeftMotor
+            }
+        }
+    }
+
+    Single_as {
+      ports
+        Sensor
+        Motor
+        Middle_in
+        Middle_out
+
+      state machines
+        Single {
+          initial
+            Start
+
+          state
+            Running
+
+          transitions
+            StartToRunning from Start to Running {
+              send On() to Motor
+            }
+
+            RunningToBlock from Running to Running {
+              receive Block() from Sensor;
+              receive BlockPassed() from Sensor;
+              send Off() to Motor;
+              send Signal("Send_Block") to Middle_out;
+              receive Signal([["Acknowledge_Block"]]) from Middle_in;
+              send On() to Motor
+            }
+        }
+    }
+
+    Middle_as {
+      ports
+        Sensor
+        Motor
+        Right_in
+        Right_out
+        Left_in
+        Left_out
+
+      state machines
+        Middle {
+          initial
+            Idle
+
+          state
+            Running
+
+          transitions
+            IdleToRight from Idle to Running {
+              receive Signal([["Send_Block"]]) from Left_in;
+              send Signal("Acknowledge_Block") to Left_out;
+              send Right() to Motor
+            }
+
+            RunningToBlock from Running to Idle {
+              receive Block() from Sensor;
+              receive BlockPassed() from Sensor;
+              send Off() to Motor
+            }
+
+            IdleToLeft from Idle to Running {
+              receive Signal([["Send_Block"]]) from Right_in;
+              send Signal("Acknowledge_Block") to Right_out;
+              send Left() to Motor
+            }
+        }
+    }
+
+    ABP_Sender {
+      ports
+        ASOriginal
+        ASReceiver
+        ASAR
+
+      state machines
+        Sender {
+          variables
+            Integer s = 0
+            String d
+
+          initial
+            Zero
+
+          state
+            One
+
+          transitions
+            ZeroToOne from Zero to One {
+              receive Signal(d) from ASOriginal
+            }
+
+            OneToZero from One to Zero {
+              receive Acknowledge() from ASAR;
+              s := (1 - s)
+            }
+
+            SenderOneToOne from One to One {
+              after 900 ms;
+              send Message(d, s) to ASReceiver
+            }
+        }
+    }
+
+    ABP_AR {
+      ports
+        AARAS
+        AARSender
+
+      state machines
+        AR {
+          variables
+            Integer b = 0
+
+          initial
+            Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero {
+              receive Acknowledge([[b]]) from AARAS;
+              send Acknowledge() to AARSender;
+              b := (1 - b)
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Acknowledge([[(1 - b)]]) from AARAS
+            }
+        }
+    }
+
+    ABP_Receiver {
+      ports
+        AROriginal
+        ARSender
+        ARAS
+
+      state machines
+        Receiver {
+          variables
+            Integer r = 0
+            String d
+
+          initial
+            Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero {
+              receive Message(d, [[r]]) from ARSender;
+              send Signal(d) to AROriginal;
+              send Acknowledge() to ARAS;
+              r := (1 - r)
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Message(d, [[(1 - r)]]) from ARSender
+            }
+        }
+    }
+
+    ABP_AS {
+      ports
+        AASAR
+        AASReceiver
+
+      state machines
+        AS {
+          variables
+            Integer b = 1
+
+          initial
+            Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero {
+              receive Acknowledge() from AASReceiver;
+              b := (1 - b)
+            }
+
+            ASZeroToZero from Zero to Zero {
+              after 900 ms;
+              send Acknowledge(b) to AASAR
+            }
+        }
+    }
+
+  objects
+    Right_as: Single_as
+    Left_as: Single_as
+    Middle_as: Middle_as
+    Environment: Environment
+    Right_as_Middle_outABP_Sender: ABP_Sender
+    Right_as_Middle_outABP_AR: ABP_AR
+    Middle_as_Right_inABP_Receiver: ABP_Receiver
+    Middle_as_Right_inABP_AS: ABP_AS
+    Left_as_Middle_outABP_Sender: ABP_Sender
+    Left_as_Middle_outABP_AR: ABP_AR
+    Middle_as_Left_inABP_Receiver: ABP_Receiver
+    Middle_as_Left_inABP_AS: ABP_AS
+    Middle_as_Right_outABP_Sender: ABP_Sender
+    Middle_as_Right_outABP_AR: ABP_AR
+    Right_as_Middle_inABP_Receiver: ABP_Receiver
+    Right_as_Middle_inABP_AS: ABP_AS
+    Middle_as_Left_outABP_Sender: ABP_Sender
+    Middle_as_Left_outABP_AR: ABP_AR
+    Left_as_Middle_inABP_Receiver: ABP_Receiver
+    Left_as_Middle_inABP_AS: ABP_AS
+
+  channels
+    ELeftSensor_to_LSensor_as() sync from Environment.LeftSensor to Left_as.Sensor
+    LMotor_to_ELeftMotor_as() sync from Left_as.Motor to Environment.LeftMotor
+    ERightSensor_to_RSensor_as() sync from Environment.RightSensor to Right_as.Sensor
+    RMotor_to_ERightMotor_as() sync from Right_as.Motor to Environment.RightMotor
+    EMiddleSensor_to_MSensor_as() sync from Environment.MiddleSensor to Middle_as.Sensor
+    MMotor_to_EMiddleMotor_as() sync from Middle_as.Motor to Environment.MiddleMotor
+    Right_as_Middle_out_Original_to_Sender(String) sync from Right_as.Middle_out to Right_as_Middle_outABP_Sender.ASOriginal
+    Right_as_Middle_out_AR_to_Sender() sync from Right_as_Middle_outABP_AR.AARSender to Right_as_Middle_outABP_Sender.ASAR
+    Middle_as_Right_in_Receiver_to_Original(String) sync from Middle_as_Right_inABP_Receiver.AROriginal to Middle_as.Right_in
+    Middle_as_Right_in_Receiver_to_AS() sync from Middle_as_Right_inABP_Receiver.ARAS to Middle_as_Right_inABP_AS.AASReceiver
+    Right_as_Middle_out_Sender_to_Receiver(String, Integer) async lossy from Right_as_Middle_outABP_Sender.ASReceiver to Middle_as_Right_inABP_Receiver.ARSender
+    Right_as_Middle_out_AS_to_AR(Integer) async lossy from Middle_as_Right_inABP_AS.AASAR to Right_as_Middle_outABP_AR.AARAS
+    Left_as_Middle_out_Original_to_Sender(String) sync from Left_as.Middle_out to Left_as_Middle_outABP_Sender.ASOriginal
+    Left_as_Middle_out_AR_to_Sender() sync from Left_as_Middle_outABP_AR.AARSender to Left_as_Middle_outABP_Sender.ASAR
+    Middle_as_Left_in_Receiver_to_Original(String) sync from Middle_as_Left_inABP_Receiver.AROriginal to Middle_as.Left_in
+    Middle_as_Left_in_Receiver_to_AS() sync from Middle_as_Left_inABP_Receiver.ARAS to Middle_as_Left_inABP_AS.AASReceiver
+    Left_as_Middle_out_Sender_to_Receiver(String, Integer) async lossy from Left_as_Middle_outABP_Sender.ASReceiver to Middle_as_Left_inABP_Receiver.ARSender
+    Left_as_Middle_out_AS_to_AR(Integer) async lossy from Middle_as_Left_inABP_AS.AASAR to Left_as_Middle_outABP_AR.AARAS
+    Middle_as_Right_out_Original_to_Sender(String) sync from Middle_as.Right_out to Middle_as_Right_outABP_Sender.ASOriginal
+    Middle_as_Right_out_AR_to_Sender() sync from Middle_as_Right_outABP_AR.AARSender to Middle_as_Right_outABP_Sender.ASAR
+    Right_as_Middle_in_Receiver_to_Original(String) sync from Right_as_Middle_inABP_Receiver.AROriginal to Right_as.Middle_in
+    Right_as_Middle_in_Receiver_to_AS() sync from Right_as_Middle_inABP_Receiver.ARAS to Right_as_Middle_inABP_AS.AASReceiver
+    Middle_as_Right_out_Sender_to_Receiver(String, Integer) async lossy from Middle_as_Right_outABP_Sender.ASReceiver to Right_as_Middle_inABP_Receiver.ARSender
+    Middle_as_Right_out_AS_to_AR(Integer) async lossy from Right_as_Middle_inABP_AS.AASAR to Middle_as_Right_outABP_AR.AARAS
+    Middle_as_Left_out_Original_to_Sender(String) sync from Middle_as.Left_out to Middle_as_Left_outABP_Sender.ASOriginal
+    Middle_as_Left_out_AR_to_Sender() sync from Middle_as_Left_outABP_AR.AARSender to Middle_as_Left_outABP_Sender.ASAR
+    Left_as_Middle_in_Receiver_to_Original(String) sync from Left_as_Middle_inABP_Receiver.AROriginal to Left_as.Middle_in
+    Left_as_Middle_in_Receiver_to_AS() sync from Left_as_Middle_inABP_Receiver.ARAS to Left_as_Middle_inABP_AS.AASReceiver
+    Middle_as_Left_out_Sender_to_Receiver(String, Integer) async lossy from Middle_as_Left_outABP_Sender.ASReceiver to Left_as_Middle_inABP_Receiver.ARSender
+    Middle_as_Left_out_AS_to_AR(Integer) async lossy from Left_as_Middle_inABP_AS.AASAR to Middle_as_Left_outABP_AR.AARAS
+}

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="ASCII"?>
+<slco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:slco="slco" name="Simple_as_arg_uni_ll_time">
+  <classes name="Producer_as">
+    <stateMachines name="Producer">
+      <vertices xsi:type="slco:Initial" name="State" incoming="//@classes.0/@stateMachines.0/@transitions.0" outgoing="//@classes.0/@stateMachines.0/@transitions.0"/>
+      <transitions name="StateToState" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.1" signalName="Signal">
+          <arguments xsi:type="slco:StringConstantExpression" value="Send_Bericht"/>
+        </statements>
+        <statements xsi:type="slco:SignalReception" port="//@classes.0/@ports.0" signalName="Signal">
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:StringConstantExpression" value="Acknowledge_Bericht"/>
+          </arguments>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <ports name="C_in"/>
+    <ports name="C_out"/>
+  </classes>
+  <classes name="Consumer_as">
+    <stateMachines name="Consumer">
+      <vertices xsi:type="slco:Initial" name="State" incoming="//@classes.1/@stateMachines.0/@transitions.0" outgoing="//@classes.1/@stateMachines.0/@transitions.0"/>
+      <transitions name="StateToState" source="//@classes.1/@stateMachines.0/@vertices.0" target="//@classes.1/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.0" signalName="Signal">
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:StringConstantExpression" value="Send_Bericht"/>
+          </arguments>
+        </statements>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.1" signalName="Signal">
+          <arguments xsi:type="slco:StringConstantExpression" value="Acknowledge_Bericht"/>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <ports name="P_in"/>
+    <ports name="P_out"/>
+  </classes>
+  <classes name="ABP_Sender">
+    <stateMachines name="Sender">
+      <vertices xsi:type="slco:Initial" name="Zero" incoming="//@classes.2/@stateMachines.0/@transitions.1" outgoing="//@classes.2/@stateMachines.0/@transitions.0"/>
+      <vertices xsi:type="slco:State" name="One" incoming="//@classes.2/@stateMachines.0/@transitions.0 //@classes.2/@stateMachines.0/@transitions.2" outgoing="//@classes.2/@stateMachines.0/@transitions.1 //@classes.2/@stateMachines.0/@transitions.2"/>
+      <transitions name="ZeroToOne" source="//@classes.2/@stateMachines.0/@vertices.0" target="//@classes.2/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.2/@ports.0" signalName="Signal">
+          <arguments xsi:type="slco:SignalArgumentVariable" variable="//@classes.2/@stateMachines.0/@variables.1"/>
+        </statements>
+      </transitions>
+      <transitions name="OneToZero" source="//@classes.2/@stateMachines.0/@vertices.1" target="//@classes.2/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.2/@ports.2" signalName="Acknowledge"/>
+        <statements xsi:type="slco:Assignment" variable="//@classes.2/@stateMachines.0/@variables.0">
+          <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+            <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            <operand2 xsi:type="slco:VariableExpression" variable="//@classes.2/@stateMachines.0/@variables.0"/>
+          </expression>
+        </statements>
+      </transitions>
+      <transitions name="SenderOneToOne" source="//@classes.2/@stateMachines.0/@vertices.1" target="//@classes.2/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:Delay" value="900"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.2/@ports.1" signalName="Message">
+          <arguments xsi:type="slco:VariableExpression" variable="//@classes.2/@stateMachines.0/@variables.1"/>
+          <arguments xsi:type="slco:VariableExpression" variable="//@classes.2/@stateMachines.0/@variables.0"/>
+        </statements>
+      </transitions>
+      <variables name="s">
+        <initialValue xsi:type="slco:IntegerConstantExpression"/>
+      </variables>
+      <variables name="d" type="String"/>
+    </stateMachines>
+    <ports name="ASOriginal"/>
+    <ports name="ASReceiver"/>
+    <ports name="ASAR"/>
+  </classes>
+  <classes name="ABP_AR">
+    <stateMachines name="AR">
+      <vertices xsi:type="slco:Initial" name="Zero" incoming="//@classes.3/@stateMachines.0/@transitions.0 //@classes.3/@stateMachines.0/@transitions.1" outgoing="//@classes.3/@stateMachines.0/@transitions.0 //@classes.3/@stateMachines.0/@transitions.1"/>
+      <transitions name="ZeroToZeroAck" source="//@classes.3/@stateMachines.0/@vertices.0" target="//@classes.3/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.3/@ports.0" signalName="Acknowledge">
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:VariableExpression" variable="//@classes.3/@stateMachines.0/@variables.0"/>
+          </arguments>
+        </statements>
+        <statements xsi:type="slco:SendSignal" port="//@classes.3/@ports.1" signalName="Acknowledge"/>
+        <statements xsi:type="slco:Assignment" variable="//@classes.3/@stateMachines.0/@variables.0">
+          <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+            <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            <operand2 xsi:type="slco:VariableExpression" variable="//@classes.3/@stateMachines.0/@variables.0"/>
+          </expression>
+        </statements>
+      </transitions>
+      <transitions name="ZeroToZero" source="//@classes.3/@stateMachines.0/@vertices.0" target="//@classes.3/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.3/@ports.0" signalName="Acknowledge">
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+              <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+              <operand2 xsi:type="slco:VariableExpression" variable="//@classes.3/@stateMachines.0/@variables.0"/>
+            </expression>
+          </arguments>
+        </statements>
+      </transitions>
+      <variables name="b">
+        <initialValue xsi:type="slco:IntegerConstantExpression"/>
+      </variables>
+    </stateMachines>
+    <ports name="AARAS"/>
+    <ports name="AARSender"/>
+  </classes>
+  <classes name="ABP_Receiver">
+    <stateMachines name="Receiver">
+      <vertices xsi:type="slco:Initial" name="Zero" incoming="//@classes.4/@stateMachines.0/@transitions.0 //@classes.4/@stateMachines.0/@transitions.1" outgoing="//@classes.4/@stateMachines.0/@transitions.0 //@classes.4/@stateMachines.0/@transitions.1"/>
+      <transitions name="ZeroToZeroAck" source="//@classes.4/@stateMachines.0/@vertices.0" target="//@classes.4/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.4/@ports.1" signalName="Message">
+          <arguments xsi:type="slco:SignalArgumentVariable" variable="//@classes.4/@stateMachines.0/@variables.1"/>
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:VariableExpression" variable="//@classes.4/@stateMachines.0/@variables.0"/>
+          </arguments>
+        </statements>
+        <statements xsi:type="slco:SendSignal" port="//@classes.4/@ports.0" signalName="Signal">
+          <arguments xsi:type="slco:VariableExpression" variable="//@classes.4/@stateMachines.0/@variables.1"/>
+        </statements>
+        <statements xsi:type="slco:SendSignal" port="//@classes.4/@ports.2" signalName="Acknowledge"/>
+        <statements xsi:type="slco:Assignment" variable="//@classes.4/@stateMachines.0/@variables.0">
+          <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+            <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            <operand2 xsi:type="slco:VariableExpression" variable="//@classes.4/@stateMachines.0/@variables.0"/>
+          </expression>
+        </statements>
+      </transitions>
+      <transitions name="ZeroToZero" source="//@classes.4/@stateMachines.0/@vertices.0" target="//@classes.4/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.4/@ports.1" signalName="Message">
+          <arguments xsi:type="slco:SignalArgumentVariable" variable="//@classes.4/@stateMachines.0/@variables.1"/>
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+              <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+              <operand2 xsi:type="slco:VariableExpression" variable="//@classes.4/@stateMachines.0/@variables.0"/>
+            </expression>
+          </arguments>
+        </statements>
+      </transitions>
+      <variables name="r">
+        <initialValue xsi:type="slco:IntegerConstantExpression"/>
+      </variables>
+      <variables name="d" type="String"/>
+    </stateMachines>
+    <ports name="AROriginal"/>
+    <ports name="ARSender"/>
+    <ports name="ARAS"/>
+  </classes>
+  <classes name="ABP_AS">
+    <stateMachines name="AS">
+      <vertices xsi:type="slco:Initial" name="Zero" incoming="//@classes.5/@stateMachines.0/@transitions.0 //@classes.5/@stateMachines.0/@transitions.1" outgoing="//@classes.5/@stateMachines.0/@transitions.0 //@classes.5/@stateMachines.0/@transitions.1"/>
+      <transitions name="ZeroToZeroAck" source="//@classes.5/@stateMachines.0/@vertices.0" target="//@classes.5/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.5/@ports.1" signalName="Acknowledge"/>
+        <statements xsi:type="slco:Assignment" variable="//@classes.5/@stateMachines.0/@variables.0">
+          <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+            <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            <operand2 xsi:type="slco:VariableExpression" variable="//@classes.5/@stateMachines.0/@variables.0"/>
+          </expression>
+        </statements>
+      </transitions>
+      <transitions name="ASZeroToZero" source="//@classes.5/@stateMachines.0/@vertices.0" target="//@classes.5/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:Delay" value="900"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.5/@ports.0" signalName="Acknowledge">
+          <arguments xsi:type="slco:VariableExpression" variable="//@classes.5/@stateMachines.0/@variables.0"/>
+        </statements>
+      </transitions>
+      <variables name="b">
+        <initialValue xsi:type="slco:IntegerConstantExpression" value="1"/>
+      </variables>
+    </stateMachines>
+    <ports name="AASAR"/>
+    <ports name="AASReceiver"/>
+  </classes>
+  <objects name="P_as" class="//@classes.0"/>
+  <objects name="C_as" class="//@classes.1"/>
+  <objects name="P_as_C_outABP_Sender" class="//@classes.2"/>
+  <objects name="P_as_C_outABP_AR" class="//@classes.3"/>
+  <objects name="C_as_P_inABP_Receiver" class="//@classes.4"/>
+  <objects name="C_as_P_inABP_AS" class="//@classes.5"/>
+  <objects name="C_as_P_outABP_Sender" class="//@classes.2"/>
+  <objects name="C_as_P_outABP_AR" class="//@classes.3"/>
+  <objects name="P_as_C_inABP_Receiver" class="//@classes.4"/>
+  <objects name="P_as_C_inABP_AS" class="//@classes.5"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="P_as_C_out_Original_to_Sender" channelType="sync" sourcePort="//@classes.0/@ports.1" targetPort="//@classes.2/@ports.0" sourceObject="P_as" targetObject="P_as_C_outABP_Sender">
+    <argumentTypes type="String"/>
+  </channels>
+  <channels xsi:type="slco:UnidirectionalChannel" name="P_as_C_out_AR_to_Sender" channelType="sync" sourcePort="//@classes.3/@ports.1" targetPort="//@classes.2/@ports.2" sourceObject="P_as_C_outABP_AR" targetObject="P_as_C_outABP_Sender"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="C_as_P_in_Receiver_to_Original" channelType="sync" sourcePort="//@classes.4/@ports.0" targetPort="//@classes.1/@ports.0" sourceObject="C_as_P_inABP_Receiver" targetObject="C_as">
+    <argumentTypes type="String"/>
+  </channels>
+  <channels xsi:type="slco:UnidirectionalChannel" name="C_as_P_in_Receiver_to_AS" channelType="sync" sourcePort="//@classes.4/@ports.2" targetPort="//@classes.5/@ports.1" sourceObject="C_as_P_inABP_Receiver" targetObject="C_as_P_inABP_AS"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="P_as_C_out_Sender_to_Receiver" channelType="async_lossy" sourcePort="//@classes.2/@ports.1" targetPort="//@classes.4/@ports.1" sourceObject="P_as_C_outABP_Sender" targetObject="C_as_P_inABP_Receiver">
+    <argumentTypes type="String"/>
+    <argumentTypes/>
+  </channels>
+  <channels xsi:type="slco:UnidirectionalChannel" name="P_as_C_out_AS_to_AR" channelType="async_lossy" sourcePort="//@classes.5/@ports.0" targetPort="//@classes.3/@ports.0" sourceObject="C_as_P_inABP_AS" targetObject="P_as_C_outABP_AR">
+    <argumentTypes/>
+  </channels>
+  <channels xsi:type="slco:UnidirectionalChannel" name="C_as_P_out_Original_to_Sender" channelType="sync" sourcePort="//@classes.1/@ports.1" targetPort="//@classes.2/@ports.0" sourceObject="C_as" targetObject="C_as_P_outABP_Sender">
+    <argumentTypes type="String"/>
+  </channels>
+  <channels xsi:type="slco:UnidirectionalChannel" name="C_as_P_out_AR_to_Sender" channelType="sync" sourcePort="//@classes.3/@ports.1" targetPort="//@classes.2/@ports.2" sourceObject="C_as_P_outABP_AR" targetObject="C_as_P_outABP_Sender"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="P_as_C_in_Receiver_to_Original" channelType="sync" sourcePort="//@classes.4/@ports.0" targetPort="//@classes.0/@ports.0" sourceObject="P_as_C_inABP_Receiver" targetObject="P_as">
+    <argumentTypes type="String"/>
+  </channels>
+  <channels xsi:type="slco:UnidirectionalChannel" name="P_as_C_in_Receiver_to_AS" channelType="sync" sourcePort="//@classes.4/@ports.2" targetPort="//@classes.5/@ports.1" sourceObject="P_as_C_inABP_Receiver" targetObject="P_as_C_inABP_AS"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="C_as_P_out_Sender_to_Receiver" channelType="async_lossy" sourcePort="//@classes.2/@ports.1" targetPort="//@classes.4/@ports.1" sourceObject="C_as_P_outABP_Sender" targetObject="P_as_C_inABP_Receiver">
+    <argumentTypes type="String"/>
+    <argumentTypes/>
+  </channels>
+  <channels xsi:type="slco:UnidirectionalChannel" name="C_as_P_out_AS_to_AR" channelType="async_lossy" sourcePort="//@classes.5/@ports.0" targetPort="//@classes.3/@ports.0" sourceObject="P_as_C_inABP_AS" targetObject="C_as_P_outABP_AR">
+    <argumentTypes/>
+  </channels>
+</slco:Model>

@@ -1,0 +1,17 @@
+
+digraph Names2Arguments {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_16
+ [label="{A||}"]
+A_16_A [label="{A||}", style=filled, fillcolor=gray95]
+A_16 -> A_16_A
+
+B_14
+ [label="{B||}"]
+B_14_B [label="{B||}", style=filled, fillcolor=gray95]
+B_14 -> B_14_B
+
+
+}

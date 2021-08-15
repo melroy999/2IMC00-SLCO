@@ -1,0 +1,60 @@
+
+digraph Lossless2Lossy_ll {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_a{
+    label = "a: A";
+    node [shape = box];
+    a_Out[label = Out]
+  }
+
+  subgraph cluster_b{
+    label = "b: B";
+    node [shape = box];
+    b_In[label = In]
+  }
+
+  subgraph cluster_a_OutABP_Sender{
+    label = "a_OutABP_Sender: ABP_Sender";
+    node [shape = box];
+    a_OutABP_Sender_ASOriginal[label = ASOriginal]
+    a_OutABP_Sender_ASReceiver[label = ASReceiver]
+    a_OutABP_Sender_ASAR[label = ASAR]
+  }
+
+  subgraph cluster_a_OutABP_AR{
+    label = "a_OutABP_AR: ABP_AR";
+    node [shape = box];
+    a_OutABP_AR_AARAS[label = AARAS]
+    a_OutABP_AR_AARSender[label = AARSender]
+  }
+
+  subgraph cluster_b_InABP_Receiver{
+    label = "b_InABP_Receiver: ABP_Receiver";
+    node [shape = box];
+    b_InABP_Receiver_AROriginal[label = AROriginal]
+    b_InABP_Receiver_ARSender[label = ARSender]
+    b_InABP_Receiver_ARAS[label = ARAS]
+  }
+
+  subgraph cluster_b_InABP_AS{
+    label = "b_InABP_AS: ABP_AS";
+    node [shape = box];
+    b_InABP_AS_AASAR[label = AASAR]
+    b_InABP_AS_AASReceiver[label = AASReceiver]
+  }
+
+  
+ a_Out -> a_OutABP_Sender_ASOriginal [label = "a_Out_Original_to_Sender(String)"];
+
+ a_OutABP_AR_AARSender -> a_OutABP_Sender_ASAR [label = "a_Out_AR_to_Sender()"];
+
+ b_InABP_Receiver_AROriginal -> b_In [label = "b_In_Receiver_to_Original(String)"];
+
+ b_InABP_Receiver_ARAS -> b_InABP_AS_AASReceiver [label = "b_In_Receiver_to_AS()"];
+
+ a_OutABP_Sender_ASReceiver -> b_InABP_Receiver_ARSender [label = "a_Out_Sender_to_Receiver(String, Integer)", style=dotted];
+
+ b_InABP_AS_AASAR -> a_OutABP_AR_AARAS [label = "a_Out_AS_to_AR(Integer)", style=dotted];
+
+}

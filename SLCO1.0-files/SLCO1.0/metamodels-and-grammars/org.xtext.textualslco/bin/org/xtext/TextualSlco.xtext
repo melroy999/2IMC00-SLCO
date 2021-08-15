@@ -1,0 +1,164 @@
+grammar org.xtext.TextualSlco with org.eclipse.xtext.common.Terminals
+
+generate textualSlco "http://www.xtext.org/TextualSlco"
+
+Model :
+  'model' name = ID '{'
+    ('classes'
+       (classes += Class)*
+    )?
+    ('objects'
+      (objects += Object)*
+    )?
+    ('channels'
+      (channels += Channel)*
+    )?
+  '}';
+
+Class :
+  name = ID '{'
+    ('variables'
+      (variables += Variable)*
+    )?
+    ('ports'
+      (ports += Port)*
+    )?
+    ('state machines'
+      (stateMachines += StateMachine)*
+    )?
+  '}';
+
+StateMachine :
+  name = ID '{'
+    ('variables'
+      (variables += Variable)*
+    )?
+    ('initial'
+      (vertices += Initial)*
+    )?
+    ('state'
+      (vertices += State)*
+    )?
+    ('final'
+      (vertices += Final)*
+    )?
+    ('transitions'
+      (transitions += Transition)*
+    )?
+  '}'
+;
+
+Vertex :
+  Initial | State | Final;
+
+Initial :
+  name = ID;
+
+State :
+  name = ID;
+
+Final :
+  name = ID;
+
+VertexReference :
+  name = ID;
+
+Transition :
+  name = ID 'from' source = VertexReference 'to' target = VertexReference '{'
+    (statements += Statement (';' statements += Statement)*)?
+  '}'
+;
+
+Statement :
+  Assignment | SendSignal |
+  Delay | SignalReception |
+  Expression;
+
+Delay :
+  'after' value = INT 'ms';
+
+PortReference :
+  name = ID;
+
+SignalReception :
+  'receive' signalName = ID '(' (arguments += SignalArgument (',' arguments += SignalArgument)*)? ('|' condition = Expression)? ')' 'from' port = PortReference;
+
+SignalArgument :
+  SignalArgumentVariable | SignalArgumentExpression;
+
+SignalArgumentVariable :
+  variable = VariableReference;
+
+SignalArgumentExpression :
+  '[[' expression = Expression ']]';
+
+Assignment :
+  variable = VariableReference ':=' expression = Expression;
+
+SendSignal :
+  'send' signalName = ID '(' (arguments += Expression (',' arguments += Expression)*)? ')' 'to' port = PortReference;
+
+Object :
+  name = ID ':' class = [Class];
+
+Port :
+  name = ID;
+	
+Channel :
+  UnidirectionalChannel | BidirectionalChannel;
+
+UnidirectionalChannel:
+  name = ID '(' (argumentTypes += ArgumentType (',' argumentTypes += ArgumentType)*)? ')'
+  channelType = ChannelType 'from'
+  sourceObject = [Object] '.' sourcePort = PortReference 'to' targetObject = [Object] '.' targetPort = PortReference;
+  
+BidirectionalChannel:
+  name = ID '(' (argumentTypes += ArgumentType (',' argumentTypes += ArgumentType)*)? ')'
+  channelType = ChannelType 'between'
+  object1 = [Object] '.' port1 = PortReference 'and' object2 = [Object] '.' port2 = PortReference;
+
+ArgumentType :
+  type = PrimitiveType;
+
+Variable :
+  type = PrimitiveType name = ID ('=' intialValue = Expression)?;
+
+enum PrimitiveType :
+  Integer | String | Boolean;
+
+enum ChannelType :
+  Synchronous = 'sync' | AsynchronousLossless = 'async lossless' | AsynchronousLossy = 'async lossy';
+
+Expression :
+  TerminalExpression ({BinaryOperatorExpression.operand1 = current} operator = Operator operand2 = Expression)?;
+
+TerminalExpression returns Expression :
+  BooleanConstantExpression |
+  IntegerConstantExpression |
+  StringConstantExpression |
+  VariableExpression |
+  BracketExpression;
+
+enum Operator :
+  atLeast = '>=' | atMost = '<=' | add = '+' | and = '&&' | or = '||' | equals = '==' | differs = '!=' | subtract = '-';
+
+BooleanConstantExpression :
+  value = BOOLEAN;
+
+IntegerConstantExpression :
+  value = INT;
+
+StringConstantExpression :
+  value = STRING;
+
+VariableReference :
+  name = ID;
+
+VariableExpression :
+  variable=VariableReference;
+
+BracketExpression returns Expression:
+  "(" Expression ")";
+
+terminal BOOLEAN :
+  'true' | 'false';

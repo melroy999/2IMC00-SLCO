@@ -1,0 +1,141 @@
+model dve_bakery_3 {
+
+  classes
+  GlobalClass {
+    variables
+      Byte[3] choosing number    
+    
+
+    state machines
+    P_0 {
+      variables
+        Byte j max      
+      initial NCS states choose choose2 forloop wait CS
+
+      transitions
+      NCS -> choose {
+        [ choosing[0] := 1; j := 0; max := 0]
+      }
+      
+      choose -> choose2 {
+        j < 3
+      }
+
+      choose2 -> choose {
+        [number[j] > max; max := number[j]; j := j + 1]
+      }
+      
+      1: choose2 -> choose {
+        [j := j + 1]
+      }
+      
+      choose -> forloop {
+        [j = 3 and max < 4; number[0] := max + 1; j := 0; choosing[0] := 0]
+      }
+      
+      forloop -> wait {
+        j < 3 and choosing[j] = 0
+      }
+      
+      wait -> forloop {
+        [number[j] = 0 or (number[j] > number[0]) or (number[j] = number[0] and 0 <= j); j := j + 1]
+      }
+      
+      forloop -> CS {
+        j = 3
+      }
+      
+      CS -> NCS {
+        [ number[0] := 0]
+      }
+    }
+    
+    P_1 {
+      variables
+        Byte j max      
+      initial NCS states choose choose2 forloop wait CS
+
+      transitions
+      NCS -> choose {
+        [ choosing[1] := 1; j := 0; max := 0]
+      }
+      
+      choose -> choose2 {
+        j < 3
+      }
+
+      choose2 -> choose {
+        [number[j] > max; max := number[j]; j := j + 1]
+      }
+      
+      1: choose2 -> choose {
+        [j := j + 1]
+      }
+      
+      choose -> forloop {
+        [j = 3 and max < 4; number[1] := max + 1; j := 0; choosing[1] := 0]
+      }
+      
+      forloop -> wait {
+        j < 3 and choosing[j] = 0
+      }
+      
+      wait -> forloop {
+        [number[j] = 0 or (number[j] > number[1]) or (number[j] = number[1] and 1 <= j); j := j + 1]
+      }
+      
+      forloop -> CS {
+        j = 3
+      }
+      
+      CS -> NCS {
+        [ number[1] := 0]
+      }
+    }
+    
+    P_2 {
+      variables
+        Byte j max      
+      initial NCS states choose choose2 forloop wait CS
+
+      transitions
+      NCS -> choose {
+        [ choosing[2] := 1; j := 0; max := 0]
+      }
+      
+      choose -> choose2 {
+        j < 3
+      }
+
+      choose2 -> choose {
+        [number[j] > max; max := number[j]; j := j + 1]
+      }
+      
+      1: choose2 -> choose {
+        [j := j + 1]
+      }
+      
+      choose -> forloop {
+        [j = 3 and max < 4; number[2] := max + 1; j := 0; choosing[2] := 0]
+      }
+      
+      forloop -> wait {
+        j < 3 and choosing[j] = 0
+      }
+      
+      wait -> forloop {
+        [number[j] = 0 or (number[j] > number[2]) or (number[j] = number[2] and 2 <= j); j := j + 1]
+      }
+      
+      forloop -> CS {
+        j = 3
+      }
+      
+      CS -> NCS {
+        [ number[2] := 0]
+      }
+    }
+  }
+  objects globalObject: GlobalClass()
+
+}

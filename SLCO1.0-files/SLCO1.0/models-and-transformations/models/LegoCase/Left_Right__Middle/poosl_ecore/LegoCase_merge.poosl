@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="ASCII"?>
+<poosl:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:poosl="poosl" name="LegoCase_merge">
+  <classes xsi:type="poosl:ProcessClass" name="Middle">
+    <methods name="Middle_Idle">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.0">
+            <message name="Block"/>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.0/@ports.3">
+            <message name="Right"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.1">
+            <message name="Block"/>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.0/@ports.3">
+            <message name="Left"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.1"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Middle_Running">
+      <body xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.2">
+        <message name="Block"/>
+      </body>
+      <body xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.2">
+        <message name="BlockPassed"/>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.0/@ports.3">
+        <message name="Off"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.0"/>
+    </methods>
+    <methods name="Middle_initial">
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.0"/>
+    </methods>
+    <ports name="Left"/>
+    <ports name="Right"/>
+    <ports name="Sensor"/>
+    <ports name="Motor"/>
+    <initialMethodCall method="//@classes.0/@methods.2"/>
+  </classes>
+  <classes xsi:type="poosl:ProcessClass" name="Environment">
+    <variables name="BlockLeft" type="//@primitiveTypes.0"/>
+    <variables name="BlockRight" type="//@primitiveTypes.0"/>
+    <variables name="EnvironmentMiddleMotorBlockFellOff" type="//@primitiveTypes.0"/>
+    <methods name="RightMotor_Start">
+      <body xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.5">
+        <message name="On"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.4"/>
+    </methods>
+    <methods name="MiddleMotor_Off">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.3">
+            <message name="Right"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.5"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.3">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.3">
+            <message name="Left"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.6"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="LeftMotor_Start">
+      <body xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.1">
+        <message name="On"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.8"/>
+    </methods>
+    <methods name="RightMotor_Off">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.5">
+            <message name="On"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.1">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant boolean="true" type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.4"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.5">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.3"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="RightMotor_Running">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.5">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.3"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.1/@ports.4">
+            <message name="Block"/>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.1/@ports.4">
+            <message name="BlockPassed"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.4"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.5">
+            <message name="On"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.4"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="MiddleMotor_Right">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.3">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.1"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant boolean="true" type="boolean"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.2">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant boolean="true" type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.1">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.5"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.3">
+            <message name="Right"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.5"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.3">
+            <message name="Left"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.6"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant boolean="true" type="boolean"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.1/@ports.2">
+            <message name="Block"/>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.1/@ports.2">
+            <message name="BlockPassed"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.0">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.5"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="MiddleMotor_Left">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.3">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant boolean="true" type="boolean"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.2">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant boolean="true" type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.0">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.6"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.3">
+            <message name="Left"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.6"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.3">
+            <message name="Right"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.5"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:GuardedExecution">
+            <statement xsi:type="poosl:Skip"/>
+            <guard xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@variables.1"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:ConstantExpression">
+                  <constant boolean="true" type="boolean"/>
+                </expressions>
+              </parameterExpressionLists>
+            </guard>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.1/@ports.2">
+            <message name="Block"/>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.1/@ports.2">
+            <message name="BlockPassed"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.1">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.6"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="LeftMotor_Off">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.1">
+            <message name="On"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.0">
+            <rightHandSide xsi:type="poosl:ConstantExpression">
+              <constant boolean="true" type="boolean"/>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.8"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.1">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.7"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="LeftMotor_Running">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.1">
+            <message name="Off"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.7"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.1/@ports.0">
+            <message name="Block"/>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.1/@ports.0">
+            <message name="BlockPassed"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.8"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.1">
+            <message name="On"/>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.8"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="Environment_initial">
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="boolean"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.1">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="boolean"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.1/@variables.2">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="boolean"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ParallelComposition">
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.0"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.1"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.2"/>
+        </statementLists>
+      </body>
+    </methods>
+    <ports name="LeftSensor"/>
+    <ports name="LeftMotor"/>
+    <ports name="MiddleSensor"/>
+    <ports name="MiddleMotor"/>
+    <ports name="RightSensor"/>
+    <ports name="RightMotor"/>
+    <initialMethodCall method="//@classes.1/@methods.9"/>
+  </classes>
+  <classes xsi:type="poosl:ProcessClass" name="R_L">
+    <methods name="Right_Single_Start">
+      <body xsi:type="poosl:MessageSend" port="//@classes.2/@ports.2">
+        <message name="On"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.2"/>
+    </methods>
+    <methods name="Left_Single_Start">
+      <body xsi:type="poosl:MessageSend" port="//@classes.2/@ports.5">
+        <message name="On"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.3"/>
+    </methods>
+    <methods name="Right_Single_Running">
+      <body xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.1">
+        <message name="Block"/>
+      </body>
+      <body xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.1">
+        <message name="BlockPassed"/>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.2/@ports.2">
+        <message name="Off"/>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.2/@ports.0">
+        <message name="Block"/>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.2/@ports.2">
+        <message name="On"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.2"/>
+    </methods>
+    <methods name="Left_Single_Running">
+      <body xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.4">
+        <message name="Block"/>
+      </body>
+      <body xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.4">
+        <message name="BlockPassed"/>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.2/@ports.5">
+        <message name="Off"/>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.2/@ports.3">
+        <message name="Block"/>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.2/@ports.5">
+        <message name="On"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.3"/>
+    </methods>
+    <methods name="R_L_initial">
+      <body xsi:type="poosl:ParallelComposition">
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.0"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.1"/>
+        </statementLists>
+      </body>
+    </methods>
+    <ports name="Right_Middle"/>
+    <ports name="Right_Sensor"/>
+    <ports name="Right_Motor"/>
+    <ports name="Left_Middle"/>
+    <ports name="Left_Sensor"/>
+    <ports name="Left_Motor"/>
+    <initialMethodCall method="//@classes.2/@methods.4"/>
+  </classes>
+  <processInstances name="Middle" class="//@classes.0"/>
+  <processInstances name="Environment" class="//@classes.1"/>
+  <processInstances name="R_L" class="//@classes.2"/>
+  <channels name="ELeftSensor_to_LSensor" port1="//@classes.1/@ports.0" port2="//@classes.2/@ports.4" processInstance1="//@processInstances.1" processInstance2="//@processInstances.2"/>
+  <channels name="LMotor_to_ELeftMotor" port1="//@classes.2/@ports.5" port2="//@classes.1/@ports.1" processInstance1="//@processInstances.2" processInstance2="//@processInstances.1"/>
+  <channels name="ERightSensor_to_RSensor" port1="//@classes.1/@ports.4" port2="//@classes.2/@ports.1" processInstance1="//@processInstances.1" processInstance2="//@processInstances.2"/>
+  <channels name="RMotor_to_ERightMotor" port1="//@classes.2/@ports.2" port2="//@classes.1/@ports.5" processInstance1="//@processInstances.2" processInstance2="//@processInstances.1"/>
+  <channels name="RMiddle_to_MRight" port1="//@classes.2/@ports.0" port2="//@classes.0/@ports.1" processInstance1="//@processInstances.2" processInstance2="//@processInstances.0"/>
+  <channels name="LMiddle_to_MLeft" port1="//@classes.2/@ports.3" port2="//@classes.0/@ports.0" processInstance1="//@processInstances.2" processInstance2="//@processInstances.0"/>
+  <channels name="EMiddleSensor_to_MSensor" port1="//@classes.1/@ports.2" port2="//@classes.0/@ports.2" processInstance1="//@processInstances.1" processInstance2="//@processInstances.0"/>
+  <channels name="MMotor_to_EMiddleMotor" port1="//@classes.0/@ports.3" port2="//@classes.1/@ports.3" processInstance1="//@processInstances.0" processInstance2="//@processInstances.1"/>
+  <primitiveTypes primitiveTypeEnum="boolean"/>
+</poosl:Model>

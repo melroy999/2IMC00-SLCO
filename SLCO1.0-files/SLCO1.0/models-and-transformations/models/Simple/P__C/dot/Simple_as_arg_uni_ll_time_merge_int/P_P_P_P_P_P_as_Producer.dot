@@ -1,0 +1,19 @@
+digraph P_as_Producer {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] State_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] State State_extra -> State
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] State_s_Signal_abl_StateToState
+node [shape = "Mrecord", height = "0.8", width = "1.6"] State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State
+
+
+
+State -> State_s_Signal_abl_StateToState [label = "P_as_C_out_Original_to_Sender_name := 0;\n P_as_C_out_Original_to_Sender_arg_0 := 2;\n P_as_C_out_Original_to_Sender_abl := 1"];
+
+State_s_Signal_abl_StateToState -> State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State [label = "P_as_C_in_Receiver_to_Original_abl == 1 && P_as_C_in_Receiver_to_Original_name == 0 && P_as_C_in_Receiver_to_Original_arg_0 == 3;\n P_as_C_in_Receiver_to_Original_abl := 2"];
+
+State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State -> State [label = "P_as_C_in_Receiver_to_Original_abl == 3;\n P_as_C_in_Receiver_to_Original_abl := 0;\n P_as_C_out_Original_to_Sender_abl == 2;\n P_as_C_out_Original_to_Sender_abl := 3;\n P_as_C_out_Original_to_Sender_abl == 0"];
+
+State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State -> State_s_Signal_abl_StateToState [label = "P_as_C_in_Receiver_to_Original_abl == 0"];
+
+}

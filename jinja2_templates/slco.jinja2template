@@ -1,0 +1,37 @@
+model {{model.name}} {
+  {% for a in model.actions %}{{'  actions ' if loop.first }}{{a.name}}{{' ' if not loop.last }}{% endfor %}
+
+  {% for c in model.classes %}
+  {{ 'classes' if loop.first }}
+  {{c.name}} {
+    {{c.variables|variabledeclarations(4)}}
+    {% for p in c.ports %}{{'    ports' if loop.first }} {{p.name}}{% endfor %}
+    
+
+    {% for s in c.statemachines %}
+    {{'state machines' if loop.first }}
+    {{s.name}} {
+      {{s.variables|variabledeclarations(6)}}
+      initial {{s.initialstate.name}} {% for st in s.states %}{{'states' if loop.index0 == 1 }}{% if not loop.first %} {{st.name}}{% endif %}{% endfor %}
+
+
+      {% for tr in s.transitions %}
+      {{'transitions' if loop.first }}
+        {% if tr.priority > 0 %}      {{tr.priority}}: {% else %}      {% endif %}{{tr.source.name}} -> {{tr.target.name}} {
+        {% for stat in tr.statements %}
+        {{stat|printstatement}}{{'; ' if not loop.last }}
+        {% endfor %}
+      }
+      {% endfor %}
+    }
+    {% endfor %}
+  }
+{% endfor %}
+{% for o in model.objects %}{{'  objects ' if loop.first }}{{', ' if not loop.first }}{{o.name}}: {{o.type.name}}({% for s in o.assignments %}{% if not loop.first %}, {% endif %}{{s.left.name}} := {% if s.right != None %}{{s.right}}{% else %}{{s.rights}}{% endif %}{% endfor %}){% endfor %}
+
+{% if model.channels|length > 0 %}  channels{% endif %}
+
+{% for ch in model.channels %}
+    {{ch.name}}({% for t in ch.type %}{{', ' if not loop.first }}{{t.base}}{% endfor %}) {{ch.synctype}}{% if ch.size > 1 %}[{{ch.size}}]{% endif %} {{ch.losstype}}{% if ch.synctype == 'async' %} from{% else %}between{% endif %} {{ch.source.name}}.{{ch.port0.name}}{% if ch.synctype == 'async' %} to{% else %} and{% endif %} {{ch.target.name}}.{{ch.port1.name}}
+{% endfor %}
+}

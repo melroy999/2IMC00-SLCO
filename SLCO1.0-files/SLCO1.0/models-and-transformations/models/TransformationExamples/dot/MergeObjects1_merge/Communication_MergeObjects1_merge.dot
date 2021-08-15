@@ -1,0 +1,12 @@
+
+digraph MergeObjects1_merge {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_a_b{
+    label = "a_b: a_b";
+    node [shape = box];
+
+  }
+
+  
+}

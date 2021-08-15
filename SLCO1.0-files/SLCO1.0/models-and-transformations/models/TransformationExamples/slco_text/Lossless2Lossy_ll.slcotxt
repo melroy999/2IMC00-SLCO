@@ -1,0 +1,170 @@
+model Lossless2Lossy_ll {
+  classes
+    A {
+      ports
+        Out
+
+      state machines
+        A {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              send Signal("S") to Out
+            }
+        }
+    }
+
+    B {
+      ports
+        In
+
+      state machines
+        B {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              receive Signal([["S"]]) from In
+            }
+        }
+    }
+
+    ABP_Sender {
+      ports
+        ASOriginal
+        ASReceiver
+        ASAR
+
+      state machines
+        Sender {
+          variables
+            Integer s = 0
+            String d
+
+          initial
+            Zero
+
+          state
+            One
+
+          transitions
+            ZeroToOne from Zero to One {
+              receive Signal(d) from ASOriginal
+            }
+
+            OneToZero from One to Zero {
+              receive Acknowledge() from ASAR;
+              s := (1 - s)
+            }
+
+            SenderOneToOne from One to One {
+              send Message(d, s) to ASReceiver
+            }
+        }
+    }
+
+    ABP_AR {
+      ports
+        AARAS
+        AARSender
+
+      state machines
+        AR {
+          variables
+            Integer b = 0
+
+          initial
+            Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero {
+              receive Acknowledge([[b]]) from AARAS;
+              send Acknowledge() to AARSender;
+              b := (1 - b)
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Acknowledge([[(1 - b)]]) from AARAS
+            }
+        }
+    }
+
+    ABP_Receiver {
+      ports
+        AROriginal
+        ARSender
+        ARAS
+
+      state machines
+        Receiver {
+          variables
+            Integer r = 0
+            String d
+
+          initial
+            Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero {
+              receive Message(d, [[r]]) from ARSender;
+              send Signal(d) to AROriginal;
+              send Acknowledge() to ARAS;
+              r := (1 - r)
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Message(d, [[(1 - r)]]) from ARSender
+            }
+        }
+    }
+
+    ABP_AS {
+      ports
+        AASAR
+        AASReceiver
+
+      state machines
+        AS {
+          variables
+            Integer b = 1
+
+          initial
+            Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero {
+              receive Acknowledge() from AASReceiver;
+              b := (1 - b)
+            }
+
+            ASZeroToZero from Zero to Zero {
+              send Acknowledge(b) to AASAR
+            }
+        }
+    }
+
+  objects
+    a: A
+    b: B
+    a_OutABP_Sender: ABP_Sender
+    a_OutABP_AR: ABP_AR
+    b_InABP_Receiver: ABP_Receiver
+    b_InABP_AS: ABP_AS
+
+  channels
+    a_Out_Original_to_Sender(String) sync from a.Out to a_OutABP_Sender.ASOriginal
+    a_Out_AR_to_Sender() sync from a_OutABP_AR.AARSender to a_OutABP_Sender.ASAR
+    b_In_Receiver_to_Original(String) sync from b_InABP_Receiver.AROriginal to b.In
+    b_In_Receiver_to_AS() sync from b_InABP_Receiver.ARAS to b_InABP_AS.AASReceiver
+    a_Out_Sender_to_Receiver(String, Integer) async lossy from a_OutABP_Sender.ASReceiver to b_InABP_Receiver.ARSender
+    a_Out_AS_to_AR(Integer) async lossy from b_InABP_AS.AASAR to a_OutABP_AR.AARAS
+}

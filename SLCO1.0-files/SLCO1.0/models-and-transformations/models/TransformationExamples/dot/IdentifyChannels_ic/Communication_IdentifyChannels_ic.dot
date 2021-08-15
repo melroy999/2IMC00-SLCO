@@ -1,0 +1,24 @@
+
+digraph IdentifyChannels_ic {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_a{
+    label = "a: A";
+    node [shape = box];
+    a_Out1[label = Out1]
+    a_Out2[label = Out2]
+  }
+
+  subgraph cluster_b{
+    label = "b: B";
+    node [shape = box];
+    b_In1[label = In1]
+    b_In2[label = In2]
+  }
+
+  
+ a_Out1 -> b_In1 [label = "C1()"];
+
+ a_Out2 -> b_In2 [label = "C2()"];
+
+}

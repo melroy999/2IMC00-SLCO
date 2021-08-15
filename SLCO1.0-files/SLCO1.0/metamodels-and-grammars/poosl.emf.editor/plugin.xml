@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="poosl.presentation.PooslModelWizardID"
+            name="%_UI_PooslModelWizard_label"
+            class="poosl.presentation.PooslModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/PooslModelFile.gif">
+         <description>%_UI_PooslModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
+   <extension point="org.eclipse.ui.editors">
+      <editor
+            id="poosl.presentation.PooslEditorID"
+            name="%_UI_PooslEditor_label"
+            icon="icons/full/obj16/PooslModelFile.gif"
+            extensions="poosl"
+            class="poosl.presentation.PooslEditor"
+            contributorClass="poosl.presentation.PooslActionBarContributor">
+      </editor>
+   </extension>
+
+</plugin>

@@ -1,0 +1,240 @@
+import slco;
+
+extension org::eclipse::xtend::util::stdlib::io;
+
+// ####################################################################################
+// ------------------------------------------------------------------------------------
+// Creation functions
+// ------------------------------------------------------------------------------------
+// ####################################################################################
+
+slco::ArgumentType createStringArgumentType() :
+   let at = new slco::ArgumentType :
+      at.setType(
+        slco::PrimitiveTypeEnum::String
+      )
+   -> at
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::ArgumentType createIntegerArgumentType() :
+   let at = new slco::ArgumentType :
+      at.setType(
+         slco::PrimitiveTypeEnum::Integer
+      )
+   -> at
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::SignalArgumentExpression createSignalArgumentExpression(slco::Expression expression) :
+   let sa = new slco::SignalArgumentExpression :
+      sa.setExpression(expression)
+   -> sa
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::SignalArgumentExpression createSignalArgumentVariable(slco::Variable variable) :
+   let sa = new slco::SignalArgumentVariable :
+      sa.setVariable(variable)
+   -> sa
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::BinaryOperatorExpression createBinaryOperatorExpression(
+   slco::OperatorEnum operator, slco::Expression operand1, slco::Expression operand2
+) :
+   let boe = new slco::BinaryOperatorExpression :
+      boe.setOperator(
+         operator
+      )
+   -> boe.setOperand1(
+         operand1
+      )
+   -> boe.setOperand2(
+         operand2
+      )
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::BooleanConstantExpression createBooleanConstant(Boolean value) :
+   let bce = new slco::BooleanConstantExpression :
+      bce.setValue(value)
+;
+
+
+
+// ------------------------------------------------------------------------------------
+
+slco::SignalReception createSignalReception(
+   String name, slco::Port port, List[slco::SignalArgument] arguments
+) :
+   let sr = new slco::SignalReception :
+      sr.setSignalName(name)
+   -> sr.setPort(port)
+   -> sr.setArguments(arguments)
+   -> sr
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::SendSignal createSendSignal(
+   String name, slco::Port port, List[slco::Expression] arguments
+) :
+   let sss = new slco::SendSignal :
+      sss.setSignalName(name)
+   -> sss.setPort(port)
+   -> sss.setArguments(arguments)
+   -> sss
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::Assignment createAssignment(
+   slco::Variable variable, slco::Expression expression
+) :
+   let as = new slco::Assignment :
+      as.setVariable(
+         variable
+      )
+   -> as.setExpression(
+       expression
+      )
+   -> as
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::VariableExpression createVariableExpression(
+  slco::Variable variable
+) :
+   let ve = new slco::VariableExpression:
+      ve.setVariable(
+         variable
+      )
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::IntegerConstantExpression createIntegerConstantExpression(Integer value) :
+  let ice = new slco::IntegerConstantExpression :
+     ice.setValue(value)
+  -> ice
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::BooleanConstantExpression createBooleanConstantExpression(boolean value) :
+  let bce = new slco::BooleanConstantExpression :
+    bce.setValue(value)
+  -> bce
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::StringConstantExpression createStringConstantExpression(String value) :
+  let sce = new slco::StringConstantExpression :
+     sce.setValue(value)
+  -> sce
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::Initial createInitial(String name) :
+   let in = new slco::Initial :
+      in.setName(name)
+   -> in
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::State createState(String name) :
+   let s = new slco::State :
+      s.setName(name)
+   -> s
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::Transition createTransition(
+   String name, slco::Vertex source, slco::Vertex target
+):
+   let t = new slco::Transition :
+      t.setName(name)
+   -> t.setSource(source)
+   -> t.setTarget(target)
+   -> t
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::Delay createDelay(Integer value) :
+   let d = new slco::Delay :
+      d.setValue(value)
+   -> d
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::Variable createBooleanVariable(String name) :
+   let bv = new slco::Variable :
+      bv.setName(name)
+   -> bv.setType(
+         slco::PrimitiveTypeEnum::Boolean
+      )
+   -> bv
+;
+
+// ------------------------------------------------------------------------------------
+ 
+slco::Variable createBooleanVariable(String name, Boolean value) :
+   let bv = createBooleanVariable(name) :
+      bv.setInitialValue(
+         createBooleanConstantExpression(value)
+      )
+   -> bv
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::Variable createIntegerVariable(String name) :
+   let iv = new slco::Variable :
+      iv.setName(name)
+   -> iv.setType(
+         slco::PrimitiveTypeEnum::Integer
+      )
+   -> iv
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::Variable createIntegerVariable(String name, Integer value) :
+   let iv = createIntegerVariable(name) :
+      iv.setInitialValue(createIntegerConstantExpression(value))
+   -> iv
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::Variable createStringVariable(String name) :
+   let sv = new slco::Variable :
+      sv.setName(name)
+   -> sv.setType(
+         slco::PrimitiveTypeEnum::String
+      )
+   -> sv
+;
+
+// ------------------------------------------------------------------------------------
+ 
+slco::Variable createStringVariable(String name, String value) :
+   let sv = createStringVariable(name) :
+      sv.setInitialValue(
+         createStringConstantExpression(value)
+      )
+   -> sv
+;

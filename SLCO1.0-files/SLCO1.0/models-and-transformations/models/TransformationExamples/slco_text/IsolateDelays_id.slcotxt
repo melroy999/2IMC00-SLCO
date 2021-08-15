@@ -1,0 +1,87 @@
+model IsolateDelays_id {
+  classes
+    A {
+      ports
+        Out
+
+      state machines
+        A {
+          initial
+            Initial
+
+          state
+            Initial_2
+            Initial_2_3
+
+          final
+            Final
+
+          transitions
+            InitialToFinalSendB from Initial_2 to Final {
+              send B() to Out
+            }
+
+            InitialToFinalSendC from Initial to Final {
+              send C() to Out
+            }
+
+            d2_InitialToFinalSendB from Initial to Initial_2 {
+              after 2 ms
+            }
+
+            Initial_2ToFinal from Initial_2 to Final {
+              send C() to Out
+            }
+
+            Initial_2ToFinal from Initial_2_3 to Final {
+              send A() to Out
+            }
+
+            d3_Initial_2ToFinal from Initial_2 to Initial_2_3 {
+              after 3 ms
+            }
+
+            Initial_2_3ToFinal from Initial_2_3 to Final {
+              send B() to Out
+            }
+
+            Initial_2_3ToFinal from Initial_2_3 to Final {
+              send C() to Out
+            }
+        }
+    }
+
+    B {
+      ports
+        In
+
+      state machines
+        B {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinalA from Initial to Final {
+              receive A() from In
+            }
+
+            InitialToFinalB from Initial to Final {
+              receive B() from In
+            }
+
+            InitialToFinalC from Initial to Final {
+              receive C() from In
+            }
+        }
+    }
+
+  objects
+    a: A
+    b: B
+
+  channels
+    C() sync from a.Out to b.In
+}

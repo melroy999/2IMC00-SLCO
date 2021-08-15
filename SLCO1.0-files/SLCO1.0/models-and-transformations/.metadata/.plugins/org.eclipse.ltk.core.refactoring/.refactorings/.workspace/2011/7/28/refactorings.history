@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename Java project &apos;slco_ecore2slco_flat_text&apos; to &apos;slco_ecore2slco_flat&apos;&#x0D;&#x0A;- Original element: &apos;slco_ecore2slco_flat_text&apos;&#x0D;&#x0A;- Renamed element: &apos;slco_ecore2slco_flat_text&apos;&#x0D;&#x0A;- Update references to refactored element" description="Rename Java project &apos;slco_ecore2slco_flat_text&apos;" flags="7" id="org.eclipse.jdt.ui.rename.java.project" input="=slco_ecore2slco_flat_text" name="slco_ecore2slco_flat" references="true" stamp="1310742170555" version="1.0"/>
+</session>

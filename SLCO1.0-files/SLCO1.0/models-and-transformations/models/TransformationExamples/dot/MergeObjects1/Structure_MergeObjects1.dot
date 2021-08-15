@@ -1,0 +1,17 @@
+
+digraph MergeObjects1 {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_10
+ [label="{A||}"]
+A_10_A [label="{A||}", style=filled, fillcolor=gray95]
+A_10 -> A_10_A
+
+B_11
+ [label="{B||}"]
+B_11_B [label="{B||}", style=filled, fillcolor=gray95]
+B_11 -> B_11_B
+
+
+}

@@ -1,0 +1,130 @@
+«IMPORT nqc»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generatePrograms FOR Programs-»«EXPAND generateProgram FOREACH this.Programs-»«ENDDEFINE»
+
+«REM»----------------------------------------------------------«ENDREM»
+
+«DEFINE generateProgram FOR Program-»
+«FILE this.Name.toFirstUpper() + ".txt"-»
+/*--------------------------------------------------*/
+/*--------------------------------------------------*/
+/*-                                                -*/
+/*- Class : «this.Name»
+/*-                                                -*/
+/*--------------------------------------------------*/
+/*--------------------------------------------------*/
+«IF !this.GlobalVariables.isEmpty»«EXPAND generateVariableDeclaration FOREACH this.GlobalVariables SEPARATOR ";
+"»;«ENDIF»
+
+«EXPAND generateTask FOREACH this.Tasks SEPARATOR "
+
+"»«ENDFILE-»
+«ENDDEFINE»
+
+«DEFINE generateVariableDeclaration FOR Variable-»«EXPAND generateTypeName FOR this.Type» «this.Name»«IF this.InitialValue != null» = «EXPAND generateExpression FOR this.InitialValue»«ENDIF»«ENDDEFINE»
+
+«DEFINE generateTypeName FOR TypeEnum»«IF this == nqc::TypeEnum::Integer»int«ENDIF»«ENDDEFINE»
+
+«DEFINE generateTask FOR Task-»
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: «this.Name»
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task «this.Name»() {
+«IF !this.LocalVariables.isEmpty»«EXPAND generateVariableDeclaration FOREACH this.LocalVariables SEPARATOR ";
+"»;«ENDIF»
+«EXPAND generateLabelAndStatement FOREACH this.Statements SEPARATOR "
+"»
+}«ENDDEFINE»
+
+«DEFINE generateLabelAndStatement FOR Statement»  «IF this.Label != null-»
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+«EXPAND generateLabelName FOR this.Label»:
+«ENDIF»  «EXPAND generateStatement FOR this»«ENDDEFINE»
+
+«DEFINE generateStatement FOR Statement»--Statement with MetaType «this.metaType.toString()»--«ENDDEFINE»
+
+«DEFINE generateStatement FOR GoToStatement»goto «EXPAND generateLabelName FOR this.JumpLabel»;«ENDDEFINE»
+
+«DEFINE generateStatement FOR BinaryBuiltInFunctionCall»«EXPAND generateBinaryBuiltInFunctionEnum FOR this.BinaryBuiltInFunction»(«EXPAND generateExpression FOR this.Parameter1», «EXPAND generateExpression FOR this.Parameter2»);«ENDDEFINE»
+
+«DEFINE generateStatement FOR NullaryBuiltInFunctionCall»«EXPAND generateNullaryBuiltInFunctionEnum FOR this.NullaryBuiltInFunction»();«ENDDEFINE»
+
+«DEFINE generateStatement FOR UnaryBuiltInFunctionCall»«EXPAND generateUnaryBuiltInFunctionEnum FOR this.UnaryBuiltInFunction»(«EXPAND generateExpression FOR this.Parameter»);«ENDDEFINE»
+
+«DEFINE generateStatement FOR StartStatement»start «EXPAND generateTaskName FOR this.Task»;«ENDDEFINE»
+
+«DEFINE generateStatement FOR EmptyStatement»/* skip */;«ENDDEFINE»
+
+«DEFINE generateStatement FOR IfStatement»if («EXPAND generateExpression FOR this.Condition») «EXPAND generateStatement FOR this.Consequence»«IF this.Alternative != null» else «EXPAND generateStatement FOR this.Alternative»«ENDIF»«ENDDEFINE»
+
+«DEFINE generateStatement FOR RepeatStatement»repeat («EXPAND generateExpression FOR this.Condition») «EXPAND generateStatement FOR this.Body»«ENDDEFINE»
+
+«DEFINE generateStatement FOR UntilStatement»«EXPAND generateStatement FOR this.Body» until («EXPAND generateExpression FOR this.Condition»);«ENDDEFINE»
+
+«DEFINE generateStatement FOR BlockStatement»{
+    «EXPAND generateStatement FOREACH this.Statements SEPARATOR "
+    "»
+  }
+«ENDDEFINE»
+
+«DEFINE generateStatement FOR AssignmentStatement»«EXPAND generateExpression FOR this.Variable» = «EXPAND generateExpression FOR this.Expression»;«ENDDEFINE»
+
+«DEFINE generateBinaryBuiltInFunctionEnum FOR BuiltInBinaryFunctionEnum»«this.toString()»«ENDDEFINE»
+
+«DEFINE generateNullaryBuiltInFunctionEnum FOR BuiltInNullaryFunctionEnum»«this.toString()»«ENDDEFINE»
+
+«DEFINE generateUnaryBuiltInFunctionEnum FOR BuiltInUnaryFunctionEnum»«this.toString()»«ENDDEFINE»
+
+«DEFINE generateLabelName FOR Label»«this.Label»«ENDDEFINE»
+
+«DEFINE generateTaskName FOR Task»«this.Name»«ENDDEFINE»
+
+«DEFINE generateExpression FOR Expression»--Expression with Metatype «this.metaType.toString()»--«ENDDEFINE»
+
+«DEFINE generateExpression FOR OutputPortNameConstant»«this.OutputPortName.toString()»«ENDDEFINE»
+
+«DEFINE generateExpression FOR OutputModeConstant»«this.OutputMode.toString()»«ENDDEFINE»
+
+«DEFINE generateExpression FOR DirectionConstant»«this.Direction.toString()»«ENDDEFINE»
+
+«DEFINE generateExpression FOR VariableExpression»«EXPAND generateVariableName FOR this.Variable»«ENDDEFINE»
+
+«DEFINE generateExpression FOR BinaryExpression»(«EXPAND generateExpression FOR this.Operand1» «EXPAND generateBinaryOperatorEnum FOR this.Operator» «EXPAND generateExpression FOR this.Operand2»)«ENDDEFINE»
+
+«DEFINE generateBinaryOperatorEnum FOR BinaryOperatorEnum»«IF this == BinaryOperatorEnum::plus»+«ELSEIF this == BinaryOperatorEnum::minus»-«ELSEIF this == BinaryOperatorEnum::times»*«ELSEIF this == BinaryOperatorEnum::div»/«ELSEIF this == BinaryOperatorEnum::mod»%«ELSEIF this == BinaryOperatorEnum::equal»==«ELSEIF this == BinaryOperatorEnum::notequal»!=«ELSEIF this == BinaryOperatorEnum::less»<«ELSEIF this == BinaryOperatorEnum::greater»>«ELSEIF this == BinaryOperatorEnum::leq»<=«ELSEIF this == BinaryOperatorEnum::geq»>=«ELSEIF this == BinaryOperatorEnum::and»&&«ELSEIF this == BinaryOperatorEnum::or»||«ELSEIF this == BinaryOperatorEnum::bitand»&«ELSEIF this == BinaryOperatorEnum::bitor»|«ELSE»XX«ENDIF»«ENDDEFINE»
+
+«DEFINE generateVariableName FOR Variable»«this.Name»«ENDDEFINE»
+
+«DEFINE generateExpression FOR BooleanConstant»«IF this.Value == true»true«ELSE»false«ENDIF»«ENDDEFINE»
+
+«DEFINE generateExpression FOR IntegerConstant»«this.Value.toString()»«ENDDEFINE»
+
+«DEFINE generateTxPowerEnum FOR TxPowerEnum»«this.toString()»«ENDDEFINE»
+
+«DEFINE generateExpression FOR TxPowerConstant»«EXPAND generateTxPowerEnum FOR this.TxPower»«ENDDEFINE»
+
+«DEFINE generateExpression FOR UnaryBuiltInValueFunctionCall»«EXPAND generateBuiltInUnaryValueFunctionEnum FOR this.UnaryBuiltInValueFunction»(«EXPAND generateExpression FOR this.Parameter»)«ENDDEFINE»
+
+«DEFINE generateExpression FOR NullaryBuiltInValueFunctionCall»«EXPAND generateBuiltInNullaryValueFunctionEnum FOR this.NullaryBuiltInValueFunction»()«ENDDEFINE»
+
+«DEFINE generateExpression FOR SensorNameConstant»«EXPAND generateSensorNameEnum FOR this.SensorName»«ENDDEFINE»
+
+«DEFINE generateExpression FOR SensorConfigConstant»«EXPAND generateSensorConfigEnum FOR this.SensorConfig»«ENDDEFINE»
+
+«DEFINE generateSensorNameEnum FOR SensorNameEnum»«this.toString()»«ENDDEFINE»
+
+«DEFINE generateSensorConfigEnum FOR SensorConfigEnum»«this.toString()»«ENDDEFINE»
+
+«DEFINE generateBuiltInNullaryValueFunctionEnum FOR BuiltInNullaryValueFunctionEnum»«this.toString()»«ENDDEFINE»
+
+«DEFINE generateBuiltInUnaryValueFunctionEnum FOR BuiltInUnaryValueFunctionEnum»«this.toString()»«ENDDEFINE»

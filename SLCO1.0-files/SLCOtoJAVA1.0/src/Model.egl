@@ -1,0 +1,60 @@
+package GeneratedCode;
+
+import GenericCode.AsynchronousChannel;
+import GenericCode.Channel;
+import GenericCode.Model;
+import GenericCode.SynchronousChannel;
+[%var m = Model.allInstances().first();%]	
+public class [%= "Slco"+m.name%] extends Model{
+	[%for (cnl in m.channels){%]
+	Channel [%= cnl.name%];
+	[%}%]
+	
+	public [%= "Slco"+m.name%](String name) {
+		super(name);
+	    [%for (cnl in m.channels){%]
+	    [%if(cnl.ChannelType = ChannelTypeEnum#sync) {%]
+		[%= cnl.name%] = new SynchronousChannel();
+		channels.put("[%= cnl.name%]", [%= cnl.name%]);
+	    [%}%]
+	    [%else {%]
+	    [%= cnl.name%] = new AsynchronousChannel();
+	    channels.put("[%= cnl.name%]", [%= cnl.name%]);
+	    [%}%]
+	    [%}%]
+	    [%for (class in m.classes) {%]
+        [%for (object in m.objects){%]
+        [%var collectionOfAllchannelOfAnObject : Sequence;%]
+        [%if (object.class.name = class.name){%]
+        [%for (channel in m.channels){%]
+        [%if (channel.sourceObject.name = object.name ){%]
+    	[%collectionOfAllchannelOfAnObject.add(channel);%]
+    	[%}%]
+    	[%else if (channel.targetObject.name = object.name){%]
+    	[%collectionOfAllchannelOfAnObject.add(channel);%]
+    	[%}%]
+    	[%}%]
+    	[*The order parameters of SLCO Class's constructor is the same as that of ports in class*]
+    	[* The order of channels which is related to the ports should matches with the order of ports in class*]
+    	[%var constructorOfPortParameters : String;%]
+    	[%var channel : slco::Channel;%]
+    	[%for (port in class.ports){%]
+    	[%channel = collectionOfAllchannelOfAnObject.selectOne(r|(r.sourcePort.name = port.name and r.sourceObject = object) or (r.targetPort.name = port.name and r.targetObject = object));%]
+    	[%if (constructorOfPortParameters = ""){%]
+    	[%constructorOfPortParameters = constructorOfPortParameters + channel.name;%]
+    	[%}%]
+    	[%else{%]
+    	[%constructorOfPortParameters = constructorOfPortParameters + ", "+channel.name;%]
+    	[%}%]
+    	[%}%]
+        [%if (constructorOfPortParameters = ""){%]
+    	slcoObjects.put("[%= object.name%]", new [%= class.name%]("[%= class.name%]", "[%= object.name%]", this));
+    	[%}%]
+    	[%else{%]
+    	slcoObjects.put("[%= object.name%]", new [%= class.name%]("[%= class.name%]", "[%= object.name%]", this, [%= constructorOfPortParameters%]));
+    	[%}%]    	
+    	[%}%]
+    	[%}%]
+    	[%}%]
+	}
+}

@@ -1,0 +1,321 @@
+/*--------------------------------------------------*/
+/*--------------------------------------------------*/
+/*-                                                -*/
+/*- Class : P_P_P_P_P
+/*-                                                -*/
+/*--------------------------------------------------*/
+/*--------------------------------------------------*/
+int P_as_C_out_Original_to_Sender_abl = 0;
+int P_as_C_out_Original_to_Sender_name;
+int P_as_C_out_Original_to_Sender_arg_0;
+int P_as_C_out_AR_to_Sender_abl = 0;
+int P_as_C_out_AR_to_Sender_name;
+int P_as_C_in_Receiver_to_Original_abl = 0;
+int P_as_C_in_Receiver_to_Original_name;
+int P_as_C_in_Receiver_to_Original_arg_0;
+int P_as_C_in_Receiver_to_AS_abl = 0;
+int P_as_C_in_Receiver_to_AS_name;
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: main
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task main() {
+
+    ClearMessage();
+    start P_as_Producer;
+    start P_as_C_outABP_Sender_Sender;
+    start P_as_C_outABP_AR_AR;
+    start P_as_C_inABP_Receiver_Receiver;
+    start P_as_C_inABP_AS_AS;
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: P_as_Producer
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task P_as_Producer() {
+
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_Producer_State:
+  P_as_C_out_Original_to_Sender_name = 0;
+    P_as_C_out_Original_to_Sender_arg_0 = 2;
+    P_as_C_out_Original_to_Sender_abl = 1;
+    goto P_as_Producer_State_s_Signal_abl_StateToState;
+    goto P_as_Producer_State;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_Producer_State_s_Signal_abl_StateToState:
+  if ((((P_as_C_in_Receiver_to_Original_abl == 1) && (P_as_C_in_Receiver_to_Original_name == 0)) && (P_as_C_in_Receiver_to_Original_arg_0 == 3))) {
+    P_as_C_in_Receiver_to_Original_abl = 2;
+    goto P_as_Producer_State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State;
+  }
+
+    goto P_as_Producer_State_s_Signal_abl_StateToState;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_Producer_State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State:
+  if ((P_as_C_in_Receiver_to_Original_abl == 3)) {
+    P_as_C_in_Receiver_to_Original_abl = 0;
+    /* skip */; until ((P_as_C_out_Original_to_Sender_abl == 2));
+    P_as_C_out_Original_to_Sender_abl = 3;
+    /* skip */; until ((P_as_C_out_Original_to_Sender_abl == 0));
+    goto P_as_Producer_State;
+  }
+
+    if ((P_as_C_in_Receiver_to_Original_abl == 0)) {
+    goto P_as_Producer_State_s_Signal_abl_StateToState;
+  }
+
+    goto P_as_Producer_State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State;
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: P_as_C_outABP_Sender_Sender
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task P_as_C_outABP_Sender_Sender() {
+int s = 0;
+int d;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_C_outABP_Sender_Sender_Zero:
+  if (((P_as_C_out_Original_to_Sender_abl == 1) && (P_as_C_out_Original_to_Sender_name == 0))) {
+    P_as_C_out_Original_to_Sender_abl = 2;
+    goto P_as_C_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne;
+  }
+
+    goto P_as_C_outABP_Sender_Sender_Zero;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_C_outABP_Sender_Sender_One:
+  if ((FastTimer(0) >= (900 / 10))) {
+    SendMessage(((d + 1) | ((128 * s) | (16 * 1))));
+    ClearTimer(0);
+    goto P_as_C_outABP_Sender_Sender_One;
+  }
+
+    if (((P_as_C_out_AR_to_Sender_abl == 1) && (P_as_C_out_AR_to_Sender_name == 1))) {
+    P_as_C_out_AR_to_Sender_abl = 2;
+    goto P_as_C_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero;
+  }
+
+    goto P_as_C_outABP_Sender_Sender_One;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_C_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne:
+  if ((P_as_C_out_Original_to_Sender_abl == 3)) {
+    d = P_as_C_out_Original_to_Sender_arg_0;
+    P_as_C_out_Original_to_Sender_abl = 0;
+    ClearTimer(0);
+    goto P_as_C_outABP_Sender_Sender_One;
+  }
+
+    if ((P_as_C_out_Original_to_Sender_abl == 0)) {
+    goto P_as_C_outABP_Sender_Sender_Zero;
+  }
+
+    goto P_as_C_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_C_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero:
+  if ((P_as_C_out_AR_to_Sender_abl == 3)) {
+    P_as_C_out_AR_to_Sender_abl = 0;
+    s = (1 - s);
+    goto P_as_C_outABP_Sender_Sender_Zero;
+  }
+
+    if ((P_as_C_out_AR_to_Sender_abl == 0)) {
+    ClearTimer(0);
+    goto P_as_C_outABP_Sender_Sender_One;
+  }
+
+    goto P_as_C_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero;
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: P_as_C_outABP_AR_AR
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task P_as_C_outABP_AR_AR() {
+int b = 0;
+int temp_P_as_C_outABP_AR_AR;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_C_outABP_AR_AR_Zero:
+  temp_P_as_C_outABP_AR_AR = Message();
+    if (((temp_P_as_C_outABP_AR_AR != 0) && ((((temp_P_as_C_outABP_AR_AR & 112) / 16) == 0) && (((temp_P_as_C_outABP_AR_AR & 128) / 128) == b)))) {
+    P_as_C_out_AR_to_Sender_name = 1;
+    P_as_C_out_AR_to_Sender_abl = 1;
+    goto P_as_C_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck;
+  }
+
+    temp_P_as_C_outABP_AR_AR = Message();
+    if (((temp_P_as_C_outABP_AR_AR != 0) && ((((temp_P_as_C_outABP_AR_AR & 112) / 16) == 0) && (((temp_P_as_C_outABP_AR_AR & 128) / 128) == (1 - b))))) {
+    goto P_as_C_outABP_AR_AR_Zero;
+  }
+
+    goto P_as_C_outABP_AR_AR_Zero;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_C_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck:
+  if ((P_as_C_out_AR_to_Sender_abl == 2)) {
+    P_as_C_out_AR_to_Sender_abl = 3;
+    /* skip */; until ((P_as_C_out_AR_to_Sender_abl == 0));
+    b = (1 - b);
+    goto P_as_C_outABP_AR_AR_Zero;
+  }
+
+    goto P_as_C_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck;
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: P_as_C_inABP_Receiver_Receiver
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task P_as_C_inABP_Receiver_Receiver() {
+int r = 0;
+int d;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_C_inABP_Receiver_Receiver_Zero:
+  d = Message();
+    if (((d != 0) && ((((d & 112) / 16) == 1) && (((d & 128) / 128) == r)))) {
+    d = ((d & 15) - 1);
+    P_as_C_in_Receiver_to_Original_name = 0;
+    P_as_C_in_Receiver_to_Original_arg_0 = d;
+    P_as_C_in_Receiver_to_Original_abl = 1;
+    goto P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck;
+  }
+
+    d = Message();
+    if (((d != 0) && ((((d & 112) / 16) == 1) && (((d & 128) / 128) == (1 - r))))) {
+    d = ((d & 15) - 1);
+    goto P_as_C_inABP_Receiver_Receiver_Zero;
+  }
+
+    goto P_as_C_inABP_Receiver_Receiver_Zero;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck:
+  if ((P_as_C_in_Receiver_to_Original_abl == 2)) {
+    P_as_C_in_Receiver_to_Original_abl = 3;
+    /* skip */; until ((P_as_C_in_Receiver_to_Original_abl == 0));
+    P_as_C_in_Receiver_to_AS_name = 1;
+    P_as_C_in_Receiver_to_AS_abl = 1;
+    goto P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero;
+  }
+
+    goto P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero:
+  if ((P_as_C_in_Receiver_to_AS_abl == 2)) {
+    P_as_C_in_Receiver_to_AS_abl = 3;
+    /* skip */; until ((P_as_C_in_Receiver_to_AS_abl == 0));
+    r = (1 - r);
+    goto P_as_C_inABP_Receiver_Receiver_Zero;
+  }
+
+    goto P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero;
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: P_as_C_inABP_AS_AS
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task P_as_C_inABP_AS_AS() {
+int b = 1;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_C_inABP_AS_AS_Zero:
+  if ((FastTimer(1) >= (900 / 10))) {
+    SendMessage((1 | ((128 * b) | (16 * 0))));
+    ClearTimer(1);
+    goto P_as_C_inABP_AS_AS_Zero;
+  }
+
+    if (((P_as_C_in_Receiver_to_AS_abl == 1) && (P_as_C_in_Receiver_to_AS_name == 1))) {
+    P_as_C_in_Receiver_to_AS_abl = 2;
+    goto P_as_C_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck;
+  }
+
+    goto P_as_C_inABP_AS_AS_Zero;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+P_as_C_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck:
+  if ((P_as_C_in_Receiver_to_AS_abl == 3)) {
+    P_as_C_in_Receiver_to_AS_abl = 0;
+    b = (1 - b);
+    ClearTimer(1);
+    goto P_as_C_inABP_AS_AS_Zero;
+  }
+
+    if ((P_as_C_in_Receiver_to_AS_abl == 0)) {
+    ClearTimer(1);
+    goto P_as_C_inABP_AS_AS_Zero;
+  }
+
+    goto P_as_C_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck;
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 6 element(s) from project &apos;models&apos;&#x0D;&#x0A;- Original project: &apos;models&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     Double.txt&#x0D;&#x0A;     LegoCase-plain-as-rs-ll.slco&#x0D;&#x0A;     LegoCase-plain-as-rs.slco&#x0D;&#x0A;     LegoCase-plain-as.slco&#x0D;&#x0A;     LegoCase-plain.nqc&#x0D;&#x0A;     Single.txt" description="Delete elements" element1="nqc/LegoCase-plain/LegoCase-plain-as-rs-ll.slco" element2="nqc/LegoCase-plain/Single.txt" element3="nqc/LegoCase-plain/LegoCase-plain-as.slco" element4="nqc/LegoCase-plain/LegoCase-plain.nqc" element5="nqc/LegoCase-plain/Double.txt" element6="nqc/LegoCase-plain/LegoCase-plain-as-rs.slco" elements="0" flags="589830" id="org.eclipse.jdt.ui.delete" resources="6" stamp="1255516097193" subPackages="false" version="1.0"/>
+</session>

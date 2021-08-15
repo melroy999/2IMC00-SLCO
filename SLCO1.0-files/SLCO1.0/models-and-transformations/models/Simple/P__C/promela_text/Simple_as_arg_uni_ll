@@ -1,0 +1,283 @@
+mtype {Signal, Message, Acknowledge, Bericht, Acknowledge_Bericht}
+
+chan P_C_out_Original_to_Sender__P_2_P_C_outABP_Sender = [0] of { mtype , mtype  }; 
+chan P_C_out_AR_to_Sender__P_C_outABP_AR_2_P_C_outABP_Sender = [0] of { mtype  }; 
+chan C_P_in_Receiver_to_Original__C_P_inABP_Receiver_2_C = [0] of { mtype , mtype  }; 
+chan C_P_in_Receiver_to_AS__C_P_inABP_Receiver_2_C_P_inABP_AS = [0] of { mtype  }; 
+chan P_C_out_Sender_to_Receiver__P_C_outABP_Sender_2_C_P_inABP_Receiver = [1] of { mtype , mtype , int  }; 
+chan P_C_out_AS_to_AR__C_P_inABP_AS_2_P_C_outABP_AR = [1] of { mtype , int  }; 
+chan C_P_out_Original_to_Sender__C_2_C_P_outABP_Sender = [0] of { mtype , mtype  }; 
+chan C_P_out_AR_to_Sender__C_P_outABP_AR_2_C_P_outABP_Sender = [0] of { mtype  }; 
+chan P_C_in_Receiver_to_Original__P_C_inABP_Receiver_2_P = [0] of { mtype , mtype  }; 
+chan P_C_in_Receiver_to_AS__P_C_inABP_Receiver_2_P_C_inABP_AS = [0] of { mtype  }; 
+chan C_P_out_Sender_to_Receiver__C_P_outABP_Sender_2_P_C_inABP_Receiver = [1] of { mtype , mtype , int  }; 
+chan C_P_out_AS_to_AR__P_C_inABP_AS_2_C_P_outABP_AR = [1] of { mtype , int  }
+
+active [1] proctype P_Producer() {
+
+Label_Start: {
+ if
+ ::{goto Label_State;
+};
+ fi;
+goto Label_Start;
+};
+Label_State: {
+ if
+ ::{P_C_out_Original_to_Sender__P_2_P_C_outABP_Sender!Signal,Bericht;
+goto Label_State_1;
+};
+ fi;
+goto Label_State;
+};
+Label_State_1: {
+ if
+ ::{P_C_in_Receiver_to_Original__P_C_inABP_Receiver_2_P?Signal,eval( Acknowledge_Bericht );
+goto Label_State;
+};
+ fi;
+goto Label_State_1;
+};
+}
+
+active [1] proctype C_Consumer() {
+
+Label_Start: {
+ if
+ ::{goto Label_State;
+};
+ fi;
+goto Label_Start;
+};
+Label_State: {
+ if
+ ::{C_P_in_Receiver_to_Original__C_P_inABP_Receiver_2_C?Signal,eval( Bericht );
+C_P_out_Original_to_Sender__C_2_C_P_outABP_Sender!Signal,Acknowledge_Bericht;
+goto Label_State;
+};
+ fi;
+goto Label_State;
+};
+}
+
+active [1] proctype P_C_outABP_Sender_Sender() {
+
+int P_C_outABP_Sender_s = 0;
+mtype P_C_outABP_Sender_d;
+Label_Start: {
+ if
+ ::{goto Label_Zero;
+};
+ fi;
+goto Label_Start;
+};
+Label_Zero: {
+ if
+ ::{P_C_out_Original_to_Sender__P_2_P_C_outABP_Sender?Signal,P_C_outABP_Sender_d;
+goto Label_One;
+};
+ fi;
+goto Label_Zero;
+};
+Label_One: {
+ if
+ ::{P_C_out_AR_to_Sender__P_C_outABP_AR_2_P_C_outABP_Sender?Acknowledge;
+P_C_outABP_Sender_s = 1 - P_C_outABP_Sender_s;
+goto Label_Zero;
+};
+::{P_C_out_Sender_to_Receiver__P_C_outABP_Sender_2_C_P_inABP_Receiver!Message,P_C_outABP_Sender_d,P_C_outABP_Sender_s;
+goto Label_One;
+};
+ fi;
+goto Label_One;
+};
+}
+
+active [1] proctype P_C_outABP_AR_AR() {
+
+int P_C_outABP_AR_b = 0;
+Label_Start: {
+ if
+ ::{goto Label_Zero;
+};
+ fi;
+goto Label_Start;
+};
+Label_Zero: {
+ if
+ ::{P_C_out_AS_to_AR__C_P_inABP_AS_2_P_C_outABP_AR?Acknowledge,eval( P_C_outABP_AR_b );
+P_C_out_AR_to_Sender__P_C_outABP_AR_2_P_C_outABP_Sender!Acknowledge;
+P_C_outABP_AR_b = 1 - P_C_outABP_AR_b;
+goto Label_Zero;
+};
+::{P_C_out_AS_to_AR__C_P_inABP_AS_2_P_C_outABP_AR?Acknowledge,eval( 1 - P_C_outABP_AR_b );
+goto Label_Zero;
+};
+ fi;
+goto Label_Zero;
+};
+}
+
+active [1] proctype C_P_inABP_Receiver_Receiver() {
+
+int C_P_inABP_Receiver_r = 0;
+mtype C_P_inABP_Receiver_d;
+Label_Start: {
+ if
+ ::{goto Label_Zero;
+};
+ fi;
+goto Label_Start;
+};
+Label_Zero: {
+ if
+ ::{P_C_out_Sender_to_Receiver__P_C_outABP_Sender_2_C_P_inABP_Receiver?Message,C_P_inABP_Receiver_d,eval( C_P_inABP_Receiver_r );
+C_P_in_Receiver_to_Original__C_P_inABP_Receiver_2_C!Signal,C_P_inABP_Receiver_d;
+C_P_in_Receiver_to_AS__C_P_inABP_Receiver_2_C_P_inABP_AS!Acknowledge;
+C_P_inABP_Receiver_r = 1 - C_P_inABP_Receiver_r;
+goto Label_Zero;
+};
+::{P_C_out_Sender_to_Receiver__P_C_outABP_Sender_2_C_P_inABP_Receiver?Message,C_P_inABP_Receiver_d,eval( 1 - C_P_inABP_Receiver_r );
+goto Label_Zero;
+};
+ fi;
+goto Label_Zero;
+};
+}
+
+active [1] proctype C_P_inABP_AS_AS() {
+
+int C_P_inABP_AS_b = 1;
+Label_Start: {
+ if
+ ::{goto Label_Zero;
+};
+ fi;
+goto Label_Start;
+};
+Label_Zero: {
+ if
+ ::{C_P_in_Receiver_to_AS__C_P_inABP_Receiver_2_C_P_inABP_AS?Acknowledge;
+C_P_inABP_AS_b = 1 - C_P_inABP_AS_b;
+goto Label_Zero;
+};
+::{P_C_out_AS_to_AR__C_P_inABP_AS_2_P_C_outABP_AR!Acknowledge,C_P_inABP_AS_b;
+goto Label_Zero;
+};
+ fi;
+goto Label_Zero;
+};
+}
+
+active [1] proctype C_P_outABP_Sender_Sender() {
+
+int C_P_outABP_Sender_s = 0;
+mtype C_P_outABP_Sender_d;
+Label_Start: {
+ if
+ ::{goto Label_Zero;
+};
+ fi;
+goto Label_Start;
+};
+Label_Zero: {
+ if
+ ::{C_P_out_Original_to_Sender__C_2_C_P_outABP_Sender?Signal,C_P_outABP_Sender_d;
+goto Label_One;
+};
+ fi;
+goto Label_Zero;
+};
+Label_One: {
+ if
+ ::{C_P_out_AR_to_Sender__C_P_outABP_AR_2_C_P_outABP_Sender?Acknowledge;
+C_P_outABP_Sender_s = 1 - C_P_outABP_Sender_s;
+goto Label_Zero;
+};
+::{C_P_out_Sender_to_Receiver__C_P_outABP_Sender_2_P_C_inABP_Receiver!Message,C_P_outABP_Sender_d,C_P_outABP_Sender_s;
+goto Label_One;
+};
+ fi;
+goto Label_One;
+};
+}
+
+active [1] proctype C_P_outABP_AR_AR() {
+
+int C_P_outABP_AR_b = 0;
+Label_Start: {
+ if
+ ::{goto Label_Zero;
+};
+ fi;
+goto Label_Start;
+};
+Label_Zero: {
+ if
+ ::{C_P_out_AS_to_AR__P_C_inABP_AS_2_C_P_outABP_AR?Acknowledge,eval( C_P_outABP_AR_b );
+C_P_out_AR_to_Sender__C_P_outABP_AR_2_C_P_outABP_Sender!Acknowledge;
+C_P_outABP_AR_b = 1 - C_P_outABP_AR_b;
+goto Label_Zero;
+};
+::{C_P_out_AS_to_AR__P_C_inABP_AS_2_C_P_outABP_AR?Acknowledge,eval( 1 - C_P_outABP_AR_b );
+goto Label_Zero;
+};
+ fi;
+goto Label_Zero;
+};
+}
+
+active [1] proctype P_C_inABP_Receiver_Receiver() {
+
+int P_C_inABP_Receiver_r = 0;
+mtype P_C_inABP_Receiver_d;
+Label_Start: {
+ if
+ ::{goto Label_Zero;
+};
+ fi;
+goto Label_Start;
+};
+Label_Zero: {
+ if
+ ::{C_P_out_Sender_to_Receiver__C_P_outABP_Sender_2_P_C_inABP_Receiver?Message,P_C_inABP_Receiver_d,eval( P_C_inABP_Receiver_r );
+P_C_in_Receiver_to_Original__P_C_inABP_Receiver_2_P!Signal,P_C_inABP_Receiver_d;
+P_C_in_Receiver_to_AS__P_C_inABP_Receiver_2_P_C_inABP_AS!Acknowledge;
+P_C_inABP_Receiver_r = 1 - P_C_inABP_Receiver_r;
+goto Label_Zero;
+};
+::{C_P_out_Sender_to_Receiver__C_P_outABP_Sender_2_P_C_inABP_Receiver?Message,P_C_inABP_Receiver_d,eval( 1 - P_C_inABP_Receiver_r );
+goto Label_Zero;
+};
+ fi;
+goto Label_Zero;
+};
+}
+
+active [1] proctype P_C_inABP_AS_AS() {
+
+int P_C_inABP_AS_b = 1;
+Label_Start: {
+ if
+ ::{goto Label_Zero;
+};
+ fi;
+goto Label_Start;
+};
+Label_Zero: {
+ if
+ ::{P_C_in_Receiver_to_AS__P_C_inABP_Receiver_2_P_C_inABP_AS?Acknowledge;
+P_C_inABP_AS_b = 1 - P_C_inABP_AS_b;
+goto Label_Zero;
+};
+::{C_P_out_AS_to_AR__P_C_inABP_AS_2_C_P_outABP_AR!Acknowledge,P_C_inABP_AS_b;
+goto Label_Zero;
+};
+ fi;
+goto Label_Zero;
+};
+}
+
+
+
+

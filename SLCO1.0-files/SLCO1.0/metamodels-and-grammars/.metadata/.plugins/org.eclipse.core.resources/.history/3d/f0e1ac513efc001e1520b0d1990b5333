@@ -1,0 +1,90 @@
+/**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
+ */
+package NQC;
+
+import org.eclipse.emf.common.util.EList;
+
+import org.eclipse.emf.ecore.EObject;
+
+/**
+ * <!-- begin-user-doc -->
+ * A representation of the model object '<em><b>Case</b></em>'.
+ * <!-- end-user-doc -->
+ *
+ * <p>
+ * The following features are supported:
+ * <ul>
+ *   <li>{@link NQC.Case#isIsDefault <em>Is Default</em>}</li>
+ *   <li>{@link NQC.Case#getLabel <em>Label</em>}</li>
+ *   <li>{@link NQC.Case#getStatements <em>Statements</em>}</li>
+ * </ul>
+ * </p>
+ *
+ * @see NQC.NQCPackage#getCase()
+ * @model
+ * @generated
+ */
+public interface Case extends EObject {
+	/**
+	 * Returns the value of the '<em><b>Is Default</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Is Default</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Is Default</em>' attribute.
+	 * @see #setIsDefault(boolean)
+	 * @see NQC.NQCPackage#getCase_IsDefault()
+	 * @model unique="false" required="true" ordered="false"
+	 * @generated
+	 */
+	boolean isIsDefault();
+
+	/**
+	 * Sets the value of the '{@link NQC.Case#isIsDefault <em>Is Default</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Is Default</em>' attribute.
+	 * @see #isIsDefault()
+	 * @generated
+	 */
+	void setIsDefault(boolean value);
+
+	/**
+	 * Returns the value of the '<em><b>Label</b></em>' reference list.
+	 * The list contents are of type {@link NQC.ConstantExpression}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Label</em>' reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Label</em>' reference list.
+	 * @see NQC.NQCPackage#getCase_Label()
+	 * @model required="true" ordered="false"
+	 * @generated
+	 */
+	EList<ConstantExpression> getLabel();
+
+	/**
+	 * Returns the value of the '<em><b>Statements</b></em>' containment reference list.
+	 * The list contents are of type {@link NQC.Statement}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Statements</em>' containment reference list isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Statements</em>' containment reference list.
+	 * @see NQC.NQCPackage#getCase_Statements()
+	 * @model containment="true"
+	 * @generated
+	 */
+	EList<Statement> getStatements();
+
+} // Case

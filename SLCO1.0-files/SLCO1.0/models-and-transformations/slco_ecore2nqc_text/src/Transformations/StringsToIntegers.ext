@@ -1,0 +1,152 @@
+import slco;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension Libraries::CreationSLCO;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// These functions replace string constants by integer constants.
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+slco::Model stringsToIntegers(slco::Model model) :
+   let sces = model.eAllContents.typeSelect(
+      slco::StringConstantExpression
+   ).value.toSet().toList() :
+      model.classes.variables.modifyVariable(sces, model)
+   -> model.classes.stateMachines.variables.modifyVariable(sces, model)
+   -> model.channels.modifyChannel(model)
+   -> model.classes.stateMachines.transitions.statements.typeSelect(
+         slco::SendSignal
+      ).modifySendSignal(sces, model)
+   -> model.classes.stateMachines.transitions.statements.typeSelect(
+         slco::SignalReception
+      ).modifySignalReception(sces, model)
+   -> model.classes.stateMachines.transitions.statements.typeSelect(
+         slco::Assignment
+      ).modifyAssignment(sces, model)
+   -> model.classes.stateMachines.transitions.statements.typeSelect(
+         slco::Expression
+      ).modifyExpression(sces, model)
+   -> model.setName(
+         model.name + "_int"
+      )
+   -> model
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyVariable(
+   slco::Variable variable, List[slco::StringConstantExpression] expressions,
+   slco::Model model
+) :
+   if (variable.type == slco::PrimitiveTypeEnum::String) then (
+      variable.setType(slco::PrimitiveTypeEnum::Integer)
+   -> if (variable.initialValue != null) then (
+         variable.setInitialValue(
+            variable.initialValue.modifyExpression(expressions, model)
+         )
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyChannel(slco::Channel channel, slco::Model model) :
+   channel.argumentTypes.modifyArgumentTypes(model, 0)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyArgumentTypes(
+   List[slco::ArgumentType] argumentTypes, slco::Model model, Integer index
+) :
+   if (argumentTypes.size > index) then (
+      if (argumentTypes.get(index).type == slco::PrimitiveTypeEnum::String) then (
+         argumentTypes.get(index).setType(slco::PrimitiveTypeEnum::Integer)
+      )
+   -> modifyArgumentTypes(argumentTypes, model, index + 1)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifySendSignal(
+   slco::SendSignal statement,
+   List[slco::StringConstantExpression] expressions, slco::Model model
+) :
+   statement.setArguments(
+      statement.arguments.modifyExpression(expressions, model)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifySignalReception(
+   slco::SignalReception trigger,
+   List[slco::StringConstantExpression] expressions, slco::Model model
+) :
+   trigger.setArguments(
+      trigger.arguments.modifySignalArgument(expressions, model)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyAssignment(
+   slco::Assignment statement,
+   List[slco::StringConstantExpression] expressions, slco::Model model
+) :
+   statement.setExpression(
+      statement.expression.modifyExpression(expressions, model)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::SignalArgument modifySignalArgument(
+   slco::SignalArgument argument,
+   List[slco::StringConstantExpression] expressions, slco::Model model
+) :
+   if (argument.metaType == slco::SignalArgumentVariable) then (
+      argument
+   ) else (
+      ((slco::SignalArgumentExpression) argument).setExpression(
+         (
+            (slco::SignalArgumentExpression)
+            argument
+         ).expression.modifyExpression(expressions, model)
+      )
+   -> argument
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Expression modifyExpression(
+   slco::Expression expression,
+   List[slco::StringConstantExpression] expressions,
+   slco::Model model
+) :
+   if (expression.metaType == slco::StringConstantExpression) then (
+      expressions.indexOf(
+         ((slco::StringConstantExpression) expression).value
+      ).createIntegerConstantExpression()
+   ) else if (expression.metaType == slco::BinaryOperatorExpression) then (
+      ((slco::BinaryOperatorExpression) expression).setOperand1(
+         (
+            (slco::BinaryOperatorExpression) expression
+         ).operand1.modifyExpression(expressions, model)
+      )
+   -> ((slco::BinaryOperatorExpression) expression).setOperand2(
+         (
+            (slco::BinaryOperatorExpression) expression
+         ).operand2.modifyExpression(expressions, model)
+      )
+   -> expression
+   ) else (
+      expression
+   )
+;

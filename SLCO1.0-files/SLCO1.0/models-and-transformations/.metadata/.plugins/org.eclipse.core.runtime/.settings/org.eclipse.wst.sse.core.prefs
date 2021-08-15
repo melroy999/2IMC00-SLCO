@@ -1,0 +1,3 @@
+#Mon Jul 18 10:13:02 CEST 2011
+task-tag-projects-already-scanned=models,promela.emf,slco.emf,org.xtext.sdslco.dsl,org.xtext.textualslco,promela_ecore2promela_text,slco_ecore2dot_text,slco_ecore2nqc_text,slco_ecore2poosl_text,slco_ecore2promela_ecore,slco_ecore2slco_text,slco_sl_ecore2slco_ecore,slco_text2slco_ecore,delays.emf,poosl.emf,slco_ecore2slco_flat
+eclipse.preferences.version=1

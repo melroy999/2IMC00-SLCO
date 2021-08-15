@@ -1,0 +1,49 @@
+<workflow>
+
+  <property name='inputname' value='Simple' />
+  <property name='slcoinputfile' value='${inputname}.slco' />
+  <property name='objectsinputfile' value='${inputname}.objects' />
+  <property name='mergeoutputfile' value='${inputname}_merge.slco' />
+
+  <property name='slcosourcedir' value='../models/slco_ecore'/>
+  <property name='objectssourcedir' value='../models/Simple/P_C/objects'/>
+  <property name='targetdir' value='../models/Simple/P_C/nqc_slco_ecore'/>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${slcosourcedir}/${slcoinputfile}"/>
+    <outputSlot value="SLCOModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${objectssourcedir}/${objectsinputfile}"/>
+    <outputSlot value="OBJECTS"/>
+  </component>
+
+  <component id="merge" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="objects" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="objects.ObjectsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::MergeObjects::modifyModelMerge(SLCOModel, OBJECTS)"/>
+    <outputSlot value="IMergeModel"/>
+  </component>
+
+  <component id="ruc-merge" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::RemoveUnusedClasses::modifyModelRUC(IMergeModel)"/>
+    <outputSlot value="MergeModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${mergeoutputfile}"/>
+    <inputSlot value="MergeModel"/>
+  </component>
+  
+</workflow>

@@ -1,0 +1,235 @@
+/*--------------------------------------------------*/
+/*--------------------------------------------------*/
+/*-                                                -*/
+/*- Class : R_L_M
+/*-                                                -*/
+/*--------------------------------------------------*/
+/*--------------------------------------------------*/
+int RMiddle_to_MRight_abl = 0;
+int RMiddle_to_MRight_name;
+int LMiddle_to_MLeft_abl = 0;
+int LMiddle_to_MLeft_name;
+int R_L_M_sensor_1_null;
+int R_L_M_sensor_2_null;
+int R_L_M_sensor_3_null;
+int R_L_M_sensor_1_temp;
+int R_L_M_sensor_2_temp;
+int R_L_M_sensor_3_temp;
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: main
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task main() {
+
+    ClearMessage();
+    SetSensor(SENSOR_1, SENSOR_LIGHT);
+    R_L_M_sensor_1_null = 0;
+    repeat (10) {
+    R_L_M_sensor_1_temp = SENSOR_1;
+    if ((R_L_M_sensor_1_temp > R_L_M_sensor_1_null)) R_L_M_sensor_1_null = R_L_M_sensor_1_temp;
+  }
+
+    SetSensor(SENSOR_2, SENSOR_LIGHT);
+    R_L_M_sensor_2_null = 0;
+    repeat (10) {
+    R_L_M_sensor_2_temp = SENSOR_2;
+    if ((R_L_M_sensor_2_temp > R_L_M_sensor_2_null)) R_L_M_sensor_2_null = R_L_M_sensor_2_temp;
+  }
+
+    SetSensor(SENSOR_3, SENSOR_LIGHT);
+    R_L_M_sensor_3_null = 0;
+    repeat (10) {
+    R_L_M_sensor_3_temp = SENSOR_3;
+    if ((R_L_M_sensor_3_temp > R_L_M_sensor_3_null)) R_L_M_sensor_3_null = R_L_M_sensor_3_temp;
+  }
+
+    SetPower(OUT_A, 7);
+    SetPower(OUT_B, 7);
+    SetPower(OUT_C, 7);
+    start Right_Single;
+    start Left_Single;
+    start Middle_Middle;
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: Right_Single
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task Right_Single() {
+
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Right_Single_Start:
+  SetDirection(OUT_C, OUT_FWD);
+    SetOutput(OUT_C, OUT_ON);
+    goto Right_Single_Running;
+    goto Right_Single_Start;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Right_Single_Running:
+  if ((SENSOR_3 >= (R_L_M_sensor_3_null + 4))) {
+    /* skip */; until ((SENSOR_3 <= (R_L_M_sensor_3_null + 2)));
+    SetOutput(OUT_C, OUT_OFF);
+    RMiddle_to_MRight_name = 0;
+    RMiddle_to_MRight_abl = 1;
+    goto Right_Single_Running_s_Block_abl_RunningToBlock;
+  }
+
+    goto Right_Single_Running;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Right_Single_Running_s_Block_abl_RunningToBlock:
+  if ((RMiddle_to_MRight_abl == 2)) {
+    RMiddle_to_MRight_abl = 3;
+    /* skip */; until ((RMiddle_to_MRight_abl == 0));
+    SetDirection(OUT_C, OUT_FWD);
+    SetOutput(OUT_C, OUT_ON);
+    goto Right_Single_Running;
+  }
+
+    goto Right_Single_Running_s_Block_abl_RunningToBlock;
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: Left_Single
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task Left_Single() {
+
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_Single_Start:
+  SetDirection(OUT_A, OUT_FWD);
+    SetOutput(OUT_A, OUT_ON);
+    goto Left_Single_Running;
+    goto Left_Single_Start;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_Single_Running:
+  if ((SENSOR_1 >= (R_L_M_sensor_1_null + 4))) {
+    /* skip */; until ((SENSOR_1 <= (R_L_M_sensor_1_null + 2)));
+    SetOutput(OUT_A, OUT_OFF);
+    LMiddle_to_MLeft_name = 0;
+    LMiddle_to_MLeft_abl = 1;
+    goto Left_Single_Running_s_Block_abl_RunningToBlock;
+  }
+
+    goto Left_Single_Running;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Left_Single_Running_s_Block_abl_RunningToBlock:
+  if ((LMiddle_to_MLeft_abl == 2)) {
+    LMiddle_to_MLeft_abl = 3;
+    /* skip */; until ((LMiddle_to_MLeft_abl == 0));
+    SetDirection(OUT_A, OUT_FWD);
+    SetOutput(OUT_A, OUT_ON);
+    goto Left_Single_Running;
+  }
+
+    goto Left_Single_Running_s_Block_abl_RunningToBlock;
+}
+
+/*-------------------------------------*/
+/*-------------------------------------*/
+/*-                                   -*/
+/*- StateMachine: Middle_Middle
+/*-                                   -*/
+/*-------------------------------------*/
+/*-------------------------------------*/
+task Middle_Middle() {
+
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Middle_Middle_Idle:
+  if (((RMiddle_to_MRight_abl == 1) && (RMiddle_to_MRight_name == 0))) {
+    RMiddle_to_MRight_abl = 2;
+    goto Middle_Middle_Idle_r_Block_rbl_IdleToLeft;
+  }
+
+    if (((LMiddle_to_MLeft_abl == 1) && (LMiddle_to_MLeft_name == 0))) {
+    LMiddle_to_MLeft_abl = 2;
+    goto Middle_Middle_Idle_r_Block_rbl_IdleToRight;
+  }
+
+    goto Middle_Middle_Idle;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Middle_Middle_Running:
+  if ((SENSOR_2 <= (R_L_M_sensor_2_null + -10))) {
+    /* skip */; until ((SENSOR_2 >= (R_L_M_sensor_2_null + -2)));
+    SetOutput(OUT_B, OUT_FLOAT);
+    goto Middle_Middle_Idle;
+  }
+
+    goto Middle_Middle_Running;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Middle_Middle_Idle_r_Block_rbl_IdleToLeft:
+  if ((RMiddle_to_MRight_abl == 3)) {
+    RMiddle_to_MRight_abl = 0;
+    SetDirection(OUT_B, OUT_REV);
+    SetOutput(OUT_B, OUT_ON);
+    goto Middle_Middle_Running;
+  }
+
+    if ((RMiddle_to_MRight_abl == 0)) {
+    goto Middle_Middle_Idle;
+  }
+
+    goto Middle_Middle_Idle_r_Block_rbl_IdleToLeft;
+/*-------------------------------------*/
+/*                                     */
+/*                State                */
+/*                                     */
+/*-------------------------------------*/
+Middle_Middle_Idle_r_Block_rbl_IdleToRight:
+  if ((LMiddle_to_MLeft_abl == 3)) {
+    LMiddle_to_MLeft_abl = 0;
+    SetDirection(OUT_B, OUT_FWD);
+    SetOutput(OUT_B, OUT_ON);
+    goto Middle_Middle_Running;
+  }
+
+    if ((LMiddle_to_MLeft_abl == 0)) {
+    goto Middle_Middle_Idle;
+  }
+
+    goto Middle_Middle_Idle_r_Block_rbl_IdleToRight;
+}

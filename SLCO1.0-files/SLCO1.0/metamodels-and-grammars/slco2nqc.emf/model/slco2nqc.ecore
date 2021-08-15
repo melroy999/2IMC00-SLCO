@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="slco2nqc" nsURI="slco2nqc" nsPrefix="slco2nqc">
+  <eClassifiers xsi:type="ecore:EClass" name="Signal2MotorList">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="signal2Motors" upperBound="-1"
+        eType="#//Signal2Motor" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Signal2SensorList">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="signal2Sensors" upperBound="-1"
+        eType="#//Signal2Sensor" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MotorInitList">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="motorInits" upperBound="-1"
+        eType="#//MotorInit" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MotorInit">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="port" lowerBound="1" eType="ecore:EClass ../../slco.emf/model/slco.ecore#//Port"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="power" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="outputName" eType="ecore:EEnum ../../nqc.emf/model/nqc.ecore#//OutputPortNameEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ClassList">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="classes" upperBound="-1"
+        eType="ecore:EClass ../../slco.emf/model/slco.ecore#//Class"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Signal2Motor">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="signalName" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="port" lowerBound="1" eType="ecore:EClass ../../slco.emf/model/slco.ecore#//Port"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="outputMode" lowerBound="1"
+        eType="ecore:EEnum ../../nqc.emf/model/nqc.ecore#//OutputModeEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Signal2MotorWithDirection" eSuperTypes="#//Signal2Motor">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="outputDirection" lowerBound="1"
+        eType="ecore:EEnum ../../nqc.emf/model/nqc.ecore#//DirectionEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Signal2Sensor">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="signalName" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="port" lowerBound="1" eType="ecore:EClass ../../slco.emf/model/slco.ecore#//Port"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sensorIsHigh" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="treshold" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Slco2Nqc">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="signal2MotorList" lowerBound="1"
+        eType="#//Signal2MotorList" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="signal2SensorList" lowerBound="1"
+        eType="#//Signal2SensorList" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="motorInitList" lowerBound="1"
+        eType="#//MotorInitList" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="classList" lowerBound="1"
+        eType="#//ClassList" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sensorInitList" lowerBound="1"
+        eType="#//SensorInitList" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SensorInitList">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sensorInits" upperBound="-1"
+        eType="#//SensorInit" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SensorInit">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sensorName" lowerBound="1"
+        eType="ecore:EEnum ../../nqc.emf/model/nqc.ecore#//SensorNameEnum"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sensorConfiguration" lowerBound="1"
+        eType="ecore:EEnum ../../nqc.emf/model/nqc.ecore#//SensorConfigEnum"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="port" lowerBound="1" eType="ecore:EClass ../../slco.emf/model/slco.ecore#//Port"/>
+  </eClassifiers>
+</ecore:EPackage>

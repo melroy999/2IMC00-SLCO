@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<henshin:Module xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:henshin="http://www.eclipse.org/emf/2011/Henshin" xmi:id="_g0iS8KYMEeiQSZksmGyzLA">
+  <imports href="http://www.xtext.org/slco/textualslco/TextualSlco#/"/>
+  <units xsi:type="henshin:Rule" xmi:id="_hYAzcKYMEeiQSZksmGyzLA" name="refineInit">
+    <parameters xmi:id="_kdyRkKYMEeiQSZksmGyzLA" name="src" kind="VAR">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </parameters>
+    <parameters xmi:id="_kdyRkaYMEeiQSZksmGyzLA" name="tgt" kind="VAR">
+      <type xsi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </parameters>
+    <lhs xmi:id="_hYFE4KYMEeiQSZksmGyzLA" name="Lhs">
+      <nodes xmi:id="_sig9AKYMEeiQSZksmGyzLA" outgoing="_WXSbgKYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Model"/>
+      </nodes>
+      <nodes xmi:id="_Qoo2oKYNEeiQSZksmGyzLA" incoming="_WXSbgKYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action"/>
+        <attributes xmi:id="_Q8K2oKYNEeiQSZksmGyzLA" value="&quot;init&quot;">
+          <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action/name"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_anV7cKYNEeiQSZksmGyzLA" outgoing="_m0bG4KYOEeiQSZksmGyzLA _nn2H4KYOEeiQSZksmGyzLA _olCI4KYOEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//StateMachine"/>
+      </nodes>
+      <nodes xmi:id="_eDvw4KYNEeiQSZksmGyzLA" incoming="_m0bG4KYOEeiQSZksmGyzLA _tLq8kKatEeiQkJclGOiduA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Vertex"/>
+        <attributes xmi:id="_hiDDwKYNEeiQSZksmGyzLA" value="src">
+          <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Vertex/name"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_eW9n0KYNEeiQSZksmGyzLA" incoming="_3o8CYKYNEeiQSZksmGyzLA _nn2H4KYOEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Vertex"/>
+        <attributes xmi:id="_h4a8YKYNEeiQSZksmGyzLA" value="tgt">
+          <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Vertex/name"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_e_tC0KYNEeiQSZksmGyzLA" incoming="_olCI4KYOEeiQSZksmGyzLA" outgoing="_3o8CYKYNEeiQSZksmGyzLA _AAs-kKYOEeiQSZksmGyzLA _tLq8kKatEeiQkJclGOiduA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Transition"/>
+      </nodes>
+      <nodes xmi:id="_ghu2QKYNEeiQSZksmGyzLA" incoming="_AAs-kKYOEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//DoAction"/>
+        <attributes xmi:id="_wB5_kKYNEeiQSZksmGyzLA" value="&quot;init&quot;">
+          <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//DoAction/name"/>
+        </attributes>
+      </nodes>
+      <edges xmi:id="_WXSbgKYNEeiQSZksmGyzLA" source="_sig9AKYMEeiQSZksmGyzLA" target="_Qoo2oKYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Model/actions"/>
+      </edges>
+      <edges xmi:id="_3o8CYKYNEeiQSZksmGyzLA" source="_e_tC0KYNEeiQSZksmGyzLA" target="_eW9n0KYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Transition/target"/>
+      </edges>
+      <edges xmi:id="_AAs-kKYOEeiQSZksmGyzLA" source="_e_tC0KYNEeiQSZksmGyzLA" target="_ghu2QKYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Transition/statements"/>
+      </edges>
+      <edges xmi:id="_m0bG4KYOEeiQSZksmGyzLA" source="_anV7cKYNEeiQSZksmGyzLA" target="_eDvw4KYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//StateMachine/vertices"/>
+      </edges>
+      <edges xmi:id="_nn2H4KYOEeiQSZksmGyzLA" source="_anV7cKYNEeiQSZksmGyzLA" target="_eW9n0KYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//StateMachine/vertices"/>
+      </edges>
+      <edges xmi:id="_olCI4KYOEeiQSZksmGyzLA" source="_anV7cKYNEeiQSZksmGyzLA" target="_e_tC0KYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//StateMachine/transitions"/>
+      </edges>
+      <edges xmi:id="_tLq8kKatEeiQkJclGOiduA" source="_e_tC0KYNEeiQSZksmGyzLA" target="_eDvw4KYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Transition/source"/>
+      </edges>
+    </lhs>
+    <rhs xmi:id="_hYFE4aYMEeiQSZksmGyzLA" name="Rhs">
+      <nodes xmi:id="_sig9AaYMEeiQSZksmGyzLA" outgoing="_WXSbgaYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Model"/>
+      </nodes>
+      <nodes xmi:id="_Qoo2oaYNEeiQSZksmGyzLA" incoming="_WXSbgaYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action"/>
+        <attributes xmi:id="_Q8K2oaYNEeiQSZksmGyzLA" value="&quot;init&quot;">
+          <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action/name"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_anWigKYNEeiQSZksmGyzLA" outgoing="_m0bG4aYOEeiQSZksmGyzLA _nn2H4aYOEeiQSZksmGyzLA _oS9hcKYOEeiQSZksmGyzLA _olCI4aYOEeiQSZksmGyzLA _wmFF0KYcEeiJn4ZK5L2VMw">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//StateMachine"/>
+      </nodes>
+      <nodes xmi:id="_eDwX8KYNEeiQSZksmGyzLA" incoming="_m0bG4aYOEeiQSZksmGyzLA _tLq8kaatEeiQkJclGOiduA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Vertex"/>
+        <attributes xmi:id="_hiDDwaYNEeiQSZksmGyzLA" value="src">
+          <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Vertex/name"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_eW9n0aYNEeiQSZksmGyzLA" incoming="_nn2H4aYOEeiQSZksmGyzLA _AKQGcKauEeiQkJclGOiduA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Vertex"/>
+        <attributes xmi:id="_h4bjcKYNEeiQSZksmGyzLA" value="tgt">
+          <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Vertex/name"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_e4wtUKYNEeiQSZksmGyzLA" incoming="_oS9hcKYOEeiQSZksmGyzLA" outgoing="__zCWAKYNEeiQSZksmGyzLA _yC9TgKYcEeiJn4ZK5L2VMw _AKQGcKauEeiQkJclGOiduA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Transition"/>
+      </nodes>
+      <nodes xmi:id="_e_tC0aYNEeiQSZksmGyzLA" incoming="_olCI4aYOEeiQSZksmGyzLA" outgoing="_AAs-kaYOEeiQSZksmGyzLA _tLq8kaatEeiQkJclGOiduA __IaO8KatEeiQkJclGOiduA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Transition"/>
+      </nodes>
+      <nodes xmi:id="_gZC0UKYNEeiQSZksmGyzLA" incoming="__zCWAKYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//DoAction"/>
+        <attributes xmi:id="_xJeEkKYNEeiQSZksmGyzLA" value="&quot;processConfig&quot;">
+          <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//DoAction/name"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_ghu2QaYNEeiQSZksmGyzLA" incoming="_AAs-kaYOEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//DoAction"/>
+        <attributes xmi:id="_wB5_kaYNEeiQSZksmGyzLA" value="&quot;init&quot;">
+          <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//DoAction/name"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_tAEBYKYcEeiJn4ZK5L2VMw" incoming="_wmFF0KYcEeiJn4ZK5L2VMw _yC9TgKYcEeiJn4ZK5L2VMw __IaO8KatEeiQkJclGOiduA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//State"/>
+        <attributes xmi:id="_tr2JUKYcEeiJn4ZK5L2VMw" value="src+&quot;to&quot;+tgt">
+          <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Vertex/name"/>
+        </attributes>
+      </nodes>
+      <edges xmi:id="_WXSbgaYNEeiQSZksmGyzLA" source="_sig9AaYMEeiQSZksmGyzLA" target="_Qoo2oaYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Model/actions"/>
+      </edges>
+      <edges xmi:id="_AAs-kaYOEeiQSZksmGyzLA" source="_e_tC0aYNEeiQSZksmGyzLA" target="_ghu2QaYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Transition/statements"/>
+      </edges>
+      <edges xmi:id="__zCWAKYNEeiQSZksmGyzLA" source="_e4wtUKYNEeiQSZksmGyzLA" target="_gZC0UKYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Transition/statements"/>
+      </edges>
+      <edges xmi:id="_m0bG4aYOEeiQSZksmGyzLA" source="_anWigKYNEeiQSZksmGyzLA" target="_eDwX8KYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//StateMachine/vertices"/>
+      </edges>
+      <edges xmi:id="_nn2H4aYOEeiQSZksmGyzLA" source="_anWigKYNEeiQSZksmGyzLA" target="_eW9n0aYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//StateMachine/vertices"/>
+      </edges>
+      <edges xmi:id="_oS9hcKYOEeiQSZksmGyzLA" source="_anWigKYNEeiQSZksmGyzLA" target="_e4wtUKYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//StateMachine/transitions"/>
+      </edges>
+      <edges xmi:id="_olCI4aYOEeiQSZksmGyzLA" source="_anWigKYNEeiQSZksmGyzLA" target="_e_tC0aYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//StateMachine/transitions"/>
+      </edges>
+      <edges xmi:id="_wmFF0KYcEeiJn4ZK5L2VMw" source="_anWigKYNEeiQSZksmGyzLA" target="_tAEBYKYcEeiJn4ZK5L2VMw">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//StateMachine/vertices"/>
+      </edges>
+      <edges xmi:id="_yC9TgKYcEeiJn4ZK5L2VMw" source="_e4wtUKYNEeiQSZksmGyzLA" target="_tAEBYKYcEeiJn4ZK5L2VMw">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Transition/target"/>
+      </edges>
+      <edges xmi:id="_tLq8kaatEeiQkJclGOiduA" source="_e_tC0aYNEeiQSZksmGyzLA" target="_eDwX8KYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Transition/source"/>
+      </edges>
+      <edges xmi:id="__IaO8KatEeiQkJclGOiduA" source="_e_tC0aYNEeiQSZksmGyzLA" target="_tAEBYKYcEeiJn4ZK5L2VMw">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Transition/target"/>
+      </edges>
+      <edges xmi:id="_AKQGcKauEeiQkJclGOiduA" source="_e4wtUKYNEeiQSZksmGyzLA" target="_eW9n0aYNEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Transition/target"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_sig9AqYMEeiQSZksmGyzLA" origin="_sig9AKYMEeiQSZksmGyzLA" image="_sig9AaYMEeiQSZksmGyzLA"/>
+    <mappings xmi:id="_Qoo2oqYNEeiQSZksmGyzLA" origin="_Qoo2oKYNEeiQSZksmGyzLA" image="_Qoo2oaYNEeiQSZksmGyzLA"/>
+    <mappings xmi:id="_anWigaYNEeiQSZksmGyzLA" origin="_anV7cKYNEeiQSZksmGyzLA" image="_anWigKYNEeiQSZksmGyzLA"/>
+    <mappings xmi:id="_eDwX8aYNEeiQSZksmGyzLA" origin="_eDvw4KYNEeiQSZksmGyzLA" image="_eDwX8KYNEeiQSZksmGyzLA"/>
+    <mappings xmi:id="_eW9n0qYNEeiQSZksmGyzLA" origin="_eW9n0KYNEeiQSZksmGyzLA" image="_eW9n0aYNEeiQSZksmGyzLA"/>
+    <mappings xmi:id="_e_tC0qYNEeiQSZksmGyzLA" origin="_e_tC0KYNEeiQSZksmGyzLA" image="_e_tC0aYNEeiQSZksmGyzLA"/>
+    <mappings xmi:id="_ghu2QqYNEeiQSZksmGyzLA" origin="_ghu2QKYNEeiQSZksmGyzLA" image="_ghu2QaYNEeiQSZksmGyzLA"/>
+  </units>
+  <units xsi:type="henshin:Rule" xmi:id="_nmRsgKYMEeiQSZksmGyzLA" name="addActionProcessConfig">
+    <lhs xmi:id="_nmS6oKYMEeiQSZksmGyzLA" name="Lhs">
+      <nodes xmi:id="_rzwZkKYMEeiQSZksmGyzLA" outgoing="_yRfSAKYMEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Model"/>
+      </nodes>
+      <nodes xmi:id="_ttbQ8KYMEeiQSZksmGyzLA" incoming="_yRfSAKYMEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action"/>
+        <attributes xmi:id="_w1PWcKYMEeiQSZksmGyzLA" value="&quot;init&quot;">
+          <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action/name"/>
+        </attributes>
+      </nodes>
+      <edges xmi:id="_yRfSAKYMEeiQSZksmGyzLA" source="_rzwZkKYMEeiQSZksmGyzLA" target="_ttbQ8KYMEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Model/actions"/>
+      </edges>
+      <formula xsi:type="henshin:Not" xmi:id="_NrESQKYNEeiQSZksmGyzLA">
+        <child xsi:type="henshin:NestedCondition" xmi:id="_NrESQaYNEeiQSZksmGyzLA">
+          <conclusion xmi:id="_NrESQqYNEeiQSZksmGyzLA">
+            <nodes xmi:id="_NrESQ6YNEeiQSZksmGyzLA" outgoing="_NrE5U6YNEeiQSZksmGyzLA _yhvUgKYMEeiQSZksmGyzLA">
+              <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Model"/>
+            </nodes>
+            <nodes xmi:id="_NrE5UKYNEeiQSZksmGyzLA" incoming="_NrE5U6YNEeiQSZksmGyzLA">
+              <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action"/>
+              <attributes xmi:id="_NrE5UaYNEeiQSZksmGyzLA" value="&quot;init&quot;">
+                <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action/name"/>
+              </attributes>
+            </nodes>
+            <nodes xmi:id="_ukW48KYMEeiQSZksmGyzLA" incoming="_yhvUgKYMEeiQSZksmGyzLA">
+              <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action"/>
+              <attributes xmi:id="__oRs8KYMEeiQSZksmGyzLA" value="&quot;processConfig&quot;">
+                <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action/name"/>
+              </attributes>
+            </nodes>
+            <edges xmi:id="_NrE5U6YNEeiQSZksmGyzLA" source="_NrESQ6YNEeiQSZksmGyzLA" target="_NrE5UKYNEeiQSZksmGyzLA">
+              <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Model/actions"/>
+            </edges>
+            <edges xmi:id="_yhvUgKYMEeiQSZksmGyzLA" source="_NrESQ6YNEeiQSZksmGyzLA" target="_ukW48KYMEeiQSZksmGyzLA">
+              <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Model/actions"/>
+            </edges>
+          </conclusion>
+          <mappings xmi:id="_NrESRKYNEeiQSZksmGyzLA" origin="_rzwZkKYMEeiQSZksmGyzLA" image="_NrESQ6YNEeiQSZksmGyzLA"/>
+          <mappings xmi:id="_NrE5UqYNEeiQSZksmGyzLA" origin="_ttbQ8KYMEeiQSZksmGyzLA" image="_NrE5UKYNEeiQSZksmGyzLA"/>
+        </child>
+      </formula>
+    </lhs>
+    <rhs xmi:id="_nmS6oaYMEeiQSZksmGyzLA" name="Rhs">
+      <nodes xmi:id="_rzwZkaYMEeiQSZksmGyzLA" outgoing="_yRfSAaYMEeiQSZksmGyzLA _y1WNAKYMEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Model"/>
+      </nodes>
+      <nodes xmi:id="_ttbQ8aYMEeiQSZksmGyzLA" incoming="_yRfSAaYMEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action"/>
+        <attributes xmi:id="_w1PWcaYMEeiQSZksmGyzLA" value="&quot;init&quot;">
+          <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action/name"/>
+        </attributes>
+      </nodes>
+      <nodes xmi:id="_vqZT8KYMEeiQSZksmGyzLA" incoming="_y1WNAKYMEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action"/>
+        <attributes xmi:id="_350zgKYMEeiQSZksmGyzLA" value="&quot;processConfig&quot;">
+          <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Action/name"/>
+        </attributes>
+      </nodes>
+      <edges xmi:id="_yRfSAaYMEeiQSZksmGyzLA" source="_rzwZkaYMEeiQSZksmGyzLA" target="_ttbQ8aYMEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Model/actions"/>
+      </edges>
+      <edges xmi:id="_y1WNAKYMEeiQSZksmGyzLA" source="_rzwZkaYMEeiQSZksmGyzLA" target="_vqZT8KYMEeiQSZksmGyzLA">
+        <type href="http://www.xtext.org/slco/textualslco/TextualSlco#//Model/actions"/>
+      </edges>
+    </rhs>
+    <mappings xmi:id="_rzwZkqYMEeiQSZksmGyzLA" origin="_rzwZkKYMEeiQSZksmGyzLA" image="_rzwZkaYMEeiQSZksmGyzLA"/>
+    <mappings xmi:id="_ttb4AKYMEeiQSZksmGyzLA" origin="_ttbQ8KYMEeiQSZksmGyzLA" image="_ttbQ8aYMEeiQSZksmGyzLA"/>
+  </units>
+</henshin:Module>

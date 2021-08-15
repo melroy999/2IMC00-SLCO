@@ -1,0 +1,422 @@
+model Simple_as_arg_uni_ll_time_merge_int {
+  classes
+    C_C_C_C_C {
+      variables
+        Integer C_as_P_out_Original_to_Sender_abl = 0
+        Integer C_as_P_out_Original_to_Sender_name
+        Integer C_as_P_out_Original_to_Sender_arg_0
+        Integer C_as_P_in_Receiver_to_Original_abl = 0
+        Integer C_as_P_in_Receiver_to_Original_name
+        Integer C_as_P_in_Receiver_to_Original_arg_0
+        Integer C_as_P_in_Receiver_to_AS_abl = 0
+        Integer C_as_P_in_Receiver_to_AS_name
+        Integer C_as_P_out_AR_to_Sender_abl = 0
+        Integer C_as_P_out_AR_to_Sender_name
+
+      ports
+        C_as_P_inABP_Receiver_ARSender
+        C_as_P_inABP_AS_AASAR
+        C_as_P_outABP_Sender_ASReceiver
+        C_as_P_outABP_AR_AARAS
+
+      state machines
+        C_as_Consumer {
+          initial
+            State
+
+          state
+            State_r_Signal_rbl_StateToState
+            State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State
+
+          transitions
+            State_to_State_r_Signal_rbl_StateToState from State to State_r_Signal_rbl_StateToState {
+              (((C_as_P_in_Receiver_to_Original_abl == 1) && (C_as_P_in_Receiver_to_Original_name == 1)) && (C_as_P_in_Receiver_to_Original_arg_0 == 3));
+              C_as_P_in_Receiver_to_Original_abl := 2
+            }
+
+            State_r_Signal_rbl_StateToState_to_State from State_r_Signal_rbl_StateToState to State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State {
+              (C_as_P_in_Receiver_to_Original_abl == 3);
+              C_as_P_in_Receiver_to_Original_abl := 0;
+              C_as_P_out_Original_to_Sender_name := 1;
+              C_as_P_out_Original_to_Sender_arg_0 := 0;
+              C_as_P_out_Original_to_Sender_abl := 1
+            }
+
+            State_r_Signal_rbl_StateToState_to_State from State_r_Signal_rbl_StateToState to State {
+              (C_as_P_in_Receiver_to_Original_abl == 0)
+            }
+
+            State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State_to_State from State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State to State {
+              (C_as_P_out_Original_to_Sender_abl == 2);
+              C_as_P_out_Original_to_Sender_abl := 3;
+              (C_as_P_out_Original_to_Sender_abl == 0)
+            }
+        }
+
+        C_as_P_inABP_Receiver_Receiver {
+          variables
+            Integer r = 0
+            Integer d
+
+          initial
+            Zero
+
+          state
+            Zero_s_Signal_abl_ZeroToZeroAck
+            Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero_s_Signal_abl_ZeroToZeroAck {
+              receive Message(d, [[r]]) from C_as_P_inABP_Receiver_ARSender;
+              C_as_P_in_Receiver_to_Original_name := 1;
+              C_as_P_in_Receiver_to_Original_arg_0 := d;
+              C_as_P_in_Receiver_to_Original_abl := 1
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Message(d, [[(1 - r)]]) from C_as_P_inABP_Receiver_ARSender
+            }
+
+            Zero_s_Signal_abl_ZeroToZeroAck_to_Zero from Zero_s_Signal_abl_ZeroToZeroAck to Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero {
+              (C_as_P_in_Receiver_to_Original_abl == 2);
+              C_as_P_in_Receiver_to_Original_abl := 3;
+              (C_as_P_in_Receiver_to_Original_abl == 0);
+              C_as_P_in_Receiver_to_AS_name := 2;
+              C_as_P_in_Receiver_to_AS_abl := 1
+            }
+
+            Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero_to_Zero from Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero to Zero {
+              (C_as_P_in_Receiver_to_AS_abl == 2);
+              C_as_P_in_Receiver_to_AS_abl := 3;
+              (C_as_P_in_Receiver_to_AS_abl == 0);
+              r := (1 - r)
+            }
+        }
+
+        C_as_P_inABP_AS_AS {
+          variables
+            Integer b = 1
+
+          initial
+            Zero
+
+          state
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck
+
+          transitions
+            ASZeroToZero from Zero to Zero {
+              after 900 ms;
+              send Acknowledge(b) to C_as_P_inABP_AS_AASAR
+            }
+
+            Zero_to_Zero_r_Acknowledge_rbl_ZeroToZeroAck from Zero to Zero_r_Acknowledge_rbl_ZeroToZeroAck {
+              ((C_as_P_in_Receiver_to_AS_abl == 1) && (C_as_P_in_Receiver_to_AS_name == 2));
+              C_as_P_in_Receiver_to_AS_abl := 2
+            }
+
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero from Zero_r_Acknowledge_rbl_ZeroToZeroAck to Zero {
+              (C_as_P_in_Receiver_to_AS_abl == 3);
+              C_as_P_in_Receiver_to_AS_abl := 0;
+              b := (1 - b)
+            }
+
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero from Zero_r_Acknowledge_rbl_ZeroToZeroAck to Zero {
+              (C_as_P_in_Receiver_to_AS_abl == 0)
+            }
+        }
+
+        C_as_P_outABP_Sender_Sender {
+          variables
+            Integer s = 0
+            Integer d
+
+          initial
+            Zero
+
+          state
+            One
+            Zero_r_Signal_rbl_ZeroToOne
+            One_r_Acknowledge_rbl_OneToZero
+
+          transitions
+            SenderOneToOne from One to One {
+              after 900 ms;
+              send Message(d, s) to C_as_P_outABP_Sender_ASReceiver
+            }
+
+            Zero_to_Zero_r_Signal_rbl_ZeroToOne from Zero to Zero_r_Signal_rbl_ZeroToOne {
+              ((C_as_P_out_Original_to_Sender_abl == 1) && (C_as_P_out_Original_to_Sender_name == 1));
+              C_as_P_out_Original_to_Sender_abl := 2
+            }
+
+            Zero_r_Signal_rbl_ZeroToOne_to_One from Zero_r_Signal_rbl_ZeroToOne to One {
+              (C_as_P_out_Original_to_Sender_abl == 3);
+              d := C_as_P_out_Original_to_Sender_arg_0;
+              C_as_P_out_Original_to_Sender_abl := 0
+            }
+
+            Zero_r_Signal_rbl_ZeroToOne_to_Zero from Zero_r_Signal_rbl_ZeroToOne to Zero {
+              (C_as_P_out_Original_to_Sender_abl == 0)
+            }
+
+            One_to_One_r_Acknowledge_rbl_OneToZero from One to One_r_Acknowledge_rbl_OneToZero {
+              ((C_as_P_out_AR_to_Sender_abl == 1) && (C_as_P_out_AR_to_Sender_name == 2));
+              C_as_P_out_AR_to_Sender_abl := 2
+            }
+
+            One_r_Acknowledge_rbl_OneToZero_to_Zero from One_r_Acknowledge_rbl_OneToZero to Zero {
+              (C_as_P_out_AR_to_Sender_abl == 3);
+              C_as_P_out_AR_to_Sender_abl := 0;
+              s := (1 - s)
+            }
+
+            One_r_Acknowledge_rbl_OneToZero_to_One from One_r_Acknowledge_rbl_OneToZero to One {
+              (C_as_P_out_AR_to_Sender_abl == 0)
+            }
+        }
+
+        C_as_P_outABP_AR_AR {
+          variables
+            Integer b = 0
+
+          initial
+            Zero
+
+          state
+            Zero_s_Acknowledge_abl_ZeroToZeroAck
+
+          transitions
+            ZeroToZeroAck from Zero to Zero_s_Acknowledge_abl_ZeroToZeroAck {
+              receive Acknowledge([[b]]) from C_as_P_outABP_AR_AARAS;
+              C_as_P_out_AR_to_Sender_name := 2;
+              C_as_P_out_AR_to_Sender_abl := 1
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Acknowledge([[(1 - b)]]) from C_as_P_outABP_AR_AARAS
+            }
+
+            Zero_s_Acknowledge_abl_ZeroToZeroAck_to_Zero from Zero_s_Acknowledge_abl_ZeroToZeroAck to Zero {
+              (C_as_P_out_AR_to_Sender_abl == 2);
+              C_as_P_out_AR_to_Sender_abl := 3;
+              (C_as_P_out_AR_to_Sender_abl == 0);
+              b := (1 - b)
+            }
+        }
+    }
+
+    P_P_P_P_P {
+      variables
+        Integer P_as_C_out_Original_to_Sender_abl = 0
+        Integer P_as_C_out_Original_to_Sender_name
+        Integer P_as_C_out_Original_to_Sender_arg_0
+        Integer P_as_C_out_AR_to_Sender_abl = 0
+        Integer P_as_C_out_AR_to_Sender_name
+        Integer P_as_C_in_Receiver_to_Original_abl = 0
+        Integer P_as_C_in_Receiver_to_Original_name
+        Integer P_as_C_in_Receiver_to_Original_arg_0
+        Integer P_as_C_in_Receiver_to_AS_abl = 0
+        Integer P_as_C_in_Receiver_to_AS_name
+
+      ports
+        P_as_C_outABP_Sender_ASReceiver
+        P_as_C_outABP_AR_AARAS
+        P_as_C_inABP_Receiver_ARSender
+        P_as_C_inABP_AS_AASAR
+
+      state machines
+        P_as_Producer {
+          initial
+            State
+
+          state
+            State_s_Signal_abl_StateToState
+            State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State
+
+          transitions
+            StateToState from State to State_s_Signal_abl_StateToState {
+              P_as_C_out_Original_to_Sender_name := 1;
+              P_as_C_out_Original_to_Sender_arg_0 := 3;
+              P_as_C_out_Original_to_Sender_abl := 1
+            }
+
+            State_s_Signal_abl_StateToState_to_State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State from State_s_Signal_abl_StateToState to State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State {
+              (((P_as_C_in_Receiver_to_Original_abl == 1) && (P_as_C_in_Receiver_to_Original_name == 1)) && (P_as_C_in_Receiver_to_Original_arg_0 == 0));
+              P_as_C_in_Receiver_to_Original_abl := 2
+            }
+
+            State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State_to_State from State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State to State {
+              (P_as_C_in_Receiver_to_Original_abl == 3);
+              P_as_C_in_Receiver_to_Original_abl := 0;
+              (P_as_C_out_Original_to_Sender_abl == 2);
+              P_as_C_out_Original_to_Sender_abl := 3;
+              (P_as_C_out_Original_to_Sender_abl == 0)
+            }
+
+            State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State_to_State_s_Signal_abl_StateToState from State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State to State_s_Signal_abl_StateToState {
+              (P_as_C_in_Receiver_to_Original_abl == 0)
+            }
+        }
+
+        P_as_C_outABP_Sender_Sender {
+          variables
+            Integer s = 0
+            Integer d
+
+          initial
+            Zero
+
+          state
+            One
+            Zero_r_Signal_rbl_ZeroToOne
+            One_r_Acknowledge_rbl_OneToZero
+
+          transitions
+            SenderOneToOne from One to One {
+              after 900 ms;
+              send Message(d, s) to P_as_C_outABP_Sender_ASReceiver
+            }
+
+            Zero_to_Zero_r_Signal_rbl_ZeroToOne from Zero to Zero_r_Signal_rbl_ZeroToOne {
+              ((P_as_C_out_Original_to_Sender_abl == 1) && (P_as_C_out_Original_to_Sender_name == 1));
+              P_as_C_out_Original_to_Sender_abl := 2
+            }
+
+            Zero_r_Signal_rbl_ZeroToOne_to_One from Zero_r_Signal_rbl_ZeroToOne to One {
+              (P_as_C_out_Original_to_Sender_abl == 3);
+              d := P_as_C_out_Original_to_Sender_arg_0;
+              P_as_C_out_Original_to_Sender_abl := 0
+            }
+
+            Zero_r_Signal_rbl_ZeroToOne_to_Zero from Zero_r_Signal_rbl_ZeroToOne to Zero {
+              (P_as_C_out_Original_to_Sender_abl == 0)
+            }
+
+            One_to_One_r_Acknowledge_rbl_OneToZero from One to One_r_Acknowledge_rbl_OneToZero {
+              ((P_as_C_out_AR_to_Sender_abl == 1) && (P_as_C_out_AR_to_Sender_name == 2));
+              P_as_C_out_AR_to_Sender_abl := 2
+            }
+
+            One_r_Acknowledge_rbl_OneToZero_to_Zero from One_r_Acknowledge_rbl_OneToZero to Zero {
+              (P_as_C_out_AR_to_Sender_abl == 3);
+              P_as_C_out_AR_to_Sender_abl := 0;
+              s := (1 - s)
+            }
+
+            One_r_Acknowledge_rbl_OneToZero_to_One from One_r_Acknowledge_rbl_OneToZero to One {
+              (P_as_C_out_AR_to_Sender_abl == 0)
+            }
+        }
+
+        P_as_C_outABP_AR_AR {
+          variables
+            Integer b = 0
+
+          initial
+            Zero
+
+          state
+            Zero_s_Acknowledge_abl_ZeroToZeroAck
+
+          transitions
+            ZeroToZeroAck from Zero to Zero_s_Acknowledge_abl_ZeroToZeroAck {
+              receive Acknowledge([[b]]) from P_as_C_outABP_AR_AARAS;
+              P_as_C_out_AR_to_Sender_name := 2;
+              P_as_C_out_AR_to_Sender_abl := 1
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Acknowledge([[(1 - b)]]) from P_as_C_outABP_AR_AARAS
+            }
+
+            Zero_s_Acknowledge_abl_ZeroToZeroAck_to_Zero from Zero_s_Acknowledge_abl_ZeroToZeroAck to Zero {
+              (P_as_C_out_AR_to_Sender_abl == 2);
+              P_as_C_out_AR_to_Sender_abl := 3;
+              (P_as_C_out_AR_to_Sender_abl == 0);
+              b := (1 - b)
+            }
+        }
+
+        P_as_C_inABP_Receiver_Receiver {
+          variables
+            Integer r = 0
+            Integer d
+
+          initial
+            Zero
+
+          state
+            Zero_s_Signal_abl_ZeroToZeroAck
+            Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero_s_Signal_abl_ZeroToZeroAck {
+              receive Message(d, [[r]]) from P_as_C_inABP_Receiver_ARSender;
+              P_as_C_in_Receiver_to_Original_name := 1;
+              P_as_C_in_Receiver_to_Original_arg_0 := d;
+              P_as_C_in_Receiver_to_Original_abl := 1
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Message(d, [[(1 - r)]]) from P_as_C_inABP_Receiver_ARSender
+            }
+
+            Zero_s_Signal_abl_ZeroToZeroAck_to_Zero from Zero_s_Signal_abl_ZeroToZeroAck to Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero {
+              (P_as_C_in_Receiver_to_Original_abl == 2);
+              P_as_C_in_Receiver_to_Original_abl := 3;
+              (P_as_C_in_Receiver_to_Original_abl == 0);
+              P_as_C_in_Receiver_to_AS_name := 2;
+              P_as_C_in_Receiver_to_AS_abl := 1
+            }
+
+            Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero_to_Zero from Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero to Zero {
+              (P_as_C_in_Receiver_to_AS_abl == 2);
+              P_as_C_in_Receiver_to_AS_abl := 3;
+              (P_as_C_in_Receiver_to_AS_abl == 0);
+              r := (1 - r)
+            }
+        }
+
+        P_as_C_inABP_AS_AS {
+          variables
+            Integer b = 1
+
+          initial
+            Zero
+
+          state
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck
+
+          transitions
+            ASZeroToZero from Zero to Zero {
+              after 900 ms;
+              send Acknowledge(b) to P_as_C_inABP_AS_AASAR
+            }
+
+            Zero_to_Zero_r_Acknowledge_rbl_ZeroToZeroAck from Zero to Zero_r_Acknowledge_rbl_ZeroToZeroAck {
+              ((P_as_C_in_Receiver_to_AS_abl == 1) && (P_as_C_in_Receiver_to_AS_name == 2));
+              P_as_C_in_Receiver_to_AS_abl := 2
+            }
+
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero from Zero_r_Acknowledge_rbl_ZeroToZeroAck to Zero {
+              (P_as_C_in_Receiver_to_AS_abl == 3);
+              P_as_C_in_Receiver_to_AS_abl := 0;
+              b := (1 - b)
+            }
+
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero from Zero_r_Acknowledge_rbl_ZeroToZeroAck to Zero {
+              (P_as_C_in_Receiver_to_AS_abl == 0)
+            }
+        }
+    }
+
+  objects
+    C_C_C_C_C: C_C_C_C_C
+    P_P_P_P_P: P_P_P_P_P
+
+  channels
+    P_as_C_out_Sender_to_Receiver(Integer, Integer) async lossy from P_P_P_P_P.P_as_C_outABP_Sender_ASReceiver to C_C_C_C_C.C_as_P_inABP_Receiver_ARSender
+    P_as_C_out_AS_to_AR(Integer) async lossy from C_C_C_C_C.C_as_P_inABP_AS_AASAR to P_P_P_P_P.P_as_C_outABP_AR_AARAS
+    C_as_P_out_Sender_to_Receiver(Integer, Integer) async lossy from C_C_C_C_C.C_as_P_outABP_Sender_ASReceiver to P_P_P_P_P.P_as_C_inABP_Receiver_ARSender
+    C_as_P_out_AS_to_AR(Integer) async lossy from P_P_P_P_P.P_as_C_inABP_AS_AASAR to C_C_C_C_C.C_as_P_outABP_AR_AARAS
+}

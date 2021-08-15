@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="ASCII"?>
+<poosl:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:poosl="poosl" name="Simple_as_arg_uni_ll">
+  <classes xsi:type="poosl:ProcessClass" name="Producer_as">
+    <methods name="Producer_State">
+      <variables name="var_1" type="//@primitiveTypes.0"/>
+      <body xsi:type="poosl:MessageSend" port="//@classes.0/@ports.1">
+        <message name="Signal"/>
+        <expressionLists>
+          <expressions xsi:type="poosl:ConstantExpression">
+            <constant string="Send_Bericht"/>
+          </expressions>
+        </expressionLists>
+      </body>
+      <body xsi:type="poosl:MessageReceive" port="//@classes.0/@ports.0" variables="//@classes.0/@methods.0/@variables.0">
+        <message name="Signal"/>
+        <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.0/@methods.0/@variables.0"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant string="Acknowledge_Bericht"/>
+            </expressions>
+          </parameterExpressionLists>
+        </condition>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.0"/>
+    </methods>
+    <methods name="Producer_as_initial">
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.0/@methods.0"/>
+    </methods>
+    <ports name="C_in"/>
+    <ports name="C_out"/>
+    <initialMethodCall method="//@classes.0/@methods.1"/>
+  </classes>
+  <classes xsi:type="poosl:ProcessClass" name="Consumer_as">
+    <methods name="Consumer_State">
+      <variables name="var_3" type="//@primitiveTypes.0"/>
+      <body xsi:type="poosl:MessageReceive" port="//@classes.1/@ports.0" variables="//@classes.1/@methods.0/@variables.0">
+        <message name="Signal"/>
+        <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+          <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.1/@methods.0/@variables.0"/>
+          <parameterExpressionLists>
+            <expressions xsi:type="poosl:ConstantExpression">
+              <constant string="Send_Bericht"/>
+            </expressions>
+          </parameterExpressionLists>
+        </condition>
+      </body>
+      <body xsi:type="poosl:MessageSend" port="//@classes.1/@ports.1">
+        <message name="Signal"/>
+        <expressionLists>
+          <expressions xsi:type="poosl:ConstantExpression">
+            <constant string="Acknowledge_Bericht"/>
+          </expressions>
+        </expressionLists>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.0"/>
+    </methods>
+    <methods name="Consumer_as_initial">
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.1/@methods.0"/>
+    </methods>
+    <ports name="P_in"/>
+    <ports name="P_out"/>
+    <initialMethodCall method="//@classes.1/@methods.1"/>
+  </classes>
+  <classes xsi:type="poosl:ProcessClass" name="ABP_Sender">
+    <variables name="ABP_SenderSenders" type="//@primitiveTypes.1"/>
+    <variables name="ABP_SenderSenderd" type="//@primitiveTypes.0"/>
+    <methods name="Sender_Zero">
+      <body xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.0" variables="//@classes.2/@variables.1">
+        <message name="Signal"/>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.1"/>
+    </methods>
+    <methods name="Sender_One">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.2/@ports.2">
+            <message name="Acknowledge"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.0">
+            <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+              <objectExpressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.0"/>
+              </parameterExpressionLists>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.0"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.2/@ports.1">
+            <message name="Message"/>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.1"/>
+            </expressionLists>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.2/@variables.0"/>
+            </expressionLists>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.1"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="ABP_Sender_initial">
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.2/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.2/@methods.0"/>
+    </methods>
+    <ports name="ASOriginal"/>
+    <ports name="ASReceiver"/>
+    <ports name="ASAR"/>
+    <initialMethodCall method="//@classes.2/@methods.2"/>
+  </classes>
+  <classes xsi:type="poosl:ProcessClass" name="ABP_AR">
+    <variables name="ABP_ARARb" type="//@primitiveTypes.1"/>
+    <methods name="AR_Zero">
+      <variables name="var_2" type="//@primitiveTypes.1"/>
+      <variables name="var_3" type="//@primitiveTypes.1"/>
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.3/@ports.0" variables="//@classes.3/@methods.0/@variables.0">
+            <message name="Acknowledge"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@methods.0/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.0"/>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.3/@ports.1">
+            <message name="Acknowledge"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.0">
+            <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+              <objectExpressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.0"/>
+              </parameterExpressionLists>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.0"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.3/@ports.0" variables="//@classes.3/@methods.0/@variables.1">
+            <message name="Acknowledge"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@methods.0/@variables.1"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+                  <objectExpressions xsi:type="poosl:ConstantExpression">
+                    <constant integer="1" type="integer"/>
+                  </objectExpressions>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:VariableExpression" variable="//@classes.3/@variables.0"/>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.0"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="ABP_AR_initial">
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.3/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.3/@methods.0"/>
+    </methods>
+    <ports name="AARAS"/>
+    <ports name="AARSender"/>
+    <initialMethodCall method="//@classes.3/@methods.1"/>
+  </classes>
+  <classes xsi:type="poosl:ProcessClass" name="ABP_Receiver">
+    <variables name="ABP_ReceiverReceiverr" type="//@primitiveTypes.1"/>
+    <variables name="ABP_ReceiverReceiverd" type="//@primitiveTypes.0"/>
+    <methods name="Receiver_Zero">
+      <variables name="var_4" type="//@primitiveTypes.1"/>
+      <variables name="var_7" type="//@primitiveTypes.1"/>
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.4/@ports.1" variables="//@classes.4/@variables.1 //@classes.4/@methods.0/@variables.0">
+            <message name="Message"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.4/@methods.0/@variables.0"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.4/@variables.0"/>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.4/@ports.0">
+            <message name="Signal"/>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.4/@variables.1"/>
+            </expressionLists>
+          </statements>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.4/@ports.2">
+            <message name="Acknowledge"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.4/@variables.0">
+            <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+              <objectExpressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.4/@variables.0"/>
+              </parameterExpressionLists>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.4/@methods.0"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.4/@ports.1" variables="//@classes.4/@variables.1 //@classes.4/@methods.0/@variables.1">
+            <message name="Message"/>
+            <condition xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="equals">
+              <objectExpressions xsi:type="poosl:VariableExpression" variable="//@classes.4/@methods.0/@variables.1"/>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+                  <objectExpressions xsi:type="poosl:ConstantExpression">
+                    <constant integer="1" type="integer"/>
+                  </objectExpressions>
+                  <parameterExpressionLists>
+                    <expressions xsi:type="poosl:VariableExpression" variable="//@classes.4/@variables.0"/>
+                  </parameterExpressionLists>
+                </expressions>
+              </parameterExpressionLists>
+            </condition>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.4/@methods.0"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="ABP_Receiver_initial">
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.4/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.4/@methods.0"/>
+    </methods>
+    <ports name="AROriginal"/>
+    <ports name="ARSender"/>
+    <ports name="ARAS"/>
+    <initialMethodCall method="//@classes.4/@methods.1"/>
+  </classes>
+  <classes xsi:type="poosl:ProcessClass" name="ABP_AS">
+    <variables name="ABP_ASASb" type="//@primitiveTypes.1"/>
+    <methods name="AS_Zero">
+      <body xsi:type="poosl:Selection">
+        <statementLists>
+          <statements xsi:type="poosl:MessageReceive" port="//@classes.5/@ports.1">
+            <message name="Acknowledge"/>
+          </statements>
+          <statements xsi:type="poosl:Assignment" leftHandSide="//@classes.5/@variables.0">
+            <rightHandSide xsi:type="poosl:PrimitiveDataMethodCall" primitiveDataMethod="subtract">
+              <objectExpressions xsi:type="poosl:ConstantExpression">
+                <constant integer="1" type="integer"/>
+              </objectExpressions>
+              <parameterExpressionLists>
+                <expressions xsi:type="poosl:VariableExpression" variable="//@classes.5/@variables.0"/>
+              </parameterExpressionLists>
+            </rightHandSide>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.5/@methods.0"/>
+        </statementLists>
+        <statementLists>
+          <statements xsi:type="poosl:MessageSend" port="//@classes.5/@ports.0">
+            <message name="Acknowledge"/>
+            <expressionLists>
+              <expressions xsi:type="poosl:VariableExpression" variable="//@classes.5/@variables.0"/>
+            </expressionLists>
+          </statements>
+          <statements xsi:type="poosl:ProcessMethodCall" method="//@classes.5/@methods.0"/>
+        </statementLists>
+      </body>
+    </methods>
+    <methods name="ABP_AS_initial">
+      <body xsi:type="poosl:Assignment" leftHandSide="//@classes.5/@variables.0">
+        <rightHandSide xsi:type="poosl:ConstantExpression">
+          <constant integer="1" type="integer"/>
+        </rightHandSide>
+      </body>
+      <body xsi:type="poosl:ProcessMethodCall" method="//@classes.5/@methods.0"/>
+    </methods>
+    <ports name="AASAR"/>
+    <ports name="AASReceiver"/>
+    <initialMethodCall method="//@classes.5/@methods.1"/>
+  </classes>
+  <processInstances name="P_as" class="//@classes.0"/>
+  <processInstances name="C_as" class="//@classes.1"/>
+  <processInstances name="P_as_C_outABP_Sender" class="//@classes.2"/>
+  <processInstances name="P_as_C_outABP_AR" class="//@classes.3"/>
+  <processInstances name="C_as_P_inABP_Receiver" class="//@classes.4"/>
+  <processInstances name="C_as_P_inABP_AS" class="//@classes.5"/>
+  <processInstances name="C_as_P_outABP_Sender" class="//@classes.2"/>
+  <processInstances name="C_as_P_outABP_AR" class="//@classes.3"/>
+  <processInstances name="P_as_C_inABP_Receiver" class="//@classes.4"/>
+  <processInstances name="P_as_C_inABP_AS" class="//@classes.5"/>
+  <channels name="P_as_C_out_Original_to_Sender" port1="//@classes.0/@ports.1" port2="//@classes.2/@ports.0" processInstance1="//@processInstances.0" processInstance2="//@processInstances.2"/>
+  <channels name="P_as_C_out_AR_to_Sender" port1="//@classes.3/@ports.1" port2="//@classes.2/@ports.2" processInstance1="//@processInstances.3" processInstance2="//@processInstances.2"/>
+  <channels name="C_as_P_in_Receiver_to_Original" port1="//@classes.4/@ports.0" port2="//@classes.1/@ports.0" processInstance1="//@processInstances.4" processInstance2="//@processInstances.1"/>
+  <channels name="C_as_P_in_Receiver_to_AS" port1="//@classes.4/@ports.2" port2="//@classes.5/@ports.1" processInstance1="//@processInstances.4" processInstance2="//@processInstances.5"/>
+  <channels name="P_as_C_out_Sender_to_Receiver" port1="//@classes.2/@ports.1" port2="//@classes.4/@ports.1" processInstance1="//@processInstances.2" processInstance2="//@processInstances.4"/>
+  <channels name="P_as_C_out_AS_to_AR" port1="//@classes.5/@ports.0" port2="//@classes.3/@ports.0" processInstance1="//@processInstances.5" processInstance2="//@processInstances.3"/>
+  <channels name="C_as_P_out_Original_to_Sender" port1="//@classes.1/@ports.1" port2="//@classes.2/@ports.0" processInstance1="//@processInstances.1" processInstance2="//@processInstances.6"/>
+  <channels name="C_as_P_out_AR_to_Sender" port1="//@classes.3/@ports.1" port2="//@classes.2/@ports.2" processInstance1="//@processInstances.7" processInstance2="//@processInstances.6"/>
+  <channels name="P_as_C_in_Receiver_to_Original" port1="//@classes.4/@ports.0" port2="//@classes.0/@ports.0" processInstance1="//@processInstances.8" processInstance2="//@processInstances.0"/>
+  <channels name="P_as_C_in_Receiver_to_AS" port1="//@classes.4/@ports.2" port2="//@classes.5/@ports.1" processInstance1="//@processInstances.8" processInstance2="//@processInstances.9"/>
+  <channels name="C_as_P_out_Sender_to_Receiver" port1="//@classes.2/@ports.1" port2="//@classes.4/@ports.1" processInstance1="//@processInstances.6" processInstance2="//@processInstances.8"/>
+  <channels name="C_as_P_out_AS_to_AR" port1="//@classes.5/@ports.0" port2="//@classes.3/@ports.0" processInstance1="//@processInstances.9" processInstance2="//@processInstances.7"/>
+  <primitiveTypes/>
+  <primitiveTypes primitiveTypeEnum="integer"/>
+</poosl:Model>

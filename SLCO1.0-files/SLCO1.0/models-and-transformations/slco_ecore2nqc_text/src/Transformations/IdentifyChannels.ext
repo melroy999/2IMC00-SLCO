@@ -1,0 +1,193 @@
+import slco;
+import channels;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension org::eclipse::xtend::util::stdlib::cloning;
+extension Libraries::Equality;
+extension Libraries::Clone;
+extension Libraries::ModifyModel;
+extension Libraries::CreationSLCO;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// These functions take a number of lists of channels and adds an index to
+// the name of the signals sent over these channels. The index indicates to
+// which list of channels the channel belongs that is used to send a signal.
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+slco::Model modifyModelIC(
+   slco::Model model, channels::ChannelLists channelLists
+) :
+   let ncls = channelLists.createChannelLists(model) :
+      model.modifyModel(ncls.channelLists.channels, "")
+   -> ncls.channelLists.modifyClassesWithList(
+         model, ncls.channelLists
+      )
+   -> model.setName(
+         model.name + "_ic"
+      )
+   -> model
+;
+
+// ----------------------------------------------------------------------------
+
+slco::Model identifyChannels(
+   slco::Model model, channels::ChannelLists channelLists
+) :
+   let ncls = channelLists.createChannelLists(model) :
+      ncls.channelLists.modifyClassesWithList(
+         model, ncls.channelLists
+      )
+   -> model.setName(
+         model.name + "_ic"
+      )
+   -> model
+;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// 
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+private create channels::ChannelLists createChannelLists(
+   channels::ChannelLists channelLists, slco::Model model
+) :
+   this.channelLists.addAll(
+      channelLists.channelLists.createChannelList(model)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create channels::ChannelList createChannelList(
+   channels::ChannelList channelList, slco::Model model
+) :
+   this.channels.addAll(
+      model.channels.select(
+         c1
+      |
+         channelList.channels.exists(
+            c2
+         |
+            c1.channelEqualsChannel(c2)
+         )
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClassesWithList(
+   channels::ChannelList channelList, slco::Model model,
+   List[channels::ChannelList] channelLists
+) :
+   channelList.channels.modifyClasses(channelLists.indexOf(channelList))
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClasses(
+   List[slco::Channel] channels, Integer index
+) :
+   channels.first().modifyClasses(channels, index)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClasses(
+   slco::Channel channel, List[slco::Channel] channels, Integer index
+) :
+   syserr(
+      "IdentifyChannels - modifyClasses - unknown channel type: "
+      +
+      channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClasses(
+   slco::UnidirectionalChannel channel, List[slco::Channel] channels, Integer index
+) :
+   channel.sourceObject.class.modifyClassChannels(
+      channels, index
+   )
+-> channel.targetObject.class.modifyClassChannels(
+      channels, index
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClasses(
+   slco::BidirectionalChannel channel, List[slco::Channel] channels, Integer index
+) :
+   channel.object1.class.modifyClassChannels(
+      channels, index
+   )
+-> channel.object2.class.modifyClassChannels(
+      channels, index
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClassChannels(
+   slco::Class class, List[slco::Channel] channels, Integer index
+) :
+   let uni = channels.typeSelect(slco::UnidirectionalChannel) :
+   let bi = channels.typeSelect(slco::BidirectionalChannel) :
+      class.modifyClassPorts(uni.sourcePort, index)
+   -> class.modifyClassPorts(uni.targetPort, index)
+   -> class.modifyClassPorts(bi.port1, index)
+   -> class.modifyClassPorts(bi.port2, index)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClassPorts(
+   slco::Class class, List[slco::Port] ports, Integer index
+) :
+   class.stateMachines.transitions.statements.typeSelect(
+      slco::SignalReception
+   ).select(
+      sr
+   |
+      ports.contains(sr.port)
+   ).updateSignalReception(class, index)
+-> class.stateMachines.transitions.statements.typeSelect(
+      slco::SendSignal
+   ).select(
+      sss
+   |
+      ports.contains(sss.port)
+   ).updateSendSignalStatement(class, index)
+
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateSignalReception(
+   slco::SignalReception signalReception, slco::Class class, Integer index
+) :
+   signalReception.setSignalName(
+      signalReception.signalName + "_" + index.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void updateSendSignalStatement(
+   slco::SendSignal sendSignalStatement, slco::Class class,
+   Integer index
+) :
+   sendSignalStatement.setSignalName(
+      sendSignalStatement.signalName + "_" + index.toString()
+   )
+;

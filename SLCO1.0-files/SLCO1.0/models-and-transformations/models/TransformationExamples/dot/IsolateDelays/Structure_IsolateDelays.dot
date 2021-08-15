@@ -1,0 +1,17 @@
+
+digraph IsolateDelays {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_2
+ [label="{A||}"]
+A_2_A [label="{A||}", style=filled, fillcolor=gray95]
+A_2 -> A_2_A
+
+B_12
+ [label="{B||}"]
+B_12_B [label="{B||}", style=filled, fillcolor=gray95]
+B_12 -> B_12_B
+
+
+}

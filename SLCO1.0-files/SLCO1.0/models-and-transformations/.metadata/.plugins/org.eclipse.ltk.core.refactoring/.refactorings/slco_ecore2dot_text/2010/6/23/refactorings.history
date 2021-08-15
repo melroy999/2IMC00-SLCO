@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 1 element(s) from project &apos;slco_ecore2dot_text&apos;&#x0D;&#x0A;- Original project: &apos;slco_ecore2dot_text&apos;&#x0D;&#x0A;- Original element: &apos;slco.ecore&apos;" description="Delete element" element1="slco.ecore" elements="0" flags="589830" id="org.eclipse.jdt.ui.delete" resources="1" stamp="1276264478450" subPackages="false" version="1.0"/>
+</session>

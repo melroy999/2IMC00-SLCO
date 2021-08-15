@@ -1,0 +1,1069 @@
+drawing
+system
+
+instances
+
+process of class 'Single_as' in 0@0 to 50@50 name 'Right_as' at 5@5
+connectors
+  'Sensor' at 0@0 name at 0@0
+  'Motor' at 0@0 name at 0@0
+  'Middle_in' at 0@0 name at 0@0
+  'Middle_out' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'Single_as' in 0@0 to 50@50 name 'Left_as' at 5@5
+connectors
+  'Sensor' at 0@0 name at 0@0
+  'Motor' at 0@0 name at 0@0
+  'Middle_in' at 0@0 name at 0@0
+  'Middle_out' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'Middle_as' in 0@0 to 50@50 name 'Middle_as' at 5@5
+connectors
+  'Sensor' at 0@0 name at 0@0
+  'Motor' at 0@0 name at 0@0
+  'Right_in' at 0@0 name at 0@0
+  'Right_out' at 0@0 name at 0@0
+  'Left_in' at 0@0 name at 0@0
+  'Left_out' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'Environment' in 0@0 to 50@50 name 'Environment' at 5@5
+connectors
+  'LeftSensor' at 0@0 name at 0@0
+  'LeftMotor' at 0@0 name at 0@0
+  'MiddleSensor' at 0@0 name at 0@0
+  'MiddleMotor' at 0@0 name at 0@0
+  'RightSensor' at 0@0 name at 0@0
+  'RightMotor' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_Sender' in 0@0 to 50@50 name 'Right_as_Middle_outABP_Sender' at 5@5
+connectors
+  'ASOriginal' at 0@0 name at 0@0
+  'ASReceiver' at 0@0 name at 0@0
+  'ASAR' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_AR' in 0@0 to 50@50 name 'Right_as_Middle_outABP_AR' at 5@5
+connectors
+  'AARAS' at 0@0 name at 0@0
+  'AARSender' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_Receiver' in 0@0 to 50@50 name 'Middle_as_Right_inABP_Receiver' at 5@5
+connectors
+  'AROriginal' at 0@0 name at 0@0
+  'ARSender' at 0@0 name at 0@0
+  'ARAS' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_AS' in 0@0 to 50@50 name 'Middle_as_Right_inABP_AS' at 5@5
+connectors
+  'AASAR' at 0@0 name at 0@0
+  'AASReceiver' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_Sender' in 0@0 to 50@50 name 'Left_as_Middle_outABP_Sender' at 5@5
+connectors
+  'ASOriginal' at 0@0 name at 0@0
+  'ASReceiver' at 0@0 name at 0@0
+  'ASAR' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_AR' in 0@0 to 50@50 name 'Left_as_Middle_outABP_AR' at 5@5
+connectors
+  'AARAS' at 0@0 name at 0@0
+  'AARSender' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_Receiver' in 0@0 to 50@50 name 'Middle_as_Left_inABP_Receiver' at 5@5
+connectors
+  'AROriginal' at 0@0 name at 0@0
+  'ARSender' at 0@0 name at 0@0
+  'ARAS' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_AS' in 0@0 to 50@50 name 'Middle_as_Left_inABP_AS' at 5@5
+connectors
+  'AASAR' at 0@0 name at 0@0
+  'AASReceiver' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_Sender' in 0@0 to 50@50 name 'Middle_as_Right_outABP_Sender' at 5@5
+connectors
+  'ASOriginal' at 0@0 name at 0@0
+  'ASReceiver' at 0@0 name at 0@0
+  'ASAR' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_AR' in 0@0 to 50@50 name 'Middle_as_Right_outABP_AR' at 5@5
+connectors
+  'AARAS' at 0@0 name at 0@0
+  'AARSender' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_Receiver' in 0@0 to 50@50 name 'Right_as_Middle_inABP_Receiver' at 5@5
+connectors
+  'AROriginal' at 0@0 name at 0@0
+  'ARSender' at 0@0 name at 0@0
+  'ARAS' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_AS' in 0@0 to 50@50 name 'Right_as_Middle_inABP_AS' at 5@5
+connectors
+  'AASAR' at 0@0 name at 0@0
+  'AASReceiver' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_Sender' in 0@0 to 50@50 name 'Middle_as_Left_outABP_Sender' at 5@5
+connectors
+  'ASOriginal' at 0@0 name at 0@0
+  'ASReceiver' at 0@0 name at 0@0
+  'ASAR' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_AR' in 0@0 to 50@50 name 'Middle_as_Left_outABP_AR' at 5@5
+connectors
+  'AARAS' at 0@0 name at 0@0
+  'AARSender' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_Receiver' in 0@0 to 50@50 name 'Left_as_Middle_inABP_Receiver' at 5@5
+connectors
+  'AROriginal' at 0@0 name at 0@0
+  'ARSender' at 0@0 name at 0@0
+  'ARAS' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_AS' in 0@0 to 50@50 name 'Left_as_Middle_inABP_AS' at 5@5
+connectors
+  'AASAR' at 0@0 name at 0@0
+  'AASReceiver' at 0@0 name at 0@0
+scenarios
+'normal'
+
+channels
+
+name 'ELeftSensor_to_LSensor_as' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'LeftSensor' of instance 'Environment' to socket 'Sensor' of instance 'Left_as'
+
+scenarios
+  'normal'
+
+name 'LMotor_to_ELeftMotor_as' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Motor' of instance 'Left_as' to socket 'LeftMotor' of instance 'Environment'
+
+scenarios
+  'normal'
+
+name 'ERightSensor_to_RSensor_as' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'RightSensor' of instance 'Environment' to socket 'Sensor' of instance 'Right_as'
+
+scenarios
+  'normal'
+
+name 'RMotor_to_ERightMotor_as' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Motor' of instance 'Right_as' to socket 'RightMotor' of instance 'Environment'
+
+scenarios
+  'normal'
+
+name 'EMiddleSensor_to_MSensor_as' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'MiddleSensor' of instance 'Environment' to socket 'Sensor' of instance 'Middle_as'
+
+scenarios
+  'normal'
+
+name 'MMotor_to_EMiddleMotor_as' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Motor' of instance 'Middle_as' to socket 'MiddleMotor' of instance 'Environment'
+
+scenarios
+  'normal'
+
+name 'Right_as_Middle_out_Original_to_Sender' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Middle_out' of instance 'Right_as' to socket 'ASOriginal' of instance 'Right_as_Middle_outABP_Sender'
+
+scenarios
+  'normal'
+
+name 'Right_as_Middle_out_AR_to_Sender' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AARSender' of instance 'Right_as_Middle_outABP_AR' to socket 'ASAR' of instance 'Right_as_Middle_outABP_Sender'
+
+scenarios
+  'normal'
+
+name 'Middle_as_Right_in_Receiver_to_Original' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AROriginal' of instance 'Middle_as_Right_inABP_Receiver' to socket 'Right_in' of instance 'Middle_as'
+
+scenarios
+  'normal'
+
+name 'Middle_as_Right_in_Receiver_to_AS' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'ARAS' of instance 'Middle_as_Right_inABP_Receiver' to socket 'AASReceiver' of instance 'Middle_as_Right_inABP_AS'
+
+scenarios
+  'normal'
+
+name 'Right_as_Middle_out_Sender_to_Receiver' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'ASReceiver' of instance 'Right_as_Middle_outABP_Sender' to socket 'ARSender' of instance 'Middle_as_Right_inABP_Receiver'
+
+scenarios
+  'normal'
+
+name 'Right_as_Middle_out_AS_to_AR' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AASAR' of instance 'Middle_as_Right_inABP_AS' to socket 'AARAS' of instance 'Right_as_Middle_outABP_AR'
+
+scenarios
+  'normal'
+
+name 'Left_as_Middle_out_Original_to_Sender' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Middle_out' of instance 'Left_as' to socket 'ASOriginal' of instance 'Left_as_Middle_outABP_Sender'
+
+scenarios
+  'normal'
+
+name 'Left_as_Middle_out_AR_to_Sender' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AARSender' of instance 'Left_as_Middle_outABP_AR' to socket 'ASAR' of instance 'Left_as_Middle_outABP_Sender'
+
+scenarios
+  'normal'
+
+name 'Middle_as_Left_in_Receiver_to_Original' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AROriginal' of instance 'Middle_as_Left_inABP_Receiver' to socket 'Left_in' of instance 'Middle_as'
+
+scenarios
+  'normal'
+
+name 'Middle_as_Left_in_Receiver_to_AS' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'ARAS' of instance 'Middle_as_Left_inABP_Receiver' to socket 'AASReceiver' of instance 'Middle_as_Left_inABP_AS'
+
+scenarios
+  'normal'
+
+name 'Left_as_Middle_out_Sender_to_Receiver' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'ASReceiver' of instance 'Left_as_Middle_outABP_Sender' to socket 'ARSender' of instance 'Middle_as_Left_inABP_Receiver'
+
+scenarios
+  'normal'
+
+name 'Left_as_Middle_out_AS_to_AR' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AASAR' of instance 'Middle_as_Left_inABP_AS' to socket 'AARAS' of instance 'Left_as_Middle_outABP_AR'
+
+scenarios
+  'normal'
+
+name 'Middle_as_Right_out_Original_to_Sender' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Right_out' of instance 'Middle_as' to socket 'ASOriginal' of instance 'Middle_as_Right_outABP_Sender'
+
+scenarios
+  'normal'
+
+name 'Middle_as_Right_out_AR_to_Sender' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AARSender' of instance 'Middle_as_Right_outABP_AR' to socket 'ASAR' of instance 'Middle_as_Right_outABP_Sender'
+
+scenarios
+  'normal'
+
+name 'Right_as_Middle_in_Receiver_to_Original' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AROriginal' of instance 'Right_as_Middle_inABP_Receiver' to socket 'Middle_in' of instance 'Right_as'
+
+scenarios
+  'normal'
+
+name 'Right_as_Middle_in_Receiver_to_AS' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'ARAS' of instance 'Right_as_Middle_inABP_Receiver' to socket 'AASReceiver' of instance 'Right_as_Middle_inABP_AS'
+
+scenarios
+  'normal'
+
+name 'Middle_as_Right_out_Sender_to_Receiver' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'ASReceiver' of instance 'Middle_as_Right_outABP_Sender' to socket 'ARSender' of instance 'Right_as_Middle_inABP_Receiver'
+
+scenarios
+  'normal'
+
+name 'Middle_as_Right_out_AS_to_AR' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AASAR' of instance 'Right_as_Middle_inABP_AS' to socket 'AARAS' of instance 'Middle_as_Right_outABP_AR'
+
+scenarios
+  'normal'
+
+name 'Middle_as_Left_out_Original_to_Sender' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'Left_out' of instance 'Middle_as' to socket 'ASOriginal' of instance 'Middle_as_Left_outABP_Sender'
+
+scenarios
+  'normal'
+
+name 'Middle_as_Left_out_AR_to_Sender' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AARSender' of instance 'Middle_as_Left_outABP_AR' to socket 'ASAR' of instance 'Middle_as_Left_outABP_Sender'
+
+scenarios
+  'normal'
+
+name 'Left_as_Middle_in_Receiver_to_Original' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AROriginal' of instance 'Left_as_Middle_inABP_Receiver' to socket 'Middle_in' of instance 'Left_as'
+
+scenarios
+  'normal'
+
+name 'Left_as_Middle_in_Receiver_to_AS' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'ARAS' of instance 'Left_as_Middle_inABP_Receiver' to socket 'AASReceiver' of instance 'Left_as_Middle_inABP_AS'
+
+scenarios
+  'normal'
+
+name 'Middle_as_Left_out_Sender_to_Receiver' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'ASReceiver' of instance 'Middle_as_Left_outABP_Sender' to socket 'ARSender' of instance 'Left_as_Middle_inABP_Receiver'
+
+scenarios
+  'normal'
+
+name 'Middle_as_Left_out_AS_to_AR' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AASAR' of instance 'Left_as_Middle_inABP_AS' to socket 'AARAS' of instance 'Middle_as_Left_outABP_AR'
+
+scenarios
+  'normal'
+
+scenarios
+'all', 'normal'
+
+poosl specification
+'
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Environment()
+instance variables
+  BlockLeft: Boolean,
+  BlockRight: Boolean,
+  EnvironmentMiddleMotorBlockFellOff: Boolean
+communication channels
+  LeftSensor,
+  LeftMotor,
+  MiddleSensor,
+  MiddleMotor,
+  RightSensor,
+  RightMotor
+message interface
+  RightMotor?Off();
+  MiddleMotor?Right();
+  RightMotor?On();
+  RightSensor!Block();
+  MiddleMotor?Off();
+  RightMotor?On();
+  LeftMotor?Off();
+  LeftMotor?On();
+  RightMotor?Off();
+  RightSensor!BlockPassed();
+  MiddleMotor?Off();
+  MiddleSensor!Block();
+  MiddleMotor?Left();
+  LeftMotor?Off();
+  LeftMotor?On();
+  RightMotor?On();
+  MiddleMotor?Right();
+  LeftSensor!BlockPassed();
+  MiddleMotor?Left();
+  LeftMotor?On();
+  MiddleSensor!BlockPassed();
+  LeftSensor!Block();
+  MiddleMotor?Left();
+  MiddleMotor?Off();
+  MiddleSensor!BlockPassed();
+  MiddleSensor!Block();
+  MiddleMotor?Right()
+initial method call
+  Environment_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  RightMotor_Start()()
+    |  |
+    RightMotor?On();
+    RightMotor_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Off()()
+    |  |
+    sel
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Start()()
+    |  |
+    LeftMotor?On();
+    LeftMotor_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  RightMotor_Off()()
+    |  |
+    sel
+      RightMotor?On();
+      BlockRight := true;
+      RightMotor_Running()()
+    or
+      RightMotor?Off();
+      RightMotor_Off()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  RightMotor_Running()()
+    |  |
+    sel
+      RightMotor?Off();
+      RightMotor_Off()()
+    or
+      RightSensor!Block();
+      RightSensor!BlockPassed();
+      RightMotor_Running()()
+    or
+      RightMotor?On();
+      RightMotor_Running()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Right()()
+    |  |
+    sel
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      [(BlockRight=true)]skip;
+      EnvironmentMiddleMotorBlockFellOff := true;
+      BlockRight := false;
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    or
+      [(BlockLeft=true)]skip;
+      MiddleSensor!Block();
+      MiddleSensor!BlockPassed();
+      BlockLeft := false;
+      MiddleMotor_Right()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  MiddleMotor_Left()()
+    |  |
+    sel
+      MiddleMotor?Off();
+      MiddleMotor_Off()()
+    or
+      [(BlockLeft=true)]skip;
+      EnvironmentMiddleMotorBlockFellOff := true;
+      BlockLeft := false;
+      MiddleMotor_Left()()
+    or
+      MiddleMotor?Left();
+      MiddleMotor_Left()()
+    or
+      MiddleMotor?Right();
+      MiddleMotor_Right()()
+    or
+      [(BlockRight=true)]skip;
+      MiddleSensor!Block();
+      MiddleSensor!BlockPassed();
+      BlockRight := false;
+      MiddleMotor_Left()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Off()()
+    |  |
+    sel
+      LeftMotor?On();
+      BlockLeft := true;
+      LeftMotor_Running()()
+    or
+      LeftMotor?Off();
+      LeftMotor_Off()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  LeftMotor_Running()()
+    |  |
+    sel
+      LeftMotor?Off();
+      LeftMotor_Off()()
+    or
+      LeftSensor!Block();
+      LeftSensor!BlockPassed();
+      LeftMotor_Running()()
+    or
+      LeftMotor?On();
+      LeftMotor_Running()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Environment_initial()()
+    |  |
+    BlockLeft := false;
+    BlockRight := false;
+    EnvironmentMiddleMotorBlockFellOff := false;
+    par
+      RightMotor_Start()()
+    and
+      MiddleMotor_Off()()
+    and
+      LeftMotor_Start()()
+    rap
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Single_as()
+instance variables
+
+communication channels
+  Sensor,
+  Motor,
+  Middle_in,
+  Middle_out
+message interface
+  Sensor?BlockPassed();
+  Middle_out!Signal(Object);
+  Motor!On();
+  Middle_in?Signal(String);
+  Motor!Off();
+  Motor!On();
+  Sensor?Block()
+initial method call
+  Single_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Single_Start()()
+    |  |
+    Motor!On();
+    Single_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Single_Running()()
+    |   var_3: String |
+    Sensor?Block();
+    Sensor?BlockPassed();
+    Motor!Off();
+    Middle_out!Signal("Send_Block");
+    Middle_in?Signal(var_3|(var_3="Acknowledge_Block"));
+    Motor!On();
+    Single_Running()()
+  .
+/* ------ ProcessMethod ------ */
+  Single_as_initial()()
+    |  |
+    Single_Start()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Middle_as()
+instance variables
+
+communication channels
+  Sensor,
+  Motor,
+  Right_in,
+  Right_out,
+  Left_in,
+  Left_out
+message interface
+  Motor!Left();
+  Left_out!Signal(Object);
+  Sensor?Block();
+  Motor!Right();
+  Sensor?BlockPassed();
+  Motor!Off();
+  Right_out!Signal(Object);
+  Left_in?Signal(String);
+  Right_in?Signal(String)
+initial method call
+  Middle_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Middle_Idle()()
+    |   var_8: String,  var_0: String |
+    sel
+      Left_in?Signal(var_8|(var_8="Send_Block"));
+      Left_out!Signal("Acknowledge_Block");
+      Motor!Right();
+      Middle_Running()()
+    or
+      Right_in?Signal(var_0|(var_0="Send_Block"));
+      Right_out!Signal("Acknowledge_Block");
+      Motor!Left();
+      Middle_Running()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  Middle_Running()()
+    |  |
+    Sensor?Block();
+    Sensor?BlockPassed();
+    Motor!Off();
+    Middle_Idle()()
+  .
+/* ------ ProcessMethod ------ */
+  Middle_as_initial()()
+    |  |
+    Middle_Idle()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_Sender()
+instance variables
+  ABP_SenderSenders: Integer,
+  ABP_SenderSenderd: String
+communication channels
+  ASOriginal,
+  ASReceiver,
+  ASAR
+message interface
+  ASAR?Acknowledge();
+  ASOriginal?Signal(String);
+  ASReceiver!Message(Object,Object)
+initial method call
+  ABP_Sender_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Sender_Zero()()
+    |  |
+    ASOriginal?Signal(ABP_SenderSenderd);
+    Sender_One()()
+  .
+/* ------ ProcessMethod ------ */
+  Sender_One()()
+    |  |
+    sel
+      ASAR?Acknowledge();
+      ABP_SenderSenders := (1-ABP_SenderSenders);
+      Sender_Zero()()
+    or
+      ASReceiver!Message(ABP_SenderSenderd,ABP_SenderSenders);
+      Sender_One()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_Sender_initial()()
+    |  |
+    ABP_SenderSenders := 0;
+    Sender_Zero()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_AR()
+instance variables
+  ABP_ARARb: Integer
+communication channels
+  AARAS,
+  AARSender
+message interface
+  AARAS?Acknowledge(Integer);
+  AARAS?Acknowledge(Integer);
+  AARSender!Acknowledge()
+initial method call
+  ABP_AR_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  AR_Zero()()
+    |   var_9: Integer,  var_7: Integer |
+    sel
+      AARAS?Acknowledge(var_9|(var_9=ABP_ARARb));
+      AARSender!Acknowledge();
+      ABP_ARARb := (1-ABP_ARARb);
+      AR_Zero()()
+    or
+      AARAS?Acknowledge(var_7|(var_7=(1-ABP_ARARb)));
+      AR_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_AR_initial()()
+    |  |
+    ABP_ARARb := 0;
+    AR_Zero()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_Receiver()
+instance variables
+  ABP_ReceiverReceiverr: Integer,
+  ABP_ReceiverReceiverd: String
+communication channels
+  AROriginal,
+  ARSender,
+  ARAS
+message interface
+  AROriginal!Signal(Object);
+  ARSender?Message(String,Integer);
+  ARAS!Acknowledge();
+  ARSender?Message(String,Integer)
+initial method call
+  ABP_Receiver_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Receiver_Zero()()
+    |   var_12: Integer,  var_13: Integer |
+    sel
+      ARSender?Message(ABP_ReceiverReceiverd,var_12|(var_12=ABP_ReceiverReceiverr));
+      AROriginal!Signal(ABP_ReceiverReceiverd);
+      ARAS!Acknowledge();
+      ABP_ReceiverReceiverr := (1-ABP_ReceiverReceiverr);
+      Receiver_Zero()()
+    or
+      ARSender?Message(ABP_ReceiverReceiverd,var_13|(var_13=(1-ABP_ReceiverReceiverr)));
+      Receiver_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_Receiver_initial()()
+    |  |
+    ABP_ReceiverReceiverr := 0;
+    Receiver_Zero()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_AS()
+instance variables
+  ABP_ASASb: Integer
+communication channels
+  AASAR,
+  AASReceiver
+message interface
+  AASReceiver?Acknowledge();
+  AASAR!Acknowledge(Object)
+initial method call
+  ABP_AS_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  AS_Zero()()
+    |  |
+    sel
+      AASReceiver?Acknowledge();
+      ABP_ASASb := (1-ABP_ASASb);
+      AS_Zero()()
+    or
+      AASAR!Acknowledge(ABP_ASASb);
+      AS_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_AS_initial()()
+    |  |
+    ABP_ASASb := 1;
+    AS_Zero()()
+  .
+
+
+cluster class aClass()
+
+communication channels
+
+message interface
+
+behaviour specification
+  (
+   Right_as: Single_as[
+     RMotor_to_ERightMotor_as/Motor,
+     Right_as_Middle_out_Original_to_Sender/Middle_out,
+     ERightSensor_to_RSensor_as/Sensor,
+     Right_as_Middle_in_Receiver_to_Original/Middle_in
+   ]
+  ||
+   Left_as: Single_as[
+     LMotor_to_ELeftMotor_as/Motor,
+     Left_as_Middle_out_Original_to_Sender/Middle_out,
+     ELeftSensor_to_LSensor_as/Sensor,
+     Left_as_Middle_in_Receiver_to_Original/Middle_in
+   ]
+  ||
+   Middle_as: Middle_as[
+     MMotor_to_EMiddleMotor_as/Motor,
+     Middle_as_Right_out_Original_to_Sender/Right_out,
+     Middle_as_Left_out_Original_to_Sender/Left_out,
+     EMiddleSensor_to_MSensor_as/Sensor,
+     Middle_as_Right_in_Receiver_to_Original/Right_in,
+     Middle_as_Left_in_Receiver_to_Original/Left_in
+   ]
+  ||
+   Environment: Environment[
+     ELeftSensor_to_LSensor_as/LeftSensor,
+     ERightSensor_to_RSensor_as/RightSensor,
+     EMiddleSensor_to_MSensor_as/MiddleSensor,
+     LMotor_to_ELeftMotor_as/LeftMotor,
+     RMotor_to_ERightMotor_as/RightMotor,
+     MMotor_to_EMiddleMotor_as/MiddleMotor
+   ]
+  ||
+   Right_as_Middle_outABP_Sender: ABP_Sender[
+     Right_as_Middle_out_Sender_to_Receiver/ASReceiver,
+     Right_as_Middle_out_Original_to_Sender/ASOriginal,
+     Right_as_Middle_out_AR_to_Sender/ASAR
+   ]
+  ||
+   Right_as_Middle_outABP_AR: ABP_AR[
+     Right_as_Middle_out_AR_to_Sender/AARSender,
+     Right_as_Middle_out_AS_to_AR/AARAS
+   ]
+  ||
+   Middle_as_Right_inABP_Receiver: ABP_Receiver[
+     Middle_as_Right_in_Receiver_to_Original/AROriginal,
+     Middle_as_Right_in_Receiver_to_AS/ARAS,
+     Right_as_Middle_out_Sender_to_Receiver/ARSender
+   ]
+  ||
+   Middle_as_Right_inABP_AS: ABP_AS[
+     Right_as_Middle_out_AS_to_AR/AASAR,
+     Middle_as_Right_in_Receiver_to_AS/AASReceiver
+   ]
+  ||
+   Left_as_Middle_outABP_Sender: ABP_Sender[
+     Left_as_Middle_out_Sender_to_Receiver/ASReceiver,
+     Left_as_Middle_out_Original_to_Sender/ASOriginal,
+     Left_as_Middle_out_AR_to_Sender/ASAR
+   ]
+  ||
+   Left_as_Middle_outABP_AR: ABP_AR[
+     Left_as_Middle_out_AR_to_Sender/AARSender,
+     Left_as_Middle_out_AS_to_AR/AARAS
+   ]
+  ||
+   Middle_as_Left_inABP_Receiver: ABP_Receiver[
+     Middle_as_Left_in_Receiver_to_Original/AROriginal,
+     Middle_as_Left_in_Receiver_to_AS/ARAS,
+     Left_as_Middle_out_Sender_to_Receiver/ARSender
+   ]
+  ||
+   Middle_as_Left_inABP_AS: ABP_AS[
+     Left_as_Middle_out_AS_to_AR/AASAR,
+     Middle_as_Left_in_Receiver_to_AS/AASReceiver
+   ]
+  ||
+   Middle_as_Right_outABP_Sender: ABP_Sender[
+     Middle_as_Right_out_Sender_to_Receiver/ASReceiver,
+     Middle_as_Right_out_Original_to_Sender/ASOriginal,
+     Middle_as_Right_out_AR_to_Sender/ASAR
+   ]
+  ||
+   Middle_as_Right_outABP_AR: ABP_AR[
+     Middle_as_Right_out_AR_to_Sender/AARSender,
+     Middle_as_Right_out_AS_to_AR/AARAS
+   ]
+  ||
+   Right_as_Middle_inABP_Receiver: ABP_Receiver[
+     Right_as_Middle_in_Receiver_to_Original/AROriginal,
+     Right_as_Middle_in_Receiver_to_AS/ARAS,
+     Middle_as_Right_out_Sender_to_Receiver/ARSender
+   ]
+  ||
+   Right_as_Middle_inABP_AS: ABP_AS[
+     Middle_as_Right_out_AS_to_AR/AASAR,
+     Right_as_Middle_in_Receiver_to_AS/AASReceiver
+   ]
+  ||
+   Middle_as_Left_outABP_Sender: ABP_Sender[
+     Middle_as_Left_out_Sender_to_Receiver/ASReceiver,
+     Middle_as_Left_out_Original_to_Sender/ASOriginal,
+     Middle_as_Left_out_AR_to_Sender/ASAR
+   ]
+  ||
+   Middle_as_Left_outABP_AR: ABP_AR[
+     Middle_as_Left_out_AR_to_Sender/AARSender,
+     Middle_as_Left_out_AS_to_AR/AARAS
+   ]
+  ||
+   Left_as_Middle_inABP_Receiver: ABP_Receiver[
+     Left_as_Middle_in_Receiver_to_Original/AROriginal,
+     Left_as_Middle_in_Receiver_to_AS/ARAS,
+     Middle_as_Left_out_Sender_to_Receiver/ARSender
+   ]
+  ||
+   Left_as_Middle_inABP_AS: ABP_AS[
+     Middle_as_Left_out_AS_to_AR/AASAR,
+     Left_as_Middle_in_Receiver_to_AS/AASReceiver
+   ]
+  )
+  \
+  {ELeftSensor_to_LSensor_as, LMotor_to_ELeftMotor_as, ERightSensor_to_RSensor_as, RMotor_to_ERightMotor_as, EMiddleSensor_to_MSensor_as, MMotor_to_EMiddleMotor_as, Right_as_Middle_out_Original_to_Sender, Right_as_Middle_out_AR_to_Sender, Middle_as_Right_in_Receiver_to_Original, Middle_as_Right_in_Receiver_to_AS, Right_as_Middle_out_Sender_to_Receiver, Right_as_Middle_out_AS_to_AR, Left_as_Middle_out_Original_to_Sender, Left_as_Middle_out_AR_to_Sender, Middle_as_Left_in_Receiver_to_Original, Middle_as_Left_in_Receiver_to_AS, Left_as_Middle_out_Sender_to_Receiver, Left_as_Middle_out_AS_to_AR, Middle_as_Right_out_Original_to_Sender, Middle_as_Right_out_AR_to_Sender, Right_as_Middle_in_Receiver_to_Original, Right_as_Middle_in_Receiver_to_AS, Middle_as_Right_out_Sender_to_Receiver, Middle_as_Right_out_AS_to_AR, Middle_as_Left_out_Original_to_Sender, Middle_as_Left_out_AR_to_Sender, Left_as_Middle_in_Receiver_to_Original, Left_as_Middle_in_Receiver_to_AS, Middle_as_Left_out_Sender_to_Receiver, Middle_as_Left_out_AS_to_AR}
+'

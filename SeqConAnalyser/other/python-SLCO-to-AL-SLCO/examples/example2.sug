@@ -1,0 +1,3 @@
+Detected action 'report(globalObject, StateMachine_0, ST'512, AD'(A'([], []), [SH'(A'([], [var_globalObject'var_1]), A'([var_globalObject'var_4], []))]))' (state index 6)
+Detected action 'report(globalObject, StateMachine_0, ST'512, AD'(A'([], []), [SH'(A'([var_globalObject'var_4], []), A'([], [var_globalObject'var_2]))]))' (state index 6)
+Detected action 'report(globalObject, StateMachine_0, ST'512, AD'(A'([], []), [SH'(A'([], [var_globalObject'var_2]), A'([], [var_globalObject'var_1]))]))' (state index 6)

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects:ObjectLists xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:objects="objects">
+  <objectLists>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Left_as"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Left_as_Middle_inABP_AS"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Left_as_Middle_inABP_Receiver"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Left_as_Middle_outABP_AR"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Left_as_Middle_outABP_Sender"/>
+  </objectLists>
+  <objectLists>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Middle_as"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Middle_as_Left_inABP_AS"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Middle_as_Left_inABP_Receiver"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Middle_as_Left_outABP_AR"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Middle_as_Left_outABP_Sender"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Middle_as_Right_inABP_AS"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Middle_as_Right_inABP_Receiver"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Middle_as_Right_outABP_AR"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Middle_as_Right_outABP_Sender"/>
+  </objectLists>
+  <objectLists>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Right_as"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Right_as_Middle_inABP_AS"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Right_as_Middle_inABP_Receiver"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Right_as_Middle_outABP_AR"/>
+    <objects href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll.slco#Right_as_Middle_outABP_Sender"/>
+  </objectLists>
+</objects:ObjectLists>

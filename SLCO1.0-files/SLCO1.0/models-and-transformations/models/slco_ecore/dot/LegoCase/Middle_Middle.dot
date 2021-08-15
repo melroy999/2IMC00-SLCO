@@ -1,0 +1,16 @@
+digraph Middle {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Idle_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Idle Idle_extra -> Idle
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Running
+
+
+
+Idle -> Running [label = "receive Block() from Left;\n send Right() to Motor"];
+
+Running -> Idle [label = "receive Block() from Sensor;\n receive BlockPassed() from Sensor;\n send Off() to Motor"];
+
+Idle -> Running [label = "receive Block() from Right;\n send Left() to Motor"];
+
+}

@@ -1,0 +1,501 @@
+drawing
+system
+
+instances
+
+process of class 'Producer_as' in 0@0 to 50@50 name 'P_as' at 5@5
+connectors
+  'C_in' at 0@0 name at 0@0
+  'C_out' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'Consumer_as' in 0@0 to 50@50 name 'C_as' at 5@5
+connectors
+  'P_in' at 0@0 name at 0@0
+  'P_out' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_Sender' in 0@0 to 50@50 name 'P_as_C_outABP_Sender' at 5@5
+connectors
+  'ASOriginal' at 0@0 name at 0@0
+  'ASReceiver' at 0@0 name at 0@0
+  'ASAR' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_AR' in 0@0 to 50@50 name 'P_as_C_outABP_AR' at 5@5
+connectors
+  'AARAS' at 0@0 name at 0@0
+  'AARSender' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_Receiver' in 0@0 to 50@50 name 'C_as_P_inABP_Receiver' at 5@5
+connectors
+  'AROriginal' at 0@0 name at 0@0
+  'ARSender' at 0@0 name at 0@0
+  'ARAS' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_AS' in 0@0 to 50@50 name 'C_as_P_inABP_AS' at 5@5
+connectors
+  'AASAR' at 0@0 name at 0@0
+  'AASReceiver' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_Sender' in 0@0 to 50@50 name 'C_as_P_outABP_Sender' at 5@5
+connectors
+  'ASOriginal' at 0@0 name at 0@0
+  'ASReceiver' at 0@0 name at 0@0
+  'ASAR' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_AR' in 0@0 to 50@50 name 'C_as_P_outABP_AR' at 5@5
+connectors
+  'AARAS' at 0@0 name at 0@0
+  'AARSender' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_Receiver' in 0@0 to 50@50 name 'P_as_C_inABP_Receiver' at 5@5
+connectors
+  'AROriginal' at 0@0 name at 0@0
+  'ARSender' at 0@0 name at 0@0
+  'ARAS' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'ABP_AS' in 0@0 to 50@50 name 'P_as_C_inABP_AS' at 5@5
+connectors
+  'AASAR' at 0@0 name at 0@0
+  'AASReceiver' at 0@0 name at 0@0
+scenarios
+'normal'
+
+channels
+
+name 'P_as_C_out_Original_to_Sender' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'C_out' of instance 'P_as' to socket 'ASOriginal' of instance 'P_as_C_outABP_Sender'
+
+scenarios
+  'normal'
+
+name 'P_as_C_out_AR_to_Sender' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AARSender' of instance 'P_as_C_outABP_AR' to socket 'ASAR' of instance 'P_as_C_outABP_Sender'
+
+scenarios
+  'normal'
+
+name 'C_as_P_in_Receiver_to_Original' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AROriginal' of instance 'C_as_P_inABP_Receiver' to socket 'P_in' of instance 'C_as'
+
+scenarios
+  'normal'
+
+name 'C_as_P_in_Receiver_to_AS' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'ARAS' of instance 'C_as_P_inABP_Receiver' to socket 'AASReceiver' of instance 'C_as_P_inABP_AS'
+
+scenarios
+  'normal'
+
+name 'P_as_C_out_Sender_to_Receiver' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'ASReceiver' of instance 'P_as_C_outABP_Sender' to socket 'ARSender' of instance 'C_as_P_inABP_Receiver'
+
+scenarios
+  'normal'
+
+name 'P_as_C_out_AS_to_AR' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AASAR' of instance 'C_as_P_inABP_AS' to socket 'AARAS' of instance 'P_as_C_outABP_AR'
+
+scenarios
+  'normal'
+
+name 'C_as_P_out_Original_to_Sender' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'P_out' of instance 'C_as' to socket 'ASOriginal' of instance 'C_as_P_outABP_Sender'
+
+scenarios
+  'normal'
+
+name 'C_as_P_out_AR_to_Sender' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AARSender' of instance 'C_as_P_outABP_AR' to socket 'ASAR' of instance 'C_as_P_outABP_Sender'
+
+scenarios
+  'normal'
+
+name 'P_as_C_in_Receiver_to_Original' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AROriginal' of instance 'P_as_C_inABP_Receiver' to socket 'C_in' of instance 'P_as'
+
+scenarios
+  'normal'
+
+name 'P_as_C_in_Receiver_to_AS' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'ARAS' of instance 'P_as_C_inABP_Receiver' to socket 'AASReceiver' of instance 'P_as_C_inABP_AS'
+
+scenarios
+  'normal'
+
+name 'C_as_P_out_Sender_to_Receiver' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'ASReceiver' of instance 'C_as_P_outABP_Sender' to socket 'ARSender' of instance 'P_as_C_inABP_Receiver'
+
+scenarios
+  'normal'
+
+name 'C_as_P_out_AS_to_AR' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'AASAR' of instance 'P_as_C_inABP_AS' to socket 'AARAS' of instance 'C_as_P_outABP_AR'
+
+scenarios
+  'normal'
+
+scenarios
+'all', 'normal'
+
+poosl specification
+'
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Producer_as()
+instance variables
+
+communication channels
+  C_in,
+  C_out
+message interface
+  C_out!Signal(Object);
+  C_in?Signal(String)
+initial method call
+  Producer_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Producer_State()()
+    |   var_0: String |
+    C_out!Signal("Send_Bericht");
+    C_in?Signal(var_0|(var_0="Acknowledge_Bericht"));
+    Producer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Producer_as_initial()()
+    |  |
+    Producer_State()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Consumer_as()
+instance variables
+
+communication channels
+  P_in,
+  P_out
+message interface
+  P_in?Signal(String);
+  P_out!Signal(Object)
+initial method call
+  Consumer_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Consumer_State()()
+    |   var_4: String |
+    P_in?Signal(var_4|(var_4="Send_Bericht"));
+    P_out!Signal("Acknowledge_Bericht");
+    Consumer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Consumer_as_initial()()
+    |  |
+    Consumer_State()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_Sender()
+instance variables
+  ABP_SenderSenders: Integer,
+  ABP_SenderSenderd: String
+communication channels
+  ASOriginal,
+  ASReceiver,
+  ASAR
+message interface
+  ASReceiver!Message(Object,Object);
+  ASAR?Acknowledge();
+  ASOriginal?Signal(String)
+initial method call
+  ABP_Sender_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Sender_Zero()()
+    |  |
+    ASOriginal?Signal(ABP_SenderSenderd);
+    Sender_One()()
+  .
+/* ------ ProcessMethod ------ */
+  Sender_One()()
+    |  |
+    sel
+      ASAR?Acknowledge();
+      ABP_SenderSenders := (1-ABP_SenderSenders);
+      Sender_Zero()()
+    or
+      delay (900);
+      ASReceiver!Message(ABP_SenderSenderd,ABP_SenderSenders);
+      Sender_One()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_Sender_initial()()
+    |  |
+    ABP_SenderSenders := 0;
+    Sender_Zero()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_AR()
+instance variables
+  ABP_ARARb: Integer
+communication channels
+  AARAS,
+  AARSender
+message interface
+  AARAS?Acknowledge(Integer);
+  AARAS?Acknowledge(Integer);
+  AARSender!Acknowledge()
+initial method call
+  ABP_AR_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  AR_Zero()()
+    |   var_8: Integer,  var_2: Integer |
+    sel
+      AARAS?Acknowledge(var_8|(var_8=ABP_ARARb));
+      AARSender!Acknowledge();
+      ABP_ARARb := (1-ABP_ARARb);
+      AR_Zero()()
+    or
+      AARAS?Acknowledge(var_2|(var_2=(1-ABP_ARARb)));
+      AR_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_AR_initial()()
+    |  |
+    ABP_ARARb := 0;
+    AR_Zero()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_Receiver()
+instance variables
+  ABP_ReceiverReceiverr: Integer,
+  ABP_ReceiverReceiverd: String
+communication channels
+  AROriginal,
+  ARSender,
+  ARAS
+message interface
+  ARSender?Message(String,Integer);
+  ARSender?Message(String,Integer);
+  AROriginal!Signal(Object);
+  ARAS!Acknowledge()
+initial method call
+  ABP_Receiver_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Receiver_Zero()()
+    |   var_4: Integer,  var_22: Integer |
+    sel
+      ARSender?Message(ABP_ReceiverReceiverd,var_4|(var_4=ABP_ReceiverReceiverr));
+      AROriginal!Signal(ABP_ReceiverReceiverd);
+      ARAS!Acknowledge();
+      ABP_ReceiverReceiverr := (1-ABP_ReceiverReceiverr);
+      Receiver_Zero()()
+    or
+      ARSender?Message(ABP_ReceiverReceiverd,var_22|(var_22=(1-ABP_ReceiverReceiverr)));
+      Receiver_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_Receiver_initial()()
+    |  |
+    ABP_ReceiverReceiverr := 0;
+    Receiver_Zero()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class ABP_AS()
+instance variables
+  ABP_ASASb: Integer
+communication channels
+  AASAR,
+  AASReceiver
+message interface
+  AASReceiver?Acknowledge();
+  AASAR!Acknowledge(Object)
+initial method call
+  ABP_AS_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  AS_Zero()()
+    |  |
+    sel
+      AASReceiver?Acknowledge();
+      ABP_ASASb := (1-ABP_ASASb);
+      AS_Zero()()
+    or
+      delay (900);
+      AASAR!Acknowledge(ABP_ASASb);
+      AS_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  ABP_AS_initial()()
+    |  |
+    ABP_ASASb := 1;
+    AS_Zero()()
+  .
+
+
+cluster class aClass()
+
+communication channels
+
+message interface
+
+behaviour specification
+  (
+   P_as: Producer_as[
+     P_as_C_out_Original_to_Sender/C_out,
+     P_as_C_in_Receiver_to_Original/C_in
+   ]
+  ||
+   C_as: Consumer_as[
+     C_as_P_out_Original_to_Sender/P_out,
+     C_as_P_in_Receiver_to_Original/P_in
+   ]
+  ||
+   P_as_C_outABP_Sender: ABP_Sender[
+     P_as_C_out_Sender_to_Receiver/ASReceiver,
+     P_as_C_out_Original_to_Sender/ASOriginal,
+     P_as_C_out_AR_to_Sender/ASAR
+   ]
+  ||
+   P_as_C_outABP_AR: ABP_AR[
+     P_as_C_out_AR_to_Sender/AARSender,
+     P_as_C_out_AS_to_AR/AARAS
+   ]
+  ||
+   C_as_P_inABP_Receiver: ABP_Receiver[
+     C_as_P_in_Receiver_to_Original/AROriginal,
+     C_as_P_in_Receiver_to_AS/ARAS,
+     P_as_C_out_Sender_to_Receiver/ARSender
+   ]
+  ||
+   C_as_P_inABP_AS: ABP_AS[
+     P_as_C_out_AS_to_AR/AASAR,
+     C_as_P_in_Receiver_to_AS/AASReceiver
+   ]
+  ||
+   C_as_P_outABP_Sender: ABP_Sender[
+     C_as_P_out_Sender_to_Receiver/ASReceiver,
+     C_as_P_out_Original_to_Sender/ASOriginal,
+     C_as_P_out_AR_to_Sender/ASAR
+   ]
+  ||
+   C_as_P_outABP_AR: ABP_AR[
+     C_as_P_out_AR_to_Sender/AARSender,
+     C_as_P_out_AS_to_AR/AARAS
+   ]
+  ||
+   P_as_C_inABP_Receiver: ABP_Receiver[
+     P_as_C_in_Receiver_to_Original/AROriginal,
+     P_as_C_in_Receiver_to_AS/ARAS,
+     C_as_P_out_Sender_to_Receiver/ARSender
+   ]
+  ||
+   P_as_C_inABP_AS: ABP_AS[
+     C_as_P_out_AS_to_AR/AASAR,
+     P_as_C_in_Receiver_to_AS/AASReceiver
+   ]
+  )
+  \
+  {P_as_C_out_Original_to_Sender, P_as_C_out_AR_to_Sender, C_as_P_in_Receiver_to_Original, C_as_P_in_Receiver_to_AS, P_as_C_out_Sender_to_Receiver, P_as_C_out_AS_to_AR, C_as_P_out_Original_to_Sender, C_as_P_out_AR_to_Sender, P_as_C_in_Receiver_to_Original, P_as_C_in_Receiver_to_AS, C_as_P_out_Sender_to_Receiver, C_as_P_out_AS_to_AR}
+'

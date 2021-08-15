@@ -1,0 +1,17 @@
+
+digraph Bi2Uni {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_20
+ [label="{A||}"]
+A_20_A [label="{A||}", style=filled, fillcolor=gray95]
+A_20 -> A_20_A
+
+B_19
+ [label="{B||}"]
+B_19_B [label="{B||}", style=filled, fillcolor=gray95]
+B_19 -> B_19_B
+
+
+}

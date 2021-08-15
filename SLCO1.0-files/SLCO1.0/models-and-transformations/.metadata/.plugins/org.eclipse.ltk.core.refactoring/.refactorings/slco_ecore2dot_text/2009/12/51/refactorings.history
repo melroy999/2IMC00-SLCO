@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 1 elements(s) to &apos;slco2dot_LegoCase-plain-(Left-Right)-Middle-as-arg-ll-uni-merge.oaw&apos;&#x0D;&#x0A;- Original project: &apos;slco2dot&apos;&#x0D;&#x0A;- Destination element: &apos;slco2dot_LegoCase-plain-(Left-Right)-Middle-as-arg-ll-uni-merge.oaw&apos;&#x0D;&#x0A;- Original element: &apos;slco2dot_LegoCase-plain-(Left-Right)-Middle-as-arg-ll-uni-merge.oaw&apos;" description="Copy file" element1="src/slco2dot_LegoCase-plain-(Left-Right)-Middle-as-arg-ll-uni-merge.oaw" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1261131374390" target="/slco2dot/src/slco2dot_LegoCase-plain-(Left-Right)-Middle-as-arg-ll-uni-merge.oaw" units="0" version="1.0"/>
+</session>

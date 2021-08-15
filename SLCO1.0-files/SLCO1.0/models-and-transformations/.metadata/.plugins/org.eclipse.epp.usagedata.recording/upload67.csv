@@ -1,0 +1,26 @@
+what,kind,bundleId,bundleVersion,description,time
+started,bundle,org.eclipse.ui.workbench.texteditor,3.5.0.v20090603,"org.eclipse.ui.workbench.texteditor",1262686854208
+started,bundle,org.eclipse.update.configurator,3.3.0.v20090312,"org.eclipse.update.configurator",1262686854255
+started,bundle,slco.emf,1.0.0,"slco.emf",1262686854255
+started,bundle,slco.emf.edit,1.0.0,"slco.emf.edit",1262686854255
+started,bundle,channels.emf,1.0.0,"channels.emf",1262686854255
+started,bundle,channels.emf.edit,1.0.0,"channels.emf.edit",1262686854255
+started,bundle,channels.emf.editor,1.0.0,"channels.emf.editor",1262686854255
+os,sysinfo,,,"win32",1262686854255
+arch,sysinfo,,,"x86",1262686854255
+ws,sysinfo,,,"win32",1262686854255
+locale,sysinfo,,,"nl_NL",1262686854255
+processors,sysinfo,,,"1",1262686854255
+java.runtime.name,sysinfo,,,"Java(TM) SE Runtime Environment",1262686854255
+java.runtime.version,sysinfo,,,"1.6.0_01-b06",1262686854255
+java.specification.name,sysinfo,,,"Java Platform API Specification",1262686854255
+java.specification.vendor,sysinfo,,,"Sun Microsystems Inc.",1262686854255
+java.specification.version,sysinfo,,,"1.6",1262686854255
+java.vendor,sysinfo,,,"Sun Microsystems Inc.",1262686854255
+java.version,sysinfo,,,"1.6.0_01",1262686854255
+java.vm.info,sysinfo,,,"mixed mode",1262686854255
+java.vm.name,sysinfo,,,"Java HotSpot(TM) Client VM",1262686854255
+java.vm.specification.name,sysinfo,,,"Java Virtual Machine Specification",1262686854255
+java.vm.specification.vendor,sysinfo,,,"Sun Microsystems Inc.",1262686854255
+java.vm.specification.version,sysinfo,,,"1.0",1262686854255
+java.vm.vendor,sysinfo,,,"Sun Microsystems Inc.",1262686854255

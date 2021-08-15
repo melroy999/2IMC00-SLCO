@@ -1,0 +1,64 @@
+package GeneratedCode;
+
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import GenericCode.Channel;
+import GenericCode.Port;
+import GenericCode.Class;
+import GenericCode.Model;
+import GenericCode.SharedVariable;
+import GenericCode.SharedVariableList;
+
+[%var m = Model.allInstances().first();%]
+
+public class [%= class.name%] extends Class{
+    [%for (variable in class.variables){%]
+	public SharedVariable [%=variable.name%];
+    [%}%]
+    
+    [%for (port in class.ports){%]
+	public Port port_[%= port.name%];
+	[%}%]
+	
+	[%for (stateMachine in class.stateMachines){%]
+	public [%=  stateMachine.name%] sm_[%= stateMachine.name%];
+    [%}%]
+	
+    [%var constructorParametersofClass : String = "String name, String objectName, Model slcoModel";%]
+    [%for (port in class.ports){%]
+    [%constructorParametersofClass = constructorParametersofClass + "," + " Channel"+ " channel_" +  port.name;%]
+    [%}%]
+    public [%= class.name%]([%= constructorParametersofClass%]) {
+	    super(name, objectName, slcoModel);
+    [%for (variable in class.variables){%]
+        [%=variable.name%] = new SharedVariable();
+        [%=variable.name%].setName("[%=variable.name%]");
+        [%if(variable.type = PrimitiveTypeEnum#String){%]
+        [%=variable.name%].setValue("[%=variable.initialValue.value%]");
+        [%}%]
+        [%else {%]
+        [%=variable.name%].setValue([%=variable.initialValue.value%]);
+        [%}%]
+        Lock lock_[%=variable.name%] = new ReentrantLock();
+        [%=variable.name%].setLock(lock_[%=variable.name%]); 
+        Condition c_lock_[%=variable.name%] = lock_[%=variable.name%].newCondition();
+    	[%=variable.name%].setC_lock_SharedVariable(c_lock_[%=variable.name%]);       
+        sharedVariables.add([%=variable.name%]);
+    [%}%]
+    
+    [%for (port in class.ports){%]
+        port_[%= port.name%] = new Port(channel_[%= port.name%]);
+        port_[%= port.name%].setName("port_[%= port.name%]");
+        ports.add(port_[%= port.name%]);       
+    [%}%]
+    
+    [%for (stateMachine in class.stateMachines){%]
+        [%=  stateMachine.name%] sm_[%= stateMachine.name%] = new [%=  stateMachine.name%](this);
+    [%}%]
+    [%for (stateMachine in class.stateMachines){%]
+		new Thread(sm_[%= stateMachine.name%]).start();
+    [%}%]
+    
+    }
+}

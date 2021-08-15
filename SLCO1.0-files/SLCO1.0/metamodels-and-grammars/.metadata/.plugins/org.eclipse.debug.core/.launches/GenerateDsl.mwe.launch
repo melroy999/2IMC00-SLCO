@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.emf.mwe.ui.MWELaunchConfigType">
+<booleanAttribute key="java_debug" value="false"/>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+<listEntry value="/z.org.xtext.sdslco.dsl"/>
+</listAttribute>
+<listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+<listEntry value="4"/>
+</listAttribute>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="z.org.xtext.sdslco.dsl"/>
+<booleanAttribute key="org.eclipse.jdt.launching.STOP_IN_MAIN" value="false"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms40m&#10;-Xmx256m"/>
+<stringAttribute key="startWorkflow" value="/org.xtext.sdslco.dsl/src/org/xtext/sdslco/GenerateDsl.mwe"/>
+</launchConfiguration>

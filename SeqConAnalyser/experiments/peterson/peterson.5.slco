@@ -1,0 +1,144 @@
+model dve_peterson_1 {
+
+  classes
+  GlobalClass {
+    variables
+      Boolean flag1 flag2 flag3 flag4 flag5 flag6
+      Integer turn
+    
+    state machines
+    thr1 {
+      
+      initial NCS states wait STOP SimpleState0
+
+      transitions
+      NCS -> SimpleState0 {
+        flag1 := true
+      }
+      
+      wait -> wait {
+        (flag2 and turn=1) or (flag3 and turn=2) or (flag4 and turn=3) or (flag5 and turn=4) or (flag6 and turn=5)
+      }
+      
+      1: wait -> STOP {
+				flag1 := false
+      }
+      
+      SimpleState0 -> wait {
+        turn := 1
+      }
+    }
+    
+    thr2 {
+      
+      initial NCS states wait STOP SimpleState0
+
+      transitions
+      NCS -> SimpleState0 {
+        flag2 := true
+      }
+      
+      wait -> wait {
+        (flag1 and turn=0) or (flag3 and turn=2) or (flag4 and turn=3) or (flag5 and turn=4) or (flag6 and turn=5)
+      }
+      
+      1: wait -> STOP {
+				flag2 := false
+      }
+            
+      SimpleState0 -> wait {
+        turn := 2
+      }
+    }
+
+    thr3 {
+      
+      initial NCS states wait STOP SimpleState0
+
+      transitions
+      NCS -> SimpleState0 {
+        flag3 := true
+      }
+      
+      wait -> wait {
+        (flag1 and turn=0) or (flag2 and turn=1) or (flag4 and turn=3) or (flag5 and turn=4) or (flag6 and turn=5)
+      }
+      
+      1: wait -> STOP {
+				flag3 := false
+      }
+
+      SimpleState0 -> wait {
+        turn := 3
+      }
+    }
+
+    thr4 {
+      
+      initial NCS states wait STOP SimpleState0
+
+      transitions
+      NCS -> SimpleState0 {
+        flag4 := true
+      }
+      
+      wait -> wait {
+        (flag1 and turn=0) or (flag2 and turn=1) or (flag3 and turn=2) or (flag5 and turn=4) or (flag6 and turn=5)
+      }
+      
+      1: wait -> STOP {
+				flag4 := false
+      }
+      
+      SimpleState0 -> wait {
+        turn := 4
+      }
+    }
+
+    thr5 {
+      
+      initial NCS states wait STOP SimpleState0
+
+      transitions
+      NCS -> SimpleState0 {
+        flag5 := true
+      }
+      
+      wait -> wait {
+        (flag1 and turn=0) or (flag2 and turn=1) or (flag3 and turn=2) or (flag4 and turn=3) or (flag6 and turn=5)
+      }
+      
+      1: wait -> STOP {
+				flag5 := false
+      }
+      
+      SimpleState0 -> wait {
+        turn := 5
+      }
+    }
+
+    thr6 {
+      
+      initial NCS states wait STOP SimpleState0
+
+      transitions
+      NCS -> SimpleState0 {
+        flag6 := true
+      }
+      
+      wait -> wait {
+        (flag1 and turn=0) or (flag2 and turn=1) or (flag3 and turn=2) or (flag4 and turn=3) or (flag5 and turn=4)
+      }
+      
+      1: wait -> STOP {
+				flag6 := false
+      }
+      
+      SimpleState0 -> wait {
+        turn := 0
+      }
+    }
+  }
+  objects globalObject: GlobalClass()
+
+}

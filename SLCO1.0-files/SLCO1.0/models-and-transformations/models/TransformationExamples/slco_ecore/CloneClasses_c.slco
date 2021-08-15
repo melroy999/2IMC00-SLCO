@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="ASCII"?>
+<slco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:slco="slco" name="CloneClasses_c">
+  <classes name="A">
+    <stateMachines name="A">
+      <vertices xsi:type="slco:Initial" name="Initial" outgoing="//@classes.0/@stateMachines.0/@transitions.0 //@classes.0/@stateMachines.0/@transitions.1"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.0/@stateMachines.0/@transitions.0 //@classes.0/@stateMachines.0/@transitions.1"/>
+      <transitions name="InitialToFinal" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.0" signalName="S"/>
+      </transitions>
+      <transitions name="InitialToFinal" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.1" signalName="S"/>
+      </transitions>
+    </stateMachines>
+    <ports name="BOut"/>
+    <ports name="COut"/>
+  </classes>
+  <classes name="B">
+    <stateMachines name="B">
+      <vertices xsi:type="slco:Initial" name="Initial" outgoing="//@classes.1/@stateMachines.0/@transitions.0"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.1/@stateMachines.0/@transitions.0"/>
+      <transitions name="InitialToFinal" source="//@classes.1/@stateMachines.0/@vertices.0" target="//@classes.1/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.0" signalName="S"/>
+      </transitions>
+    </stateMachines>
+    <ports name="In"/>
+  </classes>
+  <classes name="C">
+    <stateMachines name="C">
+      <vertices xsi:type="slco:Initial" name="Initial" outgoing="//@classes.2/@stateMachines.0/@transitions.0"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.2/@stateMachines.0/@transitions.0"/>
+      <transitions name="InitialToFinal" source="//@classes.2/@stateMachines.0/@vertices.0" target="//@classes.2/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.2/@ports.0" signalName="S"/>
+      </transitions>
+    </stateMachines>
+    <ports name="In"/>
+  </classes>
+  <classes name="A_c">
+    <stateMachines name="A">
+      <vertices xsi:type="slco:Initial" name="Initial" outgoing="//@classes.3/@stateMachines.0/@transitions.0 //@classes.3/@stateMachines.0/@transitions.1"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.3/@stateMachines.0/@transitions.0 //@classes.3/@stateMachines.0/@transitions.1"/>
+      <transitions name="InitialToFinal" source="//@classes.3/@stateMachines.0/@vertices.0" target="//@classes.3/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SendSignal" port="//@classes.3/@ports.0" signalName="S"/>
+      </transitions>
+      <transitions name="InitialToFinal" source="//@classes.3/@stateMachines.0/@vertices.0" target="//@classes.3/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SendSignal" port="//@classes.3/@ports.1" signalName="S"/>
+      </transitions>
+    </stateMachines>
+    <ports name="BOut"/>
+    <ports name="COut"/>
+  </classes>
+  <classes name="B_c">
+    <stateMachines name="B">
+      <vertices xsi:type="slco:Initial" name="Initial" outgoing="//@classes.4/@stateMachines.0/@transitions.0"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.4/@stateMachines.0/@transitions.0"/>
+      <transitions name="InitialToFinal" source="//@classes.4/@stateMachines.0/@vertices.0" target="//@classes.4/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.4/@ports.0" signalName="S"/>
+      </transitions>
+    </stateMachines>
+    <ports name="In"/>
+  </classes>
+  <classes name="C_c">
+    <stateMachines name="C">
+      <vertices xsi:type="slco:Initial" name="Initial" outgoing="//@classes.5/@stateMachines.0/@transitions.0"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.5/@stateMachines.0/@transitions.0"/>
+      <transitions name="InitialToFinal" source="//@classes.5/@stateMachines.0/@vertices.0" target="//@classes.5/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.5/@ports.0" signalName="S"/>
+      </transitions>
+    </stateMachines>
+    <ports name="In"/>
+  </classes>
+  <objects name="a1" class="//@classes.0"/>
+  <objects name="b1" class="//@classes.1"/>
+  <objects name="c1" class="//@classes.2"/>
+  <objects name="a2_c" class="//@classes.3"/>
+  <objects name="b2_c" class="//@classes.4"/>
+  <objects name="c2_c" class="//@classes.5"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="e1" channelType="sync" sourcePort="//@classes.0/@ports.0" targetPort="//@classes.1/@ports.0" sourceObject="a1" targetObject="b1"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="f1" channelType="sync" sourcePort="//@classes.0/@ports.1" targetPort="//@classes.2/@ports.0" sourceObject="a1" targetObject="c1"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="e2_c" channelType="sync" sourcePort="//@classes.3/@ports.0" targetPort="//@classes.4/@ports.0" sourceObject="a2_c" targetObject="b2_c"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="f2_c" channelType="sync" sourcePort="//@classes.3/@ports.1" targetPort="//@classes.5/@ports.0" sourceObject="a2_c" targetObject="c2_c"/>
+</slco:Model>

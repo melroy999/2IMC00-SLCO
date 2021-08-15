@@ -1,0 +1,1 @@
+awk -F 'index' '!seen[$1]++' $@

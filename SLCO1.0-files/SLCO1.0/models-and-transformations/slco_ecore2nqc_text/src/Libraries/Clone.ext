@@ -1,0 +1,31 @@
+import slco;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension org::eclipse::xtend::util::stdlib::cloning;
+extension Libraries::Equality;
+
+// ####################################################################################
+// ------------------------------------------------------------------------------------
+// Copying functions
+// ------------------------------------------------------------------------------------
+// ####################################################################################
+
+cached Object cachedClone(Object o) :
+   o.clone()
+;
+
+// ------------------------------------------------------------------------------------
+
+cached slco::Class cachedClone(slco::Class class, slco::Port port) :
+   ((slco::Class) class.clone())
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::Port getClonedPort(slco::Port port, slco::Class class) :
+   class.ports.select(
+      p
+   |
+      p.name == port.name
+   ).first()
+;

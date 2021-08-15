@@ -1,0 +1,133 @@
+model dve_leader_filters_2 {
+classes
+	GlobalClass {
+		variables
+			Byte[5] turn
+			Byte[5] b
+			Byte[5] c
+		state machines
+			P_0 {
+				variables
+					Byte curr := 0
+				initial p1
+				states  p2 p3 p4 p5 p6 p7 p8 p9 elected
+				transitions
+					from p1 to p2 {
+						[turn[curr] := 0]
+					}
+
+					from p2 to p4 {
+						[b[curr] := 1]
+					}
+
+					from p4 to p8 {
+						turn[curr] = 0
+					}
+
+					1: from p4 to p6 {
+						[c[curr] := 1]
+					}
+
+					from p6 to p7 {
+						[b[curr] := 0]
+					}
+
+					from p8 to p1 {
+						curr = 0; curr := curr+1
+					}
+
+					1: from p8 to elected {
+						c[curr-1] = 0
+					}
+
+					2: from p8 to p1 {
+						[curr := curr+1]
+					}
+
+				}
+	
+			P_1 {
+				variables
+					Byte curr := 0
+				initial p1
+				states  p2 p3 p4 p5 p6 p7 p8 p9 elected
+				transitions
+					from p1 to p2 {
+						[turn[curr] := 1]
+					}
+
+					from p2 to p4 {
+						[b[curr] := 1]
+					}
+
+					from p4 to p8 {
+						turn[curr] = 1
+					}
+
+					1: from p4 to p6 {
+						[c[curr] := 1]
+					}
+
+					from p6 to p7 {
+						[b[curr] := 0]
+					}
+
+					from p8 to p1 {
+						curr = 0; curr := curr+1
+					}
+
+					1: from p8 to elected {
+						c[curr-1] = 0
+					}
+
+					2: from p8 to p1 {
+						[curr := curr+1]
+					}
+
+				}
+	
+			P_2 {
+				variables
+					Byte curr := 0
+				initial p1
+				states  p2 p3 p4 p5 p6 p7 p8 p9 elected
+				transitions
+					from p1 to p2 {
+						[turn[curr] := 2]
+					}
+
+					from p2 to p4 {
+						[b[curr] := 1]
+					}
+
+					from p4 to p8 {
+						turn[curr] = 2
+					}
+
+					1: from p4 to p6 {
+						[c[curr] := 1]
+					}
+
+					from p6 to p7 {
+						[b[curr] := 0]
+					}
+
+					from p8 to p1 {
+						curr = 0; curr := curr+1
+					}
+
+					1: from p8 to elected {
+						c[curr-1] = 0
+					}
+
+					2: from p8 to p1 {
+						[curr := curr+1]
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

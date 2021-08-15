@@ -1,0 +1,249 @@
+model dve_rushhour_3 {
+classes
+	GlobalClass {
+		variables
+			Integer[49] A := [0,0,1,0,1,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,1,0,1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1,0,0,0,0,0,0,1]
+		state machines
+			Red_car {
+				variables
+					Integer x := 1
+					Integer y := 2
+					Integer length := 2
+				initial q
+				states  out
+				transitions
+					from q to q {
+						x>0 and A[((y)*7+x-1)] = 0; A[((y)*7+x+length-1)] := 0;A[((y)*7+x-1)] := 1;x := x-1
+					}
+
+					from q to q {
+						x+length<7 and A[((y)*7+x+length)] = 0; A[((y)*7+x)] := 0;A[((y)*7+x+length)] := 1;x := x+1
+					}
+
+					from q to out {
+						x = 5
+					}
+
+				}
+	
+			Car_hor_1 {
+				variables
+					Integer x := 4
+					Integer y := 0
+					Integer length := 2
+				initial q
+				states  
+				transitions
+					from q to q {
+						x>0 and A[((y)*7+x-1)] = 0; A[((y)*7+x+length-1)] := 0;A[((y)*7+x-1)] := 1;x := x-1
+					}
+
+					from q to q {
+						x+length<7 and A[((y)*7+x+length)] = 0; A[((y)*7+x)] := 0;A[((y)*7+x+length)] := 1;x := x+1
+					}
+
+				}
+	
+			Car_hor_2 {
+				variables
+					Integer x := 1
+					Integer y := 4
+					Integer length := 2
+				initial q
+				states  
+				transitions
+					from q to q {
+						x>0 and A[((y)*7+x-1)] = 0; A[((y)*7+x+length-1)] := 0;A[((y)*7+x-1)] := 1;x := x-1
+					}
+
+					from q to q {
+						x+length<7 and A[((y)*7+x+length)] = 0; A[((y)*7+x)] := 0;A[((y)*7+x+length)] := 1;x := x+1
+					}
+
+				}
+	
+			Car_hor_3 {
+				variables
+					Integer x := 4
+					Integer y := 4
+					Integer length := 2
+				initial q
+				states  
+				transitions
+					from q to q {
+						x>0 and A[((y)*7+x-1)] = 0; A[((y)*7+x+length-1)] := 0;A[((y)*7+x-1)] := 1;x := x-1
+					}
+
+					from q to q {
+						x+length<7 and A[((y)*7+x+length)] = 0; A[((y)*7+x)] := 0;A[((y)*7+x+length)] := 1;x := x+1
+					}
+
+				}
+	
+			Car_hor_4 {
+				variables
+					Integer x := 1
+					Integer y := 5
+					Integer length := 4
+				initial q
+				states  
+				transitions
+					from q to q {
+						x>0 and A[((y)*7+x-1)] = 0; A[((y)*7+x+length-1)] := 0;A[((y)*7+x-1)] := 1;x := x-1
+					}
+
+					from q to q {
+						x+length<7 and A[((y)*7+x+length)] = 0; A[((y)*7+x)] := 0;A[((y)*7+x+length)] := 1;x := x+1
+					}
+
+				}
+	
+			Car_ver_1 {
+				variables
+					Integer x := 0
+					Integer y := 1
+					Integer length := 2
+				initial q
+				states  
+				transitions
+					from q to q {
+						y>0 and A[((y-1)*7+x)] = 0; A[((y+length-1)*7+x)] := 0;A[((y-1)*7+x)] := 1;y := y-1
+					}
+
+					from q to q {
+						y+length<7 and A[((y+length)*7+x)] = 0; A[((y)*7+x)] := 0;A[((y+length)*7+x)] := 1;y := y+1
+					}
+
+				}
+	
+			Car_ver_2 {
+				variables
+					Integer x := 0
+					Integer y := 4
+					Integer length := 2
+				initial q
+				states  
+				transitions
+					from q to q {
+						y>0 and A[((y-1)*7+x)] = 0; A[((y+length-1)*7+x)] := 0;A[((y-1)*7+x)] := 1;y := y-1
+					}
+
+					from q to q {
+						y+length<7 and A[((y+length)*7+x)] = 0; A[((y)*7+x)] := 0;A[((y+length)*7+x)] := 1;y := y+1
+					}
+
+				}
+	
+			Car_ver_3 {
+				variables
+					Integer x := 2
+					Integer y := 0
+					Integer length := 2
+				initial q
+				states  
+				transitions
+					from q to q {
+						y>0 and A[((y-1)*7+x)] = 0; A[((y+length-1)*7+x)] := 0;A[((y-1)*7+x)] := 1;y := y-1
+					}
+
+					from q to q {
+						y+length<7 and A[((y+length)*7+x)] = 0; A[((y)*7+x)] := 0;A[((y+length)*7+x)] := 1;y := y+1
+					}
+
+				}
+	
+			Car_ver_4 {
+				variables
+					Integer x := 3
+					Integer y := 1
+					Integer length := 3
+				initial q
+				states  
+				transitions
+					from q to q {
+						y>0 and A[((y-1)*7+x)] = 0; A[((y+length-1)*7+x)] := 0;A[((y-1)*7+x)] := 1;y := y-1
+					}
+
+					from q to q {
+						y+length<7 and A[((y+length)*7+x)] = 0; A[((y)*7+x)] := 0;A[((y+length)*7+x)] := 1;y := y+1
+					}
+
+				}
+	
+			Car_ver_5 {
+				variables
+					Integer x := 4
+					Integer y := 1
+					Integer length := 2
+				initial q
+				states  
+				transitions
+					from q to q {
+						y>0 and A[((y-1)*7+x)] = 0; A[((y+length-1)*7+x)] := 0;A[((y-1)*7+x)] := 1;y := y-1
+					}
+
+					from q to q {
+						y+length<7 and A[((y+length)*7+x)] = 0; A[((y)*7+x)] := 0;A[((y+length)*7+x)] := 1;y := y+1
+					}
+
+				}
+	
+			Car_ver_6 {
+				variables
+					Integer x := 5
+					Integer y := 1
+					Integer length := 3
+				initial q
+				states  
+				transitions
+					from q to q {
+						y>0 and A[((y-1)*7+x)] = 0; A[((y+length-1)*7+x)] := 0;A[((y-1)*7+x)] := 1;y := y-1
+					}
+
+					from q to q {
+						y+length<7 and A[((y+length)*7+x)] = 0; A[((y)*7+x)] := 0;A[((y+length)*7+x)] := 1;y := y+1
+					}
+
+				}
+	
+			Car_ver_7 {
+				variables
+					Integer x := 6
+					Integer y := 1
+					Integer length := 2
+				initial q
+				states  
+				transitions
+					from q to q {
+						y>0 and A[((y-1)*7+x)] = 0; A[((y+length-1)*7+x)] := 0;A[((y-1)*7+x)] := 1;y := y-1
+					}
+
+					from q to q {
+						y+length<7 and A[((y+length)*7+x)] = 0; A[((y)*7+x)] := 0;A[((y+length)*7+x)] := 1;y := y+1
+					}
+
+				}
+	
+			Car_ver_8 {
+				variables
+					Integer x := 6
+					Integer y := 5
+					Integer length := 2
+				initial q
+				states  
+				transitions
+					from q to q {
+						y>0 and A[((y-1)*7+x)] = 0; A[((y+length-1)*7+x)] := 0;A[((y-1)*7+x)] := 1;y := y-1
+					}
+
+					from q to q {
+						y+length<7 and A[((y+length)*7+x)] = 0; A[((y)*7+x)] := 0;A[((y+length)*7+x)] := 1;y := y+1
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

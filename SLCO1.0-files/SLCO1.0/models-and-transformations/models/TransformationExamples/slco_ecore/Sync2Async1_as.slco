@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ASCII"?>
+<slco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:slco="slco" name="Sync2Async1_as">
+  <classes name="A">
+    <stateMachines name="A">
+      <vertices xsi:type="slco:Initial" name="Initial" outgoing="//@classes.0/@stateMachines.0/@transitions.0"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.0/@stateMachines.0/@transitions.0"/>
+      <transitions name="InitialToFinal" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.0" signalName="Send_S"/>
+        <statements xsi:type="slco:SignalReception" port="//@classes.0/@ports.0" signalName="Acknowledge_S"/>
+      </transitions>
+    </stateMachines>
+    <ports name="Out"/>
+  </classes>
+  <classes name="B">
+    <stateMachines name="B">
+      <vertices xsi:type="slco:Initial" name="Initial" outgoing="//@classes.1/@stateMachines.0/@transitions.0"/>
+      <vertices xsi:type="slco:Final" name="Final" incoming="//@classes.1/@stateMachines.0/@transitions.0"/>
+      <transitions name="InitialToFinal" source="//@classes.1/@stateMachines.0/@vertices.0" target="//@classes.1/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.0" signalName="Send_S"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.0" signalName="Acknowledge_S"/>
+      </transitions>
+    </stateMachines>
+    <ports name="In"/>
+  </classes>
+  <objects name="a" class="//@classes.0"/>
+  <objects name="b" class="//@classes.1"/>
+  <channels xsi:type="slco:BidirectionalChannel" name="C" port1="//@classes.0/@ports.0" port2="//@classes.1/@ports.0" object1="a" object2="b"/>
+</slco:Model>

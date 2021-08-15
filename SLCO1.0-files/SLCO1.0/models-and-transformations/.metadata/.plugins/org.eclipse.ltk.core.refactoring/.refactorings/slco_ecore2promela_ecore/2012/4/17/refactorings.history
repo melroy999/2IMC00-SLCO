@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 1 elements(s) to &apos;CoreForPromela.xml&apos;&#x0D;&#x0A;- Original project: &apos;slco_ecore2promela_ecore&apos;&#x0D;&#x0A;- Destination element: &apos;CoreForPromela.xml&apos;&#x0D;&#x0A;- Original element: &apos;CoreForPromela.xml&apos;" description="Copy file" element1="slco_ecore/CoreForPromela.xml" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1335194405829" target="/slco_ecore2promela_ecore/slco_ecore/CoreForPromela.xml" units="0" version="1.0"/>
+</session>

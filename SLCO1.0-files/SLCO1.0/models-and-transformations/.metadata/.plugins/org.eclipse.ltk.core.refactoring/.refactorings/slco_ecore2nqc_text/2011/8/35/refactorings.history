@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;slco_ecore2nqc_text/src/Workflows/wf-LegoCase/Left_Right__Middle/merge_mc_as_arg_uni_ll_time_ex_merge_int.mwe&apos; to &apos;merge_ic_mc_as_arg_uni_ll_time_ex_merge_int.mwe&apos;" description="Rename resource &apos;merge_mc_as_arg_uni_ll_time_ex_merge_int.mwe&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/Workflows/wf-LegoCase/Left_Right__Middle/merge_mc_as_arg_uni_ll_time_ex_merge_int.mwe" name="merge_ic_mc_as_arg_uni_ll_time_ex_merge_int.mwe" stamp="1314628379977" updateReferences="true"/>
+</session>

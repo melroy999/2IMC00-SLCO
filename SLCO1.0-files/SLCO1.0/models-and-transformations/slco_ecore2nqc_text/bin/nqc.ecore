@@ -1,0 +1,665 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="nqc"
+    nsURI="nqc" nsPrefix="nqc">
+  <eClassifiers xsi:type="ecore:EEnum" name="AcquireEnum">
+    <eLiterals name="ACQUIRE_OUT_A"/>
+    <eLiterals name="ACQUIRE_OUT_B" value="1"/>
+    <eLiterals name="ACQUIRE_OUT_C" value="2"/>
+    <eLiterals name="ACQUIRE_SOUND" value="3"/>
+    <eLiterals name="ACQUIRE_LED" value="4"/>
+    <eLiterals name="ACQUIRE_USER_1" value="5"/>
+    <eLiterals name="ACQUIRE_USER_2" value="6"/>
+    <eLiterals name="ACQUIRE_USER_3" value="7"/>
+    <eLiterals name="ACQUIRE_USER_4" value="8"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="AssignmentStatementEnum">
+    <eLiterals name="assign"/>
+    <eLiterals name="addassign" value="1"/>
+    <eLiterals name="subassign" value="2"/>
+    <eLiterals name="mulassign" value="3"/>
+    <eLiterals name="divassign" value="4"/>
+    <eLiterals name="modassign" value="5"/>
+    <eLiterals name="absassign" value="6"/>
+    <eLiterals name="signassign" value="7"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="BinaryOperatorEnum">
+    <eLiterals name="plus"/>
+    <eLiterals name="minus" value="1"/>
+    <eLiterals name="times" value="2"/>
+    <eLiterals name="div" value="3"/>
+    <eLiterals name="mod" value="4"/>
+    <eLiterals name="equal" value="5"/>
+    <eLiterals name="notequal" value="6"/>
+    <eLiterals name="less" value="7"/>
+    <eLiterals name="greater" value="8"/>
+    <eLiterals name="leq" value="9"/>
+    <eLiterals name="geq" value="10"/>
+    <eLiterals name="and" value="11"/>
+    <eLiterals name="or" value="12"/>
+    <eLiterals name="bitand" value="13" literal="bitand"/>
+    <eLiterals name="bitor" value="14" literal="bitor"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="BuiltInBinaryFunctionEnum">
+    <eLiterals name="SetSensor"/>
+    <eLiterals name="SetSensorType" value="1"/>
+    <eLiterals name="SetSensorMode" value="2"/>
+    <eLiterals name="SetOutput" value="3"/>
+    <eLiterals name="SetDirection" value="4"/>
+    <eLiterals name="SetPower" value="5"/>
+    <eLiterals name="OnFor" value="6"/>
+    <eLiterals name="SetGlobalOutput" value="7"/>
+    <eLiterals name="SetGlobalDirection" value="8"/>
+    <eLiterals name="SetMaxPower" value="9"/>
+    <eLiterals name="PlayTone" value="10"/>
+    <eLiterals name="SetUserDisplay" value="11"/>
+    <eLiterals name="SetSerialData" value="12"/>
+    <eLiterals name="SendSerial" value="13"/>
+    <eLiterals name="SetSpybotCtrlMessage" value="14"/>
+    <eLiterals name="SendSpybotCtrlMessage" value="15"/>
+    <eLiterals name="SetTimer" value="16"/>
+    <eLiterals name="SetUpperLimit" value="17"/>
+    <eLiterals name="SetLowerLimit" value="18"/>
+    <eLiterals name="SetHysteresis" value="19"/>
+    <eLiterals name="SetClickTime" value="20"/>
+    <eLiterals name="SetClickCounter" value="21"/>
+    <eLiterals name="UploadDataLog" value="22"/>
+    <eLiterals name="SetWatch" value="23"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="BuiltInBinaryValueFunctionEnum">
+    <eLiterals name="SetIndirectVar"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="BuiltInNullaryFunctionEnum">
+    <eLiterals name="MuteSound"/>
+    <eLiterals name="UnmuteSound" value="1"/>
+    <eLiterals name="ClearSound" value="2"/>
+    <eLiterals name="ClearMessage" value="3"/>
+    <eLiterals name="SendSpybotCtrlMsg" value="4"/>
+    <eLiterals name="SendSpybotCtrlPingMsg" value="5"/>
+    <eLiterals name="SendSpybotPingMsg" value="6"/>
+    <eLiterals name="InitRCComm" value="7"/>
+    <eLiterals name="SendRCMsg" value="8"/>
+    <eLiterals name="StopAllTasks" value="9"/>
+    <eLiterals name="SleepNow" value="10"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="BuiltInNullaryValueFunctionEnum">
+    <eLiterals name="CurrentEvents"/>
+    <eLiterals name="ClearAllEvents" value="1"/>
+    <eLiterals name="BatteryLevel" value="2"/>
+    <eLiterals name="FirmwareVersion" value="3"/>
+    <eLiterals name="Program" value="4"/>
+    <eLiterals name="Watch" value="5"/>
+    <eLiterals name="Message" value="6"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="BuiltInUnaryValueFunctionEnum">
+    <eLiterals name="SensorValue"/>
+    <eLiterals name="SensorType" value="1"/>
+    <eLiterals name="SensorMode" value="2"/>
+    <eLiterals name="SensorValueBool" value="3"/>
+    <eLiterals name="SensorValueRaw" value="4"/>
+    <eLiterals name="OutputStatus" value="5"/>
+    <eLiterals name="GlobalOutputStatus" value="6"/>
+    <eLiterals name="SerialData" value="7"/>
+    <eLiterals name="Timer" value="8"/>
+    <eLiterals name="FastTimer" value="9"/>
+    <eLiterals name="Counter" value="10"/>
+    <eLiterals name="ActiveEvents" value="11"/>
+    <eLiterals name="ClearEvent" value="12"/>
+    <eLiterals name="EventState" value="13"/>
+    <eLiterals name="UpperLimit" value="14"/>
+    <eLiterals name="LowerLimit" value="15"/>
+    <eLiterals name="Hysteresis" value="16"/>
+    <eLiterals name="ClickTime" value="17"/>
+    <eLiterals name="ClickCounter" value="18"/>
+    <eLiterals name="Random" value="19"/>
+    <eLiterals name="Indirect" value="20"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="BuiltInUnaryFunctionEnum">
+    <eLiterals name="ClearSensor"/>
+    <eLiterals name="On" value="1"/>
+    <eLiterals name="Off" value="2"/>
+    <eLiterals name="Float" value="3"/>
+    <eLiterals name="Fwd" value="4"/>
+    <eLiterals name="Rev" value="5"/>
+    <eLiterals name="Toggle" value="6"/>
+    <eLiterals name="OnFwd" value="7"/>
+    <eLiterals name="OnRev" value="8"/>
+    <eLiterals name="EnableOutput" value="9"/>
+    <eLiterals name="DisableOutput" value="10"/>
+    <eLiterals name="InvertOutput" value="11"/>
+    <eLiterals name="ObvertOutput" value="12"/>
+    <eLiterals name="PlaySound" value="13"/>
+    <eLiterals name="SelectDisplay" value="14"/>
+    <eLiterals name="SendMessage" value="15"/>
+    <eLiterals name="SetTxPower" value="16"/>
+    <eLiterals name="SetSerialComm" value="17"/>
+    <eLiterals name="SetSerialPacket" value="18"/>
+    <eLiterals name="InitSpybotComm" value="19"/>
+    <eLiterals name="SendSpybotMsg" value="20"/>
+    <eLiterals name="SetSpybotCtrlPingMessage" value="21"/>
+    <eLiterals name="SendSpybotCtrlPingMessage" value="22"/>
+    <eLiterals name="ClearTimer" value="23"/>
+    <eLiterals name="ClearCounter" value="24"/>
+    <eLiterals name="IncCounter" value="25"/>
+    <eLiterals name="DecCounter" value="26"/>
+    <eLiterals name="SetPriority" value="27"/>
+    <eLiterals name="Event" value="28"/>
+    <eLiterals name="CreateDatalog" value="29"/>
+    <eLiterals name="AddToDatalog" value="30"/>
+    <eLiterals name="Wait" value="31"/>
+    <eLiterals name="SetRandomSeed" value="32"/>
+    <eLiterals name="SetSleepTime" value="33"/>
+    <eLiterals name="SelectProgram" value="34"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="BuiltInQuaternaryFunctionEnum">
+    <eLiterals name="CalibrateEvent"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="BuiltInSenaryFunctionEnum">
+    <eLiterals name="SetSpybotMessage"/>
+    <eLiterals name="SendSpybotMessage" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="BuiltInTernaryFunctionEnum">
+    <eLiterals name="SetSpybotPing"/>
+    <eLiterals name="SendSpybotPing" value="1"/>
+    <eLiterals name="SetRCMessage" value="2"/>
+    <eLiterals name="SendRCMessage" value="3"/>
+    <eLiterals name="SetEvent" value="4"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="DirectionEnum">
+    <eLiterals name="OUT_FWD"/>
+    <eLiterals name="OUT_REV" value="1"/>
+    <eLiterals name="OUT_TOGGLE" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="DisplayModeEnum">
+    <eLiterals name="DISPLAY_WATCH"/>
+    <eLiterals name="DISPLAY_SENSOR_1" value="1"/>
+    <eLiterals name="DISPLAY_SENSOR_2" value="2"/>
+    <eLiterals name="DISPLAY_SENSOR_3" value="3"/>
+    <eLiterals name="DISPLAY_OUT_A" value="4"/>
+    <eLiterals name="DISPLAY_OUT_B" value="5"/>
+    <eLiterals name="DISPLAY_OUT_C" value="6"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EventTypeEnum">
+    <eLiterals name="EVENT_TYPE_PRESSED"/>
+    <eLiterals name="EVENT_TYPE_RELEASED" value="1"/>
+    <eLiterals name="EVENT_TYPE_PULSE" value="2"/>
+    <eLiterals name="EVENT_TYPE_EDGE" value="3"/>
+    <eLiterals name="EVENT_TYPE_FASTCHANGE" value="4"/>
+    <eLiterals name="EVENT_TYPE_LOW" value="5"/>
+    <eLiterals name="EVENT_TYPE_NORMAL" value="6"/>
+    <eLiterals name="EVENT_TYPE_HIGH" value="7"/>
+    <eLiterals name="EVENT_TYPE_CLICK" value="8"/>
+    <eLiterals name="EVENT_TYPE_DOUBLECLICK" value="9"/>
+    <eLiterals name="EVENT_TYPE_MESSAGE" value="10"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="OutputModeEnum">
+    <eLiterals name="OUT_OFF"/>
+    <eLiterals name="OUT_ON" value="1"/>
+    <eLiterals name="OUT_FLOAT" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="OutputPortNameEnum">
+    <eLiterals name="OUT_A"/>
+    <eLiterals name="OUT_B" value="1"/>
+    <eLiterals name="OUT_C" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SerialBaudEnum">
+    <eLiterals name="SERIAL_BAUD_2400"/>
+    <eLiterals name="SERIAL_BAUD_4800" value="1"/>
+    <eLiterals name="SERIAL_BAUD_9600" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SerialBiphaseEnum">
+    <eLiterals name="SERIAL_BIPHASE_OFF"/>
+    <eLiterals name="SERIAL_BIPHASE_ON" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SerialChannelEnum">
+    <eLiterals name="SERIAL_CHANNEL_IR"/>
+    <eLiterals name="SERIAL_CHANNEL_PC" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SerialChecksumEnum">
+    <eLiterals name="SERIAL_CHECKSUM_NONE"/>
+    <eLiterals name="SERIAL_CHECKSUM_SUM" value="1"/>
+    <eLiterals name="SERIAL_CHECKSUM_ZERO_SUM" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SerialCommEnum">
+    <eLiterals name="SERIAL_COMM_DEFAULT"/>
+    <eLiterals name="SERIAL_COMM_4800" value="1"/>
+    <eLiterals name="SERIAL_COMM_DUTY25" value="2"/>
+    <eLiterals name="SERIAL_COMM_76KHZ" value="3"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SerialPacketEnum">
+    <eLiterals name="SERIAL_PACKET_DEFAULT"/>
+    <eLiterals name="SERIAL_PACKET_PREAMBLE" value="1"/>
+    <eLiterals name="SERIAL_PACKET_NEGATED" value="2"/>
+    <eLiterals name="SERIAL_PACKET_CHECKSUM" value="3"/>
+    <eLiterals name="SERIAL_PACKET_RCX" value="4"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SensorConfigEnum">
+    <eLiterals name="SENSOR_TOUCH"/>
+    <eLiterals name="SENSOR_LIGHT" value="1"/>
+    <eLiterals name="SENSOR_ROTATION" value="2"/>
+    <eLiterals name="SENSOR_CELSIUS" value="3"/>
+    <eLiterals name="SENSOR_FAHRENHEIT" value="4"/>
+    <eLiterals name="SENSOR_PULSE" value="5"/>
+    <eLiterals name="SENSOR_EDGE" value="6"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SensorModeEnum">
+    <eLiterals name="SENSOR_MODE_RAW"/>
+    <eLiterals name="SENSOR_MODE_BOOL" value="1"/>
+    <eLiterals name="SENSOR_MODE_EDGE" value="2"/>
+    <eLiterals name="SENSOR_MODE_PULSE" value="3"/>
+    <eLiterals name="SENSOR_MODE_PERCENT" value="4"/>
+    <eLiterals name="SENSOR_MODE_FAHRENHEIT" value="5"/>
+    <eLiterals name="SENSOR_MODE_CELSIUS" value="6"/>
+    <eLiterals name="SENSOR_MODE_ROTATION" value="7"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SensorNameEnum">
+    <eLiterals name="SENSOR_1"/>
+    <eLiterals name="SENSOR_2" value="1"/>
+    <eLiterals name="SENSOR_3" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SensorTypeEnum">
+    <eLiterals name="SENSOR_TYPE_NONE"/>
+    <eLiterals name="SENSOR_TYPE_TOUCH" value="1"/>
+    <eLiterals name="SENSOR_TYPE_TEMPERATURE" value="2"/>
+    <eLiterals name="SENSOR_TYPE_LIGHT" value="3"/>
+    <eLiterals name="SENSOR_TYPE_ROTATION" value="4"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="SoundEnum">
+    <eLiterals name="SOUND_CLICK"/>
+    <eLiterals name="SOUND_DOUBLE_BEEP" value="1"/>
+    <eLiterals name="SOUND_DOWN" value="2"/>
+    <eLiterals name="SOUND_UP" value="3"/>
+    <eLiterals name="SOUND_LOW_BEEP" value="4"/>
+    <eLiterals name="SOUND_FAST_UP" value="5"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="TernaryOperatorEnum">
+    <eLiterals name="cond"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="TxPowerEnum">
+    <eLiterals name="TX_POWER_LO"/>
+    <eLiterals name="TX_POWER_HIGH"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="TypeEnum">
+    <eLiterals name="Integer"/>
+    <eLiterals name="IntegerArray" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="UnaryOperatorEnum">
+    <eLiterals name="increase"/>
+    <eLiterals name="decrease" value="1"/>
+    <eLiterals name="abs" value="2"/>
+    <eLiterals name="sign" value="3"/>
+    <eLiterals name="umin" value="4"/>
+    <eLiterals name="not" value="5"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AcquireConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Acquire" lowerBound="1"
+        eType="#//AcquireEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AcquireStatement" eSuperTypes="#//Statement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Resource" lowerBound="1"
+        eType="#//AcquireStatement" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Body" lowerBound="1" eType="#//Statement"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Handler" eType="#//Statement"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ArrayExpression" eSuperTypes="#//VariableExpression">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="index" eType="#//ValueExpression"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AssignmentStatement" eSuperTypes="#//Statement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Variable" ordered="false"
+        lowerBound="1" eType="#//VariableExpression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Expression" ordered="false"
+        lowerBound="1" eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Operator" eType="#//AssignmentStatementEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BinaryExpression" eSuperTypes="#//CompoundExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Operator" eType="#//BinaryOperatorEnum"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Operand1" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Operand2" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BinaryBuiltInFunctionCall" eSuperTypes="#//BuiltInFunctionCall">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="BinaryBuiltInFunction"
+        lowerBound="1" eType="#//BuiltInBinaryFunctionEnum"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter1" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter2" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BinaryBuiltInValueFunctionCall" eSuperTypes="#//BuiltInValueFunctionCall">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="BinaryBuiltInValueFunction"
+        lowerBound="1" eType="#//BuiltInBinaryValueFunctionEnum"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter1" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter2" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BlockStatement" eSuperTypes="#//Statement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="LocalVariables" ordered="false"
+        upperBound="-1" eType="#//Variable" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Statements" upperBound="-1"
+        eType="#//Statement" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BooleanConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Value" ordered="false"
+        unique="false" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BreakStatement" eSuperTypes="#//Statement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="BuiltInFunctionCall" abstract="true"
+      eSuperTypes="#//CallStatement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="BuiltInValueFunctionCall" abstract="true"
+      eSuperTypes="#//Expression"/>
+  <eClassifiers xsi:type="ecore:EClass" name="CallStatement" abstract="true" eSuperTypes="#//Statement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Case">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="IsDefault" ordered="false"
+        unique="false" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Label" ordered="false"
+        lowerBound="1" upperBound="-1" eType="#//ConstantExpression"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Statements" upperBound="-1"
+        eType="#//Statement" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CompoundExpression" abstract="true"
+      eSuperTypes="#//Expression"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ConstantExpression" abstract="true"
+      eSuperTypes="#//ValueExpression"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ContinueStatement" eSuperTypes="#//Statement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ControlStructure" abstract="true" eSuperTypes="#//Statement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="DirectionConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Direction" lowerBound="1"
+        eType="#//DirectionEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DisplayModeConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="DisplayMode" lowerBound="1"
+        eType="#//DisplayModeEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DoWhileStatement" eSuperTypes="#//ControlStructure">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Body" ordered="false" lowerBound="1"
+        eType="#//Statement" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Condition" ordered="false"
+        lowerBound="1" eType="#//Expression" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EmptyStatement" eSuperTypes="#//Statement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="EventTypeConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="EventType" lowerBound="1"
+        eType="#//EventTypeEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Expression" abstract="true" eSuperTypes="#//Statement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Function">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Name" ordered="false" unique="false"
+        lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Statements" upperBound="-1"
+        eType="#//Statement" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="LocalVariables" ordered="false"
+        upperBound="-1" eType="#//Variable" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameters" upperBound="-1"
+        eType="#//Parameter" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FunctionCall" eSuperTypes="#//CallStatement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Callee" ordered="false"
+        lowerBound="1" eType="#//Function"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameters" upperBound="-1"
+        eType="#//Expression" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ForStatement" eSuperTypes="#//ControlStructure">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Initialization" ordered="false"
+        eType="#//Statement" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Condition" ordered="false"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Update" ordered="false"
+        eType="#//Statement" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="GoToStatement" eSuperTypes="#//ControlStructure">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="JumpLabel" ordered="false"
+        lowerBound="1" eType="#//Label"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="IfStatement" eSuperTypes="#//ControlStructure">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Condition" ordered="false"
+        lowerBound="1" eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Consequence" ordered="false"
+        lowerBound="1" eType="#//Statement" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Alternative" ordered="false"
+        eType="#//Statement" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="IntegerConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Value" ordered="false"
+        unique="false" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Label">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Label" ordered="false"
+        unique="false" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MonitorHandler">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="CatchEvent" eType="#//EventTypeConstant"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Handler" lowerBound="1"
+        eType="#//Statement" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MonitorStatement" eSuperTypes="#//Statement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Events" upperBound="-1"
+        eType="#//EventTypeConstant" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Body" lowerBound="1" eType="#//Statement"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Handlers" upperBound="-1"
+        eType="#//MonitorHandler" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="NullaryBuiltInFunctionCall" eSuperTypes="#//BuiltInFunctionCall">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="NullaryBuiltInFunction"
+        lowerBound="1" eType="#//BuiltInNullaryFunctionEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="NullaryBuiltInValueFunctionCall" eSuperTypes="#//BuiltInValueFunctionCall">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="NullaryBuiltInValueFunction"
+        lowerBound="1" eType="#//BuiltInNullaryValueFunctionEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="OutputModeConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="OutputMode" lowerBound="1"
+        eType="#//OutputModeEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="OutputPortNameConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="OutputPortName" lowerBound="1"
+        eType="#//OutputPortNameEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Parameter">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Name" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Type" eType="#//TypeEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Program">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Name" ordered="false" unique="false"
+        lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Tasks" ordered="false"
+        upperBound="-1" eType="#//Task" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Functions" ordered="false"
+        upperBound="-1" eType="#//Function" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Subroutines" ordered="false"
+        upperBound="-1" eType="#//Subroutine" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="GlobalVariables" ordered="false"
+        upperBound="32" eType="#//Variable" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Programs">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Programs" upperBound="-1"
+        eType="#//Program" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="QuaternaryBuiltInFunctionCall" eSuperTypes="#//BuiltInFunctionCall">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="QuaternaryBuiltInFunction"
+        lowerBound="1" eType="#//BuiltInQuaternaryFunctionEnum"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter1" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter2" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter3" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter4" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RepeatStatement" eSuperTypes="#//ControlStructure">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Condition" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Body" lowerBound="1" eType="#//Statement"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ReturnStatement" eSuperTypes="#//Statement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SenaryBuiltInFunctionCall" eSuperTypes="#//BuiltInFunctionCall">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="SenaryBuiltInFunction"
+        lowerBound="1" eType="#//BuiltInSenaryFunctionEnum"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter1" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter2" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter3" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter4" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter5" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter6" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SensorConfigConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="SensorConfig" lowerBound="1"
+        eType="#//SensorConfigEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SensorModeConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="SensorMode" lowerBound="1"
+        eType="#//SensorModeEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SensorNameConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="SensorName" lowerBound="1"
+        eType="#//SensorNameEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SensorTypeConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="SensorType" lowerBound="1"
+        eType="#//SensorTypeEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SerialBaudConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="SerialBaud" lowerBound="1"
+        eType="#//SerialBaudEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SerialBiphaseConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="SerialBiphase" lowerBound="1"
+        eType="#//SerialBiphaseEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SerialChecksumConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="SerialChecksum" lowerBound="1"
+        eType="#//SerialChecksumEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SerialChannelConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="SerialChannel" lowerBound="1"
+        eType="#//SerialChannelEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SerialCommConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="SerialComm" lowerBound="1"
+        eType="#//SerialCommEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SerialPacketConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="SerialPacket" lowerBound="1"
+        eType="#//SerialPacketEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SoundConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Sound" lowerBound="1" eType="#//SoundEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Statement" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Label" ordered="false"
+        eType="#//Label" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="StartStatement" eSuperTypes="#//Statement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Task" ordered="false" lowerBound="1"
+        eType="#//Task"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="StopStatement" eSuperTypes="#//Statement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Task" ordered="false" lowerBound="1"
+        eType="#//Task"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Subroutine">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Name" ordered="false" unique="false"
+        lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Statements" upperBound="-1"
+        eType="#//Statement" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="LocalVariables" ordered="false"
+        upperBound="-1" eType="#//Variable" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SubroutineCall" eSuperTypes="#//CallStatement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Callee" ordered="false"
+        lowerBound="1" eType="#//Subroutine"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SwitchStatement" eSuperTypes="#//ControlStructure">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Condition" ordered="false"
+        lowerBound="1" eType="#//Expression"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Cases" upperBound="-1"
+        eType="#//Case" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Task">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Name" ordered="false" unique="false"
+        lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Statements" upperBound="-1"
+        eType="#//Statement" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="LocalVariables" ordered="false"
+        upperBound="-1" eType="#//Variable" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TernaryBuiltInFunctionCall" eSuperTypes="#//BuiltInFunctionCall">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="TernaryBuiltInFunction"
+        lowerBound="1" eType="#//BuiltInTernaryFunctionEnum"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter1" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter2" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter3" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TernaryExpression" eSuperTypes="#//CompoundExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Operator" eType="#//TernaryOperatorEnum"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Operand1" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Operand2" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Operand3" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TxPowerConstant" eSuperTypes="#//ConstantExpression">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="TxPower" lowerBound="1"
+        eType="#//TxPowerEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="UnaryBuiltInFunctionCall" eSuperTypes="#//BuiltInFunctionCall">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="UnaryBuiltInFunction" lowerBound="1"
+        eType="#//BuiltInUnaryFunctionEnum"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="UnaryBuiltInValueFunctionCall" eSuperTypes="#//BuiltInValueFunctionCall">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="UnaryBuiltInValueFunction"
+        lowerBound="1" eType="#//BuiltInUnaryValueFunctionEnum"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Parameter" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="UnaryExpression" eSuperTypes="#//CompoundExpression">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Operand" ordered="false"
+        lowerBound="1" eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Operator" eType="#//UnaryOperatorEnum"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="UntilStatement" eSuperTypes="#//ControlStructure">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Condition" lowerBound="1"
+        eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Body" lowerBound="1" eType="#//Statement"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ValueExpression" abstract="true" eSuperTypes="#//Expression"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Variable">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Name" ordered="false" unique="false"
+        lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="Type" eType="#//TypeEnum"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="InitialValue" eType="#//ConstantExpression"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ArrayMaxSize" eType="#//IntegerConstant"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="VariableExpression" eSuperTypes="#//ValueExpression">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Variable" ordered="false"
+        lowerBound="1" eType="#//Variable"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="WhileStatement" eSuperTypes="#//ControlStructure">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Condition" ordered="false"
+        lowerBound="1" eType="#//Expression" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="Body" ordered="false" lowerBound="1"
+        eType="#//Statement" containment="true"/>
+  </eClassifiers>
+</ecore:EPackage>

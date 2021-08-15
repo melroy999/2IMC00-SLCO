@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;slco_ecore2nqc_text/src/Transformations/Lossy2Lossless.ext&apos; to &apos;Lossy2Lossless_fout.ext&apos;" description="Rename resource &apos;Lossy2Lossless.ext&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/Transformations/Lossy2Lossless.ext" name="Lossy2Lossless_fout.ext" stamp="1301057068761" updateReferences="true"/>
+</session>

@@ -1,0 +1,555 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/nqc.emf/src"
+    modelPluginID="nqc.emf" modelName="NQC" importerID="org.eclipse.emf.importer.ecore"
+    complianceLevel="6.0" copyrightFields="false">
+  <foreignModel>NQC.ecore</foreignModel>
+  <genPackages prefix="NQC" disposableProviderFactory="true" loadInitialization="true"
+      literalsInterface="false" ecorePackage="NQC.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//AcquireEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AcquireEnum/ACQUIRE_OUT_A"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AcquireEnum/ACQUIRE_OUT_B"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AcquireEnum/ACQUIRE_OUT_C"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AcquireEnum/ACQUIRE_SOUND"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AcquireEnum/ACQUIRE_LED"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AcquireEnum/ACQUIRE_USER_1"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AcquireEnum/ACQUIRE_USER_2"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AcquireEnum/ACQUIRE_USER_3"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AcquireEnum/ACQUIRE_USER_4"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//AssignmentStatementEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AssignmentStatementEnum/assign"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AssignmentStatementEnum/addassign"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AssignmentStatementEnum/subassign"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AssignmentStatementEnum/mulassign"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AssignmentStatementEnum/divassign"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AssignmentStatementEnum/modassign"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AssignmentStatementEnum/absassign"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//AssignmentStatementEnum/signassign"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//BinaryOperatorEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/plus"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/minus"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/times"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/div"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/mod"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/equal"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/notequal"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/less"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/greater"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/leq"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/geq"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/and"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/or"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/bitand"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BinaryOperatorEnum/bitor"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//BuiltInBinaryFunctionEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetSensor"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetSensorType"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetSensorMode"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetOutput"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetDirection"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetPower"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/OnFor"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetGlobalOutput"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetGlobalDirection"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetMaxPower"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/PlayTone"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetUserDisplay"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetSerialData"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SendSerial"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetSpybotCtrlMessage"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SendSpybotCtrlMessage"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetTimer"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetUpperLimit"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetLowerLimit"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetHysteresis"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetClickTime"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetClickCounter"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/UploadDataLog"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryFunctionEnum/SetWatch"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//BuiltInBinaryValueFunctionEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInBinaryValueFunctionEnum/SetIndirectVar"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//BuiltInNullaryFunctionEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryFunctionEnum/MuteSound"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryFunctionEnum/UnmuteSound"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryFunctionEnum/ClearSound"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryFunctionEnum/ClearMessage"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryFunctionEnum/SendSpybotCtrlMsg"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryFunctionEnum/SendSpybotCtrlPingMsg"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryFunctionEnum/SendSpybotPingMsg"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryFunctionEnum/InitRCComm"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryFunctionEnum/SendRCMsg"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryFunctionEnum/StopAllTasks"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryFunctionEnum/SleepNow"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//BuiltInNullaryValueFunctionEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryValueFunctionEnum/CurrentEvents"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryValueFunctionEnum/ClearAllEvents"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryValueFunctionEnum/BatteryLevel"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryValueFunctionEnum/FirmwareVersion"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryValueFunctionEnum/Program"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryValueFunctionEnum/Watch"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInNullaryValueFunctionEnum/Message"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//BuiltInUnaryValueFunctionEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/SensorValue"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/SensorType"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/SensorMode"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/SensorValueBool"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/SensorValueRaw"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/OutputStatus"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/GlobalOutputStatus"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/SerialData"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/Timer"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/FastTimer"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/Counter"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/ActiveEvents"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/ClearEvent"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/EventState"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/UpperLimit"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/LowerLimit"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/Hysteresis"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/ClickTime"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/ClickCounter"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/Random"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryValueFunctionEnum/Indirect"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//BuiltInUnaryFunctionEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/ClearSensor"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/On"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/Off"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/Float"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/Fwd"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/Rev"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/Toggle"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/OnFwd"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/OnRev"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/EnableOutput"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/DisableOutput"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/InvertOutput"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/ObvertOutput"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/PlaySound"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/SelectDisplay"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/SendMessage"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/SetTxPower"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/SetSerialComm"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/SetSerialPacket"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/InitSpybotComm"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/SendSpybotMsg"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/SetSpybotCtrlPingMessage"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/SendSpybotCtrlPingMessage"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/ClearTimer"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/ClearCounter"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/IncCounter"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/DecCounter"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/SetPriority"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/Event"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/CreateDatalog"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/AddToDatalog"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/Wait"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/SetRandomSeed"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/SetSleepTime"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInUnaryFunctionEnum/SelectProgram"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//BuiltInQuaternaryFunctionEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInQuaternaryFunctionEnum/CalibrateEvent"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//BuiltInSenaryFunctionEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInSenaryFunctionEnum/SetSpybotMessage"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInSenaryFunctionEnum/SendSpybotMessage"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//BuiltInTernaryFunctionEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInTernaryFunctionEnum/SetSpybotPing"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInTernaryFunctionEnum/SendSpybotPing"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInTernaryFunctionEnum/SetRCMessage"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInTernaryFunctionEnum/SendRCMessage"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//BuiltInTernaryFunctionEnum/SetEvent"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//DirectionEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//DirectionEnum/OUT_FWD"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//DirectionEnum/OUT_REV"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//DirectionEnum/OUT_TOGGLE"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//DisplayModeEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//DisplayModeEnum/DISPLAY_WATCH"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//DisplayModeEnum/DISPLAY_SENSOR_1"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//DisplayModeEnum/DISPLAY_SENSOR_2"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//DisplayModeEnum/DISPLAY_SENSOR_3"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//DisplayModeEnum/DISPLAY_OUT_A"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//DisplayModeEnum/DISPLAY_OUT_B"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//DisplayModeEnum/DISPLAY_OUT_C"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//EventTypeEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//EventTypeEnum/EVENT_TYPE_PRESSED"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//EventTypeEnum/EVENT_TYPE_RELEASED"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//EventTypeEnum/EVENT_TYPE_PULSE"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//EventTypeEnum/EVENT_TYPE_EDGE"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//EventTypeEnum/EVENT_TYPE_FASTCHANGE"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//EventTypeEnum/EVENT_TYPE_LOW"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//EventTypeEnum/EVENT_TYPE_NORMAL"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//EventTypeEnum/EVENT_TYPE_HIGH"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//EventTypeEnum/EVENT_TYPE_CLICK"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//EventTypeEnum/EVENT_TYPE_DOUBLECLICK"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//EventTypeEnum/EVENT_TYPE_MESSAGE"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//OutputModeEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//OutputModeEnum/OUT_OFF"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//OutputModeEnum/OUT_ON"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//OutputModeEnum/OUT_FLOAT"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//OutputPortNameEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//OutputPortNameEnum/OUT_A"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//OutputPortNameEnum/OUT_B"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//OutputPortNameEnum/OUT_C"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//SerialBaudEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialBaudEnum/SERIAL_BAUD_2400"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialBaudEnum/SERIAL_BAUD_4800"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialBaudEnum/SERIAL_BAUD_9600"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//SerialBiphaseEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialBiphaseEnum/SERIAL_BIPHASE_OFF"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialBiphaseEnum/SERIAL_BIPHASE_ON"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//SerialChannelEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialChannelEnum/SERIAL_CHANNEL_IR"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialChannelEnum/SERIAL_CHANNEL_PC"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//SerialChecksumEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialChecksumEnum/SERIAL_CHECKSUM_NONE"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialChecksumEnum/SERIAL_CHECKSUM_SUM"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialChecksumEnum/SERIAL_CHECKSUM_ZERO_SUM"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//SerialCommEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialCommEnum/SERIAL_COMM_DEFAULT"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialCommEnum/SERIAL_COMM_4800"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialCommEnum/SERIAL_COMM_DUTY25"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialCommEnum/SERIAL_COMM_76KHZ"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//SerialPacketEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialPacketEnum/SERIAL_PACKET_DEFAULT"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialPacketEnum/SERIAL_PACKET_PREAMBLE"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialPacketEnum/SERIAL_PACKET_NEGATED"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialPacketEnum/SERIAL_PACKET_CHECKSUM"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SerialPacketEnum/SERIAL_PACKET_RCX"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//SensorConfigEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorConfigEnum/SENSOR_TOUCH"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorConfigEnum/SENSOR_LIGHT"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorConfigEnum/SENSOR_ROTATION"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorConfigEnum/SENSOR_CELSIUS"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorConfigEnum/SENSOR_FAHRENHEIT"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorConfigEnum/SENSOR_PULSE"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorConfigEnum/SENSOR_EDGE"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//SensorModeEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorModeEnum/SENSOR_MODE_RAW"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorModeEnum/SENSOR_MODE_BOOL"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorModeEnum/SENSOR_MODE_EDGE"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorModeEnum/SENSOR_MODE_PULSE"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorModeEnum/SENSOR_MODE_PERCENT"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorModeEnum/SENSOR_MODE_FAHRENHEIT"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorModeEnum/SENSOR_MODE_CELSIUS"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorModeEnum/SENSOR_MODE_ROTATION"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//SensorNameEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorNameEnum/SENSOR_1"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorNameEnum/SENSOR_2"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorNameEnum/SENSOR_3"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//SensorTypeEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorTypeEnum/SENSOR_TYPE_NONE"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorTypeEnum/SENSOR_TYPE_TOUCH"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorTypeEnum/SENSOR_TYPE_TEMPERATURE"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorTypeEnum/SENSOR_TYPE_LIGHT"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SensorTypeEnum/SENSOR_TYPE_ROTATION"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//SoundEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SoundEnum/SOUND_CLICK"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SoundEnum/SOUND_DOUBLE_BEEP"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SoundEnum/SOUND_DOWN"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SoundEnum/SOUND_UP"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SoundEnum/SOUND_LOW_BEEP"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//SoundEnum/SOUND_FAST_UP"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//TernaryOperatorEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//TernaryOperatorEnum/cond"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//TxPowerEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//TxPowerEnum/TX_POWER_LO"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//TxPowerEnum/TX_POWER_HIGH"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//TypeEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//TypeEnum/Integer"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//TypeEnum/IntegerArray"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="NQC.ecore#//UnaryOperatorEnum">
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//UnaryOperatorEnum/increase"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//UnaryOperatorEnum/decrease"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//UnaryOperatorEnum/abs"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//UnaryOperatorEnum/sign"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//UnaryOperatorEnum/umin"/>
+      <genEnumLiterals ecoreEnumLiteral="NQC.ecore#//UnaryOperatorEnum/not"/>
+    </genEnums>
+    <genClasses ecoreClass="NQC.ecore#//AcquireConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//AcquireConstant/Acquire"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//AcquireStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//AcquireStatement/Resource"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//AcquireStatement/Body"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//AcquireStatement/Handler"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//ArrayExpression">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference NQC.ecore#//ArrayExpression/index"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//AssignmentStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//AssignmentStatement/Variable"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//AssignmentStatement/Expression"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//AssignmentStatement/Operator"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//BinaryExpression">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//BinaryExpression/Operator"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//BinaryExpression/Operand1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//BinaryExpression/Operand2"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//BinaryBuiltInFunctionCall">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//BinaryBuiltInFunctionCall/BinaryBuiltInFunction"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//BinaryBuiltInFunctionCall/Parameter1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//BinaryBuiltInFunctionCall/Parameter2"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//BinaryBuiltInValueFunctionCall">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//BinaryBuiltInValueFunctionCall/BinaryBuiltInValueFunction"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//BinaryBuiltInValueFunctionCall/Parameter1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//BinaryBuiltInValueFunctionCall/Parameter2"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//BlockStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//BlockStatement/LocalVariables"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//BlockStatement/Statements"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//BooleanConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//BooleanConstant/Value"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//BreakStatement"/>
+    <genClasses image="false" ecoreClass="NQC.ecore#//BuiltInFunctionCall"/>
+    <genClasses image="false" ecoreClass="NQC.ecore#//BuiltInValueFunctionCall"/>
+    <genClasses image="false" ecoreClass="NQC.ecore#//CallStatement"/>
+    <genClasses ecoreClass="NQC.ecore#//Case">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//Case/IsDefault"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference NQC.ecore#//Case/Label"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Case/Statements"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="NQC.ecore#//CompoundExpression"/>
+    <genClasses image="false" ecoreClass="NQC.ecore#//ConstantExpression"/>
+    <genClasses ecoreClass="NQC.ecore#//ContinueStatement"/>
+    <genClasses image="false" ecoreClass="NQC.ecore#//ControlStructure"/>
+    <genClasses ecoreClass="NQC.ecore#//DirectionConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//DirectionConstant/Direction"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//DisplayModeConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//DisplayModeConstant/DisplayMode"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//DoWhileStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//DoWhileStatement/Body"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//DoWhileStatement/Condition"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//EmptyStatement"/>
+    <genClasses ecoreClass="NQC.ecore#//EventTypeConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//EventTypeConstant/EventType"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="NQC.ecore#//Expression"/>
+    <genClasses ecoreClass="NQC.ecore#//Function">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//Function/Name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Function/Statements"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Function/LocalVariables"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Function/Parameters"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//FunctionCall">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference NQC.ecore#//FunctionCall/Callee"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//FunctionCall/Parameters"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//ForStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//ForStatement/Initialization"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//ForStatement/Condition"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//ForStatement/Update"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//GoToStatement">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference NQC.ecore#//GoToStatement/JumpLabel"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//IfStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//IfStatement/Condition"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//IfStatement/Consequence"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//IfStatement/Alternative"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//IntegerConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//IntegerConstant/Value"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//Label">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//Label/Label"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//MonitorHandler">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//MonitorHandler/CatchEvent"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//MonitorHandler/Handler"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//MonitorStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//MonitorStatement/Events"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//MonitorStatement/Body"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//MonitorStatement/Handlers"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//NullaryBuiltInFunctionCall">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//NullaryBuiltInFunctionCall/NullaryBuiltInFunction"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//NullaryBuiltInValueFunctionCall">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//NullaryBuiltInValueFunctionCall/NullaryBuiltInValueFunction"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//OutputModeConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//OutputModeConstant/OutputMode"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//OutputPortNameConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//OutputPortNameConstant/OutputPortName"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//Parameter">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//Parameter/Name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//Parameter/Type"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//Program">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//Program/Name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Program/Tasks"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Program/Functions"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Program/Subroutines"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Program/GlobalVariables"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//Programs">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Programs/Programs"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//QuaternaryBuiltInFunctionCall">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//QuaternaryBuiltInFunctionCall/QuaternaryBuiltInFunction"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//QuaternaryBuiltInFunctionCall/Parameter1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//QuaternaryBuiltInFunctionCall/Parameter2"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//QuaternaryBuiltInFunctionCall/Parameter3"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//QuaternaryBuiltInFunctionCall/Parameter4"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//RepeatStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//RepeatStatement/Condition"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//RepeatStatement/Body"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//ReturnStatement"/>
+    <genClasses ecoreClass="NQC.ecore#//SenaryBuiltInFunctionCall">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//SenaryBuiltInFunctionCall/SenaryBuiltInFunction"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//SenaryBuiltInFunctionCall/Parameter1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//SenaryBuiltInFunctionCall/Parameter2"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//SenaryBuiltInFunctionCall/Parameter3"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//SenaryBuiltInFunctionCall/Parameter4"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//SenaryBuiltInFunctionCall/Parameter5"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//SenaryBuiltInFunctionCall/Parameter6"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//SensorConfigConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//SensorConfigConstant/SensorConfig"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//SensorModeConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//SensorModeConstant/SensorMode"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//SensorNameConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//SensorNameConstant/SensorName"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//SensorTypeConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//SensorTypeConstant/SensorType"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//SerialBaudConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//SerialBaudConstant/SerialBaud"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//SerialBiphaseConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//SerialBiphaseConstant/SerialBiphase"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//SerialChecksumConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//SerialChecksumConstant/SerialChecksum"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//SerialChannelConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//SerialChannelConstant/SerialChannel"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//SerialCommConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//SerialCommConstant/SerialComm"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//SerialPacketConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//SerialPacketConstant/SerialPacket"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//SoundConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//SoundConstant/Sound"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="NQC.ecore#//Statement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Statement/Label"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//StartStatement">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference NQC.ecore#//StartStatement/Task"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//StopStatement">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference NQC.ecore#//StopStatement/Task"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//Subroutine">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//Subroutine/Name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Subroutine/Statements"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Subroutine/LocalVariables"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//SubroutineCall">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference NQC.ecore#//SubroutineCall/Callee"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//SwitchStatement">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference NQC.ecore#//SwitchStatement/Condition"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//SwitchStatement/Cases"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//Task">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//Task/Name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Task/Statements"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Task/LocalVariables"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//TernaryBuiltInFunctionCall">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//TernaryBuiltInFunctionCall/TernaryBuiltInFunction"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//TernaryBuiltInFunctionCall/Parameter1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//TernaryBuiltInFunctionCall/Parameter2"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//TernaryBuiltInFunctionCall/Parameter3"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//TernaryExpression">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//TernaryExpression/Operator"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//TernaryExpression/Operand1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//TernaryExpression/Operand2"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//TernaryExpression/Operand3"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//TxPowerConstant">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//TxPowerConstant/TxPower"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//UnaryBuiltInFunctionCall">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//UnaryBuiltInFunctionCall/UnaryBuiltInFunction"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//UnaryBuiltInFunctionCall/Parameter"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//UnaryBuiltInValueFunctionCall">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//UnaryBuiltInValueFunctionCall/UnaryBuiltInValueFunction"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//UnaryBuiltInValueFunctionCall/Parameter"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//UnaryExpression">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//UnaryExpression/Operand"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//UnaryExpression/Operator"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//UntilStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//UntilStatement/Condition"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//UntilStatement/Body"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="NQC.ecore#//ValueExpression"/>
+    <genClasses ecoreClass="NQC.ecore#//Variable">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//Variable/Name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute NQC.ecore#//Variable/Type"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//Variable/InitialValue"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference NQC.ecore#//Variable/ArrayMaxSize"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//VariableExpression">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference NQC.ecore#//VariableExpression/Variable"/>
+    </genClasses>
+    <genClasses ecoreClass="NQC.ecore#//WhileStatement">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//WhileStatement/Condition"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference NQC.ecore#//WhileStatement/Body"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

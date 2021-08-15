@@ -1,0 +1,362 @@
+<workflow>
+
+  <property name='inputname' value='LegoCase' />
+  <property name='slcoinputfile' value='${inputname}.slco' />
+
+  <property name='ic_channelsinputfile' value='${inputname}_merge.channels' />
+  <property name='mc_channelsinputfile' value='${inputname}_merge_ic.channels' />
+  <property name='as_channelsinputfile' value='${inputname}_merge_ic_mc.channels' />
+  <property name='arg_channelsinputfile' value='${inputname}_merge_ic_mc_as.channels' />
+  <property name='uni_channelsinputfile' value='${inputname}_merge_ic_mc_as_arg.channels' />
+  <property name='ll_channelsinputfile' value='${inputname}_merge_ic_mc_as_arg_uni.channels' />
+  <property name='ex_channelsinputfile' value='${inputname}_merge_ic_mc_as_arg_uni_ll_time.channels' />
+
+  <property name='merge1_objectsinputfile' value='${inputname}.objects' />
+  <property name='merge2_objectsinputfile' value='${inputname}_merge_ic_mc_as_arg_uni_ll_time_ex.objects' />
+  
+  <property name='delaysinputfile' value='${inputname}_merge_ic_mc_as_arg_uni_ll.delays' />
+
+  <property name='merge1outputfile' value='${inputname}_merge.slco' />
+  <property name='icoutputfile' value='${inputname}_merge_ic.slco' />
+  <property name='mcoutputfile' value='${inputname}_merge_ic_mc.slco' />
+  <property name='asoutputfile' value='${inputname}_merge_ic_mc_as.slco' />
+  <property name='argoutputfile' value='${inputname}_merge_ic_mc_as_arg.slco' />
+  <property name='unioutputfile' value='${inputname}_merge_ic_mc_as_arg_uni.slco' />
+  <property name='lloutputfile' value='${inputname}_merge_ic_mc_as_arg_uni_ll.slco' />
+  <property name='timeoutputfile' value='${inputname}_merge_ic_mc_as_arg_uni_ll_time.slco' />
+  <property name='exoutputfile' value='${inputname}_merge_ic_mc_as_arg_uni_ll_time_ex.slco' />
+  <property name='merge2outputfile' value='${inputname}_merge_ic_mc_as_arg_uni_ll_time_ex_merge.slco' />
+  <property name='intoutputfile' value='${inputname}_merge_ic_mc_as_arg_uni_ll_time_ex_merge_int.slco' />
+  
+  <property name='slcosourcedir' value='../models/slco_ecore'/>
+  <property name='objectssourcedir' value='../models/LegoCase/Left_Right__Middle/objects'/>
+  <property name='delayssourcedir' value='../models/LegoCase/Left_Right__Middle/delays'/>
+  <property name='channelssourcedir' value='../models/LegoCase/Left_Right__Middle/channels'/>
+  <property name='targetdir' value='../models/LegoCase/Left_Right__Middle/nqc_slco_ecore'/>
+  
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${slcosourcedir}/${slcoinputfile}"/>
+    <outputSlot value="SLCOModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${objectssourcedir}/${merge1_objectsinputfile}"/>
+    <outputSlot value="OBJECTS1"/>
+  </component>
+
+  <component id="merge1" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="objects" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="objects.ObjectsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::MergeObjects::modifyModelMerge(SLCOModel, OBJECTS1)"/>
+    <outputSlot value="IMerge1Model"/>
+  </component>
+
+  <component id="ruc_merge1" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::RemoveUnusedClasses::modifyModelRUC(IMerge1Model)"/>
+    <outputSlot value="Merge1Model"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${merge1outputfile}"/>
+    <inputSlot value="Merge1Model"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${channelssourcedir}/${ic_channelsinputfile}"/>
+    <outputSlot value="ICCHANNELS"/>
+  </component>
+
+  <component id="ic" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::IdentifyChannels::modifyModelIC(Merge1Model, ICCHANNELS)"/>
+    <outputSlot value="IICChanModel"/>
+  </component>
+
+  <component id="ruc_ic" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::RemoveUnusedClasses::modifyModelRUC(IICChanModel)"/>
+    <outputSlot value="ICChanModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${icoutputfile}"/>
+    <inputSlot value="ICChanModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${channelssourcedir}/${mc_channelsinputfile}"/>
+    <outputSlot value="CHANNELS"/>
+  </component>
+
+  <component id="merge" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::MergeChannels::modifyModelChan(ICChanModel, CHANNELS)"/>
+    <outputSlot value="IASModel"/>
+  </component>
+
+  <component id="ruc_as" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::RemoveUnusedClasses::modifyModelRUC(IASModel)"/>
+    <outputSlot value="ASModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${mcoutputfile}"/>
+    <inputSlot value="ASModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${channelssourcedir}/${as_channelsinputfile}"/>
+    <outputSlot value="ASCHANNELS"/>
+  </component>
+
+  <component id="s2as" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::Sync2Async::modifyModelS2AS(SLCOModel, ASCHANNELS)"/>
+    <outputSlot value="IASModel"/>
+  </component>
+
+  <component id="ruc_as" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::RemoveUnusedClasses::modifyModelRUC(IASModel)"/>
+    <outputSlot value="ASModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${asoutputfile}"/>
+    <inputSlot value="ASModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${channelssourcedir}/${arg_channelsinputfile}"/>
+    <outputSlot value="ARGCHANNELS"/>
+  </component>
+
+  <component id="as2arg" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::Names2Arguments::modifyModelN2A(ASModel, ARGCHANNELS)"/>
+    <outputSlot value="IARGModel"/>
+  </component>
+
+  <component id="ruc_arg" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::RemoveUnusedClasses::modifyModelRUC(IARGModel)"/>
+    <outputSlot value="ARGModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${argoutputfile}"/>
+    <inputSlot value="ARGModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${channelssourcedir}/${uni_channelsinputfile}"/>
+    <outputSlot value="UNICHANNELS"/>
+  </component>
+
+  <component id="b2u" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::Bi2Uni::modifyModelB2U(ARGModel, UNICHANNELS)"/>
+    <outputSlot value="IUNIModel"/>
+  </component>
+
+  <component id="ruc_uni" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::RemoveUnusedClasses::modifyModelRUC(IUNIModel)"/>
+    <outputSlot value="UNIModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${unioutputfile}"/>
+    <inputSlot value="UNIModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${channelssourcedir}/${ll_channelsinputfile}"/>
+    <outputSlot value="LLCHANNELS"/>
+  </component>
+
+  <component id="arg2ll" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::Lossy2Lossless::modifyModelL2LL(UNIModel, LLCHANNELS)"/>
+    <outputSlot value="LLModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${lloutputfile}"/>
+    <inputSlot value="LLModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${delayssourcedir}/${delaysinputfile}"/>
+    <outputSlot value="DELAYS"/>
+  </component>
+
+  <component id="ll2time" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="deadlines" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="delays.DelaysPackage"/>
+    </metaModel>
+    <invoke value="Transformations::AddDelays::modifyModelDelays(LLModel, DELAYS)"/>
+    <outputSlot value="TIMEModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${timeoutputfile}"/>
+    <inputSlot value="TIMEModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${channelssourcedir}/${ex_channelsinputfile}"/>
+    <outputSlot value="EXCHANNELS"/>
+  </component>
+
+  <component id="ex" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::ExclusiveChannels::modifyModelEX(TIMEModel, EXCHANNELS)"/>
+    <outputSlot value="IEXModel"/>
+  </component>
+
+  <component id="ruc_ex" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::RemoveUnusedClasses::modifyModelRUC(IEXModel)"/>
+    <outputSlot value="EXModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${exoutputfile}"/>
+    <inputSlot value="EXModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${objectssourcedir}/${merge2_objectsinputfile}"/>
+    <outputSlot value="OBJECTS2"/>
+  </component>
+
+  <component id="merge1" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="objects" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="objects.ObjectsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::MergeObjects::modifyModelMerge(EXModel, OBJECTS2)"/>
+    <outputSlot value="IMerge2Model"/>
+  </component>
+
+  <component id="ruc_merge1" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <invoke value="Transformations::RemoveUnusedClasses::modifyModelRUC(IMerge2Model)"/>
+    <outputSlot value="Merge2Model"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${merge2outputfile}"/>
+    <inputSlot value="Merge2Model"/>
+  </component>
+
+  <component id="merge2i" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="channels.ChannelsPackage"/>
+    </metaModel>
+    <invoke value="Transformations::StringsToIntegers::stringsToIntegers(Merge2Model)"/>
+    <outputSlot value="INTModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${intoutputfile}"/>
+    <inputSlot value="INTModel"/>
+  </component>
+
+</workflow>

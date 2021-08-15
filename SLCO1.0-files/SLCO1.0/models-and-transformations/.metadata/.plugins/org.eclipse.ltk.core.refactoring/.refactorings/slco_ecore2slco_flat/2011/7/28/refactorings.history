@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;slco_ecore2slco_flat/src/Transformations/Slco2Dot.xpt&apos; to &apos;Slco2FlatDot.xpt&apos;" description="Rename resource &apos;Slco2Dot.xpt&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/Transformations/Slco2Dot.xpt" name="Slco2FlatDot.xpt" stamp="1310742221931" updateReferences="true"/>
+</session>

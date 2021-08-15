@@ -1,0 +1,56 @@
+/**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
+ */
+package NQC;
+
+
+/**
+ * <!-- begin-user-doc -->
+ * A representation of the model object '<em><b>Sound Constant</b></em>'.
+ * <!-- end-user-doc -->
+ *
+ * <p>
+ * The following features are supported:
+ * <ul>
+ *   <li>{@link NQC.SoundConstant#getSound <em>Sound</em>}</li>
+ * </ul>
+ * </p>
+ *
+ * @see NQC.NQCPackage#getSoundConstant()
+ * @model
+ * @generated
+ */
+public interface SoundConstant extends ConstantExpression {
+	/**
+	 * Returns the value of the '<em><b>Sound</b></em>' attribute.
+	 * The literals are from the enumeration {@link NQC.SoundEnum}.
+	 * <!-- begin-user-doc -->
+	 * <p>
+	 * If the meaning of the '<em>Sound</em>' attribute isn't clear,
+	 * there really should be more of a description here...
+	 * </p>
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Sound</em>' attribute.
+	 * @see NQC.SoundEnum
+	 * @see #setSound(SoundEnum)
+	 * @see NQC.NQCPackage#getSoundConstant_Sound()
+	 * @model required="true"
+	 * @generated
+	 */
+	SoundEnum getSound();
+
+	/**
+	 * Sets the value of the '{@link NQC.SoundConstant#getSound <em>Sound</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @param value the new value of the '<em>Sound</em>' attribute.
+	 * @see NQC.SoundEnum
+	 * @see #getSound()
+	 * @generated
+	 */
+	void setSound(SoundEnum value);
+
+} // SoundConstant

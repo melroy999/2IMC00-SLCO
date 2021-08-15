@@ -1,0 +1,27 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: slco-text2slco-code
+Bundle-SymbolicName: slco-text2slco-code; singleton:=true
+Bundle-Version: 1.0.0
+Require-Bundle: slco.emf;bundle-version="1.0.0",
+ channels.emf;bundle-version="1.0.0",
+ slco2nqc.emf;bundle-version="1.0.0",
+ objects.emf;bundle-version="1.0.0",
+ org.apache.commons.logging;bundle-version="1.0.4",
+ org.eclipse.emf.ecore;bundle-version="2.5.0",
+ org.eclipse.emf.ecore.xmi;bundle-version="2.5.0",
+ org.eclipse.xtend.typesystem.emf;bundle-version="0.7.0",
+ org.eclipse.emf.mwe.core;bundle-version="0.7.0",
+ org.eclipse.emf.mwe.utils;bundle-version="0.7.0",
+ org.eclipse.xtext;bundle-version="0.7.0",
+ org.eclipse.xtend;bundle-version="0.7.0",
+ org.eclipse.xtend.util.stdlib;bundle-version="0.7.0",
+ org.eclipse.xpand;bundle-version="0.7.0",
+ org.eclipse.jface.text;bundle-version="3.5.0",
+ org.antlr.runtime;bundle-version="3.0.0",
+ com.ibm.icu;bundle-version="4.0.1",
+ nqc.emf;bundle-version="1.0.0",
+ org.xtext.textualslco;bundle-version="1.0.0",
+ org.eclipse.emf.mwe2.launch;bundle-version="2.3.0",
+ org.apache.log4j;bundle-version="1.2.15"
+Bundle-RequiredExecutionEnvironment: J2SE-1.5

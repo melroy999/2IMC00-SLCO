@@ -1,0 +1,58 @@
+int want1;
+int want2;
+int turn;
+
+proctype p1 {	
+do
+:: true ->
+		store(want1, 1);
+		do
+		:: load(want2,1) ->
+			if
+			:: load(turn,1) ->
+				store(want1, 0);
+				
+				if
+				:: load(turn,0) -> skip;
+				fi;
+				
+				store(want1, 1);
+			:: load(turn,0) -> skip;
+			fi;
+			
+		:: load(want2,0) -> break;
+		od;
+		
+		store(turn, 1);
+		store(want1, 0);
+		break;
+od;
+}
+
+
+proctype p2 {
+do
+:: true ->
+		store(want2, 1);
+		do
+		:: load(want1,1) ->			
+			if
+			:: load(turn,0) ->
+				store(want2, 0);
+				
+				if
+				:: load(turn,1) -> skip;
+				fi;
+				
+				store(want2, 1);
+			:: load(turn,1) -> skip;
+			fi;
+			
+		:: load(want1,0) -> break;
+		od;
+		
+		store(turn, 0);
+		store(want2, 0);
+		break;
+od;
+}

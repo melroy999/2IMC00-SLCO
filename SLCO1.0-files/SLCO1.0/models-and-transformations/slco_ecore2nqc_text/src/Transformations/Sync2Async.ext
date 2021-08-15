@@ -1,0 +1,867 @@
+import slco;
+import channels;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension Libraries::Equality;
+extension Libraries::ModifyModel;
+extension Libraries::CreationSLCO;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// Replaces an synchronous channel by an asynchronous channel and adds
+// acknowledgements.
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// Copy the classes that need to be modified and update all references to these
+// classes.
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+slco::Model modifyModelS2AS(
+   slco::Model model, channels::ChannelList channels
+) :
+   let cl = model.channels.select(
+      c1
+   |
+      channels.channels.exists(
+         c2 
+      |
+         c1.channelEqualsChannel(c2)
+      )
+   ) :
+   let snl = cl.getSignalNamesFromChannels() :
+      model.modifyModel(cl, "_as")
+   // Modify all classes by adding acknowledgements
+   -> cl.addProtocolsToClasses(snl)
+   // Convert all unidirectional channels to bidirectional channels 
+   -> model.channels.addAll(
+         cl.convertUniToBi()
+      )
+   // Remove all unidirectional channels for which a bidirectional
+   // replacement has been added
+   -> model.channels.removeAll(
+         cl.typeSelect(slco::UnidirectionalChannel)
+      )
+   -> model.setName(
+         model.name + "_as"
+      )
+   -> model
+;
+
+slco::Model sync2Async(
+   slco::Model model, channels::ChannelList channels
+) :
+   let cl = model.channels.select(
+      c1
+   |
+      channels.channels.exists(
+         c2 
+      |
+         c1.channelEqualsChannel(c2)
+      )
+   ) :
+   let snl = cl.getSignalNamesFromChannels() :
+   // Modify all classes by adding acknowledgements
+      cl.addProtocolsToClasses(snl)
+   // Convert all unidirectional channels to bidirectional channels 
+   -> model.channels.addAll(
+         cl.convertUniToBi()
+      )
+   // Remove all unidirectional channels for which a bidirectional
+   // replacement has been added
+   -> model.channels.removeAll(
+         cl.typeSelect(slco::UnidirectionalChannel)
+      )
+   -> model.setName(
+         model.name + "_as"
+      )
+   -> model
+;
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// Update Classes to add acknowledgement signals.
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+private create Set[String] getSignalNamesFromChannels(
+   List[slco::Channel] channels
+) :
+   this.addAll(
+      channels.getSignalNamesFromChannel()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create Set[String] getSignalNamesFromChannel(
+   slco::Channel channel
+) :
+   syserr(
+     "Unknown type of channel encountered: "
+     +
+     channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create Set[String] getSignalNamesFromChannel(
+   slco::BidirectionalChannel channel
+) :
+   let signalNames1 = channel.object1.class.stateMachines.transitions.statements.typeSelect(
+      slco::SendSignal
+   ).select(
+      s
+   |
+      s.sendsSignalToPort(channel.port1)
+   ).signalName :
+   let signalNames2 = channel.object2.class.stateMachines.transitions.statements.typeSelect(
+      slco::SendSignal
+   ).select(
+      s
+   |
+      s.sendsSignalToPort(channel.port2)
+   ).signalName :
+      this.addAll(
+         signalNames1
+      )
+   -> this.addAll(
+         signalNames2
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private create Set[String] getSignalNamesFromChannel(
+   slco::UnidirectionalChannel channel
+) :
+   let signalNames1 = channel.sourceObject.class.stateMachines.transitions.statements.typeSelect(
+      slco::SendSignal
+   ).select(
+      s
+   |
+      s.sendsSignalToPort(channel.sourcePort)
+   ).signalName :
+   let signalNames2 = channel.targetObject.class.stateMachines.transitions.statements.typeSelect(
+      slco::SendSignal
+   ).select(
+      s
+   |
+      s.sendsSignalToPort(channel.targetPort)
+   ).signalName :
+      this.addAll(
+         signalNames1
+      )
+   -> this.addAll(
+         signalNames2
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Channel convertUniToBi(slco::Channel channel) :
+   syserr(
+      "Sync2Async - convertUniToBi - unknown channel type: "
+      +
+      channel.metaType.toString()
+   )
+;
+
+
+// ----------------------------------------------------------------------------
+
+private slco::BidirectionalChannel convertUniToBi(
+   slco::BidirectionalChannel channel
+) :
+   channel
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::BidirectionalChannel convertUniToBi(
+   slco::UnidirectionalChannel channel
+) :
+   this.setArgumentTypes(channel.argumentTypes)
+-> this.setChannelType(slco::ChannelTypeEnum::async_lossless)
+-> this.setName(channel.name)
+-> this.setObject1(channel.sourceObject)
+-> this.setObject2(channel.targetObject)
+-> this.setPort1(channel.sourcePort)
+-> this.setPort2(channel.targetPort)
+;
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+private Void addProtocolsToClasses(
+   slco::Channel channel, Set[String] signalNames
+) :
+   syserr(
+     "Unknown type of channel encountered: "
+     +
+     channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addProtocolsToClasses(
+   slco::UnidirectionalChannel channel, Set[String] signalNames
+) :
+   chooseAndAddProtocol(
+      channel.sourceObject.class, channel.sourcePort,
+      channel.targetObject.class, channel.targetPort,
+      signalNames
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addProtocolsToClasses(
+   slco::BidirectionalChannel channel, Set[String] signalNames
+) :
+   chooseAndAddProtocol(
+      channel.object1.class, channel.port1,
+      channel.object2.class, channel.port2,
+      signalNames
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void chooseAndAddProtocol(
+   slco::Class class1, slco::Port port1, slco::Class class2, slco::Port port2,
+   Set[String] signalNames
+) :
+   signalNames.chooseAndAddProtocol(class1, port1, class2, port2)
+-> signalNames.chooseAndAddProtocol(class2, port2, class1, port1)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void chooseAndAddProtocol(
+   String signalName, slco::Class class1, slco::Port port1, slco::Class class2,
+   slco::Port port2
+) :
+   if (
+      class1.sendsNonDeterministically(signalName, port1)
+   ) then (
+      class1.stateMachines.addHandshakeToStateMachine(class1, signalName, port1)
+   -> class2.stateMachines.addHandshakeToStateMachine(class2, signalName, port2)
+   -> class1.variables.add(
+         class1.createSenderVariable(port1)
+      )
+   -> class2.variables.add(
+         class2.createReceiverVariable(port2)
+      )
+   -> class1.stateMachines.add(
+         class1.createReader()
+      )
+   -> class1.addSenderTransitionToReader(signalName, port1)
+   -> class2.stateMachines.add(
+         class2.createReader()
+      )
+   -> class2.addReceiverTransitionToReader(signalName, port2)
+   ) else (
+      class1.stateMachines.addAcknowledgementsToStateMachine(signalName, port1)
+   -> class2.stateMachines.addAcknowledgementsToStateMachine(signalName, port2)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::StateMachine createReader(slco::Class class) :
+   this.setName(class.name + "_reader")
+-> this.vertices.add(class.createInitial())
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::Initial createInitial(slco::Class class) :
+   this.setName(class.name + "_reader_is")
+;
+
+// ----------------------------------------------------------------------------
+
+Void addSenderTransitionToReader(
+   slco::Class class, String signalName, slco::Port port
+) :
+   let transition = createTransition(
+      signalName + "_" + port.name, class.createInitial(),
+      class.createInitial()
+   ) :
+   let signalReception = createSignalReception(
+      signalName, port,
+      {
+         createSignalArgumentVariable(
+            class.createSenderVariable(port)
+         )
+      }
+   ) :
+      class.createReader().transitions.add(
+         transition
+      )
+   -> transition.statements.add(signalReception)
+;
+
+// ----------------------------------------------------------------------------
+
+Void addReceiverTransitionToReader(
+   slco::Class class, String signalName, slco::Port port
+) :
+   let transition = createTransition(
+      signalName + "_" + port.name, class.createInitial(),
+      class.createInitial()
+   ) :
+   let signalReception = createSignalReception(
+      signalName, port,
+      {
+         createSignalArgumentVariable(
+            class.createReceiverVariable(port)
+         )
+      }
+   ) :
+      class.createReader().transitions.add(
+         transition
+      )
+   -> transition.statements.add(signalReception)
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::Variable createSenderVariable(
+   slco::Class class, slco::Port port
+) :
+   this.setName("sendvar_" + port.name)
+-> this.setType(slco::PrimitiveTypeEnum::Integer)
+-> this.setInitialValue(createIntegerConstantExpression(0))
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::Variable createReceiverVariable(
+   slco::Class class, slco::Port port
+) :
+   this.setName("recvar_" + port.name)
+-> this.setType(slco::PrimitiveTypeEnum::Integer)
+-> this.setInitialValue(createIntegerConstantExpression(3))
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean sendsNonDeterministically(
+   slco::Class class, String signalName, slco::Port port
+) :
+   class.stateMachines.exists(
+      sm
+   |
+      sm.sendsNonDeterministically(signalName, port)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean sendsNonDeterministically(
+   slco::StateMachine stateMachine, String signalName, slco::Port port
+) :
+   stateMachine.transitions.exists(
+      t
+   |
+      (
+         t.statements.first().sendsSignal(
+            signalName, port
+         )
+      &&
+         t.source.outgoing.size > 1
+      )
+   )   
+;
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+private Boolean sendsSignal(
+   slco::Statement statement,
+   String signalName, slco::Port port
+) :
+   false
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean sendsSignal(
+   slco::SendSignal sendSignal, String signalName,
+   slco::Port port
+) :
+   (
+      port.portEqualsPort(
+         sendSignal.port
+      )
+   &&
+      sendSignal.signalName == signalName
+   &&
+      sendSignal.arguments.size == 0
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean sendsSignalToPort(
+   slco::Statement statement, slco::Port port
+) :
+   false
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean sendsSignalToPort(
+   slco::SendSignal sendSignal, slco::Port port
+) :
+   port.portEqualsPort(
+      sendSignal.port
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean receivesSignal(
+   slco::Statement statement, String signalName, slco::Port port
+) :
+   false
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean receivesSignal(
+   slco::SignalReception signalReception, String signalName, slco::Port port
+) :
+   (
+      port.portEqualsPort(
+         signalReception.port
+      )
+   &&
+      signalReception.signalName == signalName
+   &&
+      signalReception.arguments.size == 0
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Boolean receivesSignalFromPort(
+   slco::SignalReception signalReception, slco::Port port
+) :
+   port.portEqualsPort(
+      signalReception.port
+   )
+;
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+private cached Void addAcknowledgementsToStateMachine(
+   slco::StateMachine stateMachine, String signalName, slco::Port port  
+) :
+   stateMachine.transitions.renameAndAddAcknowledgeForSend(
+      signalName, port
+   )
+-> stateMachine.transitions.addAcknowledgeForReceive(signalName, port)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void
+   renameAndAddAcknowledgeForSend(
+      slco::Transition transition, String signalName, slco::Port port
+) :
+   if (
+      transition.statements.exists(
+         s
+      |
+         s.sendsSignal(signalName, port)
+      )
+   ) then (
+      let s = (slco::SendSignal) transition.statements.selectFirst(
+                 s
+              |
+                 s.sendsSignal(signalName, port)
+              ) :
+      let signalReception = new slco::SignalReception :
+         signalReception.setPort(port)
+      -> signalReception.setSignalName(
+            "Acknowledge_" + signalName
+         )
+      -> s.setSignalName(
+            "Send_" + signalName
+         )
+      -> transition.setStatements(
+            transition.statements.select(
+               teos
+            |
+               transition.statements.indexOf(teos)
+            <=
+               transition.statements.indexOf(s)
+            ).union(
+               {signalReception}
+            ).union(
+               transition.statements.select(
+                  stat
+               |
+                  transition.statements.indexOf(stat)
+               >
+                  transition.statements.indexOf(s)
+               )
+            ).toList()
+         )
+      -> transition.renameAndAddAcknowledgeForSend(
+            signalName, port
+         )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addAcknowledgeForReceive(
+   slco::StateMachine stateMachine, String signalName, slco::Port port
+) :
+   stateMachine.transitions.select(
+      t
+   |
+      t.statements.typeSelect(
+         slco::SignalReception
+      ).exists(
+         sr
+      |
+         sr.receivesSignal(signalName, port)
+      )
+   ).addAcknowledgeForReceive(signalName, port)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addAcknowledgeForReceive(
+   slco::Transition transition, String signalName, slco::Port port
+) :
+   if (
+      transition.statements.typeSelect(
+         slco::SignalReception
+      ).exists(
+         sr
+      |
+         sr.receivesSignal(signalName, port)
+      )
+   ) then (
+      let s = new slco::SendSignal :
+      let fsr = transition.statements.typeSelect(
+         slco::SignalReception
+      ).selectFirst(
+         sr
+      |
+         sr.receivesSignal(signalName, port)
+      ) :
+         s.setPort(port)
+      -> s.setSignalName(
+            "Acknowledge_" + signalName
+         )
+      -> transition.setStatements(
+            transition.statements.select(
+               teos
+            |
+               transition.statements.indexOf(teos)
+            <=
+               transition.statements.indexOf(fsr)
+            ).union(
+               {s}
+            ).union(
+               transition.statements.select(
+                  teos
+               |
+                  transition.statements.indexOf(teos)
+               >
+                  transition.statements.indexOf(fsr)
+               )
+            ).toList()
+         )
+      -> fsr.setSignalName(
+            "Send_" + signalName
+         )
+      -> transition.addAcknowledgeForReceive(signalName, port)
+   )
+;
+
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
+
+private cached Void addHandshakeToStateMachine(
+   slco::StateMachine stateMachine, slco::Class class, String signalName,
+   slco::Port port
+) :
+   stateMachine.transitions.addAll(
+      stateMachine.transitions.createIntermediateStatesForHandshake(
+         class, stateMachine, signalName, port
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[slco::Transition]
+   createIntermediateStatesForHandshake(
+      slco::Transition transition, slco::Class class,
+      slco::StateMachine stateMachine, String signalName, slco::Port port
+) :
+   if (
+      transition.statements.typeSelect(
+         slco::SendSignal
+      ).exists(
+         s
+      |
+         s.sendsSignal(signalName, port)
+      )
+   ) then (
+      let s = transition.statements.typeSelect(
+         slco::SendSignal
+      ).selectFirst(
+         s
+      |
+         s.sendsSignal(signalName, port)
+      ) :
+      let nt1 = new slco::Transition :
+      let nt3 = new slco::Transition :
+      let ns1 = new slco::State :
+         ns1.setName(
+            (
+               transition.source.name
+            +
+               "_"
+            +
+               stateMachine.vertices.indexOf(
+                  transition.target
+               ).toString()
+            +
+               "_"
+            +
+               class.ports.indexOf(port)
+            +
+               "_"
+            +
+               signalName
+            +
+               "_1"
+            )
+         )
+      -> nt1.setName(
+            ns1.name + "To" + transition.target.name
+         )
+      -> nt3.setName(
+           ns1.name + "To" + transition.source.name
+         )
+      -> nt1.setSource(ns1)
+      -> nt1.setTarget(transition.target)
+      -> nt3.setSource(ns1)
+      -> nt3.setTarget(transition.source)
+      -> transition.setTarget(ns1)
+      -> transition.setName(
+            transition.source.name + "To" + ns1.name
+         )
+      -> stateMachine.vertices.add(ns1)
+      -> nt1.statements.add(
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::equals,
+               createVariableExpression(
+                  class.createSenderVariable(port)
+               ),
+               createIntegerConstantExpression(2)
+            )
+         )
+      -> nt1.statements.add(
+            createSendSignal(
+               signalName, port, {createIntegerConstantExpression(3)}
+            )
+         )
+      -> nt1.statements.addAll(
+            transition.statements.select(
+               ds
+            |
+               transition.statements.indexOf(ds)
+            >
+               transition.statements.indexOf(s)
+            )
+         )
+      -> nt1.statements.add(
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::equals,
+               createVariableExpression(
+                  class.createSenderVariable(port)
+               ),
+               createIntegerConstantExpression(0)
+            )
+         )
+      -> nt3.statements.add(
+            createAssignment(
+               class.createSenderVariable(port),
+               createIntegerConstantExpression(2)
+            )
+         )
+      -> nt3.statements.add(
+            createSendSignal(
+               signalName, port, {createIntegerConstantExpression(4)}
+            )
+         )
+      -> transition.statements.add(
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::equals,
+               createVariableExpression(
+                  class.createSenderVariable(port)
+               ),
+               createIntegerConstantExpression(0)
+            )
+         )
+      -> s.arguments.add(
+            createIntegerConstantExpression(1)
+         )
+      -> this.add(nt1)
+      -> this.add(nt3)
+      -> this.addAll(
+            nt1.createIntermediateStatesForHandshake(
+               class, stateMachine, signalName, port
+            )
+         )
+   ) else if (
+      transition.statements.typeSelect(
+         slco::SignalReception
+      ).exists(
+         sr
+      |
+         sr.receivesSignal(signalName, port)
+      )
+   ) then (
+      let t = transition.statements.typeSelect(
+         slco::SignalReception
+      ).selectFirst(
+         sr
+      |
+         sr.receivesSignal(signalName, port)
+      ) :
+      let nt1 = new slco::Transition :
+      let nt2 = new slco::Transition :
+      let nt3 = new slco::Transition :
+      let ns1 = new slco::State :
+         ns1.setName(
+            (
+               transition.source.name
+            +
+               "_"
+            +
+               stateMachine.vertices.indexOf(
+                  transition.target
+               ).toString()
+            +
+               "_"
+            +
+               class.ports.indexOf(port)
+            +
+               "_"
+            +
+               signalName
+            +
+               "_1"
+            )
+         )
+      -> nt1.setName(
+            ns1.name + "To" + transition.target.name
+         )
+      -> nt2.setName(
+            ns1.name + "To" + ns1.name + "_canc_" + port.name
+         )
+      -> nt3.setName(
+            ns1.name + "To" + transition.source.name
+         )
+      -> nt1.setSource(ns1)
+      -> nt1.setTarget(transition.target)
+      -> nt2.setSource(transition.source)
+      -> nt2.setTarget(transition.source)
+      -> nt3.setSource(ns1)
+      -> nt3.setTarget(transition.source)
+      -> transition.setTarget(ns1)
+      -> stateMachine.vertices.add(ns1)
+      -> nt1.statements.add(
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::equals,
+               createVariableExpression(
+                  class.createReceiverVariable(port)
+               ),
+               createIntegerConstantExpression(3)
+            )
+         )
+      -> nt1.statements.add(
+            createSendSignal(
+               signalName, port, {createIntegerConstantExpression(0)}
+            )
+         )
+      -> nt1.statements.addAll(
+            transition.statements.remove(t)
+         )
+      -> nt2.statements.add(
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::equals,
+               createVariableExpression(
+                  class.createReceiverVariable(port)
+               ),
+               createIntegerConstantExpression(4)
+            )
+         )
+      -> nt2.statements.add(
+            createAssignment(
+               class.createReceiverVariable(port),
+               createIntegerConstantExpression(3)
+            )
+         )
+      -> nt2.statements.add(
+            createSendSignal(
+               signalName, port, {createIntegerConstantExpression(0)}
+            )
+         )
+      -> nt3.statements.add(
+            createBinaryOperatorExpression(
+               slco::OperatorEnum::equals,
+               createVariableExpression(
+                  class.createReceiverVariable(port)
+               ),
+               createIntegerConstantExpression(4)
+            )
+         )
+      -> transition.statements.add(
+            createSendSignal(
+               signalName, port, {createIntegerConstantExpression(2)}
+            )
+         )
+      -> this.add(nt1)
+      -> this.add(nt2)
+      -> this.add(nt3)
+      -> transition.setStatements(
+            {
+               createBinaryOperatorExpression(
+                  slco::OperatorEnum::equals,
+                  createVariableExpression(
+                     class.createReceiverVariable(port)
+                  ),
+                  createIntegerConstantExpression(1)
+               )
+            }.union(
+               transition.statements
+            ).toList()
+         )
+      -> this
+   )
+;

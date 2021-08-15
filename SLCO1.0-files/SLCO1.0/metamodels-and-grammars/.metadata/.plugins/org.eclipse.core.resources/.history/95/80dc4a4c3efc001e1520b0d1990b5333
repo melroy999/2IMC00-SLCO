@@ -1,0 +1,578 @@
+/**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
+ */
+package NQC.impl;
+
+import NQC.BuiltInSenaryFunctionEnum;
+import NQC.Expression;
+import NQC.NQCPackage;
+import NQC.SenaryBuiltInFunctionCall;
+
+import org.eclipse.emf.common.notify.Notification;
+import org.eclipse.emf.common.notify.NotificationChain;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.InternalEObject;
+
+import org.eclipse.emf.ecore.impl.ENotificationImpl;
+
+/**
+ * <!-- begin-user-doc -->
+ * An implementation of the model object '<em><b>Senary Built In Function Call</b></em>'.
+ * <!-- end-user-doc -->
+ * <p>
+ * The following features are implemented:
+ * <ul>
+ *   <li>{@link NQC.impl.SenaryBuiltInFunctionCallImpl#getSenaryBuiltInFunction <em>Senary Built In Function</em>}</li>
+ *   <li>{@link NQC.impl.SenaryBuiltInFunctionCallImpl#getParameter1 <em>Parameter1</em>}</li>
+ *   <li>{@link NQC.impl.SenaryBuiltInFunctionCallImpl#getParameter2 <em>Parameter2</em>}</li>
+ *   <li>{@link NQC.impl.SenaryBuiltInFunctionCallImpl#getParameter3 <em>Parameter3</em>}</li>
+ *   <li>{@link NQC.impl.SenaryBuiltInFunctionCallImpl#getParameter4 <em>Parameter4</em>}</li>
+ *   <li>{@link NQC.impl.SenaryBuiltInFunctionCallImpl#getParameter5 <em>Parameter5</em>}</li>
+ *   <li>{@link NQC.impl.SenaryBuiltInFunctionCallImpl#getParameter6 <em>Parameter6</em>}</li>
+ * </ul>
+ * </p>
+ *
+ * @generated
+ */
+public class SenaryBuiltInFunctionCallImpl extends BuiltInFunctionCallImpl implements SenaryBuiltInFunctionCall {
+	/**
+	 * The default value of the '{@link #getSenaryBuiltInFunction() <em>Senary Built In Function</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getSenaryBuiltInFunction()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final BuiltInSenaryFunctionEnum SENARY_BUILT_IN_FUNCTION_EDEFAULT = BuiltInSenaryFunctionEnum.SET_SPYBOT_MESSAGE;
+
+	/**
+	 * The cached value of the '{@link #getSenaryBuiltInFunction() <em>Senary Built In Function</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getSenaryBuiltInFunction()
+	 * @generated
+	 * @ordered
+	 */
+	protected BuiltInSenaryFunctionEnum senaryBuiltInFunction = SENARY_BUILT_IN_FUNCTION_EDEFAULT;
+
+	/**
+	 * The cached value of the '{@link #getParameter1() <em>Parameter1</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getParameter1()
+	 * @generated
+	 * @ordered
+	 */
+	protected Expression parameter1;
+
+	/**
+	 * The cached value of the '{@link #getParameter2() <em>Parameter2</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getParameter2()
+	 * @generated
+	 * @ordered
+	 */
+	protected Expression parameter2;
+
+	/**
+	 * The cached value of the '{@link #getParameter3() <em>Parameter3</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getParameter3()
+	 * @generated
+	 * @ordered
+	 */
+	protected Expression parameter3;
+
+	/**
+	 * The cached value of the '{@link #getParameter4() <em>Parameter4</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getParameter4()
+	 * @generated
+	 * @ordered
+	 */
+	protected Expression parameter4;
+
+	/**
+	 * The cached value of the '{@link #getParameter5() <em>Parameter5</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getParameter5()
+	 * @generated
+	 * @ordered
+	 */
+	protected Expression parameter5;
+
+	/**
+	 * The cached value of the '{@link #getParameter6() <em>Parameter6</em>}' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getParameter6()
+	 * @generated
+	 * @ordered
+	 */
+	protected Expression parameter6;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected SenaryBuiltInFunctionCallImpl() {
+		super();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	protected EClass eStaticClass() {
+		return NQCPackage.eINSTANCE.getSenaryBuiltInFunctionCall();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public BuiltInSenaryFunctionEnum getSenaryBuiltInFunction() {
+		return senaryBuiltInFunction;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setSenaryBuiltInFunction(BuiltInSenaryFunctionEnum newSenaryBuiltInFunction) {
+		BuiltInSenaryFunctionEnum oldSenaryBuiltInFunction = senaryBuiltInFunction;
+		senaryBuiltInFunction = newSenaryBuiltInFunction == null ? SENARY_BUILT_IN_FUNCTION_EDEFAULT : newSenaryBuiltInFunction;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__SENARY_BUILT_IN_FUNCTION, oldSenaryBuiltInFunction, senaryBuiltInFunction));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Expression getParameter1() {
+		return parameter1;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicSetParameter1(Expression newParameter1, NotificationChain msgs) {
+		Expression oldParameter1 = parameter1;
+		parameter1 = newParameter1;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER1, oldParameter1, newParameter1);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setParameter1(Expression newParameter1) {
+		if (newParameter1 != parameter1) {
+			NotificationChain msgs = null;
+			if (parameter1 != null)
+				msgs = ((InternalEObject)parameter1).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER1, null, msgs);
+			if (newParameter1 != null)
+				msgs = ((InternalEObject)newParameter1).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER1, null, msgs);
+			msgs = basicSetParameter1(newParameter1, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER1, newParameter1, newParameter1));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Expression getParameter2() {
+		return parameter2;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicSetParameter2(Expression newParameter2, NotificationChain msgs) {
+		Expression oldParameter2 = parameter2;
+		parameter2 = newParameter2;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER2, oldParameter2, newParameter2);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setParameter2(Expression newParameter2) {
+		if (newParameter2 != parameter2) {
+			NotificationChain msgs = null;
+			if (parameter2 != null)
+				msgs = ((InternalEObject)parameter2).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER2, null, msgs);
+			if (newParameter2 != null)
+				msgs = ((InternalEObject)newParameter2).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER2, null, msgs);
+			msgs = basicSetParameter2(newParameter2, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER2, newParameter2, newParameter2));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Expression getParameter3() {
+		return parameter3;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicSetParameter3(Expression newParameter3, NotificationChain msgs) {
+		Expression oldParameter3 = parameter3;
+		parameter3 = newParameter3;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER3, oldParameter3, newParameter3);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setParameter3(Expression newParameter3) {
+		if (newParameter3 != parameter3) {
+			NotificationChain msgs = null;
+			if (parameter3 != null)
+				msgs = ((InternalEObject)parameter3).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER3, null, msgs);
+			if (newParameter3 != null)
+				msgs = ((InternalEObject)newParameter3).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER3, null, msgs);
+			msgs = basicSetParameter3(newParameter3, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER3, newParameter3, newParameter3));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Expression getParameter4() {
+		return parameter4;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicSetParameter4(Expression newParameter4, NotificationChain msgs) {
+		Expression oldParameter4 = parameter4;
+		parameter4 = newParameter4;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER4, oldParameter4, newParameter4);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setParameter4(Expression newParameter4) {
+		if (newParameter4 != parameter4) {
+			NotificationChain msgs = null;
+			if (parameter4 != null)
+				msgs = ((InternalEObject)parameter4).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER4, null, msgs);
+			if (newParameter4 != null)
+				msgs = ((InternalEObject)newParameter4).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER4, null, msgs);
+			msgs = basicSetParameter4(newParameter4, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER4, newParameter4, newParameter4));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Expression getParameter5() {
+		return parameter5;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicSetParameter5(Expression newParameter5, NotificationChain msgs) {
+		Expression oldParameter5 = parameter5;
+		parameter5 = newParameter5;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER5, oldParameter5, newParameter5);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setParameter5(Expression newParameter5) {
+		if (newParameter5 != parameter5) {
+			NotificationChain msgs = null;
+			if (parameter5 != null)
+				msgs = ((InternalEObject)parameter5).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER5, null, msgs);
+			if (newParameter5 != null)
+				msgs = ((InternalEObject)newParameter5).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER5, null, msgs);
+			msgs = basicSetParameter5(newParameter5, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER5, newParameter5, newParameter5));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public Expression getParameter6() {
+		return parameter6;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public NotificationChain basicSetParameter6(Expression newParameter6, NotificationChain msgs) {
+		Expression oldParameter6 = parameter6;
+		parameter6 = newParameter6;
+		if (eNotificationRequired()) {
+			ENotificationImpl notification = new ENotificationImpl(this, Notification.SET, NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER6, oldParameter6, newParameter6);
+			if (msgs == null) msgs = notification; else msgs.add(notification);
+		}
+		return msgs;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setParameter6(Expression newParameter6) {
+		if (newParameter6 != parameter6) {
+			NotificationChain msgs = null;
+			if (parameter6 != null)
+				msgs = ((InternalEObject)parameter6).eInverseRemove(this, EOPPOSITE_FEATURE_BASE - NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER6, null, msgs);
+			if (newParameter6 != null)
+				msgs = ((InternalEObject)newParameter6).eInverseAdd(this, EOPPOSITE_FEATURE_BASE - NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER6, null, msgs);
+			msgs = basicSetParameter6(newParameter6, msgs);
+			if (msgs != null) msgs.dispatch();
+		}
+		else if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER6, newParameter6, newParameter6));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
+		switch (featureID) {
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER1:
+				return basicSetParameter1(null, msgs);
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER2:
+				return basicSetParameter2(null, msgs);
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER3:
+				return basicSetParameter3(null, msgs);
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER4:
+				return basicSetParameter4(null, msgs);
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER5:
+				return basicSetParameter5(null, msgs);
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER6:
+				return basicSetParameter6(null, msgs);
+		}
+		return super.eInverseRemove(otherEnd, featureID, msgs);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Object eGet(int featureID, boolean resolve, boolean coreType) {
+		switch (featureID) {
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__SENARY_BUILT_IN_FUNCTION:
+				return getSenaryBuiltInFunction();
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER1:
+				return getParameter1();
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER2:
+				return getParameter2();
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER3:
+				return getParameter3();
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER4:
+				return getParameter4();
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER5:
+				return getParameter5();
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER6:
+				return getParameter6();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void eSet(int featureID, Object newValue) {
+		switch (featureID) {
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__SENARY_BUILT_IN_FUNCTION:
+				setSenaryBuiltInFunction((BuiltInSenaryFunctionEnum)newValue);
+				return;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER1:
+				setParameter1((Expression)newValue);
+				return;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER2:
+				setParameter2((Expression)newValue);
+				return;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER3:
+				setParameter3((Expression)newValue);
+				return;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER4:
+				setParameter4((Expression)newValue);
+				return;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER5:
+				setParameter5((Expression)newValue);
+				return;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER6:
+				setParameter6((Expression)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void eUnset(int featureID) {
+		switch (featureID) {
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__SENARY_BUILT_IN_FUNCTION:
+				setSenaryBuiltInFunction(SENARY_BUILT_IN_FUNCTION_EDEFAULT);
+				return;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER1:
+				setParameter1((Expression)null);
+				return;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER2:
+				setParameter2((Expression)null);
+				return;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER3:
+				setParameter3((Expression)null);
+				return;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER4:
+				setParameter4((Expression)null);
+				return;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER5:
+				setParameter5((Expression)null);
+				return;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER6:
+				setParameter6((Expression)null);
+				return;
+		}
+		super.eUnset(featureID);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean eIsSet(int featureID) {
+		switch (featureID) {
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__SENARY_BUILT_IN_FUNCTION:
+				return senaryBuiltInFunction != SENARY_BUILT_IN_FUNCTION_EDEFAULT;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER1:
+				return parameter1 != null;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER2:
+				return parameter2 != null;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER3:
+				return parameter3 != null;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER4:
+				return parameter4 != null;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER5:
+				return parameter5 != null;
+			case NQCPackage.SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER6:
+				return parameter6 != null;
+		}
+		return super.eIsSet(featureID);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public String toString() {
+		if (eIsProxy()) return super.toString();
+
+		StringBuffer result = new StringBuffer(super.toString());
+		result.append(" (SenaryBuiltInFunction: ");
+		result.append(senaryBuiltInFunction);
+		result.append(')');
+		return result.toString();
+	}
+
+} //SenaryBuiltInFunctionCallImpl

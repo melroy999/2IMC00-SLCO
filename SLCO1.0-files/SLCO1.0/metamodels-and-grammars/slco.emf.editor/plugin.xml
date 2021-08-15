@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="slco.presentation.SlcoModelWizardID"
+            name="%_UI_SlcoModelWizard_label"
+            class="slco.presentation.SlcoModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/SlcoModelFile.gif">
+         <description>%_UI_SlcoModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
+   <extension point="org.eclipse.ui.editors">
+      <editor
+            id="slco.presentation.SlcoEditorID"
+            name="%_UI_SlcoEditor_label"
+            icon="icons/full/obj16/SlcoModelFile.gif"
+            extensions="slco"
+            class="slco.presentation.SlcoEditor"
+            contributorClass="slco.presentation.SlcoActionBarContributor">
+      </editor>
+   </extension>
+
+</plugin>

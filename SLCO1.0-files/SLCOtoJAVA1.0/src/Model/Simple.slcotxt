@@ -1,0 +1,41 @@
+model Simple {
+  classes
+    Producer {
+      ports
+        C
+
+      state machines
+        Producer {
+          initial
+            State
+
+          transitions
+            StateToState from State to State {
+              send Bericht() to C
+            }
+        }
+    }
+
+    Consumer {
+      ports
+        P
+
+      state machines
+        Consumer {
+          initial
+            State
+
+          transitions
+            StateToState from State to State {
+              receive Bericht() from P
+            }
+        }
+    }
+
+  objects
+    P: Producer
+    C: Consumer
+
+  channels
+    Producer_To_Consumer() sync from P.C to C.P
+}

@@ -1,0 +1,198 @@
+«IMPORT slco»
+
+«DEFINE generateModel FOR Model»«FILE this.name + ".slcotxt"-»
+model «this.name» {
+  classes
+«EXPAND generateClass FOREACH this.classes SEPARATOR "
+"-»
+
+  objects
+«EXPAND generateObject FOREACH this.objects-»
+
+  channels
+«EXPAND generateChannel FOREACH this.channels-»
+}«ENDFILE»«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateClass FOR Class-»
+    «this.name» {
+«IF !this.variables.isEmpty»      variables
+«EXPAND generateClassVariableDeclaration FOREACH this.variables»
+«ENDIF-»
+«IF !this.ports.isEmpty»      ports
+«EXPAND generatePort FOREACH this.ports»
+«ENDIF-»      
+«IF !this.stateMachines.isEmpty»      state machines
+«EXPAND generateStateMachine FOREACH this.stateMachines SEPARATOR "
+"-»
+«ENDIF-»
+    }
+«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateObject FOR slco::Object-»
+    «this.name»: «this.class.name»
+«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateChannel FOR Channel-»XXX«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateChannel FOR BidirectionalChannel-»
+    «this.name»(«EXPAND generateArgumentType FOREACH this.argumentTypes SEPARATOR ", "») «EXPAND generateChannelType FOR this.channelType» between «this.object1.name».«this.port1.name» and «this.object2.name».«this.port2.name»
+«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateChannelType FOR ChannelTypeEnum»«IF this == ChannelTypeEnum::sync»sync«ELSEIF this == ChannelTypeEnum::async_lossless»async lossless«ELSEIF this == ChannelTypeEnum::async_lossy»async lossy«ELSE»Unknown ChannelType«ENDIF»«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateChannel FOR UnidirectionalChannel-»
+    «this.name»(«EXPAND generateArgumentType FOREACH this.argumentTypes SEPARATOR ", "») «EXPAND generateChannelType FOR this.channelType» from «this.sourceObject.name».«this.sourcePort.name» to «this.targetObject.name».«this.targetPort.name»
+«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateArgumentType FOR ArgumentType»«this.type.toString()»«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateClassVariableDeclaration FOR Variable-»
+        «this.type.toString()» «this.name»«IF this.initialValue != null» = «EXPAND generateExpression FOR this.initialValue»«ENDIF»
+«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateStateMachineVariableDeclaration FOR Variable-»
+            «this.type.toString()» «this.name»«IF this.initialValue != null» = «EXPAND generateExpression FOR this.initialValue»«ENDIF»
+«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generatePort FOR Port-»
+        «this.name»
+«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateStateMachine FOR StateMachine-»
+        «this.name» {
+«IF !this.variables.isEmpty»          variables
+«EXPAND generateStateMachineVariableDeclaration FOREACH this.variables»
+«ENDIF-»
+«IF !this.vertices.typeSelect(Initial).isEmpty»          initial
+«EXPAND generateVertex FOREACH this.vertices.typeSelect(Initial)»
+«ENDIF-»
+«IF !this.vertices.typeSelect(State).isEmpty»          state
+«EXPAND generateVertex FOREACH this.vertices.typeSelect(State)»
+«ENDIF-»
+«IF !this.vertices.typeSelect(Final).isEmpty»          final
+«EXPAND generateVertex FOREACH this.vertices.typeSelect(Final)»
+«ENDIF-»
+«IF !this.transitions.isEmpty»          transitions
+«EXPAND generateTransition FOREACH this.transitions SEPARATOR "
+"-»
+«ENDIF-»           
+        }
+«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateExpression FOR Expression»XXX«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateExpression FOR BinaryOperatorExpression»(«EXPAND generateExpression FOR this.operand1» «EXPAND generateOperator FOR this.operator» «EXPAND generateExpression FOR this.operand2»)«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateExpression FOR BooleanConstantExpression»«this.value.toString()»«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateExpression FOR IntegerConstantExpression»«this.value.toString()»«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateExpression FOR StringConstantExpression»"«this.value»"«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateExpression FOR VariableExpression»«this.variable.name»«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateOperator FOR OperatorEnum»«IF this == OperatorEnum::atLeast»>=«ELSEIF this == OperatorEnum::atMost»<=«ELSEIF this == OperatorEnum::add»+«ELSEIF this == OperatorEnum::and»&&«ELSEIF this == OperatorEnum::or»||«ELSEIF this == OperatorEnum::equals»==«ELSEIF this == OperatorEnum::differs»!=«ELSEIF this == OperatorEnum::subtract»-«ELSE»Unknown Operator«ENDIF»«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateVertex FOR Vertex-»
+            «this.name»
+«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateTransition FOR Transition-»
+            «this.name» from «this.source.name» to «this.target.name» {
+«EXPAND generateStatement FOREACH this.statements SEPARATOR ";
+"»
+            }
+«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateStatement FOR Expression»«EXPAND generateGuard FOR this»«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateGuard FOR Expression-»
+              «EXPAND generateExpression FOR this»«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateStatement FOR Delay-»
+              after «this.value.toString()» ms«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateStatement FOR SignalReception-»
+              receive «this.signalName»(«EXPAND generateSignalArgument FOREACH this.arguments SEPARATOR ", "»«IF this.condition != null» | «EXPAND generateExpression FOR this.condition»«ENDIF») from «this.port.name»«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateStatement FOR Statement»XXX«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateStatement FOR Assignment-»
+              «this.variable.name» := «EXPAND generateExpression FOR this.expression-»
+«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateStatement FOR SendSignal-»
+              send «this.signalName»(«EXPAND generateExpression FOREACH this.arguments SEPARATOR ", "») to «this.port.name-»
+«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateStatement FOR TextualStatement-»
+              «this.statement-»
+«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateSignalArgument FOR SignalArgument»XXX«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateSignalArgument FOR SignalArgumentVariable»«this.variable.name»«ENDDEFINE»
+
+// -----------------------------------------------------------------------------------------
+
+«DEFINE generateSignalArgument FOR SignalArgumentExpression»[[«EXPAND generateExpression FOR this.expression»]]«ENDDEFINE»

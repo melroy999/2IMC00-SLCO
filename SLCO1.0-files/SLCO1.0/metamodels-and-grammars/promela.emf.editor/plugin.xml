@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="promela.presentation.PromelaModelWizardID"
+            name="%_UI_PromelaModelWizard_label"
+            class="promela.presentation.PromelaModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/PromelaModelFile.gif">
+         <description>%_UI_PromelaModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
+   <extension point="org.eclipse.ui.editors">
+      <editor
+            id="promela.presentation.PromelaEditorID"
+            name="%_UI_PromelaEditor_label"
+            icon="icons/full/obj16/PromelaModelFile.gif"
+            extensions="promela"
+            class="promela.presentation.PromelaEditor"
+            contributorClass="promela.presentation.PromelaActionBarContributor">
+      </editor>
+   </extension>
+
+</plugin>

@@ -1,0 +1,1024 @@
+model LegoCase_as_arg_uni_ll_time_merge_ic_int_arg_int {
+  classes
+    Environment {
+      variables
+        Boolean BlockLeft = false
+        Boolean BlockRight = false
+
+      ports
+        LeftSensor
+        LeftMotor
+        MiddleSensor
+        MiddleMotor
+        RightSensor
+        RightMotor
+
+      state machines
+        RightMotor {
+          initial
+            Start
+
+          state
+            Off
+            Running
+
+          transitions
+            Start from Start to Running {
+              receive On() from RightMotor
+            }
+
+            OffToRunning from Off to Running {
+              receive On() from RightMotor;
+              BlockRight := true
+            }
+
+            RunningToOff from Running to Off {
+              receive Off() from RightMotor
+            }
+
+            RunningToRunningBlock from Running to Running {
+              send Block() to RightSensor;
+              send BlockPassed() to RightSensor
+            }
+
+            OffToOff from Off to Off {
+              receive Off() from RightMotor
+            }
+
+            RunningToRunning from Running to Running {
+              receive On() from RightMotor
+            }
+        }
+
+        MiddleMotor {
+          variables
+            Boolean BlockFellOff = false
+
+          initial
+            Off
+
+          state
+            Right
+            Left
+
+          transitions
+            OffToRight from Off to Right {
+              receive Right() from MiddleMotor
+            }
+
+            RightToOff from Right to Off {
+              receive Off() from MiddleMotor
+            }
+
+            OffToOff from Off to Off {
+              receive Off() from MiddleMotor
+            }
+
+            OffToLeft from Off to Left {
+              receive Left() from MiddleMotor
+            }
+
+            LeftToOff from Left to Off {
+              receive Off() from MiddleMotor
+            }
+
+            RightToRightBlockFell from Right to Right {
+              (BlockRight == true);
+              BlockFellOff := true;
+              BlockRight := false
+            }
+
+            LeftToLeftBlockFell from Left to Left {
+              (BlockLeft == true);
+              BlockFellOff := true;
+              BlockLeft := false
+            }
+
+            RightToRight from Right to Right {
+              receive Right() from MiddleMotor
+            }
+
+            LeftToLeft from Left to Left {
+              receive Left() from MiddleMotor
+            }
+
+            RightToLeft from Right to Left {
+              receive Left() from MiddleMotor
+            }
+
+            LeftToRight from Left to Right {
+              receive Right() from MiddleMotor
+            }
+
+            RightToRightBlock from Right to Right {
+              (BlockLeft == true);
+              send Block() to MiddleSensor;
+              send BlockPassed() to MiddleSensor;
+              BlockLeft := false
+            }
+
+            LeftToLeftBlock from Left to Left {
+              (BlockRight == true);
+              send Block() to MiddleSensor;
+              send BlockPassed() to MiddleSensor;
+              BlockRight := false
+            }
+        }
+
+        LeftMotor {
+          initial
+            Start
+
+          state
+            Off
+            Running
+
+          transitions
+            Start from Start to Running {
+              receive On() from LeftMotor
+            }
+
+            OffToRunning from Off to Running {
+              receive On() from LeftMotor;
+              BlockLeft := true
+            }
+
+            RunningToOff from Running to Off {
+              receive Off() from LeftMotor
+            }
+
+            RunningToRunningBlock from Running to Running {
+              send Block() to LeftSensor;
+              send BlockPassed() to LeftSensor
+            }
+
+            OffToOff from Off to Off {
+              receive Off() from LeftMotor
+            }
+
+            RunningToRunning from Running to Running {
+              receive On() from LeftMotor
+            }
+        }
+    }
+
+    R_R_R_R_R {
+      variables
+        Integer Right_as_Middle_out_Original_to_Sender_abl = 0
+        Integer Right_as_Middle_out_Original_to_Sender_name
+        Integer Right_as_Middle_out_Original_to_Sender_arg_0
+        Integer Right_as_Middle_out_AR_to_Sender_abl = 0
+        Integer Right_as_Middle_out_AR_to_Sender_name
+        Integer Right_as_Middle_in_Receiver_to_Original_abl = 0
+        Integer Right_as_Middle_in_Receiver_to_Original_name
+        Integer Right_as_Middle_in_Receiver_to_Original_arg_0
+        Integer Right_as_Middle_in_Receiver_to_AS_abl = 0
+        Integer Right_as_Middle_in_Receiver_to_AS_name
+
+      ports
+        Right_as_Sensor
+        Right_as_Motor
+        Right_as_Middle_outABP_Sender_ASReceiver
+        Right_as_Middle_outABP_AR_AARAS
+        Right_as_Middle_inABP_Receiver_ARSender
+        Right_as_Middle_inABP_AS_AASAR
+
+      state machines
+        Right_as_Single {
+          initial
+            Start
+
+          state
+            Running
+            Running_s_Signal_abl_RunningToBlock
+            Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running
+
+          transitions
+            StartToRunning from Start to Running {
+              send On() to Right_as_Motor
+            }
+
+            RunningToBlock from Running to Running_s_Signal_abl_RunningToBlock {
+              receive Block() from Right_as_Sensor;
+              receive BlockPassed() from Right_as_Sensor;
+              send Off() to Right_as_Motor;
+              Right_as_Middle_out_Original_to_Sender_name := 2;
+              Right_as_Middle_out_Original_to_Sender_arg_0 := 3;
+              Right_as_Middle_out_Original_to_Sender_abl := 1
+            }
+
+            Running_s_Signal_abl_RunningToBlock_to_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running from Running_s_Signal_abl_RunningToBlock to Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running {
+              (((Right_as_Middle_in_Receiver_to_Original_abl == 1) && (Right_as_Middle_in_Receiver_to_Original_name == 2)) && (Right_as_Middle_in_Receiver_to_Original_arg_0 == 0));
+              Right_as_Middle_in_Receiver_to_Original_abl := 2
+            }
+
+            Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running_to_Running from Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running to Running {
+              (Right_as_Middle_in_Receiver_to_Original_abl == 3);
+              Right_as_Middle_in_Receiver_to_Original_abl := 0;
+              (Right_as_Middle_out_Original_to_Sender_abl == 2);
+              Right_as_Middle_out_Original_to_Sender_abl := 3;
+              (Right_as_Middle_out_Original_to_Sender_abl == 0);
+              send On() to Right_as_Motor
+            }
+
+            Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running_to_Running_s_Signal_abl_RunningToBlock from Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running to Running_s_Signal_abl_RunningToBlock {
+              (Right_as_Middle_in_Receiver_to_Original_abl == 0)
+            }
+        }
+
+        Right_as_Middle_outABP_Sender_Sender {
+          variables
+            Integer s = 0
+            Integer d
+
+          initial
+            Zero
+
+          state
+            One
+            Zero_r_Signal_rbl_ZeroToOne
+            One_r_Acknowledge_rbl_OneToZero
+
+          transitions
+            SenderOneToOne from One to One {
+              after 900 ms;
+              send Signal(0, d, s) to Right_as_Middle_outABP_Sender_ASReceiver
+            }
+
+            Zero_to_Zero_r_Signal_rbl_ZeroToOne from Zero to Zero_r_Signal_rbl_ZeroToOne {
+              ((Right_as_Middle_out_Original_to_Sender_abl == 1) && (Right_as_Middle_out_Original_to_Sender_name == 2));
+              Right_as_Middle_out_Original_to_Sender_abl := 2
+            }
+
+            Zero_r_Signal_rbl_ZeroToOne_to_One from Zero_r_Signal_rbl_ZeroToOne to One {
+              (Right_as_Middle_out_Original_to_Sender_abl == 3);
+              d := Right_as_Middle_out_Original_to_Sender_arg_0;
+              Right_as_Middle_out_Original_to_Sender_abl := 0
+            }
+
+            Zero_r_Signal_rbl_ZeroToOne_to_Zero from Zero_r_Signal_rbl_ZeroToOne to Zero {
+              (Right_as_Middle_out_Original_to_Sender_abl == 0)
+            }
+
+            One_to_One_r_Acknowledge_rbl_OneToZero from One to One_r_Acknowledge_rbl_OneToZero {
+              ((Right_as_Middle_out_AR_to_Sender_abl == 1) && (Right_as_Middle_out_AR_to_Sender_name == 1));
+              Right_as_Middle_out_AR_to_Sender_abl := 2
+            }
+
+            One_r_Acknowledge_rbl_OneToZero_to_Zero from One_r_Acknowledge_rbl_OneToZero to Zero {
+              (Right_as_Middle_out_AR_to_Sender_abl == 3);
+              Right_as_Middle_out_AR_to_Sender_abl := 0;
+              s := (1 - s)
+            }
+
+            One_r_Acknowledge_rbl_OneToZero_to_One from One_r_Acknowledge_rbl_OneToZero to One {
+              (Right_as_Middle_out_AR_to_Sender_abl == 0)
+            }
+        }
+
+        Right_as_Middle_outABP_AR_AR {
+          variables
+            Integer b = 0
+
+          initial
+            Zero
+
+          state
+            Zero_s_Acknowledge_abl_ZeroToZeroAck
+
+          transitions
+            ZeroToZeroAck from Zero to Zero_s_Acknowledge_abl_ZeroToZeroAck {
+              receive Signal([[1]], [[b]]) from Right_as_Middle_outABP_AR_AARAS;
+              Right_as_Middle_out_AR_to_Sender_name := 1;
+              Right_as_Middle_out_AR_to_Sender_abl := 1
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Signal([[1]], [[(1 - b)]]) from Right_as_Middle_outABP_AR_AARAS
+            }
+
+            Zero_s_Acknowledge_abl_ZeroToZeroAck_to_Zero from Zero_s_Acknowledge_abl_ZeroToZeroAck to Zero {
+              (Right_as_Middle_out_AR_to_Sender_abl == 2);
+              Right_as_Middle_out_AR_to_Sender_abl := 3;
+              (Right_as_Middle_out_AR_to_Sender_abl == 0);
+              b := (1 - b)
+            }
+        }
+
+        Right_as_Middle_inABP_Receiver_Receiver {
+          variables
+            Integer r = 0
+            Integer d
+
+          initial
+            Zero
+
+          state
+            Zero_s_Signal_abl_ZeroToZeroAck
+            Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero_s_Signal_abl_ZeroToZeroAck {
+              receive Signal([[0]], d, [[r]]) from Right_as_Middle_inABP_Receiver_ARSender;
+              Right_as_Middle_in_Receiver_to_Original_name := 2;
+              Right_as_Middle_in_Receiver_to_Original_arg_0 := d;
+              Right_as_Middle_in_Receiver_to_Original_abl := 1
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Signal([[0]], d, [[(1 - r)]]) from Right_as_Middle_inABP_Receiver_ARSender
+            }
+
+            Zero_s_Signal_abl_ZeroToZeroAck_to_Zero from Zero_s_Signal_abl_ZeroToZeroAck to Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero {
+              (Right_as_Middle_in_Receiver_to_Original_abl == 2);
+              Right_as_Middle_in_Receiver_to_Original_abl := 3;
+              (Right_as_Middle_in_Receiver_to_Original_abl == 0);
+              Right_as_Middle_in_Receiver_to_AS_name := 1;
+              Right_as_Middle_in_Receiver_to_AS_abl := 1
+            }
+
+            Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero_to_Zero from Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero to Zero {
+              (Right_as_Middle_in_Receiver_to_AS_abl == 2);
+              Right_as_Middle_in_Receiver_to_AS_abl := 3;
+              (Right_as_Middle_in_Receiver_to_AS_abl == 0);
+              r := (1 - r)
+            }
+        }
+
+        Right_as_Middle_inABP_AS_AS {
+          variables
+            Integer b = 1
+
+          initial
+            Zero
+
+          state
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck
+
+          transitions
+            ASZeroToZero from Zero to Zero {
+              after 900 ms;
+              send Signal(1, b) to Right_as_Middle_inABP_AS_AASAR
+            }
+
+            Zero_to_Zero_r_Acknowledge_rbl_ZeroToZeroAck from Zero to Zero_r_Acknowledge_rbl_ZeroToZeroAck {
+              ((Right_as_Middle_in_Receiver_to_AS_abl == 1) && (Right_as_Middle_in_Receiver_to_AS_name == 1));
+              Right_as_Middle_in_Receiver_to_AS_abl := 2
+            }
+
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero from Zero_r_Acknowledge_rbl_ZeroToZeroAck to Zero {
+              (Right_as_Middle_in_Receiver_to_AS_abl == 3);
+              Right_as_Middle_in_Receiver_to_AS_abl := 0;
+              b := (1 - b)
+            }
+
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero from Zero_r_Acknowledge_rbl_ZeroToZeroAck to Zero {
+              (Right_as_Middle_in_Receiver_to_AS_abl == 0)
+            }
+        }
+    }
+
+    M_M_M_M_M_M_M_M_M {
+      variables
+        Integer Middle_as_Right_out_Original_to_Sender_abl = 0
+        Integer Middle_as_Right_out_Original_to_Sender_name
+        Integer Middle_as_Right_out_Original_to_Sender_arg_0
+        Integer Middle_as_Left_out_Original_to_Sender_abl = 0
+        Integer Middle_as_Left_out_Original_to_Sender_name
+        Integer Middle_as_Left_out_Original_to_Sender_arg_0
+        Integer Middle_as_Right_in_Receiver_to_Original_abl = 0
+        Integer Middle_as_Right_in_Receiver_to_Original_name
+        Integer Middle_as_Right_in_Receiver_to_Original_arg_0
+        Integer Middle_as_Right_in_Receiver_to_AS_abl = 0
+        Integer Middle_as_Right_in_Receiver_to_AS_name
+        Integer Middle_as_Left_in_Receiver_to_Original_abl = 0
+        Integer Middle_as_Left_in_Receiver_to_Original_name
+        Integer Middle_as_Left_in_Receiver_to_Original_arg_0
+        Integer Middle_as_Left_in_Receiver_to_AS_abl = 0
+        Integer Middle_as_Left_in_Receiver_to_AS_name
+        Integer Middle_as_Right_out_AR_to_Sender_abl = 0
+        Integer Middle_as_Right_out_AR_to_Sender_name
+        Integer Middle_as_Left_out_AR_to_Sender_abl = 0
+        Integer Middle_as_Left_out_AR_to_Sender_name
+
+      ports
+        Middle_as_Sensor
+        Middle_as_Motor
+        Middle_as_Right_inABP_Receiver_ARSender
+        Middle_as_Right_inABP_AS_AASAR
+        Middle_as_Left_inABP_Receiver_ARSender
+        Middle_as_Left_inABP_AS_AASAR
+        Middle_as_Right_outABP_Sender_ASReceiver
+        Middle_as_Right_outABP_AR_AARAS
+        Middle_as_Left_outABP_Sender_ASReceiver
+        Middle_as_Left_outABP_AR_AARAS
+
+      state machines
+        Middle_as_Middle {
+          initial
+            Idle
+
+          state
+            Running
+            Idle_r_Signal_rbl_IdleToLeft
+            Idle_r_Signal_rbl_IdleToRight
+            Idle_r_Signal_rbl_IdleToLeft_s_Signal_abl_Idle_r_Signal_rbl_IdleToLeft_to_Running
+            Idle_r_Signal_rbl_IdleToRight_s_Signal_abl_Idle_r_Signal_rbl_IdleToRight_to_Running
+
+          transitions
+            RunningToBlock from Running to Idle {
+              receive Block() from Middle_as_Sensor;
+              receive BlockPassed() from Middle_as_Sensor;
+              send Off() to Middle_as_Motor
+            }
+
+            Idle_to_Idle_r_Signal_rbl_IdleToLeft from Idle to Idle_r_Signal_rbl_IdleToLeft {
+              (((Middle_as_Right_in_Receiver_to_Original_abl == 1) && (Middle_as_Right_in_Receiver_to_Original_name == 2)) && (Middle_as_Right_in_Receiver_to_Original_arg_0 == 3));
+              Middle_as_Right_in_Receiver_to_Original_abl := 2
+            }
+
+            Idle_r_Signal_rbl_IdleToLeft_to_Running from Idle_r_Signal_rbl_IdleToLeft to Idle_r_Signal_rbl_IdleToLeft_s_Signal_abl_Idle_r_Signal_rbl_IdleToLeft_to_Running {
+              (Middle_as_Right_in_Receiver_to_Original_abl == 3);
+              Middle_as_Right_in_Receiver_to_Original_abl := 0;
+              Middle_as_Right_out_Original_to_Sender_name := 2;
+              Middle_as_Right_out_Original_to_Sender_arg_0 := 0;
+              Middle_as_Right_out_Original_to_Sender_abl := 1
+            }
+
+            Idle_r_Signal_rbl_IdleToLeft_to_Idle from Idle_r_Signal_rbl_IdleToLeft to Idle {
+              (Middle_as_Right_in_Receiver_to_Original_abl == 0)
+            }
+
+            Idle_to_Idle_r_Signal_rbl_IdleToRight from Idle to Idle_r_Signal_rbl_IdleToRight {
+              (((Middle_as_Left_in_Receiver_to_Original_abl == 1) && (Middle_as_Left_in_Receiver_to_Original_name == 2)) && (Middle_as_Left_in_Receiver_to_Original_arg_0 == 3));
+              Middle_as_Left_in_Receiver_to_Original_abl := 2
+            }
+
+            Idle_r_Signal_rbl_IdleToRight_to_Running from Idle_r_Signal_rbl_IdleToRight to Idle_r_Signal_rbl_IdleToRight_s_Signal_abl_Idle_r_Signal_rbl_IdleToRight_to_Running {
+              (Middle_as_Left_in_Receiver_to_Original_abl == 3);
+              Middle_as_Left_in_Receiver_to_Original_abl := 0;
+              Middle_as_Left_out_Original_to_Sender_name := 2;
+              Middle_as_Left_out_Original_to_Sender_arg_0 := 0;
+              Middle_as_Left_out_Original_to_Sender_abl := 1
+            }
+
+            Idle_r_Signal_rbl_IdleToRight_to_Idle from Idle_r_Signal_rbl_IdleToRight to Idle {
+              (Middle_as_Left_in_Receiver_to_Original_abl == 0)
+            }
+
+            Idle_r_Signal_rbl_IdleToLeft_s_Signal_abl_Idle_r_Signal_rbl_IdleToLeft_to_Running_to_Running from Idle_r_Signal_rbl_IdleToLeft_s_Signal_abl_Idle_r_Signal_rbl_IdleToLeft_to_Running to Running {
+              (Middle_as_Right_out_Original_to_Sender_abl == 2);
+              Middle_as_Right_out_Original_to_Sender_abl := 3;
+              (Middle_as_Right_out_Original_to_Sender_abl == 0);
+              send Left() to Middle_as_Motor
+            }
+
+            Idle_r_Signal_rbl_IdleToRight_s_Signal_abl_Idle_r_Signal_rbl_IdleToRight_to_Running_to_Running from Idle_r_Signal_rbl_IdleToRight_s_Signal_abl_Idle_r_Signal_rbl_IdleToRight_to_Running to Running {
+              (Middle_as_Left_out_Original_to_Sender_abl == 2);
+              Middle_as_Left_out_Original_to_Sender_abl := 3;
+              (Middle_as_Left_out_Original_to_Sender_abl == 0);
+              send Right() to Middle_as_Motor
+            }
+        }
+
+        Middle_as_Right_inABP_Receiver_Receiver {
+          variables
+            Integer r = 0
+            Integer d
+
+          initial
+            Zero
+
+          state
+            Zero_s_Signal_abl_ZeroToZeroAck
+            Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero_s_Signal_abl_ZeroToZeroAck {
+              receive Signal([[0]], d, [[r]]) from Middle_as_Right_inABP_Receiver_ARSender;
+              Middle_as_Right_in_Receiver_to_Original_name := 2;
+              Middle_as_Right_in_Receiver_to_Original_arg_0 := d;
+              Middle_as_Right_in_Receiver_to_Original_abl := 1
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Signal([[0]], d, [[(1 - r)]]) from Middle_as_Right_inABP_Receiver_ARSender
+            }
+
+            Zero_s_Signal_abl_ZeroToZeroAck_to_Zero from Zero_s_Signal_abl_ZeroToZeroAck to Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero {
+              (Middle_as_Right_in_Receiver_to_Original_abl == 2);
+              Middle_as_Right_in_Receiver_to_Original_abl := 3;
+              (Middle_as_Right_in_Receiver_to_Original_abl == 0);
+              Middle_as_Right_in_Receiver_to_AS_name := 1;
+              Middle_as_Right_in_Receiver_to_AS_abl := 1
+            }
+
+            Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero_to_Zero from Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero to Zero {
+              (Middle_as_Right_in_Receiver_to_AS_abl == 2);
+              Middle_as_Right_in_Receiver_to_AS_abl := 3;
+              (Middle_as_Right_in_Receiver_to_AS_abl == 0);
+              r := (1 - r)
+            }
+        }
+
+        Middle_as_Right_inABP_AS_AS {
+          variables
+            Integer b = 1
+
+          initial
+            Zero
+
+          state
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck
+
+          transitions
+            ASZeroToZero from Zero to Zero {
+              after 900 ms;
+              send Signal(1, b) to Middle_as_Right_inABP_AS_AASAR
+            }
+
+            Zero_to_Zero_r_Acknowledge_rbl_ZeroToZeroAck from Zero to Zero_r_Acknowledge_rbl_ZeroToZeroAck {
+              ((Middle_as_Right_in_Receiver_to_AS_abl == 1) && (Middle_as_Right_in_Receiver_to_AS_name == 1));
+              Middle_as_Right_in_Receiver_to_AS_abl := 2
+            }
+
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero from Zero_r_Acknowledge_rbl_ZeroToZeroAck to Zero {
+              (Middle_as_Right_in_Receiver_to_AS_abl == 3);
+              Middle_as_Right_in_Receiver_to_AS_abl := 0;
+              b := (1 - b)
+            }
+
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero from Zero_r_Acknowledge_rbl_ZeroToZeroAck to Zero {
+              (Middle_as_Right_in_Receiver_to_AS_abl == 0)
+            }
+        }
+
+        Middle_as_Left_inABP_Receiver_Receiver {
+          variables
+            Integer r = 0
+            Integer d
+
+          initial
+            Zero
+
+          state
+            Zero_s_Signal_abl_ZeroToZeroAck
+            Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero_s_Signal_abl_ZeroToZeroAck {
+              receive Signal([[3]], d, [[r]]) from Middle_as_Left_inABP_Receiver_ARSender;
+              Middle_as_Left_in_Receiver_to_Original_name := 2;
+              Middle_as_Left_in_Receiver_to_Original_arg_0 := d;
+              Middle_as_Left_in_Receiver_to_Original_abl := 1
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Signal([[3]], d, [[(1 - r)]]) from Middle_as_Left_inABP_Receiver_ARSender
+            }
+
+            Zero_s_Signal_abl_ZeroToZeroAck_to_Zero from Zero_s_Signal_abl_ZeroToZeroAck to Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero {
+              (Middle_as_Left_in_Receiver_to_Original_abl == 2);
+              Middle_as_Left_in_Receiver_to_Original_abl := 3;
+              (Middle_as_Left_in_Receiver_to_Original_abl == 0);
+              Middle_as_Left_in_Receiver_to_AS_name := 1;
+              Middle_as_Left_in_Receiver_to_AS_abl := 1
+            }
+
+            Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero_to_Zero from Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero to Zero {
+              (Middle_as_Left_in_Receiver_to_AS_abl == 2);
+              Middle_as_Left_in_Receiver_to_AS_abl := 3;
+              (Middle_as_Left_in_Receiver_to_AS_abl == 0);
+              r := (1 - r)
+            }
+        }
+
+        Middle_as_Left_inABP_AS_AS {
+          variables
+            Integer b = 1
+
+          initial
+            Zero
+
+          state
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck
+
+          transitions
+            ASZeroToZero from Zero to Zero {
+              after 900 ms;
+              send Signal(2, b) to Middle_as_Left_inABP_AS_AASAR
+            }
+
+            Zero_to_Zero_r_Acknowledge_rbl_ZeroToZeroAck from Zero to Zero_r_Acknowledge_rbl_ZeroToZeroAck {
+              ((Middle_as_Left_in_Receiver_to_AS_abl == 1) && (Middle_as_Left_in_Receiver_to_AS_name == 1));
+              Middle_as_Left_in_Receiver_to_AS_abl := 2
+            }
+
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero from Zero_r_Acknowledge_rbl_ZeroToZeroAck to Zero {
+              (Middle_as_Left_in_Receiver_to_AS_abl == 3);
+              Middle_as_Left_in_Receiver_to_AS_abl := 0;
+              b := (1 - b)
+            }
+
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero from Zero_r_Acknowledge_rbl_ZeroToZeroAck to Zero {
+              (Middle_as_Left_in_Receiver_to_AS_abl == 0)
+            }
+        }
+
+        Middle_as_Right_outABP_Sender_Sender {
+          variables
+            Integer s = 0
+            Integer d
+
+          initial
+            Zero
+
+          state
+            One
+            Zero_r_Signal_rbl_ZeroToOne
+            One_r_Acknowledge_rbl_OneToZero
+
+          transitions
+            SenderOneToOne from One to One {
+              after 900 ms;
+              send Signal(0, d, s) to Middle_as_Right_outABP_Sender_ASReceiver
+            }
+
+            Zero_to_Zero_r_Signal_rbl_ZeroToOne from Zero to Zero_r_Signal_rbl_ZeroToOne {
+              ((Middle_as_Right_out_Original_to_Sender_abl == 1) && (Middle_as_Right_out_Original_to_Sender_name == 2));
+              Middle_as_Right_out_Original_to_Sender_abl := 2
+            }
+
+            Zero_r_Signal_rbl_ZeroToOne_to_One from Zero_r_Signal_rbl_ZeroToOne to One {
+              (Middle_as_Right_out_Original_to_Sender_abl == 3);
+              d := Middle_as_Right_out_Original_to_Sender_arg_0;
+              Middle_as_Right_out_Original_to_Sender_abl := 0
+            }
+
+            Zero_r_Signal_rbl_ZeroToOne_to_Zero from Zero_r_Signal_rbl_ZeroToOne to Zero {
+              (Middle_as_Right_out_Original_to_Sender_abl == 0)
+            }
+
+            One_to_One_r_Acknowledge_rbl_OneToZero from One to One_r_Acknowledge_rbl_OneToZero {
+              ((Middle_as_Right_out_AR_to_Sender_abl == 1) && (Middle_as_Right_out_AR_to_Sender_name == 1));
+              Middle_as_Right_out_AR_to_Sender_abl := 2
+            }
+
+            One_r_Acknowledge_rbl_OneToZero_to_Zero from One_r_Acknowledge_rbl_OneToZero to Zero {
+              (Middle_as_Right_out_AR_to_Sender_abl == 3);
+              Middle_as_Right_out_AR_to_Sender_abl := 0;
+              s := (1 - s)
+            }
+
+            One_r_Acknowledge_rbl_OneToZero_to_One from One_r_Acknowledge_rbl_OneToZero to One {
+              (Middle_as_Right_out_AR_to_Sender_abl == 0)
+            }
+        }
+
+        Middle_as_Right_outABP_AR_AR {
+          variables
+            Integer b = 0
+
+          initial
+            Zero
+
+          state
+            Zero_s_Acknowledge_abl_ZeroToZeroAck
+
+          transitions
+            ZeroToZeroAck from Zero to Zero_s_Acknowledge_abl_ZeroToZeroAck {
+              receive Signal([[1]], [[b]]) from Middle_as_Right_outABP_AR_AARAS;
+              Middle_as_Right_out_AR_to_Sender_name := 1;
+              Middle_as_Right_out_AR_to_Sender_abl := 1
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Signal([[1]], [[(1 - b)]]) from Middle_as_Right_outABP_AR_AARAS
+            }
+
+            Zero_s_Acknowledge_abl_ZeroToZeroAck_to_Zero from Zero_s_Acknowledge_abl_ZeroToZeroAck to Zero {
+              (Middle_as_Right_out_AR_to_Sender_abl == 2);
+              Middle_as_Right_out_AR_to_Sender_abl := 3;
+              (Middle_as_Right_out_AR_to_Sender_abl == 0);
+              b := (1 - b)
+            }
+        }
+
+        Middle_as_Left_outABP_Sender_Sender {
+          variables
+            Integer s = 0
+            Integer d
+
+          initial
+            Zero
+
+          state
+            One
+            Zero_r_Signal_rbl_ZeroToOne
+            One_r_Acknowledge_rbl_OneToZero
+
+          transitions
+            SenderOneToOne from One to One {
+              after 900 ms;
+              send Signal(3, d, s) to Middle_as_Left_outABP_Sender_ASReceiver
+            }
+
+            Zero_to_Zero_r_Signal_rbl_ZeroToOne from Zero to Zero_r_Signal_rbl_ZeroToOne {
+              ((Middle_as_Left_out_Original_to_Sender_abl == 1) && (Middle_as_Left_out_Original_to_Sender_name == 2));
+              Middle_as_Left_out_Original_to_Sender_abl := 2
+            }
+
+            Zero_r_Signal_rbl_ZeroToOne_to_One from Zero_r_Signal_rbl_ZeroToOne to One {
+              (Middle_as_Left_out_Original_to_Sender_abl == 3);
+              d := Middle_as_Left_out_Original_to_Sender_arg_0;
+              Middle_as_Left_out_Original_to_Sender_abl := 0
+            }
+
+            Zero_r_Signal_rbl_ZeroToOne_to_Zero from Zero_r_Signal_rbl_ZeroToOne to Zero {
+              (Middle_as_Left_out_Original_to_Sender_abl == 0)
+            }
+
+            One_to_One_r_Acknowledge_rbl_OneToZero from One to One_r_Acknowledge_rbl_OneToZero {
+              ((Middle_as_Left_out_AR_to_Sender_abl == 1) && (Middle_as_Left_out_AR_to_Sender_name == 1));
+              Middle_as_Left_out_AR_to_Sender_abl := 2
+            }
+
+            One_r_Acknowledge_rbl_OneToZero_to_Zero from One_r_Acknowledge_rbl_OneToZero to Zero {
+              (Middle_as_Left_out_AR_to_Sender_abl == 3);
+              Middle_as_Left_out_AR_to_Sender_abl := 0;
+              s := (1 - s)
+            }
+
+            One_r_Acknowledge_rbl_OneToZero_to_One from One_r_Acknowledge_rbl_OneToZero to One {
+              (Middle_as_Left_out_AR_to_Sender_abl == 0)
+            }
+        }
+
+        Middle_as_Left_outABP_AR_AR {
+          variables
+            Integer b = 0
+
+          initial
+            Zero
+
+          state
+            Zero_s_Acknowledge_abl_ZeroToZeroAck
+
+          transitions
+            ZeroToZeroAck from Zero to Zero_s_Acknowledge_abl_ZeroToZeroAck {
+              receive Signal([[2]], [[b]]) from Middle_as_Left_outABP_AR_AARAS;
+              Middle_as_Left_out_AR_to_Sender_name := 1;
+              Middle_as_Left_out_AR_to_Sender_abl := 1
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Signal([[2]], [[(1 - b)]]) from Middle_as_Left_outABP_AR_AARAS
+            }
+
+            Zero_s_Acknowledge_abl_ZeroToZeroAck_to_Zero from Zero_s_Acknowledge_abl_ZeroToZeroAck to Zero {
+              (Middle_as_Left_out_AR_to_Sender_abl == 2);
+              Middle_as_Left_out_AR_to_Sender_abl := 3;
+              (Middle_as_Left_out_AR_to_Sender_abl == 0);
+              b := (1 - b)
+            }
+        }
+    }
+
+    L_L_L_L_L {
+      variables
+        Integer Left_as_Middle_out_Original_to_Sender_abl = 0
+        Integer Left_as_Middle_out_Original_to_Sender_name
+        Integer Left_as_Middle_out_Original_to_Sender_arg_0
+        Integer Left_as_Middle_out_AR_to_Sender_abl = 0
+        Integer Left_as_Middle_out_AR_to_Sender_name
+        Integer Left_as_Middle_in_Receiver_to_Original_abl = 0
+        Integer Left_as_Middle_in_Receiver_to_Original_name
+        Integer Left_as_Middle_in_Receiver_to_Original_arg_0
+        Integer Left_as_Middle_in_Receiver_to_AS_abl = 0
+        Integer Left_as_Middle_in_Receiver_to_AS_name
+
+      ports
+        Left_as_Sensor
+        Left_as_Motor
+        Left_as_Middle_outABP_Sender_ASReceiver
+        Left_as_Middle_outABP_AR_AARAS
+        Left_as_Middle_inABP_Receiver_ARSender
+        Left_as_Middle_inABP_AS_AASAR
+
+      state machines
+        Left_as_Single {
+          initial
+            Start
+
+          state
+            Running
+            Running_s_Signal_abl_RunningToBlock
+            Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running
+
+          transitions
+            StartToRunning from Start to Running {
+              send On() to Left_as_Motor
+            }
+
+            RunningToBlock from Running to Running_s_Signal_abl_RunningToBlock {
+              receive Block() from Left_as_Sensor;
+              receive BlockPassed() from Left_as_Sensor;
+              send Off() to Left_as_Motor;
+              Left_as_Middle_out_Original_to_Sender_name := 2;
+              Left_as_Middle_out_Original_to_Sender_arg_0 := 3;
+              Left_as_Middle_out_Original_to_Sender_abl := 1
+            }
+
+            Running_s_Signal_abl_RunningToBlock_to_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running from Running_s_Signal_abl_RunningToBlock to Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running {
+              (((Left_as_Middle_in_Receiver_to_Original_abl == 1) && (Left_as_Middle_in_Receiver_to_Original_name == 2)) && (Left_as_Middle_in_Receiver_to_Original_arg_0 == 0));
+              Left_as_Middle_in_Receiver_to_Original_abl := 2
+            }
+
+            Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running_to_Running from Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running to Running {
+              (Left_as_Middle_in_Receiver_to_Original_abl == 3);
+              Left_as_Middle_in_Receiver_to_Original_abl := 0;
+              (Left_as_Middle_out_Original_to_Sender_abl == 2);
+              Left_as_Middle_out_Original_to_Sender_abl := 3;
+              (Left_as_Middle_out_Original_to_Sender_abl == 0);
+              send On() to Left_as_Motor
+            }
+
+            Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running_to_Running_s_Signal_abl_RunningToBlock from Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running to Running_s_Signal_abl_RunningToBlock {
+              (Left_as_Middle_in_Receiver_to_Original_abl == 0)
+            }
+        }
+
+        Left_as_Middle_outABP_Sender_Sender {
+          variables
+            Integer s = 0
+            Integer d
+
+          initial
+            Zero
+
+          state
+            One
+            Zero_r_Signal_rbl_ZeroToOne
+            One_r_Acknowledge_rbl_OneToZero
+
+          transitions
+            SenderOneToOne from One to One {
+              after 900 ms;
+              send Signal(3, d, s) to Left_as_Middle_outABP_Sender_ASReceiver
+            }
+
+            Zero_to_Zero_r_Signal_rbl_ZeroToOne from Zero to Zero_r_Signal_rbl_ZeroToOne {
+              ((Left_as_Middle_out_Original_to_Sender_abl == 1) && (Left_as_Middle_out_Original_to_Sender_name == 2));
+              Left_as_Middle_out_Original_to_Sender_abl := 2
+            }
+
+            Zero_r_Signal_rbl_ZeroToOne_to_One from Zero_r_Signal_rbl_ZeroToOne to One {
+              (Left_as_Middle_out_Original_to_Sender_abl == 3);
+              d := Left_as_Middle_out_Original_to_Sender_arg_0;
+              Left_as_Middle_out_Original_to_Sender_abl := 0
+            }
+
+            Zero_r_Signal_rbl_ZeroToOne_to_Zero from Zero_r_Signal_rbl_ZeroToOne to Zero {
+              (Left_as_Middle_out_Original_to_Sender_abl == 0)
+            }
+
+            One_to_One_r_Acknowledge_rbl_OneToZero from One to One_r_Acknowledge_rbl_OneToZero {
+              ((Left_as_Middle_out_AR_to_Sender_abl == 1) && (Left_as_Middle_out_AR_to_Sender_name == 1));
+              Left_as_Middle_out_AR_to_Sender_abl := 2
+            }
+
+            One_r_Acknowledge_rbl_OneToZero_to_Zero from One_r_Acknowledge_rbl_OneToZero to Zero {
+              (Left_as_Middle_out_AR_to_Sender_abl == 3);
+              Left_as_Middle_out_AR_to_Sender_abl := 0;
+              s := (1 - s)
+            }
+
+            One_r_Acknowledge_rbl_OneToZero_to_One from One_r_Acknowledge_rbl_OneToZero to One {
+              (Left_as_Middle_out_AR_to_Sender_abl == 0)
+            }
+        }
+
+        Left_as_Middle_outABP_AR_AR {
+          variables
+            Integer b = 0
+
+          initial
+            Zero
+
+          state
+            Zero_s_Acknowledge_abl_ZeroToZeroAck
+
+          transitions
+            ZeroToZeroAck from Zero to Zero_s_Acknowledge_abl_ZeroToZeroAck {
+              receive Signal([[2]], [[b]]) from Left_as_Middle_outABP_AR_AARAS;
+              Left_as_Middle_out_AR_to_Sender_name := 1;
+              Left_as_Middle_out_AR_to_Sender_abl := 1
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Signal([[2]], [[(1 - b)]]) from Left_as_Middle_outABP_AR_AARAS
+            }
+
+            Zero_s_Acknowledge_abl_ZeroToZeroAck_to_Zero from Zero_s_Acknowledge_abl_ZeroToZeroAck to Zero {
+              (Left_as_Middle_out_AR_to_Sender_abl == 2);
+              Left_as_Middle_out_AR_to_Sender_abl := 3;
+              (Left_as_Middle_out_AR_to_Sender_abl == 0);
+              b := (1 - b)
+            }
+        }
+
+        Left_as_Middle_inABP_Receiver_Receiver {
+          variables
+            Integer r = 0
+            Integer d
+
+          initial
+            Zero
+
+          state
+            Zero_s_Signal_abl_ZeroToZeroAck
+            Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero
+
+          transitions
+            ZeroToZeroAck from Zero to Zero_s_Signal_abl_ZeroToZeroAck {
+              receive Signal([[3]], d, [[r]]) from Left_as_Middle_inABP_Receiver_ARSender;
+              Left_as_Middle_in_Receiver_to_Original_name := 2;
+              Left_as_Middle_in_Receiver_to_Original_arg_0 := d;
+              Left_as_Middle_in_Receiver_to_Original_abl := 1
+            }
+
+            ZeroToZero from Zero to Zero {
+              receive Signal([[3]], d, [[(1 - r)]]) from Left_as_Middle_inABP_Receiver_ARSender
+            }
+
+            Zero_s_Signal_abl_ZeroToZeroAck_to_Zero from Zero_s_Signal_abl_ZeroToZeroAck to Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero {
+              (Left_as_Middle_in_Receiver_to_Original_abl == 2);
+              Left_as_Middle_in_Receiver_to_Original_abl := 3;
+              (Left_as_Middle_in_Receiver_to_Original_abl == 0);
+              Left_as_Middle_in_Receiver_to_AS_name := 1;
+              Left_as_Middle_in_Receiver_to_AS_abl := 1
+            }
+
+            Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero_to_Zero from Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero to Zero {
+              (Left_as_Middle_in_Receiver_to_AS_abl == 2);
+              Left_as_Middle_in_Receiver_to_AS_abl := 3;
+              (Left_as_Middle_in_Receiver_to_AS_abl == 0);
+              r := (1 - r)
+            }
+        }
+
+        Left_as_Middle_inABP_AS_AS {
+          variables
+            Integer b = 1
+
+          initial
+            Zero
+
+          state
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck
+
+          transitions
+            ASZeroToZero from Zero to Zero {
+              after 900 ms;
+              send Signal(2, b) to Left_as_Middle_inABP_AS_AASAR
+            }
+
+            Zero_to_Zero_r_Acknowledge_rbl_ZeroToZeroAck from Zero to Zero_r_Acknowledge_rbl_ZeroToZeroAck {
+              ((Left_as_Middle_in_Receiver_to_AS_abl == 1) && (Left_as_Middle_in_Receiver_to_AS_name == 1));
+              Left_as_Middle_in_Receiver_to_AS_abl := 2
+            }
+
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero from Zero_r_Acknowledge_rbl_ZeroToZeroAck to Zero {
+              (Left_as_Middle_in_Receiver_to_AS_abl == 3);
+              Left_as_Middle_in_Receiver_to_AS_abl := 0;
+              b := (1 - b)
+            }
+
+            Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero from Zero_r_Acknowledge_rbl_ZeroToZeroAck to Zero {
+              (Left_as_Middle_in_Receiver_to_AS_abl == 0)
+            }
+        }
+    }
+
+  objects
+    Environment: Environment
+    L_L_L_L_L: L_L_L_L_L
+    M_M_M_M_M_M_M_M_M: M_M_M_M_M_M_M_M_M
+    R_R_R_R_R: R_R_R_R_R
+
+  channels
+    ELeftSensor_to_LSensor_as() sync from Environment.LeftSensor to L_L_L_L_L.Left_as_Sensor
+    LMotor_to_ELeftMotor_as() sync from L_L_L_L_L.Left_as_Motor to Environment.LeftMotor
+    ERightSensor_to_RSensor_as() sync from Environment.RightSensor to R_R_R_R_R.Right_as_Sensor
+    RMotor_to_ERightMotor_as() sync from R_R_R_R_R.Right_as_Motor to Environment.RightMotor
+    EMiddleSensor_to_MSensor_as() sync from Environment.MiddleSensor to M_M_M_M_M_M_M_M_M.Middle_as_Sensor
+    MMotor_to_EMiddleMotor_as() sync from M_M_M_M_M_M_M_M_M.Middle_as_Motor to Environment.MiddleMotor
+    Right_as_Middle_out_Sender_to_Receiver(Integer, Integer, Integer) async lossy from R_R_R_R_R.Right_as_Middle_outABP_Sender_ASReceiver to M_M_M_M_M_M_M_M_M.Middle_as_Right_inABP_Receiver_ARSender
+    Right_as_Middle_out_AS_to_AR(Integer, Integer) async lossy from M_M_M_M_M_M_M_M_M.Middle_as_Right_inABP_AS_AASAR to R_R_R_R_R.Right_as_Middle_outABP_AR_AARAS
+    Left_as_Middle_out_Sender_to_Receiver(Integer, Integer, Integer) async lossy from L_L_L_L_L.Left_as_Middle_outABP_Sender_ASReceiver to M_M_M_M_M_M_M_M_M.Middle_as_Left_inABP_Receiver_ARSender
+    Left_as_Middle_out_AS_to_AR(Integer, Integer) async lossy from M_M_M_M_M_M_M_M_M.Middle_as_Left_inABP_AS_AASAR to L_L_L_L_L.Left_as_Middle_outABP_AR_AARAS
+    Middle_as_Right_out_Sender_to_Receiver(Integer, Integer, Integer) async lossy from M_M_M_M_M_M_M_M_M.Middle_as_Right_outABP_Sender_ASReceiver to R_R_R_R_R.Right_as_Middle_inABP_Receiver_ARSender
+    Middle_as_Right_out_AS_to_AR(Integer, Integer) async lossy from R_R_R_R_R.Right_as_Middle_inABP_AS_AASAR to M_M_M_M_M_M_M_M_M.Middle_as_Right_outABP_AR_AARAS
+    Middle_as_Left_out_Sender_to_Receiver(Integer, Integer, Integer) async lossy from M_M_M_M_M_M_M_M_M.Middle_as_Left_outABP_Sender_ASReceiver to L_L_L_L_L.Left_as_Middle_inABP_Receiver_ARSender
+    Middle_as_Left_out_AS_to_AR(Integer, Integer) async lossy from L_L_L_L_L.Left_as_Middle_inABP_AS_AASAR to M_M_M_M_M_M_M_M_M.Middle_as_Left_outABP_AR_AARAS
+}

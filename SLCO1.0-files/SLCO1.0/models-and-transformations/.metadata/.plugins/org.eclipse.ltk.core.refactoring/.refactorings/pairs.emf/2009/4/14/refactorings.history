@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 1 elements(s) to &apos;pairs.emf/src&apos;&#x0D;&#x0A;- Original project: &apos;pairs.emf&apos;&#x0D;&#x0A;- Destination element: &apos;pairs.emf/src&apos;&#x0D;&#x0A;- Original element: &apos;pairs.ecore&apos;" description="Copy file" destination="/src" element1="model/pairs.ecore" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1238679472353" units="0" version="1.0"/>
+</session>

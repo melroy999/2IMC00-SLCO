@@ -1,0 +1,268 @@
+% *** DEFINITION OF XOR OPERATOR ***
+
+map xor: Bool # Bool -> Bool;
+var a, b: Bool;
+eqn xor(a,b) = (a || b) && !(a && b);
+
+% *** DEFINITIONS FOR ARRAYS OF INTEGERS AND BOOLEANS ***
+
+map index': Int -> Int;
+var n': Int;
+eqn index'(n') = n';
+
+{% for i in IntArraySizes %}
+{% if loop.first %}sort {% else %}     {% endif %}Int{{i}} = struct AI{{i}}'({% for j in range(0,i) %}{{', ' if not loop.first }}el'{{j}}: Int{% endfor %});
+{% endfor %}
+{% for b in BoolArraySizes %}
+{% if loop.first %}sort {% else %}     {% endif %}Bool{{i}} = struct AB{{i}}'({% for j in range(0,i) %}{{', ' if not loop.first }}el'{{j}}: Bool{% endfor %});
+{% endfor %}
+{% for i in IntArraySizes %}
+{% if loop.first %}map {% else %}    {% endif %}get': Int{{i}} # Int -> Int;
+    set': Int{{i}} # Int # Int -> Int{{i}};
+{% endfor %}
+{% for i in BoolArraySizes %}
+{% if loop.first %}map {% else %}    {% endif %}get': Bool{{i}} # Int -> Bool;
+    set': Bool{{i}} # Int # Bool -> Bool{{i}};
+{% endfor %}
+{% for i in IntArraySizes %}
+{% if loop.first %}
+var i': Int;
+    x': Int;
+{% endif %}
+    Li{{i}}': Int{{i}};
+{% endfor %}
+{% for i in IntArraySizes %}
+{% set iloop = loop %}
+{% if iloop.first %}eqn{% else %}   {% endif %} (i' < 0) -> get'(Li{{i}}', i') = 0;
+(i' > {{i-1}}) -> get'(Li{{i}}', i') = 0;
+{% for j in range(0,i) %}
+    get'(Li{{i}}', {{j}}) = el'{{j}}(Li{{i}}');
+{% endfor %}
+{% endfor %}
+{% for i in IntArraySizes %}
+(i' < 0) -> set'(Li{{i}}', i', x') = Li{{i}}';
+(i' > {{i-1}}) -> set'(Li{{i}}', i', x') = Li{{i}}';
+{% for j in range(0,i) %}
+    set'(Li{{i}}', {{j}}, x') = AI{{i}}'({% for k in range(0,i) %}{{', ' if not loop.first}}{% if k == j %}x'{% else %}el'{{k}}(Li{{i}}'){% endif %}{% endfor %});
+{% endfor %}
+{% endfor %}
+{% for i in BoolArraySizes %}
+{% if loop.first %}
+var i': Int;
+    b': Bool;
+{% endif %}
+    Lb{{i}}': Bool{{i}};
+{% endfor %}
+{% for i in BoolArraySizes %}
+{% set bloop = loop %}
+eqn (i' < 0) -> get'(Lb{{i}}', i') = false;
+(i' > {{i-1}}) -> get'(Lb{{i}}', i') = false;
+{% for j in range(0,i) %}
+{% if bloop.first and loop.first %}eqn {% else %}    {% endif %}get'(Lb{{i}}', {{j}}) = el'{{j}}(Lb{{i}}');
+{% endfor %}
+{% endfor %}
+{% for i in BoolArraySizes %}
+(i' < 0) -> set'(Lb{{i}}', i', b') = Lb{{i}}';
+(i' > {{i-1}}) -> set'(Lb{{i}}', i', b') = Lb{{i}}';
+{% for j in range(0,i) %}
+    set'(Lb{{i}}', {{j}}, b') = AB{{i}}'({% for k in range(0,i) %}{{', ' if not loop.first}}{% if k == j %}b'{% else %}el'{{k}}(Lb{{i}}'){% endif %}{% endfor %});
+{% endfor %}
+{% endfor %}
+
+% ----- START DEFINITIONS OF BASIC MODEL ASPECTS -----
+
+% *** CHANNEL SIZE CONSTANTS ***
+
+{% for ch in model.channels %}
+{% if loop.first %}map {% else %}    {% endif %}{{ch.name}}'max: Int;
+{% endfor %}
+{% for ch in model.channels %}
+{% if loop.first %}eqn {% else %}    {% endif %}{{ch.name}}'max = {{ch.size}};
+{% endfor %}
+
+% *** CLASS NAMES ***
+
+{% for c in model.classes %}{% if loop.first %}sort Class = struct {% else %} | {% endif %}{{c.name}}{{';' if loop.last }}{% endfor %}
+
+
+% *** OBJECT NAMES ***
+
+sort Object';
+cons {% for o in model.objects %}{{o.name}}, {% endfor %}o_: Object';
+map object_index: Object' -> Nat;
+var o1', o2': Object';
+eqn object_index(o_) = 0;
+{%for oo in sorted_objects %}
+    object_index({{oo}}) = {{loop.index}};
+{% endfor %}
+    o1' < o2' = (object_index(o1') < object_index(o2'));
+    o1' > o2' = (object_index(o1') > object_index(o2'));
+    o1' == o2' = (object_index(o1') == object_index(o2'));
+
+% *** STATEMACHINE NAMES ***
+
+sort Statemachine';
+cons {% for stm in statemachinenames %}{{stm}}, {% endfor %}sm_: Statemachine';
+map sm_index: Statemachine' -> Nat;
+var sm1', sm2': Statemachine';
+eqn sm_index(sm_) = 0;
+{%for sm in sorted_statemachines %}
+    sm_index({{sm}}) = {{loop.index}};
+{% endfor %}
+    sm1' < sm2' = (sm_index(sm1') < sm_index(sm2'));
+    sm1' > sm2' = (sm_index(sm1') > sm_index(sm2'));
+    sm1' == sm2' = (sm_index(sm1') == sm_index(sm2'));
+
+% *** STATE NAMES ***
+
+{% for s in states %}{% if loop.first %}sort State' = struct {% else %}| {% endif %}{{s}}{% if loop.last %};{% else %} {% endif %}{% endfor %}
+
+
+% *** STATEMENT IDS ***
+
+sort STID' = struct{% for c in model.classes %}{% for stm in c.statemachines %}{% for tr in stm.transitions %} ST'{{tr._tx_position}} |{% endfor %}{% endfor %}{% endfor %} st_{% if check_onthefly %}{% for c in model.classes %}{% for sm in c.statemachines %} | ST'epsilon'{{sm.name}}(src': State'){% endfor %}{% endfor %}{% endif %};
+
+
+% *** VARIABLE NAMES ***
+
+sort Var';
+cons {% for v in sorted_variables|select("hasnoindex") %}{{', ' if not loop.first }}{{mcrl2varprefix}}{{v[1]}}{{': Var\';' if loop.last }}{% endfor %}
+
+{% for v in sorted_variables|select("hasindex") %}{% if loop.first %}     {% else %}, {% endif %}{{mcrl2varprefix}}{{v[1]}}{% if loop.last %}: Int -> Var';{% endif %}{% endfor %}
+
+{% if channeltypes|length > 0 %}
+% *** SPECIFICATION OF SIGNALS ***
+
+{% for ct, sset in channeltypes.items() %}
+sort Signal'{% for d in ct %}{{d|datatypeacronym}}{% endfor %} = struct {% for signal in sset %}{{signal}}{% if not loop.last %} | {% endif %}{% endfor %}{% if sset|length == 0 %}DUMMY'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}{% endif %};
+
+{% endfor %}
+{% endif %}
+{% if asynclosslesstypes.union(asynclossytypes)|length > 0 %}
+% *** SPECIFICATION OF MESSAGES ***
+
+{% for ct in asynclosslesstypes.union(asynclossytypes) %}
+{% set sset = channeltypes[ct] %}
+sort M'{% for d in ct %}{{d|datatypeacronym}}{% endfor %} = struct m'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}(el'0: Signal'{% for d in ct %}{{d|datatypeacronym}}{% endfor %}{% for d in ct %}, el'{{ loop.index }}: {{d}}{% endfor %});
+
+{% endfor %}
+{% endif %}
+
+% ----- END DEFINITIONS OF BASIC MODEL ASPECTS -----
+
+% ----- START ACCESS PATTERNS -----
+
+% *** SPECIFICATION OF READ ACCESS ***
+
+sort Access' = struct lcdp'(Var', List(Var')) | lc'(Var');
+
+% *** SPECIFICATION OF ACCESS PATTERN ***
+
+sort AccessPattern' = struct A'(R': List(Access'), W': List(Access'));
+
+% *** FUNCTION RETURNING WHETHER THE GIVEN STATEMENT HAS A NON-EMPTY ACCESS PATTERN (IF BOOLEAN FLAG IS FALSE, THE FUNCTION ONLY CONSIDERS READ ACCESSES FOR CONDITION CHECKING) ***
+
+map has_rwpattern_st: Object' # STID' # Bool{{model|mcrl2_model_vartypes(True)}} -> Bool;
+var o': Object';
+    b': Bool;
+    s': State';
+    {{model|mcrl2_model_vars_with_types(False)}};
+eqn has_rwpattern_st(o',st_,b'{{model|mcrl2_model_vars(True)}}) = false;
+{% for o in model.objects %}
+{% for stm in o.type.statemachines %}
+{% for tr in stm.transitions %}
+    has_rwpattern_st({{o.name}}, ST'{{tr._tx_position}}, true{{model|mcrl2_model_vars(True)}}) = {% if tr.statements[0] is hasdynamicaddressing(stm) %}remove_invalid_accesses'({{tr.statements[0]|mcrl2_accesspattern(o,True)}}) != A'([],[]){% else %}{{ (tr.statements[0]|mcrl2_accesspattern(o,True) != "A'([],[])")|string|mcrl2value }}{% endif %};
+    has_rwpattern_st({{o.name}}, ST'{{tr._tx_position}}, false{{model|mcrl2_model_vars(True)}}) = {% if tr.statements[0] is hasdynamicaddressing(stm) %}remove_invalid_accesses'({{tr.statements[0]|mcrl2_accesspattern(o,False)}}) != A'([],[]){% else %}{{ (tr.statements[0]|mcrl2_accesspattern(o,False) != "A'([],[])")|string|mcrl2value }}{% endif %};
+{% endfor %}
+{% endfor %}
+{% endfor %}
+
+% *** FUNCTION PROVIDING ACCESS PATTERNS OF STATEMENTS, DISTINGUISHING SUBSTATEMENTS (IF BOOLEAN FLAG IS FALSE, THE FUNCTION RETURNS SET OF READ ACCESSES FOR CONDITION CHECKING) ***
+
+map rwpattern_structure_st: Object' # STID' # Bool{{model|mcrl2_model_vartypes(True)}} -> List(AccessPattern');
+var o': Object';
+    b': Bool;
+    s': State';
+    {{model|mcrl2_model_vars_with_types(False)}};
+eqn rwpattern_structure_st(o',st_,b'{{model|mcrl2_model_vars(True)}}) = [A'([],[])];
+{% for o in model.objects %}
+{% for stm in o.type.statemachines %}
+{% for tr in stm.transitions %}
+    rwpattern_structure_st({{o.name}}, ST'{{tr._tx_position}}, true{{model|mcrl2_model_vars(True)}}) = {% if tr.statements[0] is hasdynamicaddressing(stm) %}remove_invalid_accesses_from_list'({% endif %}{{tr.statements[0]|mcrl2_structure_accesspattern(o, True)}}{% if tr.statements[0] is hasdynamicaddressing(stm) %}){% endif %};
+    rwpattern_structure_st({{o.name}}, ST'{{tr._tx_position}}, false{{model|mcrl2_model_vars(True)}}) = {% if tr.statements[0] is hasdynamicaddressing(stm) %}remove_invalid_accesses_from_list'({% endif %}{{tr.statements[0]|mcrl2_structure_accesspattern(o, False)}}{% if tr.statements[0] is hasdynamicaddressing(stm) %}){% endif %};
+{% endfor %}
+{% endfor %}
+{% endfor %}
+
+map remove_invalid_accesses_from_list': List(AccessPattern') -> List(AccessPattern');
+var ap': AccessPattern';
+    L': List(AccessPattern');
+eqn remove_invalid_accesses_from_list'([]) = [];
+    remove_invalid_accesses_from_list'(ap'|>L') = remove_invalid_accesses'(ap') |> remove_invalid_accesses_from_list'(L');
+
+map remove_invalid_accesses': AccessPattern' -> AccessPattern';
+var a': AccessPattern';
+eqn remove_invalid_accesses'(a') = A'(remove_invalid_accesses'1(R'(a')), remove_invalid_accesses'1(W'(a')));
+
+map remove_invalid_accesses'1: List(Access') -> List(Access');
+var a': Access';
+    L': List(Access');
+eqn remove_invalid_accesses'1([]) = [];
+    remove_invalid_accesses'1(a'|>L') = remove_invalid_accesses'2(a') ++ remove_invalid_accesses'1(L');
+
+map remove_invalid_accesses'2: Access' -> List(Access');
+var v': Var';
+    L': List(Var');
+    n': Int;
+{% for v in sorted_variables %}
+{% if loop.first %}eqn {% else %}    {% endif %}{% if v is hasindex %}(n' >= 0 && n' < {{v[2]}}) -> {% endif %}remove_invalid_accesses'2(lc'({{mcrl2varprefix}}{{v[1]}}{{'(n\')' if v is hasindex}})) = {% if v is hasindex %}[lc'({{mcrl2varprefix}}{{v[1]}}(n'))]{% else %}[lc'({{mcrl2varprefix}}{{v[1]}})]{% endif %};
+{% if v is hasindex %}(n' < 0 || n' >= {{v[2]}}) -> remove_invalid_accesses'2(lc'({{mcrl2varprefix}}{{v[1]}}(n'))) = [];
+{% endif %}
+{% endfor %}
+(remove_invalid_accessvars_from_list'(L') == L' && remove_invalid_accessvar'(v') == [v']) -> remove_invalid_accesses'2(lcdp'(v', L')) = [lcdp'(v', L')];
+(remove_invalid_accessvars_from_list'(L') != L' || remove_invalid_accessvar'(v') == []) -> remove_invalid_accesses'2(lcdp'(v', L')) = [];
+
+map remove_invalid_accessvars_from_list': List(Var') -> List(Var');
+var v': Var';
+    L': List(Var');
+eqn remove_invalid_accessvars_from_list'([]) = [];
+    remove_invalid_accessvars_from_list'(v'|>L') = remove_invalid_accessvar'(v') ++ remove_invalid_accessvars_from_list'(L');
+
+map remove_invalid_accessvar': Var' -> List(Var');
+var v': Var';
+    n': Int;
+{% for v in sorted_variables %}
+{% if loop.first %}eqn {% else %}    {% endif %}{% if v is hasindex %}(n' >= 0 && n' < {{v[2]}}) -> {% endif %}remove_invalid_accessvar'({{mcrl2varprefix}}{{v[1]}}{{'(n\')' if v is hasindex}}) = {% if v is hasindex %}[{{mcrl2varprefix}}{{v[1]}}(n')]{% else %}[{{mcrl2varprefix}}{{v[1]}}]{% endif %};
+{% if v is hasindex %}(n' < 0 || n' >= {{v[2]}}) -> remove_invalid_accessvar'({{mcrl2varprefix}}{{v[1]}}(n')) = [];
+{% endif %}
+{% endfor %}
+
+% ----- END ACCESS PATTERNS -----
+
+% *** ACTION TO REPORT DATA ACCESS PATTERNS ***
+act rw: Object' # Statemachine' # STID' # List(AccessPattern');
+
+% ***  SPECIFICATION OF BEHAVIOUR ***
+
+proc {{model.name}}({% for o in model.objects %}{% set oloop = loop %}{% for stm in o.type.statemachines %}{{', ' if not (oloop.first and loop.first) }}{{o.name}}'{{stm.name}}_state: State'{% endfor %}{% endfor %}{{model|mcrl2_model_vars_with_types(True)}}) =
+{% for o in model.objects %}
+{% set oloop = loop %}
+{% for sm in o.type.statemachines %}
+{% set smloop = loop %}
+{% for tr in sm.transitions %}
+{% set trloop = loop %}
+{% if tr.statements[0].__class__.__name__ != "ReceiveSignal" or ochannel[o][tr.statements[0]].synctype == "async" %}
+({{o.name}}'{{sm.name}}_state == {{tr.source.name}}{% if tr.statements[0]|hascondition(o) %}) -> (({{tr.statements[0]|statement_condition(o)}}{% endif %}) -> (
+{% if syncing_statements[o][tr.statements[0]]|length == 0 %}  {% if tr.statements[0] is hasdynamicaddressing(sm) %}(has_rwpattern_st({{o.name}}, ST'{{tr._tx_position}}, true{{model|mcrl2_model_vars(True)}})){% else %}{{ (tr.statements[0]|mcrl2_accesspattern(o,True) != "A'([],[])")|string|mcrl2value }}{% endif %} -> rw({{o.name}}, {{sm.name}}, ST'{{tr._tx_position}}, rwpattern_structure_st({{o.name}}, ST'{{tr._tx_position}}, true{{model|mcrl2_model_vars(True)}})) . {{model.name}}({{o.name}}'{{sm.name}}_state={{tr.target.name}}{{tr.statements[0]|statementstatechanges(o)}}) +
+  {% if tr.statements[0] is hasdynamicaddressing(sm) %}  (!has_rwpattern_st({{o.name}}, ST'{{tr._tx_position}}, true{{model|mcrl2_model_vars(True)}})){% else %}  {{ (tr.statements[0]|mcrl2_accesspattern(o,True) == "A'([],[])")|string|mcrl2value }}{% endif %} -> tau . {{model.name}}({{o.name}}'{{sm.name}}_state={{tr.target.name}}{{tr.statements[0]|statementstatechanges(o)}})
+){% if tr.statements[0]|hascondition(o) %}<> (has_rwpattern_st({{o.name}}, ST'{{tr._tx_position}}, false{{model|mcrl2_model_vars(True)}})) -> rw({{o.name}}, {{sm.name}}, ST'{{tr._tx_position}}, rwpattern_structure_st({{o.name}}, ST'{{tr._tx_position}}, false{{model|mcrl2_model_vars(True)}})) . {{model.name}}()){% endif %}{%else %}{% for sync in syncing_statements[o][tr.statements[0]] %}    ({{sync[0].name}}'{{statemachine[sync[1]].name}}_state == {{transowner[sync[1]].source.name}}){% if sync[1]|hascondition(sync[0]) %}) -> (({{sync[1]|sync_statement_condition(sync[0], tr.statements[0], o)}}{% endif %}) -> (rw({{o.name}}, {{sm.name}}, ST'{{tr._tx_position}}, R'(rwpattern_structure_st({{o.name}}, ST'{{tr._tx_position}}{{model|mcrl2_model_vars(True)}})), W'(rwpattern_structure_st({{o.name}}, ST'{{tr._tx_position}}, true{{model|mcrl2_model_vars(True)}})), {{sync[0].name}}, {{statemachine[sync[1]].name}}, R'(rwpattern_structure_st({{sync[0].name}}, ST'{{transowner[sync[1]]._tx_position}}{{model|mcrl2_model_vars(True)}}), W'(rwpattern_structure_st({{sync[0].name}}, ST'{{transowner[sync[1]]._tx_position}}{{model|mcrl2_model_vars(True)}})))) . {{model.name}}({{o.name}}'{{sm.name}}_state={{tr.target.name}}, {{sync[0].name}}'{{statemachine[sync[1]].name}}_state={{transowner[sync[1]].target.name}}{{sync[1]|sync_statementstatechanges(sync[0],tr.statements[0],o)}}){% if not loop.last %} +{% endif %}{% endfor %} +
+
+  ){% if sync[1]|hascondition(sync[0]) %}...){% endif %}{% endif %}{% if not (oloop.last and smloop.last and trloop.last and loop.last) %} +{% endif %}
+
+{% endif %}
+{% endfor %}
+{% endfor %}
+{% endfor %}
+;
+
+init {{model.name}}({% for o in model.objects %}{% set oloop = loop %}{% for sm in o.type.statemachines %}{{', ' if not (oloop.first and loop.first) }}{{sm.initialstate.name}}{% endfor %}{% endfor %}{% for o in model.objects %}{% set oloop = loop %}{% for var in o.type.variables %}, {% for vinit in o.assignments %}{% if var.name == vinit.left.name %}{% if vinit.right == None %}{% if var.type.base == "Integer" or var.type.base == "Byte" %}AI{% else %}AB{% endif %}{{var.type.size}}'({% for v in vinit.rights %}{{v|mcrl2value}}{{',' if not loop.last }}{% endfor %}){% else %}{{vinit.right|mcrl2value}}{% endif %}{% break %}{% endif %}{% if loop.last %}{{var|variabledefault|mcrl2value}}{% endif %}{% endfor %}{% if o.assignments|length == 0 %}{{var|variabledefault|mcrl2value}}{% endif %}{% endfor %}{% for sm in o.type.statemachines %}{% for var in sm.variables %}, {{var|variabledefault|mcrl2value}}{% endfor %}{% endfor %}{% endfor %}{% for ch in model.channels %}{% if ch.synctype == 'async' %}, [], 0{% endif %}{% endfor %});

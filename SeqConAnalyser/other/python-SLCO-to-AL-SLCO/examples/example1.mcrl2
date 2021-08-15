@@ -1,0 +1,1059 @@
+% *** DEFINITION OF XOR OPERATOR ***
+
+map xor: Bool # Bool -> Bool;
+var a, b: Bool;
+eqn xor(a,b) = (a || b) && !(a && b);
+
+% *** DEFINITIONS FOR ARRAYS OF INTEGERS AND BOOLEANS ***
+
+
+% ----- START DEFINITIONS OF BASIC MODEL ASPECTS -----
+
+% *** CHANNEL SIZE CONSTANTS ***
+
+
+% *** CLASS NAMES ***
+
+sort Class = struct GlobalClass;
+
+% *** OBJECT NAMES ***
+
+sort Object';
+cons globalObject, o_: Object';
+map object_index: Object' -> Nat;
+var o1', o2': Object';
+eqn object_index(o_) = 0;
+    object_index(globalObject) = 1;
+    o1' < o2' = (object_index(o1') < object_index(o2'));
+    o1' > o2' = (object_index(o1') > object_index(o2'));
+    o1' == o2' = (object_index(o1') == object_index(o2'));
+
+% *** STATEMACHINE NAMES ***
+
+sort Statemachine';
+cons StateMachine_0, StateMachine_1, StateMachine_2, sm_: Statemachine';
+map sm_index: Statemachine' -> Nat;
+var sm1', sm2': Statemachine';
+eqn sm_index(sm_) = 0;
+    sm_index(StateMachine_0) = 1;
+    sm_index(StateMachine_1) = 2;
+    sm_index(StateMachine_2) = 3;
+    sm1' < sm2' = (sm_index(sm1') < sm_index(sm2'));
+    sm1' > sm2' = (sm_index(sm1') > sm_index(sm2'));
+    sm1' == sm2' = (sm_index(sm1') == sm_index(sm2'));
+
+% *** STATE NAMES ***
+
+sort State' = struct S11 | S13 | S0 | S9 | S2 | S5 | S1 | S4 | S7 | S3 | S8 | S10 | S12 | S6;
+
+% *** STATEMENT IDS ***
+
+sort STID' = struct ST'486 | ST'696 | ST'913| st_;
+
+% *** VARIABLE NAMES ***
+
+sort Var';
+cons var_globalObject'var_1, var_globalObject'var_10, var_globalObject'var_11, var_globalObject'var_12, var_globalObject'var_13, var_globalObject'var_14, var_globalObject'var_2, var_globalObject'var_3, var_globalObject'var_4, var_globalObject'var_5, var_globalObject'var_6, var_globalObject'var_7, var_globalObject'var_8, var_globalObject'var_9: Var';
+
+map var_index: Var' -> Nat;
+var v1, v2: Var', n': Nat;
+eqn var_index(var_globalObject'var_1) = 0;
+    var_index(var_globalObject'var_10) = 1;
+    var_index(var_globalObject'var_11) = 2;
+    var_index(var_globalObject'var_12) = 3;
+    var_index(var_globalObject'var_13) = 4;
+    var_index(var_globalObject'var_14) = 5;
+    var_index(var_globalObject'var_2) = 6;
+    var_index(var_globalObject'var_3) = 7;
+    var_index(var_globalObject'var_4) = 8;
+    var_index(var_globalObject'var_5) = 9;
+    var_index(var_globalObject'var_6) = 10;
+    var_index(var_globalObject'var_7) = 11;
+    var_index(var_globalObject'var_8) = 12;
+    var_index(var_globalObject'var_9) = 13;
+    v1 < v2 = (var_index(v1) < var_index(v2));
+    v1 > v2 = (var_index(v1) > var_index(v2));
+
+
+% ----- END DEFINITIONS OF BASIC MODEL ASPECTS -----
+
+
+
+% ----- START FUNCTIONS TO WORK WITH LISTS OF VARIABLES -----
+
+% *** FUNCTION TO IDENTIFY ARRAY ACCESSES ***
+
+map is_array_access: Var' -> Bool;
+var n': Nat;
+eqn is_array_access(var_globalObject'var_1) = false;
+    is_array_access(var_globalObject'var_10) = false;
+    is_array_access(var_globalObject'var_11) = false;
+    is_array_access(var_globalObject'var_12) = false;
+    is_array_access(var_globalObject'var_13) = false;
+    is_array_access(var_globalObject'var_14) = false;
+    is_array_access(var_globalObject'var_2) = false;
+    is_array_access(var_globalObject'var_3) = false;
+    is_array_access(var_globalObject'var_4) = false;
+    is_array_access(var_globalObject'var_5) = false;
+    is_array_access(var_globalObject'var_6) = false;
+    is_array_access(var_globalObject'var_7) = false;
+    is_array_access(var_globalObject'var_8) = false;
+    is_array_access(var_globalObject'var_9) = false;
+
+% *** FUNCTION (WITH AUXILIARY FUNCTIONS) TO SORT ARRAY ACCESSES IN LIST OF VARIABLES ***
+
+map sorted_array_accesses: List(Var') -> List(Var');
+var L': List(Var');
+eqn sorted_array_accesses([]) = [];
+(L' != [] && !is_array_access(head(L'))) -> sorted_array_accesses(L') = [head(L')] ++ sorted_array_accesses(tail(L'));
+(is_array_access(head(L'))) -> sorted_array_accesses(L') = sorted_array_accesses(smallerlist(head(L'), L')) ++ [head(L')] ++ sorted_array_accesses(largerlist(head(L'), L'));
+
+map smallerlist: Var' # List(Var') -> List(Var');
+var v': Var', L': List(Var');
+eqn smallerlist(v', []) = [];
+(L' != [] && head(L') < v') -> smallerlist(v', L') = [head(L')] ++ smallerlist(v', tail(L'));
+(L' != [] && !(head(L') < v')) -> smallerlist(v', L') = smallerlist(v', tail(L'));
+
+map largerlist: Var' # List(Var') -> List(Var');
+var v': Var', L': List(Var');
+eqn largerlist(v', []) = [];
+(L' != [] && !(v' < head(L'))) -> largerlist(v', L') = largerlist(v', tail(L'));
+(L' != [] && v' < head(L')) -> largerlist(v', L') = [head(L')] ++ largerlist(v', tail(L'));
+
+% *** FUNCTION TO QUICKLY COMPARE LISTS OF VARIABLES FOR SPECIFIC CONDITIONS ***
+
+map is_in: Var' # List(Var') -> Bool;
+var v': Var', L': List(Var');
+eqn is_in(v', []) = false;
+(v' == head(L')) -> is_in(v', L') = true;
+(L' != [] && v' < head(L')) -> is_in(v', L') = is_in(v', tail(L'));
+(v' > head(L')) -> is_in(v', L') = false;
+
+map has_at_least_two: List(Var') -> Bool;
+var L': List(Var'), v': Var';
+eqn has_at_least_two([]) = false;
+    has_at_least_two([v']) = false;
+(L' != []) -> has_at_least_two(L') = has_at_least_two1(tail(L'));
+
+map has_at_least_two1: List(Var') -> Bool;
+var L': List(Var');
+eqn has_at_least_two1([]) = false;
+(L' != []) -> has_at_least_two1(L') = true;
+
+map filter_on_two: List(Var') -> List(Var');
+var L': List(Var');
+eqn filter_on_two(L') = if(has_at_least_two(L'), L', []);
+
+% *** FUNCTIONS TO CONSTRUCT INTERSECTION OF LISTS OF VARIABLES ***
+
+map intersection: List(Var') # List(Var') -> List(Var');
+var L1, L2: List(Var');
+eqn intersection([], L2) = [];
+    intersection(L1, []) = [];
+(L1 != [] && L2 != [] && (head(L1) == head(L2))) -> intersection(L1, L2) = [head(L1)] ++ intersection(tail(L1), tail(L2));
+(L1 != [] && L2 != [] && (head(L1) > head(L2))) -> intersection(L1, L2) = intersection(L1, tail(L2));
+(L1 != [] && L2 != [] && (head(L2) > head(L1))) -> intersection(L1, L2) = intersection(tail(L1), L2);
+
+map intersection: List(Var') # List(Var') # List(Var') -> List(Var');
+var L1, L2, L3: List(Var');
+eqn intersection([], L2, L3) = [];
+    intersection(L1, [], L3) = [];
+    intersection(L1, L2, []) = [];
+(L1 != [] && L2 != [] && L3 != [] && (head(L1) == head(L2)) && (head(L1) == head(L3))) -> intersection(L1, L2, L3) = [head(L1)] ++ intersection(tail(L1), tail(L2), tail(L3));
+(L1 != [] && L2 != [] && L3 != [] && (head(L1) > head(L2)) && (head(L1) > head(L3))) -> intersection(L1, L2, L3) = intersection(L1, tail(L2), tail(L3));
+(L1 != [] && L2 != [] && L3 != [] && (head(L1) > head(L2)) && (head(L1) == head(L3))) -> intersection(L1, L2, L3) = intersection(L1, tail(L2), L3);
+(L1 != [] && L2 != [] && L3 != [] && (head(L1) == head(L2)) && (head(L1) > head(L3))) -> intersection(L1, L2, L3) = intersection(L1, L2, tail(L3));
+(L1 != [] && L2 != [] && L3 != [] && (head(L2) > head(L1)) && (head(L2) > head(L3))) -> intersection(L1, L2, L3) = intersection(tail(L1), L2, tail(L3));
+(L1 != [] && L2 != [] && L3 != [] && (head(L2) > head(L1)) && (head(L2) == head(L3))) -> intersection(L1, L2, L3) = intersection(tail(L1), L2, L3);
+(L1 != [] && L2 != [] && L3 != [] && (head(L3) > head(L2)) && (head(L3) > head(L1))) -> intersection(L1, L2, L3) = intersection(tail(L1), tail(L2), L3);
+
+% *** EXTRACT ONE LIST OF VARIABLES FROM THE OTHER ***
+
+map setminus: List(Var') # List(Var') -> List(Var');
+var L1', L2': List(Var');
+eqn setminus(L1',[]) = L1';
+    setminus([],L2') = [];
+(L1' != [] && L2' != [] && head(L1') < head(L2')) -> setminus(L1',L2') = [head(L1')] ++ setminus(tail(L1'),L2');
+(L1' != [] && L2' != [] && head(L2') < head(L1')) -> setminus(L1',L2') = setminus(L1',tail(L2'));
+(L1' != [] && L2' != [] && head(L1') == head(L2')) -> setminus(L1',L2') = setminus(tail(L1'),tail(L2'));
+
+% *** ONLY KEEP VARIABLES IN THE FIRST LIST THAT APPEAR IN THE SECOND ***
+
+map filter': List(Var') # List(Var') -> List(Var');
+var L1', L2': List(Var');
+eqn filter'(L1',[]) = [];
+    filter'([],L2') = [];
+(L1' != [] && L2' != [] && head(L1') < head(L2')) -> filter'(L1',L2') = filter'(tail(L1'),L2');
+(L1' != [] && L2' != [] && head(L2') < head(L1')) -> filter'(L1',L2') = filter'(L1',tail(L2'));
+(L1' != [] && L2' != [] && head(L1') == head(L2')) -> filter'(L1',L2') = [head(L1')] ++ filter'(tail(L1'),tail(L2'));
+
+% *** UNION OF TWO LISTS OF VARIABLES ***
+
+map union': List(Var') # List(Var') -> List(Var');
+var L1, L2: List(Var');
+eqn union'([], L2) = L2;
+    union'(L1, []) = L1;
+(L1 != [] && L2 != [] && head(L1) == head(L2)) -> union'(L1, L2) = [head(L1)] ++ union'(tail(L1), tail(L2));
+(L1 != [] && head(L1) < head(L2))  -> union'(L1, L2) = [head(L1)] ++ union'(tail(L1), L2);
+(L2 != [] && head(L1) > head(L2))  -> union'(L1, L2) = [head(L2)] ++ union'(L1, tail(L2));
+
+% ----- END FUNCTIONS TO WORK WITH LISTS OF VARIABLES -----
+
+
+
+% ----- START SPECIFICATIONS AND FUNCTIONS TO REASON ABOUT MODEL STRUCTURE -----
+
+% *** SPECIFICATION OF OBJECT/STATE MACHINE PAIR, WITH FUNCTIONS ***
+
+sort Object_SM' = struct O'SM'(O': Object', SM': Statemachine');
+map lt', gt', eq': Object_SM' # Object_SM' -> Bool;
+var osm1', osm2': Object_SM';
+eqn lt'(osm1', osm2') = ((O'(osm1') < O'(osm2')) || ((O'(osm1') == O'(osm2')) && (SM'(osm1') < SM'(osm2'))));
+    gt'(osm1', osm2') = ((O'(osm1') > O'(osm2')) || ((O'(osm1') == O'(osm2')) && (SM'(osm1') > SM'(osm2'))));
+    eq'(osm1', osm2') = ((O'(osm1') == O'(osm2')) && (SM'(osm1') == SM'(osm2')));
+
+map is_in: Object_SM' # List(Object_SM') -> Bool;
+var osm1': Object_SM', L': List(Object_SM');
+eqn is_in(osm1', []) = false;
+(eq'(osm1', head(L'))) -> is_in(osm1', L') = true;
+(L' != [] && lt'(osm1', head(L'))) -> is_in(osm1', L') = is_in(osm1', tail(L'));
+(gt'(osm1', head(L'))) -> is_in(osm1', L') = false;
+
+map remove: List(Object_SM') # Object_SM' -> List(Object_SM');
+var osm': Object_SM';
+    L': List(Object_SM');
+eqn remove([], osm') = [];
+(L' != [] && (eq'(osm', head(L')))) -> remove(L', osm') = tail(L');
+(L' != [] && (lt'(osm', head(L')))) -> remove(L', osm') = L';
+(L' != [] && (gt'(osm', head(L')))) -> remove(L', osm') = [head(L')] ++ remove(tail(L'),osm');
+
+map intersection: List(Object_SM') # List(Object_SM') -> List(Object_SM');
+var L1, L2: List(Object_SM');
+eqn intersection([], L2) = [];
+    intersection(L1, []) = [];
+(L1 != [] && L2 != [] && (eq'(head(L1), head(L2)))) -> intersection(L1, L2) = [head(L1)] ++ intersection(tail(L1), tail(L2));
+(L1 != [] && L2 != [] && (gt'(head(L1), head(L2)))) -> intersection(L1, L2) = intersection(L1, tail(L2));
+(L1 != [] && L2 != [] && (lt'(head(L1), head(L2)))) -> intersection(L1, L2) = intersection(tail(L1), L2);
+
+map union': List(Object_SM') # List(Object_SM') -> List(Object_SM');
+var L1, L2: List(Object_SM');
+eqn union'([], L2) = L2;
+    union'(L1, []) = L1;
+(L1 != [] && L2 != [] && eq'(head(L1), head(L2))) -> union'(L1, L2) = [head(L1)] ++ union'(tail(L1), tail(L2));
+(L1 != [] && lt'(head(L1), head(L2)))  -> union'(L1, L2) = [head(L1)] ++ union'(tail(L1), L2);
+(L2 != [] && gt'(head(L1), head(L2)))  -> union'(L1, L2) = [head(L2)] ++ union'(L1, tail(L2));
+
+map setminus: List(Object_SM') # List(Object_SM') -> List(Object_SM');
+var L1', L2': List(Object_SM');
+eqn setminus(L1',[]) = L1';
+    setminus([],L2') = [];
+(L1' != [] && L2' != [] && head(L1') < head(L2')) -> setminus(L1',L2') = [head(L1')] ++ setminus(tail(L1'),L2');
+(L1' != [] && L2' != [] && head(L2') < head(L1')) -> setminus(L1',L2') = setminus(L1',tail(L2'));
+(L1' != [] && L2' != [] && head(L1') == head(L2')) -> setminus(L1',L2') = setminus(tail(L1'),tail(L2'));
+
+% *** SPECIFICATION OF TUPLE OF OUTGOING TRANSITIONS OF THE WHOLE SYSTEM ***
+
+sort OutgoingTransitions = struct OT'(el'globalObject'StateMachine_0: List(STID'), el'globalObject'StateMachine_1: List(STID'), el'globalObject'StateMachine_2: List(STID'));
+
+% *** FUNCTION INDICATING WHETHER A TRANSITION IS ENABLED OR NOT ***
+
+map isenabled: Object' # STID' # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> Bool;
+var globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn isenabled(globalObject, ST'486, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = true;
+    isenabled(globalObject, ST'696, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = true;
+    isenabled(globalObject, ST'913, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = true;
+
+% *** FUNCTION INDICATING WHETHER THE LIST OF OUTGOING TRANSITIONS CONTAINS DISABLED TRANSITIONS IN THE GIVEN OBJECT, BUT OF A DIFFERENT STATE MACHINE THAN THE GIVEN ONE ***
+
+map has_disabled': Object' # Statemachine' # OutgoingTransitions # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> Bool;
+var o1': Object';
+    sm1': Statemachine';
+    out': OutgoingTransitions;
+    globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn has_disabled'(globalObject,StateMachine_0,out', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = false || has_disabled1'(globalObject,el'globalObject'StateMachine_1(out'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) || has_disabled1'(globalObject,el'globalObject'StateMachine_2(out'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local);
+    has_disabled'(globalObject,StateMachine_1,out', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = false || has_disabled1'(globalObject,el'globalObject'StateMachine_0(out'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) || has_disabled1'(globalObject,el'globalObject'StateMachine_2(out'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local);
+    has_disabled'(globalObject,StateMachine_2,out', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = false || has_disabled1'(globalObject,el'globalObject'StateMachine_0(out'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) || has_disabled1'(globalObject,el'globalObject'StateMachine_1(out'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local);
+
+map has_disabled1': Object' # List(STID') # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> Bool;
+var o1': Object';
+    L': List(STID');
+    globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn has_disabled1'(o1',[], globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = false;
+(L' != []) -> has_disabled1'(o1',L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = has_disabled2'(o1',L',isenabled(o1',head(L'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local);
+
+map has_disabled2': Object' # List(STID') # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> Bool;
+var o1': Object';
+    L': List(STID');
+    b': Bool;
+    globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn has_disabled2'(o1',L',false, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = true;
+(L' != []) -> has_disabled2'(o1',L',true, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = has_disabled1'(o1',tail(L'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local);
+
+% *** FUNCTION INDICATING WHETHER A STATEMENT IS SAFE OR NOT ***
+
+map issafe: Object' # STID' # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> Bool;
+var o1': Object';
+    globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn issafe(o1', ST'486, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = !has_at_least_two(rwpattern(o1', ST'486, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local));
+    issafe(o1', ST'696, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = !has_at_least_two(rwpattern(o1', ST'696, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local));
+    issafe(o1', ST'913, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = !has_at_least_two(rwpattern(o1', ST'913, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local));
+
+% *** FUNCTION INDICATING WHETHER A STATEMENT IS (UN)CONDITIONALLY SAFE (FOR AMPLE-SET POR) OR NOT ***
+
+map por_issafe: Object' # STID' # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> Bool;
+var globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn por_issafe(globalObject, ST'486, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = false;
+    por_issafe(globalObject, ST'696, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = false;
+    por_issafe(globalObject, ST'913, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = false;
+
+% *** FUNCTION PROVIDING OUTGOING TRANSITIONS PER CLASS/STATEMACHINE/STATE PAIR ***
+
+map outgoing: Class # Statemachine' # State' -> List(STID');
+eqn outgoing(GlobalClass, StateMachine_0, S0) = [ST'486];
+    outgoing(GlobalClass, StateMachine_0, S1) = [];
+    outgoing(GlobalClass, StateMachine_0, S2) = [];
+    outgoing(GlobalClass, StateMachine_0, S3) = [];
+    outgoing(GlobalClass, StateMachine_0, S4) = [];
+    outgoing(GlobalClass, StateMachine_0, S5) = [];
+    outgoing(GlobalClass, StateMachine_0, S6) = [];
+    outgoing(GlobalClass, StateMachine_0, S7) = [];
+    outgoing(GlobalClass, StateMachine_0, S8) = [];
+    outgoing(GlobalClass, StateMachine_0, S9) = [];
+    outgoing(GlobalClass, StateMachine_0, S10) = [];
+    outgoing(GlobalClass, StateMachine_0, S11) = [];
+    outgoing(GlobalClass, StateMachine_0, S12) = [];
+    outgoing(GlobalClass, StateMachine_0, S13) = [];
+    outgoing(GlobalClass, StateMachine_1, S0) = [ST'696];
+    outgoing(GlobalClass, StateMachine_1, S1) = [];
+    outgoing(GlobalClass, StateMachine_1, S2) = [];
+    outgoing(GlobalClass, StateMachine_1, S3) = [];
+    outgoing(GlobalClass, StateMachine_1, S4) = [];
+    outgoing(GlobalClass, StateMachine_1, S5) = [];
+    outgoing(GlobalClass, StateMachine_1, S6) = [];
+    outgoing(GlobalClass, StateMachine_1, S7) = [];
+    outgoing(GlobalClass, StateMachine_1, S8) = [];
+    outgoing(GlobalClass, StateMachine_1, S9) = [];
+    outgoing(GlobalClass, StateMachine_1, S10) = [];
+    outgoing(GlobalClass, StateMachine_1, S11) = [];
+    outgoing(GlobalClass, StateMachine_1, S12) = [];
+    outgoing(GlobalClass, StateMachine_1, S13) = [];
+    outgoing(GlobalClass, StateMachine_2, S0) = [ST'913];
+    outgoing(GlobalClass, StateMachine_2, S1) = [];
+    outgoing(GlobalClass, StateMachine_2, S2) = [];
+    outgoing(GlobalClass, StateMachine_2, S3) = [];
+    outgoing(GlobalClass, StateMachine_2, S4) = [];
+    outgoing(GlobalClass, StateMachine_2, S5) = [];
+    outgoing(GlobalClass, StateMachine_2, S6) = [];
+    outgoing(GlobalClass, StateMachine_2, S7) = [];
+    outgoing(GlobalClass, StateMachine_2, S8) = [];
+    outgoing(GlobalClass, StateMachine_2, S9) = [];
+    outgoing(GlobalClass, StateMachine_2, S10) = [];
+    outgoing(GlobalClass, StateMachine_2, S11) = [];
+    outgoing(GlobalClass, StateMachine_2, S12) = [];
+    outgoing(GlobalClass, StateMachine_2, S13) = [];
+
+% *** FUNCTION PROVIDING THE CURRENT LIST OF OUTGOING TRANSITIONS OF THE GIVEN STATEMACHINE ***
+
+map sm_outgoing: Object' # Statemachine' # OutgoingTransitions -> List(STID');
+var L': OutgoingTransitions;
+eqn sm_outgoing(globalObject, StateMachine_0, L') = el'globalObject'StateMachine_0(L');
+    sm_outgoing(globalObject, StateMachine_1, L') = el'globalObject'StateMachine_1(L');
+    sm_outgoing(globalObject, StateMachine_2, L') = el'globalObject'StateMachine_2(L');
+
+% *** FUNCTION TO UPDATE THE LIST OF OUTGOING TRANSITIONS ***
+
+map update_outgoing: Object' # Statemachine' # State' # OutgoingTransitions -> OutgoingTransitions;
+var L': OutgoingTransitions;
+    s': State';
+eqn update_outgoing(globalObject, StateMachine_0, s', L') = OT'(outgoing(GlobalClass, StateMachine_0, s'), el'globalObject'StateMachine_1(L'), el'globalObject'StateMachine_2(L'));
+    update_outgoing(globalObject, StateMachine_1, s', L') = OT'(el'globalObject'StateMachine_0(L'), outgoing(GlobalClass, StateMachine_1, s'), el'globalObject'StateMachine_2(L'));
+    update_outgoing(globalObject, StateMachine_2, s', L') = OT'(el'globalObject'StateMachine_0(L'), el'globalObject'StateMachine_1(L'), outgoing(GlobalClass, StateMachine_2, s'));
+
+% ----- END SPECIFICATIONS AND FUNCTIONS TO REASON ABOUT MODEL STRUCTURE -----
+
+
+
+% ----- START ACCESS PATTERNS -----
+
+% *** SPECIFICATION OF ACCESS PATTERN ***
+
+sort AccessPattern' = struct A'(R': List(Var'), W': List(Var'));
+map union': AccessPattern' # AccessPattern' -> AccessPattern';
+var a1', a2': AccessPattern';
+eqn union'(a1', a2') = A'(union'(R'(a1'),R'(a2')), union'(W'(a1'),W'(a2')));
+
+map union': List(AccessPattern') -> AccessPattern';
+var L': List(AccessPattern');
+eqn union'([]) = A'([],[]);
+(L' != []) -> union'(L') = union'(head(L'), union'(tail(L')));
+
+map filter': AccessPattern' # List(Var') -> AccessPattern';
+var a1': AccessPattern';
+    L': List(Var');
+eqn filter'(a1',L') = A'(filter'(R'(a1'),L'), filter'(W'(a1'),L'));
+
+map setminus: AccessPattern' # AccessPattern' -> AccessPattern';
+var a1', a2': AccessPattern';
+eqn setminus(a1',a2') = A'(setminus(R'(a1'),R'(a2')), setminus(W'(a1'),W'(a2')));
+
+map intersection: AccessPattern' # AccessPattern' -> AccessPattern';
+var a1', a2': AccessPattern';
+eqn intersection(a1', a2') = A'(intersection(R'(a1'),R'(a2')), intersection(W'(a1'),W'(a2')));
+
+map has_at_least_two: AccessPattern' -> Bool;
+var a': AccessPattern';
+eqn has_at_least_two(a') = has_at_least_two(R'(a') ++ W'(a'));
+
+map not_empty: AccessPattern' -> Bool;
+var a': AccessPattern';
+eqn not_empty(a') = (R'(a') != [] || W'(a') != []);
+
+map get_vars': AccessPattern' -> List(Var');
+var a': AccessPattern';
+eqn get_vars'(a') = union'(R'(a'), W'(a'));
+
+% *** SPECIFICATION OF OBJECT/STATE MACHINE/ACCESS PATTERN PAIR ***
+
+sort Object_SM_AccessPattern' = struct O'SM'A'(O': Object', SM': Statemachine', A':AccessPattern');
+
+% *** SPECIFICATION OBJECT/STATE MACHINE/ACCESS PAIR ***
+
+sort Object_SM_Access' = struct O'SM'AC'(O': Object', SM': Statemachine', RW': Bool, V':Var');
+
+% *** PAIRS OF OBJECTS AND STATEMENT IDS ***
+
+sort Object_Statement = struct O'S'(O': Object', ST': STID');
+
+% *** FUNCTION PROVIDING ACCESS PATTERNS OF STATEMENTS ***
+
+map rwpattern: Object' # STID' # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> AccessPattern';
+var globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn rwpattern(globalObject, ST'486, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = A'([var_globalObject'var_12, var_globalObject'var_13], [var_globalObject'var_13, var_globalObject'var_8]);
+    rwpattern(globalObject, ST'696, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = A'([var_globalObject'var_12], [var_globalObject'var_13]);
+    rwpattern(globalObject, ST'913, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = A'([var_globalObject'var_2, var_globalObject'var_8], [var_globalObject'var_11, var_globalObject'var_14, var_globalObject'var_8]);
+
+% ----- END ACCESS PATTERNS -----
+
+
+
+% ----- START DEPENDENCY GRAPH STRUCTURE AND BASIC FUNCTIONS -----
+
+% *** HISTORY OF ONE NODE ***
+
+sort History' = struct HIS'(el'globalObject'StateMachine_0: AccessPattern', el'globalObject'StateMachine_1: AccessPattern', el'globalObject'StateMachine_2: AccessPattern');
+map empty_History': History';
+eqn empty_History' = HIS'(A'([],[]), A'([],[]), A'([],[]));
+
+% *** ACCESS DEPENDENCY AND THREAD DEPENDENCY FUNCTIONS, IMPLEMENTED AS LISTS, WITH INITIAL VALUES ***
+
+sort D_map' = struct DMAP'(r'StateMachine_0'globalObject'var_12: AccessPattern', r'StateMachine_0'globalObject'var_13: AccessPattern', w'StateMachine_0'globalObject'var_8: AccessPattern', w'StateMachine_0'globalObject'var_13: AccessPattern', r'StateMachine_1'globalObject'var_12: AccessPattern', w'StateMachine_1'globalObject'var_13: AccessPattern', r'StateMachine_2'globalObject'var_8: AccessPattern', r'StateMachine_2'globalObject'var_2: AccessPattern', w'StateMachine_2'globalObject'var_11: AccessPattern', w'StateMachine_2'globalObject'var_8: AccessPattern', w'StateMachine_2'globalObject'var_14: AccessPattern');
+map D_init': D_map';
+eqn D_init' = DMAP'(A'([],[]), A'([],[]), A'([],[]), A'([],[]), A'([],[]), A'([],[]), A'([],[]), A'([],[]), A'([],[]), A'([],[]), A'([],[]));
+
+sort C_map' = struct CMAP'(c'globalObject'StateMachine_0: AccessPattern', c'globalObject'StateMachine_1: AccessPattern', c'globalObject'StateMachine_2: AccessPattern');
+map C_init': C_map';
+eqn C_init' = CMAP'(A'([],[]), A'([],[]), A'([],[]));
+
+% *** FUNCTIONS TO RETRIEVE AND UPDATE SINGLE VALUES OF DEPENDENCY FUNCTIONS
+
+map get_d': Object_SM' # Var' # Bool # D_map' -> AccessPattern';
+var o': Object_SM';
+    v': Var';
+    dm': D_map';
+eqn (o' == O'SM'(globalObject,StateMachine_0) && v' == var_globalObject'var_12) -> get_d'(o', v', false, dm') = r'StateMachine_0'globalObject'var_12(dm');
+(o' == O'SM'(globalObject,StateMachine_0) && v' == var_globalObject'var_13) -> get_d'(o', v', false, dm') = r'StateMachine_0'globalObject'var_13(dm');
+(o' == O'SM'(globalObject,StateMachine_0) && v' == var_globalObject'var_8) -> get_d'(o', v', true, dm') = w'StateMachine_0'globalObject'var_8(dm');
+(o' == O'SM'(globalObject,StateMachine_0) && v' == var_globalObject'var_13) -> get_d'(o', v', true, dm') = w'StateMachine_0'globalObject'var_13(dm');
+(o' == O'SM'(globalObject,StateMachine_1) && v' == var_globalObject'var_12) -> get_d'(o', v', false, dm') = r'StateMachine_1'globalObject'var_12(dm');
+(o' == O'SM'(globalObject,StateMachine_1) && v' == var_globalObject'var_13) -> get_d'(o', v', true, dm') = w'StateMachine_1'globalObject'var_13(dm');
+(o' == O'SM'(globalObject,StateMachine_2) && v' == var_globalObject'var_8) -> get_d'(o', v', false, dm') = r'StateMachine_2'globalObject'var_8(dm');
+(o' == O'SM'(globalObject,StateMachine_2) && v' == var_globalObject'var_2) -> get_d'(o', v', false, dm') = r'StateMachine_2'globalObject'var_2(dm');
+(o' == O'SM'(globalObject,StateMachine_2) && v' == var_globalObject'var_11) -> get_d'(o', v', true, dm') = w'StateMachine_2'globalObject'var_11(dm');
+(o' == O'SM'(globalObject,StateMachine_2) && v' == var_globalObject'var_8) -> get_d'(o', v', true, dm') = w'StateMachine_2'globalObject'var_8(dm');
+(o' == O'SM'(globalObject,StateMachine_2) && v' == var_globalObject'var_14) -> get_d'(o', v', true, dm') = w'StateMachine_2'globalObject'var_14(dm');
+
+map get_c': Object_SM' # C_map' -> AccessPattern';
+var o': Object_SM';
+    cm': C_map';
+eqn (o' == O'SM'(globalObject,StateMachine_0)) -> get_c'(o', cm') = c'globalObject'StateMachine_0(cm');
+(o' == O'SM'(globalObject,StateMachine_1)) -> get_c'(o', cm') = c'globalObject'StateMachine_1(cm');
+(o' == O'SM'(globalObject,StateMachine_2)) -> get_c'(o', cm') = c'globalObject'StateMachine_2(cm');
+
+map up_d': Object_SM' # Var' # Bool # AccessPattern' # D_map' -> D_map';
+var o': Object_SM';
+    v': Var';
+    a': AccessPattern';
+    dm': D_map';
+eqn (o' == O'SM'(globalObject,StateMachine_0) && v' == var_globalObject'var_12) -> up_d'(o', v', false, a', dm') = DMAP'(union'(r'StateMachine_0'globalObject'var_12(dm'),a'), r'StateMachine_0'globalObject'var_13(dm'), w'StateMachine_0'globalObject'var_8(dm'), w'StateMachine_0'globalObject'var_13(dm'), r'StateMachine_1'globalObject'var_12(dm'), w'StateMachine_1'globalObject'var_13(dm'), r'StateMachine_2'globalObject'var_8(dm'), r'StateMachine_2'globalObject'var_2(dm'), w'StateMachine_2'globalObject'var_11(dm'), w'StateMachine_2'globalObject'var_8(dm'), w'StateMachine_2'globalObject'var_14(dm'));
+(o' == O'SM'(globalObject,StateMachine_0) && v' == var_globalObject'var_13) -> up_d'(o', v', false, a', dm') = DMAP'(r'StateMachine_0'globalObject'var_12(dm'), union'(r'StateMachine_0'globalObject'var_13(dm'),a'), w'StateMachine_0'globalObject'var_8(dm'), w'StateMachine_0'globalObject'var_13(dm'), r'StateMachine_1'globalObject'var_12(dm'), w'StateMachine_1'globalObject'var_13(dm'), r'StateMachine_2'globalObject'var_8(dm'), r'StateMachine_2'globalObject'var_2(dm'), w'StateMachine_2'globalObject'var_11(dm'), w'StateMachine_2'globalObject'var_8(dm'), w'StateMachine_2'globalObject'var_14(dm'));
+(o' == O'SM'(globalObject,StateMachine_0) && v' == var_globalObject'var_8) -> up_d'(o', v', true, a', dm') = DMAP'(r'StateMachine_0'globalObject'var_12(dm'), r'StateMachine_0'globalObject'var_13(dm'), union'(w'StateMachine_0'globalObject'var_8(dm'),a'), w'StateMachine_0'globalObject'var_13(dm'), r'StateMachine_1'globalObject'var_12(dm'), w'StateMachine_1'globalObject'var_13(dm'), r'StateMachine_2'globalObject'var_8(dm'), r'StateMachine_2'globalObject'var_2(dm'), w'StateMachine_2'globalObject'var_11(dm'), w'StateMachine_2'globalObject'var_8(dm'), w'StateMachine_2'globalObject'var_14(dm'));
+(o' == O'SM'(globalObject,StateMachine_0) && v' == var_globalObject'var_13) -> up_d'(o', v', true, a', dm') = DMAP'(r'StateMachine_0'globalObject'var_12(dm'), r'StateMachine_0'globalObject'var_13(dm'), w'StateMachine_0'globalObject'var_8(dm'), union'(w'StateMachine_0'globalObject'var_13(dm'),a'), r'StateMachine_1'globalObject'var_12(dm'), w'StateMachine_1'globalObject'var_13(dm'), r'StateMachine_2'globalObject'var_8(dm'), r'StateMachine_2'globalObject'var_2(dm'), w'StateMachine_2'globalObject'var_11(dm'), w'StateMachine_2'globalObject'var_8(dm'), w'StateMachine_2'globalObject'var_14(dm'));
+(o' == O'SM'(globalObject,StateMachine_1) && v' == var_globalObject'var_12) -> up_d'(o', v', false, a', dm') = DMAP'(r'StateMachine_0'globalObject'var_12(dm'), r'StateMachine_0'globalObject'var_13(dm'), w'StateMachine_0'globalObject'var_8(dm'), w'StateMachine_0'globalObject'var_13(dm'), union'(r'StateMachine_1'globalObject'var_12(dm'),a'), w'StateMachine_1'globalObject'var_13(dm'), r'StateMachine_2'globalObject'var_8(dm'), r'StateMachine_2'globalObject'var_2(dm'), w'StateMachine_2'globalObject'var_11(dm'), w'StateMachine_2'globalObject'var_8(dm'), w'StateMachine_2'globalObject'var_14(dm'));
+(o' == O'SM'(globalObject,StateMachine_1) && v' == var_globalObject'var_13) -> up_d'(o', v', true, a', dm') = DMAP'(r'StateMachine_0'globalObject'var_12(dm'), r'StateMachine_0'globalObject'var_13(dm'), w'StateMachine_0'globalObject'var_8(dm'), w'StateMachine_0'globalObject'var_13(dm'), r'StateMachine_1'globalObject'var_12(dm'), union'(w'StateMachine_1'globalObject'var_13(dm'),a'), r'StateMachine_2'globalObject'var_8(dm'), r'StateMachine_2'globalObject'var_2(dm'), w'StateMachine_2'globalObject'var_11(dm'), w'StateMachine_2'globalObject'var_8(dm'), w'StateMachine_2'globalObject'var_14(dm'));
+(o' == O'SM'(globalObject,StateMachine_2) && v' == var_globalObject'var_8) -> up_d'(o', v', false, a', dm') = DMAP'(r'StateMachine_0'globalObject'var_12(dm'), r'StateMachine_0'globalObject'var_13(dm'), w'StateMachine_0'globalObject'var_8(dm'), w'StateMachine_0'globalObject'var_13(dm'), r'StateMachine_1'globalObject'var_12(dm'), w'StateMachine_1'globalObject'var_13(dm'), union'(r'StateMachine_2'globalObject'var_8(dm'),a'), r'StateMachine_2'globalObject'var_2(dm'), w'StateMachine_2'globalObject'var_11(dm'), w'StateMachine_2'globalObject'var_8(dm'), w'StateMachine_2'globalObject'var_14(dm'));
+(o' == O'SM'(globalObject,StateMachine_2) && v' == var_globalObject'var_2) -> up_d'(o', v', false, a', dm') = DMAP'(r'StateMachine_0'globalObject'var_12(dm'), r'StateMachine_0'globalObject'var_13(dm'), w'StateMachine_0'globalObject'var_8(dm'), w'StateMachine_0'globalObject'var_13(dm'), r'StateMachine_1'globalObject'var_12(dm'), w'StateMachine_1'globalObject'var_13(dm'), r'StateMachine_2'globalObject'var_8(dm'), union'(r'StateMachine_2'globalObject'var_2(dm'),a'), w'StateMachine_2'globalObject'var_11(dm'), w'StateMachine_2'globalObject'var_8(dm'), w'StateMachine_2'globalObject'var_14(dm'));
+(o' == O'SM'(globalObject,StateMachine_2) && v' == var_globalObject'var_11) -> up_d'(o', v', true, a', dm') = DMAP'(r'StateMachine_0'globalObject'var_12(dm'), r'StateMachine_0'globalObject'var_13(dm'), w'StateMachine_0'globalObject'var_8(dm'), w'StateMachine_0'globalObject'var_13(dm'), r'StateMachine_1'globalObject'var_12(dm'), w'StateMachine_1'globalObject'var_13(dm'), r'StateMachine_2'globalObject'var_8(dm'), r'StateMachine_2'globalObject'var_2(dm'), union'(w'StateMachine_2'globalObject'var_11(dm'),a'), w'StateMachine_2'globalObject'var_8(dm'), w'StateMachine_2'globalObject'var_14(dm'));
+(o' == O'SM'(globalObject,StateMachine_2) && v' == var_globalObject'var_8) -> up_d'(o', v', true, a', dm') = DMAP'(r'StateMachine_0'globalObject'var_12(dm'), r'StateMachine_0'globalObject'var_13(dm'), w'StateMachine_0'globalObject'var_8(dm'), w'StateMachine_0'globalObject'var_13(dm'), r'StateMachine_1'globalObject'var_12(dm'), w'StateMachine_1'globalObject'var_13(dm'), r'StateMachine_2'globalObject'var_8(dm'), r'StateMachine_2'globalObject'var_2(dm'), w'StateMachine_2'globalObject'var_11(dm'), union'(w'StateMachine_2'globalObject'var_8(dm'),a'), w'StateMachine_2'globalObject'var_14(dm'));
+(o' == O'SM'(globalObject,StateMachine_2) && v' == var_globalObject'var_14) -> up_d'(o', v', true, a', dm') = DMAP'(r'StateMachine_0'globalObject'var_12(dm'), r'StateMachine_0'globalObject'var_13(dm'), w'StateMachine_0'globalObject'var_8(dm'), w'StateMachine_0'globalObject'var_13(dm'), r'StateMachine_1'globalObject'var_12(dm'), w'StateMachine_1'globalObject'var_13(dm'), r'StateMachine_2'globalObject'var_8(dm'), r'StateMachine_2'globalObject'var_2(dm'), w'StateMachine_2'globalObject'var_11(dm'), w'StateMachine_2'globalObject'var_8(dm'), union'(w'StateMachine_2'globalObject'var_14(dm'),a'));
+
+map up_c': Object_SM' # AccessPattern' # C_map' -> C_map';
+var o': Object_SM';
+    a': AccessPattern';
+    cm': C_map';
+eqn (o' == O'SM'(globalObject,StateMachine_0)) -> up_c'(o', a', cm') = CMAP'(union'(c'globalObject'StateMachine_0(cm'),a'), c'globalObject'StateMachine_0(cm'), c'globalObject'StateMachine_0(cm'));
+(o' == O'SM'(globalObject,StateMachine_1)) -> up_c'(o', a', cm') = CMAP'(c'globalObject'StateMachine_1(cm'), union'(c'globalObject'StateMachine_1(cm'),a'), c'globalObject'StateMachine_1(cm'));
+(o' == O'SM'(globalObject,StateMachine_2)) -> up_c'(o', a', cm') = CMAP'(c'globalObject'StateMachine_2(cm'), c'globalObject'StateMachine_2(cm'), union'(c'globalObject'StateMachine_2(cm'),a'));
+
+% *** SET-BASED VERSIONS OF c' AND d' FUNCTIONS ***
+
+map d_set': DPNode' # History' # List(Var') -> AccessPattern';
+var n1': DPNode';
+    h': History';
+    L': List(Var');
+eqn d_set'(n1',h',L') = union'(d_set1'(d'(n1'),globalObject,StateMachine_0,el'globalObject'StateMachine_0(h'),L'), union'(d_set1'(d'(n1'),globalObject,StateMachine_1,el'globalObject'StateMachine_1(h'),L'), d_set1'(d'(n1'),globalObject,StateMachine_2,el'globalObject'StateMachine_2(h'),L')));
+
+map d_set1': D_map' # Object' # Statemachine' # AccessPattern' # List(Var') -> AccessPattern';
+var d1': D_map';
+    o': Object';
+    sm': Statemachine';
+    a': AccessPattern';
+    L': List(Var');
+eqn d_set1'(d1',o',sm',a',L') = filter'(union'(d_set2'(d1',o',sm',R'(a'),false), d_set2'(d1',o',sm',W'(a'),true)),L');
+
+map d_set2': D_map' # Object' # Statemachine' # List(Var') # Bool -> AccessPattern';
+var d1': D_map';
+    o': Object';
+    sm': Statemachine';
+    L': List(Var');
+    b': Bool;
+eqn d_set2'(d1',o',sm',[],b') = A'([],[]);
+(L' != []) -> d_set2'(d1',o',sm',L',b') = union'(get_d'(O'SM'(o',sm'), head(L'), b', d1'), d_set2'(d1',o',sm',tail(L'),b'));
+
+map c_set': DPNode' # List(Object_SM') # List(Var') -> AccessPattern';
+var n1': DPNode';
+    Lo': List(Object_SM');
+    L': List(Var');
+eqn c_set'(n1',[],L') = A'([],[]);
+(Lo' != []) -> c_set'(n1',Lo',L') = filter'(c_set1'(c'(n1'),Lo'), L');
+
+map c_set1': C_map' # List(Object_SM') -> AccessPattern';
+var c1': C_map';
+    Lo': List(Object_SM');
+eqn c_set1'(c1',[]) = A'([],[]);
+(Lo' != []) -> c_set1'(c1',Lo') = union'(get_c'(head(Lo'), c1'), c_set1'(c1',tail(Lo')));
+
+% *** UPDATE FUNCTIONS FOR c' AND d' FUNCTIONS ***
+
+map update_d': D_map' # History' # AccessPattern' -> D_map';
+var d1': D_map';
+    h1': History';
+    a': AccessPattern';
+eqn update_d'(d1',h1',a') = update_d1'(d1', get_access_list'(h1'), a');
+
+map update_d1': D_map' # List(Object_SM_Access') # AccessPattern' -> D_map';
+var d1': D_map';
+    L1': List(Object_SM_Access');
+    a': AccessPattern';
+eqn update_d1'(d1',[],a') = d1';
+(L1' != []) -> update_d1'(d1',L1',a') = update_d1'(up_d'(O'SM'(O'(head(L1')),SM'(head(L1'))), V'(head(L1')), RW'(head(L1')), a', d1'), tail(L1'), a');
+
+map get_access_list': History' -> List(Object_SM_Access');
+var h1': History';
+eqn get_access_list'(h1') = get_access_list1'(globalObject,StateMachine_0,el'globalObject'StateMachine_0(h1')) ++ get_access_list1'(globalObject,StateMachine_1,el'globalObject'StateMachine_1(h1')) ++ get_access_list1'(globalObject,StateMachine_2,el'globalObject'StateMachine_2(h1'));
+
+map get_access_list1': Object' # Statemachine' # AccessPattern' -> List(Object_SM_Access');
+var o1': Object';
+    sm1': Statemachine';
+    a1': AccessPattern';
+eqn get_access_list1'(o1',sm1',a1') = get_access_list2'(o1',sm1',R'(a1'),false) ++ get_access_list2'(o1',sm1',W'(a1'),true);
+
+map get_access_list2': Object' # Statemachine' # List(Var') # Bool -> List(Object_SM_Access');
+var o1': Object';
+    sm1': Statemachine';
+    L1': List(Var');
+    b': Bool;
+eqn get_access_list2'(o1',sm1',[],b') = [];
+(L1' != []) -> get_access_list2'(o1',sm1',L1',b') = [O'SM'AC'(o1',sm1',b',head(L1'))] ++ get_access_list2'(o1',sm1',tail(L1'),b');
+
+map update_c': C_map' # List(Object_SM') # AccessPattern' -> C_map';
+var c1': C_map';
+    L1': List(Object_SM');
+    a': AccessPattern';
+eqn update_c'(c1',[],a') = c1';
+(L1' != []) -> update_c'(c1',L1',a') = update_c'(up_c'(head(L1'), a', c1'), tail(L1'), a');
+
+% *** DEPENDENCY GRAPH NODE ***
+
+sort DPNode' = struct N'(OSM': Object_SM', ST': STID', P': AccessPattern', H': History', d': D_map', c': C_map', owner': List(Object_SM'));
+map lt', gt', eq': DPNode' # DPNode' -> Bool;
+    empty_DPNode': DPNode';
+var n1', n2': DPNode';
+eqn lt'(n1',n2') = lt'(OSM'(n1'), OSM'(n2'));
+    gt'(n1',n2') = gt'(OSM'(n1'), OSM'(n2'));
+    eq'(n1', n2') = eq'(OSM'(n1'), OSM'(n2'));
+    empty_DPNode' = N'(O'SM'(o_,sm_), st_, A'([],[]), empty_History', D_init', C_init', []);
+
+map are_competing: DPNode' # DPNode' -> Bool;
+var n1', n2': DPNode';
+eqn (O'(OSM'(n1')) == O'(OSM'(n2')) && SM'(OSM'(n1')) != SM'(OSM'(n2'))) -> are_competing(n1',n2') = true;
+(O'(OSM'(n1')) != O'(OSM'(n2')) || SM'(OSM'(n1')) == SM'(OSM'(n2'))) -> are_competing(n1',n2') = false;
+
+% *** FUNCTION TO REMOVE ACCESSES FROM A GIVEN OBJECT/STATE MACHINE PAIR ***
+
+map extract_osm': DPNode' # Object_SM' -> DPNode';
+var n': DPNode';
+eqn extract_osm'(n',O'SM'(globalObject,StateMachine_0)) = N'(OSM'(n'), ST'(n'), P'(n'), HIS'(A'([],[]), el'globalObject'StateMachine_1(H'(n')), el'globalObject'StateMachine_2(H'(n'))), d'(n'), c'(n'), remove(owner'(n'),O'SM'(globalObject,StateMachine_0)));
+    extract_osm'(n',O'SM'(globalObject,StateMachine_1)) = N'(OSM'(n'), ST'(n'), P'(n'), HIS'(el'globalObject'StateMachine_0(H'(n')), A'([],[]), el'globalObject'StateMachine_2(H'(n'))), d'(n'), c'(n'), remove(owner'(n'),O'SM'(globalObject,StateMachine_1)));
+    extract_osm'(n',O'SM'(globalObject,StateMachine_2)) = N'(OSM'(n'), ST'(n'), P'(n'), HIS'(el'globalObject'StateMachine_0(H'(n')), el'globalObject'StateMachine_1(H'(n')), A'([],[])), d'(n'), c'(n'), remove(owner'(n'),O'SM'(globalObject,StateMachine_2)));
+
+% *** FUNCTION TO ADD A GIVEN ACCESSPATTERN OF A GIVEN OBJECT/STATE MACHINE PAIR TO A HISTORY ***
+
+map add_osm': Object_SM' # AccessPattern' # History' -> History';
+var h': History';
+    a1': AccessPattern';
+eqn add_osm'(O'SM'(globalObject,StateMachine_0),a1',h') = HIS'(union'(el'globalObject'StateMachine_0(h'), a1'), el'globalObject'StateMachine_1(h'), el'globalObject'StateMachine_2(h'));
+    add_osm'(O'SM'(globalObject,StateMachine_1),a1',h') = HIS'(el'globalObject'StateMachine_0(h'), union'(el'globalObject'StateMachine_1(h'), a1'), el'globalObject'StateMachine_2(h'));
+    add_osm'(O'SM'(globalObject,StateMachine_2),a1',h') = HIS'(el'globalObject'StateMachine_0(h'), el'globalObject'StateMachine_1(h'), union'(el'globalObject'StateMachine_2(h'), a1'));
+
+% *** THE UNION OF TWO HISTORIES ***
+
+map union': History' # History' -> History';
+var h1',h2': History';
+eqn union'(h1',h2') = HIS'(union'(el'globalObject'StateMachine_0(h1'),el'globalObject'StateMachine_0(h2')), union'(el'globalObject'StateMachine_1(h1'),el'globalObject'StateMachine_1(h2')), union'(el'globalObject'StateMachine_2(h1'),el'globalObject'StateMachine_2(h2')));
+
+% *** LIST OF LISTS OF DPNODES TO REPRESENT DPGRAPH ***
+
+sort DPGraph' = struct DG'(el'globalObject: List(DPNode'), PREV': DPNode');
+
+% *** FUNCTION TO RETURN NODE FOR A GIVEN OBJECT/STATE MACHINE/STATEMENT ***
+
+map get_dpnode': DPGraph' # Object' # Statemachine' # STID' -> DPNode';
+var g': DPGraph';
+    sm1': Statemachine';
+    st': STID';
+eqn get_dpnode'(g',globalObject,sm1',st') = get_dpnode1'(globalObject, sm1', st', el'globalObject(g'));
+
+map get_dpnode1': Object' # Statemachine' # STID' # List(DPNode') -> DPNode';
+var o1': Object';
+    sm1': Statemachine';
+    st': STID';
+    L': List(DPNode');
+eqn get_dpnode1'(o1',sm1',st',[]) = empty_DPNode';
+(L' != [] && OSM'(head(L')) == O'SM'(o1',sm1') && ST'(head(L')) == st') -> get_dpnode1'(o1',sm1',st',L') = head(L');
+(L' != [] && (OSM'(head(L')) != O'SM'(o1',sm1') || ST'(head(L')) != st')) -> get_dpnode1'(o1',sm1',st',L') = get_dpnode1'(o1',sm1',st',tail(L'));
+
+% *** EXTRACT DPNODES FROM LIST BELONGING TO PARTICULAR OBJECT/STATEMACHINE PAIR ***
+
+map extract': Object' # Statemachine' # List(DPNode') -> List(DPNode');
+var o1': Object';
+    sm1': Statemachine';
+    L': List(DPNode');
+eqn extract'(o1',sm1',[]) = [];
+(L' != [] && lt'(O'SM'(o1',sm1'), OSM'(head(L')))) -> extract'(o1',sm1',L') = L';
+(L' != [] && gt'(O'SM'(o1',sm1'), OSM'(head(L')))) -> extract'(o1',sm1',L') = [head(L')] ++ extract'(o1',sm1',tail(L'));
+(L' != [] && eq'(O'SM'(o1',sm1'), OSM'(head(L')))) -> extract'(o1',sm1',L') = extract'(o1',sm1',tail(L'));
+
+% *** DEP_V FUNCTIONS TO OBTAIN SUBSET OF SECOND SET OF ACCESSES ON WHICH FIRST SET OF ACCESSES DEPENDS ***
+% *** two versions: one to compare AccessPatterns, second to compare AccessPattern with history ***
+
+map dep_v_b': DPNode' # DPNode' # List(Var') -> AccessPattern';
+var n1', n2': DPNode';
+    L': List(Var');
+eqn (!are_competing(n1',n2')) -> dep_v_b'(n1',n2',L') = A'([],[]);
+    (are_competing(n1',n2')) -> dep_v_b'(n1',n2',L') = dep_v_b1'(P'(n1'),P'(n2'),L');    
+
+map dep_v_b1': AccessPattern' # AccessPattern' # List(Var') -> AccessPattern';
+var l1', l2', l3', l4', L': List(Var');
+eqn dep_v_b1'(A'(l1',l2'), A'(l3',l3'), []) = A'([],[]);
+    (L' != []) -> dep_v_b1'(A'(l1',[]), A'(l3',[]), L') = A'([],[]);
+    (L' != [] && (l2' != [] || l4' != [])) -> dep_v_b1'(A'(l1',l2'), A'(l3',l4'), L') = A'(intersection(l2',l3',L'), union'(intersection(l1',l4',L'), intersection(l2',l4',L')));
+
+map dep_v_h': DPNode' # DPNode' # List(Var') -> History';
+var n1', n2': DPNode';
+    L': List(Var');
+eqn dep_v_h'(n1',n2',L') = dep_v_h1'(OSM'(n1'), P'(n1'), H'(n2'), L');
+
+map dep_v_h1': Object_SM' # AccessPattern' # History' # List(Var') -> History';
+var a1': AccessPattern';
+    h': History';
+    L': List(Var');
+eqn dep_v_h1'(O'SM'(globalObject,StateMachine_0),a1',h',L') = HIS'(A'([],[]), dep_v_b1'(a1',el'globalObject'StateMachine_1(h'),L'), dep_v_b1'(a1',el'globalObject'StateMachine_2(h'),L'));
+    dep_v_h1'(O'SM'(globalObject,StateMachine_1),a1',h',L') = HIS'(dep_v_b1'(a1',el'globalObject'StateMachine_0(h'),L'), A'([],[]), dep_v_b1'(a1',el'globalObject'StateMachine_2(h'),L'));
+    dep_v_h1'(O'SM'(globalObject,StateMachine_2),a1',h',L') = HIS'(dep_v_b1'(a1',el'globalObject'StateMachine_0(h'),L'), dep_v_b1'(a1',el'globalObject'StateMachine_1(h'),L'), A'([],[]));
+
+% *** DEP_O FUNCTIONS TO COMPARE OWNERS OF ACCESSPATTERNS AND HISTORIES ***
+% *** two versions: one to compare AccessPattern and history, another to compare histories ***
+
+map dep_o_b': DPNode' # DPNode' -> List(Object_SM');
+var n1', n2': DPNode';
+eqn (!are_competing(n1',n2')) -> dep_o_b'(n1',n2') = [];
+    (are_competing(n1',n2')) -> dep_o_b'(n1',n2') = intersection(union'([OSM'(n1')], owner'(n1')), owner'(n2'));
+
+map dep_o_h': DPNode' # DPNode' -> List(Object_SM');
+var n1', n2': DPNode';
+eqn (!are_competing(n1',n2')) -> dep_o_h'(n1',n2') = [];
+    (are_competing(n1',n2')) -> dep_o_h'(n1',n2') = intersection(owner'(n1'), owner'(n2'));
+
+% ----- END DEPENDENCY GRAPH STRUCTURE AND BASIC FUNCTIONS -----
+
+
+
+% ----- START ATOMICITY VIOLATION CHECKING ALGORITHM -----
+
+% *** PROCESS TRANSACTION PROCEDURE ***
+% has_disabled_flag is present to determine whether or not to keep the selected AccessPattern as part of the graph. It indicates whether there are currently disabled transitions in the set of outgoing transitions
+
+map process_transaction': Object' # Statemachine' # STID' # DPGraph' # List(Var') # Bool -> DPGraph';
+var o1': Object';
+    sm1': Statemachine';
+    st': STID';
+    g': DPGraph';
+    L': List(Var');
+    has_disabled_flag': Bool;
+eqn process_transaction'(o1',sm1',st',g',L',has_disabled_flag') = process_transaction1'(o1', sm1', st', g', get_dpnode'(g',o1',sm1',st'), L', has_disabled_flag');
+
+map process_transaction1': Object' # Statemachine' # STID' # DPGraph' # DPNode' # List(Var') # Bool -> DPGraph';
+var st': STID';
+    g': DPGraph';
+    n1': DPNode';
+    L': List(Var');
+    has_disabled_flag': Bool;
+eqn process_transaction1'(globalObject,StateMachine_0,st',g',n1',L',has_disabled_flag') = DG'(process_transaction2'(n1', extract'(globalObject, StateMachine_0, el'globalObject(g')), L'), store_selected_pattern'(n1', has_disabled_flag',L'));
+    process_transaction1'(globalObject,StateMachine_1,st',g',n1',L',has_disabled_flag') = DG'(process_transaction2'(n1', extract'(globalObject, StateMachine_1, el'globalObject(g')), L'), store_selected_pattern'(n1', has_disabled_flag',L'));
+    process_transaction1'(globalObject,StateMachine_2,st',g',n1',L',has_disabled_flag') = DG'(process_transaction2'(n1', extract'(globalObject, StateMachine_2, el'globalObject(g')), L'), store_selected_pattern'(n1', has_disabled_flag',L'));
+
+map process_transaction2': DPNode' # List(DPNode') # List(Var') -> List(DPNode');
+var n1': DPNode';
+    L1': List(DPNode');
+    L2': List(Var');
+eqn process_transaction2'(n1',[],L2') = [];
+    process_transaction2'(n1',L1',[]) = [];
+(L1' != [] && L2' != [] && filter'(P'(n1'),L2') == A'([],[])) -> process_transaction2'(n1',L1',L2') = L1';
+(L1' != [] && L2' != [] && filter'(P'(n1'),L2') != A'([],[])) -> process_transaction2'(n1',L1',L2') = [perform_U'(n1', head(L1'), L2')] ++ process_transaction2'(n1', tail(L1'), L2');
+
+map store_selected_pattern': DPNode' # Bool # List(Var') -> DPNode';
+var n1': DPNode';
+    b': Bool;
+    L': List(Var');
+eqn store_selected_pattern'(n1',false,L') = empty_DPNode';
+    store_selected_pattern'(n1',b',[]) = empty_DPNode';
+(filter'(P'(n1'),L') == A'([],[])) -> store_selected_pattern'(n1',b',L') = empty_DPNode';
+(filter'(P'(n1'),L') != A'([],[])) -> store_selected_pattern'(n1',true,L') = N'(OSM'(n1'), ST'(n1'), P'(n1'), empty_History', D_init', C_init', []);
+
+% *** STATEMACHINE/STID PAIR ***
+
+sort SM_STID' = struct SM'S'(SM': Statemachine', ST': STID');
+
+% *** UPDATE BLOCKS (ACCESS PATTERNS) PROCEDURE ***
+
+map update_blocks': OutgoingTransitions # DPGraph' # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> DPGraph';
+var out': OutgoingTransitions;
+    g': DPGraph';
+    globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn update_blocks'(out',g', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = DG'(update_blocks1'(globalObject, [] ++ get_SM_STIDs'(StateMachine_0, el'globalObject'StateMachine_0(out')) ++ get_SM_STIDs'(StateMachine_1, el'globalObject'StateMachine_1(out')) ++ get_SM_STIDs'(StateMachine_2, el'globalObject'StateMachine_2(out')), el'globalObject(g'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local), PREV'(g'));
+
+map get_SM_STIDs': Statemachine' # List(STID') -> List(SM_STID');
+var sm1': Statemachine';
+    L': List(STID');
+eqn get_SM_STIDs'(sm1',[]) = [];
+(L' != []) -> get_SM_STIDs'(sm1',L') = [SM'S'(sm1',head(L'))] ++ get_SM_STIDs'(sm1',tail(L'));
+
+map update_blocks1': Object' # List(SM_STID') # List(DPNode') # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> List(DPNode');
+var o1': Object';
+    L': List(SM_STID');
+    LN': List(DPNode');
+    globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn update_blocks1'(o1',[],LN', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = [];
+(L' != []) -> update_blocks1'(o1',L',[], globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = [create_new_block'(o1', head(L'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local)] ++ update_blocks1'(o1',tail(L'),[], globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local);
+(L' != [] && LN' != [] && lt'(O'SM'(o1',SM'(head(L'))), OSM'(head(LN')))) -> update_blocks1'(o1',L',LN', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = [create_new_block'(o1', head(L'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local)] ++ update_blocks1'(o1',tail(L'),LN', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local);
+(L' != [] && LN' != [] && gt'(O'SM'(o1',SM'(head(L'))), OSM'(head(LN')))) -> update_blocks1'(o1',L',LN', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = update_blocks1'(o1',L',tail(LN'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local);
+(L' != [] && LN' != [] && eq'(O'SM'(o1',SM'(head(L'))), OSM'(head(LN')))) -> update_blocks1'(o1',L',LN', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = [N'(OSM'(head(LN')), ST'(head(LN')), rwpattern(o1', ST'(head(LN')), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local), H'(head(LN')), d'(head(LN')), c'(head(LN')), owner'(head(LN')))] ++ update_blocks1'(o1',tail(L'),tail(LN'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local);
+
+map create_new_block': Object' # SM_STID' # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> DPNode';
+var o1': Object';
+    s': SM_STID';
+    globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn create_new_block'(o1',s', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = N'(O'SM'(o1',SM'(s')), ST'(s'), rwpattern(o1', ST'(s'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local), empty_History', D_init', C_init', []);
+
+% *** DETECT VIOLATIONS PROCEDURE ***
+
+map detect_violations': Object' # Statemachine' # STID' # DPGraph' # List(Var') -> O'SM'ST'Advice';
+var o1': Object';
+    sm1': Statemachine';
+    st': STID';
+    g': DPGraph';
+    L': List(Var');
+eqn detect_violations'(o1',sm1',st',g',L') = detect_violations3'(o1',sm1',st',detect_violations1'(o1', g', get_dpnode'(g',o1',sm1',st'), L'));
+
+map detect_violations1': Object' # DPGraph' # DPNode' # List(Var') -> Advice';
+var g': DPGraph';
+    n1': DPNode';
+    L': List(Var');
+eqn detect_violations1'(globalObject, g',n1',L') = detect_violations2'(n1', el'globalObject(g') ++ [PREV'(g')], L');
+
+map detect_violations2': DPNode' # List(DPNode') # List(Var') -> Advice';
+var n1': DPNode';
+    L1': List(DPNode');
+    L2': List(Var');
+eqn detect_violations2'(n1',[],L2') = empty_Advice';
+    detect_violations2'(n1',L1',[]) = empty_Advice';
+(L1' != [] && L2' != []) -> detect_violations2'(n1',L1',L2') = combine'(perform_C'(n1', head(L1'), L2'), detect_violations2'(n1', tail(L1'), L2'));
+
+map detect_violations3': Object' # Statemachine' # STID' # Advice' -> O'SM'ST'Advice';
+var o1': Object';
+    sm1': Statemachine';
+    st': STID';
+    ad': Advice';
+eqn (ad' == empty_Advice') -> detect_violations3'(o1',sm1',st',ad') = empty_O'SM'ST'Advice';
+(ad' != empty_Advice') -> detect_violations3'(o1',sm1',st',ad') = O'SM'ST'AD'(o1',sm1',st',ad');
+
+% *** OVERALL CHECKING AND PERFORMING OF UPDATE FOR PAIR OF NODES ***
+
+map perform_U': DPNode' # DPNode' # List(Var') -> DPNode';
+var n1', n2': DPNode';
+    L': List(Var');
+eqn perform_U'(n1',n2',L') = perform_U2'(n1', perform_U1'(n1',n2',L'), L');
+
+% *** CHECK AND PERFORM UPDATE 1 ***
+
+map perform_U1': DPNode' # DPNode' # List(Var') -> DPNode';
+var n1', n2': DPNode';
+    L': List(Var');
+eqn perform_U1'(n1',n2',L') = perform_U1_1'(n1',n2', union'(dep_v_b'(n1', n2', L'), d_set'(n2', dep_v_h'(n1', n2', L'), L')));
+
+map perform_U1_1': DPNode' # DPNode' # AccessPattern' ->DPNode';
+var n1', n2': DPNode';
+    a': AccessPattern';
+eqn (!not_empty(a')) -> perform_U1_1'(n1',n2',a') = n2';
+(not_empty(a')) -> perform_U1_1'(n1',n2',a') = perform_U1_2'(n1', n2', a', add_osm'(OSM'(n1'), P'(n1'), H'(extract_osm'(n1', OSM'(n2')))), setminus(union'([OSM'(n1')],owner'(n1')), [OSM'(n2')]));
+
+map perform_U1_2': DPNode' # DPNode' # AccessPattern' # History' # List(Object_SM') -> DPNode';
+var n1', n2': DPNode';
+    a': AccessPattern';
+    h1': History';
+    L': List(Object_SM');
+eqn perform_U1_2'(n1',n2',a',h1',L') = N'(OSM'(n2'), ST'(n2'), P'(n2'), union'(H'(n2'), h1'), update_d'(d'(n2'), h1', a'), update_c'(c'(n2'), L', a'), union'(L', owner'(n2')));
+
+% *** CHECK AND PERFORM UPDATE 2 ***
+
+map perform_U2': DPNode' # DPNode' # List(Var') -> DPNode';
+var n1', n2': DPNode';
+    L': List(Var');
+eqn (!are_competing(n1',n2')) -> perform_U2'(n1',n2',L') = n2';
+(are_competing(n1',n2')) -> perform_U2'(n1',n2',L') = perform_U2_1'(n1', n2', dep_o_h'(n1',n2'),L');
+
+map perform_U2_1': DPNode' # DPNode' # List(Object_SM') # List(Var') -> DPNode';
+var n1', n2': DPNode';
+    L1': List(Object_SM');
+    L2': List(Var');
+eqn perform_U2_1'(n1',n2',[],L2') = n2';
+    perform_U2_1'(n1',n2',L1',[]) = n2';
+(L1' != [] && L2' != []) -> perform_U2_1'(n1',n2',L1',L2') = perform_U2_2'(n1', n2', L1', remove(union'([OSM'(n1')], owner'(n1')), OSM'(n2')), L2');
+
+map perform_U2_2': DPNode' # DPNode' # List(Object_SM') # List(Object_SM') # List(Var') -> DPNode';
+var n1', n2': DPNode';
+    L1',L2': List(Object_SM');
+    L3': List(Var');
+eqn perform_U2_2'(n1',n2',[],L2',L3') = n2';
+    perform_U2_2'(n1',n2',L1',[],L3') = n2';
+    perform_U2_2'(n1',n2',L1',L2',[]) = n2';
+(L1' != [] && L2' != [] && L3' != []) -> perform_U2_2'(n1',n2',L1',L2',L3') = N'(OSM'(n2'), ST'(n2'), P'(n2'), H'(n2'), d'(n2'), update_c'(c'(n2'), L2', c_set'(n2', L1', L3')), union'(L2',owner'(n2')));
+
+% *** SPECIFICATION OF ATOMICITY VIOLATION RESOLUTION ADVICE ***
+
+sort Advice' = struct AD'(LK': AccessPattern', LO': List(Shuffle'));
+map empty_Advice': Advice';
+eqn empty_Advice' = AD'(A'([],[]),[]);
+
+% *** SPECIFICATION OF SHUFFLE ORDER ***
+
+sort Shuffle' = struct SH'(SB': AccessPattern', SA': AccessPattern');
+map empty_Shuffle': Shuffle';
+eqn empty_Shuffle' = SH'(A'([],[]),A'([],[]));
+
+map union': List(Shuffle') # List(Shuffle') -> List(Shuffle');
+var L1',L2': List(Shuffle');
+eqn union'(L1',[]) = L1';
+    union'([],L2') = L2';
+(L1' != [] && L2' != [] && head(L1') < head(L2')) -> union'(L1',L2') = [head(L1')] ++ union'(tail(L1'),L2');
+(L1' != [] && L2' != [] && head(L1') > head(L2')) -> union'(L1',L2') = [head(L2')] ++ union'(L1',tail(L2'));
+(L1' != [] && L2' != [] && head(L1') == head(L2')) -> union'(L1',L2') = [head(L1')] ++ union'(tail(L1'),tail(L2'));
+
+% *** SPECIFICATION OF ADVICE FOR SPECIFIC OBJECT/STATEMACHINE/STID ***
+
+sort O'SM'ST'Advice' = struct O'SM'ST'AD'(O': Object', SM': Statemachine', ST': STID', AD': Advice');
+map empty_O'SM'ST'Advice': O'SM'ST'Advice';
+eqn empty_O'SM'ST'Advice' = O'SM'ST'AD'(o_, sm_, st_, empty_Advice');
+
+map combine': Advice' # Advice' -> Advice';
+var ad1', ad2': Advice';
+eqn combine'(ad1',ad2') = combine1'(LO'(ad1'),LO'(ad2'),compute_lockset'(ad1',ad2'));
+
+map combine1': List(Shuffle') # List(Shuffle') # AccessPattern' -> Advice';
+var lo1',lo2': List(Shuffle');
+    al': AccessPattern';
+eqn combine1'(lo1',lo2',al') = AD'(al', combine2'(union'(lo1',lo2'),al'));
+
+map combine2': List(Shuffle') # AccessPattern' -> List(Shuffle');
+var L': List(Shuffle');
+    a': AccessPattern';
+eqn combine2'([],a') = [];
+(L' != []) -> combine2'(L',a') = combine3'(union'([SH'(setminus(SB'(head(L')), a'), setminus(SA'(head(L')), a'))], combine2'(tail(L'), a')));
+
+map combine3': List(Shuffle') -> List(Shuffle');
+var L': List(Shuffle');
+eqn (L' == [empty_Shuffle']) -> combine3'(L') = [];
+(L' != [empty_Shuffle']) -> combine3'(L') = L';
+
+% identify which accesses need to be protected
+map compute_lockset': Advice' # Advice' -> AccessPattern';
+var ad1', ad2': Advice';
+eqn (LO'(ad1') == [] || LO'(ad2') == []) -> compute_lockset'(ad1',ad2') = union'(LK'(ad1'), LK'(ad2'));
+(LO'(ad1') != [] && LO'(ad2') != []) -> compute_lockset'(ad1',ad2') = union'(LK'(ad1'), union'(LK'(ad2'), compute_lockset1'(LO'(ad1'), LO'(ad2'))));
+
+map compute_lockset1': List(Shuffle') # List(Shuffle') -> AccessPattern';
+var L1',L2': List(Shuffle');
+eqn compute_lockset1'(L1',[]) = A'([],[]);
+    compute_lockset1'([],L2') = A'([],[]);
+(L1' != [] && L2' != []) -> compute_lockset1'(L1',L2') = union'(compute_lockset2'(head(L1'),L2'), compute_lockset1'(tail(L1'), L2'));
+
+map compute_lockset2': Shuffle' # List(Shuffle') -> AccessPattern';
+var sh': Shuffle';
+    L': List(Shuffle');
+eqn compute_lockset2'(sh',[]) = A'([],[]);
+(L' != []) -> compute_lockset2'(sh',L') = union'(compute_lockset3'(sh', head(L'), intersection(SB'(sh'), SA'(head(L'))), intersection(SB'(head(L')), SA'(sh'))), compute_lockset2'(sh', tail(L')));
+
+map compute_lockset3': Shuffle' # Shuffle' # AccessPattern' # AccessPattern' -> AccessPattern';
+var sh1',sh2': Shuffle';
+    a1',a2': AccessPattern';
+eqn (a1' == A'([],[]) || a2' == A'([],[])) -> compute_lockset3'(sh1',sh2',a1',a2') = A'([],[]);
+(a1' != A'([],[]) || a2' != A'([],[])) -> compute_lockset3'(sh1',sh2',a1',a2') = union'(a1',a2');
+
+% *** OVERALL ATOMICITY VIOLATION CHECK FOR PAIR OF NODES ***
+
+map perform_C': DPNode' # DPNode' # List(Var') -> Advice';
+var n1', n2': DPNode';
+    L': List(Var');
+eqn perform_C'(n1',n2',L') = perform_C_1'(n1', n2', dep_v_b'(n2', n1', L'), L');
+
+map perform_C_1': DPNode' # DPNode' # AccessPattern' # List(Var') -> Advice';
+var n1', n2': DPNode';
+    b1': AccessPattern';
+    L': List(Var');
+eqn (!not_empty(b1')) -> perform_C_1'(n1',n2',b1',L') = empty_Advice';
+    (not_empty(b1')) -> perform_C_1'(n1',n2',b1',L') = combine'(perform_C1'(n1',n2',b1',L'), perform_C2'(n1',n2',b1',L'));
+
+% *** ATOMICITY VIOLATION CHECK 1 ***
+
+map perform_C1': DPNode' # DPNode' # AccessPattern' # List(Var') -> Advice';
+var n1', n2': DPNode';
+    b1': AccessPattern';
+    L': List(Var');
+eqn perform_C1'(n1',n2',b1',L') = perform_C1_1'(union'(b1', d_set'(n1', dep_v_h'(n2', n1', L'), L')));
+
+map perform_C1_1': AccessPattern' -> Advice';
+var b': AccessPattern';
+eqn (!has_at_least_two(b')) -> perform_C1_1'(b') = empty_Advice';
+(has_at_least_two(b')) -> perform_C1_1'(b') = AD'(b', []);
+
+% *** ATOMICITY VIOLATION CHECK 2 ***
+
+map perform_C2': DPNode' # DPNode' # AccessPattern' # List(Var') -> Advice';
+var n1', n2': DPNode';
+    b1': AccessPattern';
+    L': List(Var');
+eqn perform_C2'(n1',n2',b1',L') = perform_C2_1'(b1', c_set'(n1', dep_o_b'(n2', n1'), L'));
+
+map perform_C2_1': AccessPattern' # AccessPattern' -> Advice';
+var b1', cb': AccessPattern';
+eqn (!has_at_least_two(union'(b1', cb'))) -> perform_C2_1'(b1',cb') = empty_Advice';
+(has_at_least_two(union'(b1', cb'))) -> perform_C2_1'(b1',cb') = perform_C2_2'(b1', cb', intersection(b1', cb'));
+
+map perform_C2_2': AccessPattern' # AccessPattern' # AccessPattern' -> Advice';
+var b1', cb', L': AccessPattern';
+eqn perform_C2_2'(b1',cb',L') = AD'(L', [SH'(setminus(b1',L'), setminus(cb',L'))]);
+
+% ----- END ATOMICITY VIOLATION CHECKING ALGORITHM -----
+
+
+
+% ----- START POR -----
+
+% *** FUNCTION TO PERFORM (AMPLE-SET BASED) POR ***
+
+map apply_por: OutgoingTransitions # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> OutgoingTransitions;
+var L': OutgoingTransitions, globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn apply_por(OT'([], [], []), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = OT'([], [], []);
+    apply_por(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = apply_por1_1(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local);
+
+map apply_por1_1: OutgoingTransitions # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> OutgoingTransitions;
+var L': OutgoingTransitions, globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn apply_por1_1(OT'([], [], []), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = OT'([], [], []);
+    apply_por1_1(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = apply_por1_1_1(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, sm_trans_are_ample(globalObject, el'globalObject'StateMachine_0(L'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, []));
+
+map apply_por1_1_1: OutgoingTransitions # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # List(STID') -> OutgoingTransitions;
+var L': OutgoingTransitions, globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool, LS': List(STID');
+eqn apply_por1_1_1(OT'([], [], []), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, LS') = OT'([], [], []);
+(LS' != []) -> apply_por1_1_1(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, LS') = OT'(LS', [], []);
+(LS' == []) -> apply_por1_1_1(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, LS') = apply_por1_2(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local);
+
+map apply_por1_2: OutgoingTransitions # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> OutgoingTransitions;
+var L': OutgoingTransitions, globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn apply_por1_2(OT'([], [], []), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = OT'([], [], []);
+    apply_por1_2(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = apply_por1_2_1(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, sm_trans_are_ample(globalObject, el'globalObject'StateMachine_1(L'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, []));
+
+map apply_por1_2_1: OutgoingTransitions # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # List(STID') -> OutgoingTransitions;
+var L': OutgoingTransitions, globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool, LS': List(STID');
+eqn apply_por1_2_1(OT'([], [], []), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, LS') = OT'([], [], []);
+(LS' != []) -> apply_por1_2_1(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, LS') = OT'([], LS', []);
+(LS' == []) -> apply_por1_2_1(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, LS') = apply_por1_3(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local);
+
+map apply_por1_3: OutgoingTransitions # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool -> OutgoingTransitions;
+var L': OutgoingTransitions, globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn apply_por1_3(OT'([], [], []), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = OT'([], [], []);
+    apply_por1_3(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) = apply_por1_3_1(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, sm_trans_are_ample(globalObject, el'globalObject'StateMachine_2(L'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, []));
+
+map apply_por1_3_1: OutgoingTransitions # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # List(STID') -> OutgoingTransitions;
+var L': OutgoingTransitions, globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool, LS': List(STID');
+eqn apply_por1_3_1(OT'([], [], []), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, LS') = OT'([], [], []);
+(LS' != []) -> apply_por1_3_1(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, LS') = OT'([], [], LS');
+(LS' == []) -> apply_por1_3_1(L', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, LS') = L';
+
+map sm_trans_are_ample: Object' # List(STID') # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # Bool # List(STID') -> List(STID');
+var o': Object', L1', L2': List(STID'), globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool;
+eqn sm_trans_are_ample(o', [], globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, L2') = L2';
+(L1' != [] && por_issafe(o', head(L1'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) && isenabled(o', head(L1'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local)) -> sm_trans_are_ample(o', L1', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, L2') = sm_trans_are_ample(o', tail(L1'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, L2' ++ [head(L1')]);
+(L1' != [] && por_issafe(o', head(L1'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local) && !isenabled(o', head(L1'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local)) -> sm_trans_are_ample(o', L1', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, L2') = sm_trans_are_ample(o', tail(L1'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, L2');
+(L1' != [] && !por_issafe(o', head(L1'), globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local)) -> sm_trans_are_ample(o', L1', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local, L2') = [];
+
+% ----- END POR -----
+
+
+
+% *** ACTIONS TO REPORT DATA ACCESS PATTERNS ***
+
+act rw: Object' # Statemachine' # List(Var') # List(Var');
+    % report action to report atomicity violation resolutions (detected on-the-fly)
+    report: Object' # Statemachine' # STID' # Advice';
+    % action indicating that all variables need to be locked;
+    lock_all;
+
+% ***  SPECIFICATION OF BEHAVIOUR ***
+
+proc gen_sm_2_4_s_5_15_t_8_30_model_0(globalObject'StateMachine_0_state: State', globalObject'StateMachine_1_state: State', globalObject'StateMachine_2_state: State', globalObject'var_1: Bool, globalObject'var_2: Bool, globalObject'var_3: Bool, globalObject'var_4: Bool, globalObject'var_5: Bool, globalObject'var_6: Bool, globalObject'var_7: Bool, globalObject'var_8: Bool, globalObject'var_9: Bool, globalObject'var_10: Bool, globalObject'var_11: Bool, globalObject'var_12: Bool, globalObject'var_13: Bool, globalObject'var_14: Bool, globalObject'StateMachine_0'var_local: Bool, globalObject'StateMachine_1'var_local: Bool, globalObject'StateMachine_2'var_local: Bool, outtrans: OutgoingTransitions, depgraph': DPGraph', watchlist': List(Var'), violations': O'SM'ST'Advice', atomicity_check_done: Bool) =
+(watchlist' != [] && violations' == empty_O'SM'ST'Advice' && !atomicity_check_done) -> (
+  (ST'486 in sm_outgoing(globalObject, StateMachine_0, outtrans)) -> (
+    tau . gen_sm_2_4_s_5_15_t_8_30_model_0(globalObject'StateMachine_0_state=S2, globalObject'var_8=(globalObject'var_12), globalObject'var_13=(globalObject'var_13), outtrans=update_outgoing(globalObject, StateMachine_0, S2, outtrans), depgraph'=process_transaction'(globalObject, StateMachine_0, ST'486, depgraph', watchlist', has_disabled'(globalObject, StateMachine_0, outtrans, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local)), violations'=if(!issafe(globalObject, ST'486, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local), detect_violations'(globalObject, StateMachine_0, ST'486, depgraph', watchlist'), empty_O'SM'ST'Advice'), atomicity_check_done=true)
+  ) +
+  (ST'696 in sm_outgoing(globalObject, StateMachine_1, outtrans)) -> (
+    tau . gen_sm_2_4_s_5_15_t_8_30_model_0(globalObject'StateMachine_1_state=S1, globalObject'var_13=((globalObject'var_12)), globalObject'StateMachine_1'var_local=(globalObject'var_12), outtrans=update_outgoing(globalObject, StateMachine_1, S1, outtrans), depgraph'=process_transaction'(globalObject, StateMachine_1, ST'696, depgraph', watchlist', has_disabled'(globalObject, StateMachine_1, outtrans, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local)), violations'=if(!issafe(globalObject, ST'696, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local), detect_violations'(globalObject, StateMachine_1, ST'696, depgraph', watchlist'), empty_O'SM'ST'Advice'), atomicity_check_done=true)
+  ) +
+  (ST'913 in sm_outgoing(globalObject, StateMachine_2, outtrans)) -> (
+    tau . gen_sm_2_4_s_5_15_t_8_30_model_0(globalObject'StateMachine_2_state=S1, globalObject'var_8=(globalObject'var_8), globalObject'var_11=(globalObject'var_2), globalObject'var_14=((globalObject'var_8)), outtrans=update_outgoing(globalObject, StateMachine_2, S1, outtrans), depgraph'=process_transaction'(globalObject, StateMachine_2, ST'913, depgraph', watchlist', has_disabled'(globalObject, StateMachine_2, outtrans, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local)), violations'=if(!issafe(globalObject, ST'913, globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local), detect_violations'(globalObject, StateMachine_2, ST'913, depgraph', watchlist'), empty_O'SM'ST'Advice'), atomicity_check_done=true)
+  )
+) +
+(atomicity_check_done && violations' == empty_O'SM'ST'Advice') -> tau . gen_sm_2_4_s_5_15_t_8_30_model_0(depgraph'=update_blocks'(outtrans, depgraph', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local), atomicity_check_done=false) +
+(atomicity_check_done && violations' != empty_O'SM'ST'Advice') -> report(O'(violations'), SM'(violations'), ST'(violations'), AD'(violations')) . gen_sm_2_4_s_5_15_t_8_30_model_0(depgraph'=update_blocks'(outtrans, depgraph', globalObject'var_1, globalObject'var_2, globalObject'var_3, globalObject'var_4, globalObject'var_5, globalObject'var_6, globalObject'var_7, globalObject'var_8, globalObject'var_9, globalObject'var_10, globalObject'var_11, globalObject'var_12, globalObject'var_13, globalObject'var_14, globalObject'StateMachine_0'var_local, globalObject'StateMachine_1'var_local, globalObject'StateMachine_2'var_local), violations'=empty_O'SM'ST'Advice', atomicity_check_done=false) +
+(watchlist' == []) -> lock_all . gen_sm_2_4_s_5_15_t_8_30_model_0();
+
+init gen_sm_2_4_s_5_15_t_8_30_model_0(S0, S0, S0, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, OT'(outgoing(GlobalClass, StateMachine_0, S0), outgoing(GlobalClass, StateMachine_1, S0), outgoing(GlobalClass, StateMachine_2, S0)), update_blocks'(OT'(outgoing(GlobalClass, StateMachine_0, S0), outgoing(GlobalClass, StateMachine_1, S0), outgoing(GlobalClass, StateMachine_2, S0)), DG'([], empty_DPNode'), true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true), [var_globalObject'var_11, var_globalObject'var_12, var_globalObject'var_13, var_globalObject'var_14, var_globalObject'var_2, var_globalObject'var_8], empty_O'SM'ST'Advice', false);

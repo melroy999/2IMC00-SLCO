@@ -1,0 +1,18 @@
+digraph Left_as_Middle_inABP_AS_AS {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Zero_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Zero Zero_extra -> Zero
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Zero_r_Acknowledge_rbl_ZeroToZeroAck
+
+
+
+Zero -> Zero [label = "after 900 ms;\n send Signal(2, b) to Left_as_Middle_inABP_AS_AASAR"];
+
+Zero -> Zero_r_Acknowledge_rbl_ZeroToZeroAck [label = "Left_as_Middle_in_Receiver_to_AS_abl == 1 && Left_as_Middle_in_Receiver_to_AS_name == 1;\n Left_as_Middle_in_Receiver_to_AS_abl := 2"];
+
+Zero_r_Acknowledge_rbl_ZeroToZeroAck -> Zero [label = "Left_as_Middle_in_Receiver_to_AS_abl == 3;\n Left_as_Middle_in_Receiver_to_AS_abl := 0;\n b := 1 - b"];
+
+Zero_r_Acknowledge_rbl_ZeroToZeroAck -> Zero [label = "Left_as_Middle_in_Receiver_to_AS_abl == 0"];
+
+}

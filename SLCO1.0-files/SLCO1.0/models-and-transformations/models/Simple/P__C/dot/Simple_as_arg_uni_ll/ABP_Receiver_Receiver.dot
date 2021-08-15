@@ -1,0 +1,13 @@
+digraph Receiver {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Zero_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Zero Zero_extra -> Zero
+
+
+
+
+Zero -> Zero [label = "receive Message(d, [[r]]) from ARSender;\n send Signal(d) to AROriginal;\n send Acknowledge() to ARAS;\n r := 1 - r"];
+
+Zero -> Zero [label = "receive Message(d, [[1 - r]]) from ARSender"];
+
+}

@@ -1,0 +1,199 @@
+int Slot[7] = {1,0,0,0,0,0,0};
+int next = 0;
+
+proctype p0 {
+int myplace;
+int tmp;
+int tmp1;
+	
+do
+:: true ->
+		myplace = loadval(next);
+		store(next,myplace+1);
+		if
+		:: myplace == 7-1 ->
+			tmp = loadval(next);
+			store(next,tmp-7);
+		:: myplace != 7-1 ->
+			tmp = myplace / 7;
+			myplace = myplace - (tmp*7);
+		fi;
+		if
+		:: load(Slot[myplace],1) -> skip;
+		fi;
+		store(Slot[myplace], 0);
+		tmp = myplace+1;
+		tmp1 = tmp / 7;
+		tmp = tmp - (tmp1*7);
+		store(Slot[tmp], 1);
+od;
+}
+
+proctype p1 {
+int myplace;
+int tmp;
+int tmp1;
+	
+do
+:: true ->
+		myplace = loadval(next);
+		store(next,myplace+1);
+		if
+		:: myplace == 7-1 ->
+			tmp = loadval(next);
+			store(next,tmp-7);
+		:: myplace != 7-1 ->
+			tmp = myplace / 7;
+			myplace = myplace - (tmp*7);
+		fi;
+		if
+		:: load(Slot[myplace],1) -> skip;
+		fi;
+		store(Slot[myplace], 0);
+		tmp = myplace+1;
+		tmp1 = tmp / 7;
+		tmp = tmp - (tmp1*7);
+		store(Slot[tmp], 1);
+od;
+}
+
+proctype p2 {
+int myplace;
+int tmp;
+int tmp1;
+	
+do
+:: true ->
+		myplace = loadval(next);
+		store(next,myplace+1);
+		if
+		:: myplace == 7-1 ->
+			tmp = loadval(next);
+			store(next,tmp-7);
+		:: myplace != 7-1 ->
+			tmp = myplace / 7;
+			myplace = myplace - (tmp*7);
+		fi;
+		if
+		:: load(Slot[myplace],1) -> skip;
+		fi;
+		store(Slot[myplace], 0);
+		tmp = myplace+1;
+		tmp1 = tmp / 7;
+		tmp = tmp - (tmp1*7);
+		store(Slot[tmp], 1);
+od;
+}
+
+proctype p3 {
+int myplace;
+int tmp;
+int tmp1;
+	
+do
+:: true ->
+		myplace = loadval(next);
+		store(next,myplace+1);
+		if
+		:: myplace == 7-1 ->
+			tmp = loadval(next);
+			store(next,tmp-7);
+		:: myplace != 7-1 ->
+			tmp = myplace / 7;
+			myplace = myplace - (tmp*7);
+		fi;
+		if
+		:: load(Slot[myplace],1) -> skip;
+		fi;
+		store(Slot[myplace], 0);
+		tmp = myplace+1;
+		tmp1 = tmp / 7;
+		tmp = tmp - (tmp1*7);
+		store(Slot[tmp], 1);
+od;
+}
+
+proctype p4 {
+int myplace;
+int tmp;
+int tmp1;
+	
+do
+:: true ->
+		myplace = loadval(next);
+		store(next,myplace+1);
+		if
+		:: myplace == 7-1 ->
+			tmp = loadval(next);
+			store(next,tmp-7);
+		:: myplace != 7-1 ->
+			tmp = myplace / 7;
+			myplace = myplace - (tmp*7);
+		fi;
+		if
+		:: load(Slot[myplace],1) -> skip;
+		fi;
+		store(Slot[myplace], 0);
+		tmp = myplace+1;
+		tmp1 = tmp / 7;
+		tmp = tmp - (tmp1*7);
+		store(Slot[tmp], 1);
+od;
+}
+
+proctype p5 {
+int myplace;
+int tmp;
+int tmp1;
+	
+do
+:: true ->
+		myplace = loadval(next);
+		store(next,myplace+1);
+		if
+		:: myplace == 7-1 ->
+			tmp = loadval(next);
+			store(next,tmp-7);
+		:: myplace != 7-1 ->
+			tmp = myplace / 7;
+			myplace = myplace - (tmp*7);
+		fi;
+		if
+		:: load(Slot[myplace],1) -> skip;
+		fi;
+		store(Slot[myplace], 0);
+		tmp = myplace+1;
+		tmp1 = tmp / 7;
+		tmp = tmp - (tmp1*7);
+		store(Slot[tmp], 1);
+od;
+}
+
+proctype p6 {
+int myplace;
+int tmp;
+int tmp1;
+	
+do
+:: true ->
+		myplace = loadval(next);
+		store(next,myplace+1);
+		if
+		:: myplace == 7-1 ->
+			tmp = loadval(next);
+			store(next,tmp-7);
+		:: myplace != 7-1 ->
+			tmp = myplace / 7;
+			myplace = myplace - (tmp*7);
+		fi;
+		if
+		:: load(Slot[myplace],1) -> skip;
+		fi;
+		store(Slot[myplace], 0);
+		tmp = myplace+1;
+		tmp1 = tmp / 7;
+		tmp = tmp - (tmp1*7);
+		store(Slot[tmp], 1);
+od;
+}
+

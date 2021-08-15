@@ -1,0 +1,43 @@
+model Simple_as_arg {
+  classes
+    Producer_as {
+      ports
+        C
+
+      state machines
+        Producer {
+          initial
+            State
+
+          transitions
+            StateToState from State to State {
+              send Signal("Send_Bericht") to C;
+              receive Signal([["Acknowledge_Bericht"]]) from C
+            }
+        }
+    }
+
+    Consumer_as {
+      ports
+        P
+
+      state machines
+        Consumer {
+          initial
+            State
+
+          transitions
+            StateToState from State to State {
+              receive Signal([["Send_Bericht"]]) from P;
+              send Signal("Acknowledge_Bericht") to P
+            }
+        }
+    }
+
+  objects
+    P_as: Producer_as
+    C_as: Consumer_as
+
+  channels
+    Producer_To_Consumer_as(String) async lossless between P_as.C and C_as.P
+}

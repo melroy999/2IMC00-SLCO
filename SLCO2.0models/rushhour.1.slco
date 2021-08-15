@@ -1,0 +1,141 @@
+model dve_rushhour_1 {
+classes
+	GlobalClass {
+		variables
+			Byte[36] A := [1,1,1,1,0,0,1,0,1,1,0,0,1,1,1,1,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1]
+		state machines
+			Car_hor_1 {
+				variables
+					Byte x := 0
+					Byte y := 0
+					Byte length := 2
+				initial q
+				states  
+				transitions
+					from q to q {
+						[x>0 and A[((y)*6+x-1)] = 0; A[((y)*6+x+length-1)] := 0;A[((y)*6+x-1)] := 1;x := x-1]
+					}
+
+					from q to q {
+						[x+length<6 and A[((y)*6+x+length)] = 0; A[((y)*6+x)] := 0;A[((y)*6+x+length)] := 1;x := x+1]
+					}
+
+				}
+	
+			Red_car {
+				variables
+					Byte x := 1
+					Byte y := 2
+					Byte length := 2
+				initial q
+				states  out
+				transitions
+					from q to q {
+						[x>0 and A[((y)*6+x-1)] = 0; A[((y)*6+x+length-1)] := 0;A[((y)*6+x-1)] := 1;x := x-1]
+					}
+
+					from q to q {
+						[x+length<6 and A[((y)*6+x+length)] = 0; A[((y)*6+x)] := 0;A[((y)*6+x+length)] := 1;x := x+1]
+					}
+
+					from q to out {
+						x = 4
+					}
+
+				}
+	
+			Car_hor_3 {
+				variables
+					Byte x := 1
+					Byte y := 3
+					Byte length := 3
+				initial q
+				states  
+				transitions
+					from q to q {
+						[x>0 and A[((y)*6+x-1)] = 0; A[((y)*6+x+length-1)] := 0;A[((y)*6+x-1)] := 1;x := x-1]
+					}
+
+					from q to q {
+						[x+length<6 and A[((y)*6+x+length)] = 0; A[((y)*6+x)] := 0;A[((y)*6+x+length)] := 1;x := x+1]
+					}
+
+				}
+	
+			Car_hor_4 {
+				variables
+					Byte x := 3
+					Byte y := 5
+					Byte length := 3
+				initial q
+				states  
+				transitions
+					from q to q {
+						[x>0 and A[((y)*6+x-1)] = 0; A[((y)*6+x+length-1)] := 0;A[((y)*6+x-1)] := 1;x := x-1]
+					}
+
+					from q to q {
+						[x+length<6 and A[((y)*6+x+length)] = 0; A[((y)*6+x)] := 0;A[((y)*6+x+length)] := 1;x := x+1]
+					}
+
+				}
+	
+			Car_ver_1 {
+				variables
+					Byte x := 0
+					Byte y := 1
+					Byte length := 3
+				initial q
+				states  
+				transitions
+					from q to q {
+						[y>0 and A[((y-1)*6+x)] = 0; A[((y+length-1)*6+x)] := 0;A[((y-1)*6+x)] := 1;y := y-1]
+					}
+
+					from q to q {
+						[y+length<6 and A[((y+length)*6+x)] = 0; A[((y)*6+x)] := 0;A[((y+length)*6+x)] := 1;y := y+1]
+					}
+
+				}
+	
+			Car_ver_2 {
+				variables
+					Byte x := 2
+					Byte y := 0
+					Byte length := 2
+				initial q
+				states  
+				transitions
+					from q to q {
+						[y>0 and A[((y-1)*6+x)] = 0; A[((y+length-1)*6+x)] := 0;A[((y-1)*6+x)] := 1;y := y-1]
+					}
+
+					from q to q {
+						[y+length<6 and A[((y+length)*6+x)] = 0; A[((y)*6+x)] := 0;A[((y+length)*6+x)] := 1;y := y+1]
+					}
+
+				}
+	
+			Car_ver_3 {
+				variables
+					Byte x := 3
+					Byte y := 0
+					Byte length := 3
+				initial q
+				states  
+				transitions
+					from q to q {
+						[y>0 and A[((y-1)*6+x)] = 0; A[((y+length-1)*6+x)] := 0;A[((y-1)*6+x)] := 1;y := y-1]
+					}
+
+					from q to q {
+						[y+length<6 and A[((y+length)*6+x)] = 0; A[((y)*6+x)] := 0;A[((y+length)*6+x)] := 1;y := y+1]
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

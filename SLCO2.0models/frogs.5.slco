@@ -1,0 +1,77 @@
+model dve_frogs_5 {
+classes
+	GlobalClass {
+		variables
+			Byte[29] a := [1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,2,2,2,2,2,2,2,2,2,2,2,2,2,2]
+			Byte x := 2
+			Byte y := 2
+		state machines
+			Toad {
+				variables
+					
+				initial q
+				states  
+				transitions
+					from q to q {
+						[x>0 and a[((y)*6+x-1)]=1; a[((y)*6+x)] := 1;a[((y)*6+x-1)] := 0;x := x-1]
+					}
+
+					from q to q {
+						[y>0 and a[((y-1)*6+x)]=1; a[((y)*6+x)] := 1;a[((y-1)*6+x)] := 0;y := y-1]
+					}
+
+					from q to q {
+						[x>1 and a[((y)*6+x-1)]=2 and a[((y)*6+x-2)]=1; a[((y)*6+x)] := 1;a[((y)*6+x-2)] := 0;x := x-2]
+					}
+
+					from q to q {
+						[y>1 and a[((y-1)*6+x)]=2 and a[((y-2)*6+x)]=1; a[((y)*6+x)] := 1;a[((y-2)*6+x)] := 0;y := y-2]
+					}
+
+				}
+	
+			Frog {
+				variables
+					
+				initial q
+				states  
+				transitions
+					from q to q {
+						[x<6-1 and a[((y)*6+x+1)]=2; a[((y)*6+x)] := 2;a[((y)*6+x+1)] := 0;x := x+1]
+					}
+
+					from q to q {
+						[y<5-1 and a[((y+1)*6+x)]=2; a[((y)*6+x)] := 2;a[((y+1)*6+x)] := 0;y := y+1]
+					}
+
+					from q to q {
+						[x<6-2 and a[((y)*6+x+1)]=1 and a[((y)*6+x+2)]=2; a[((y)*6+x)] := 2;a[((y)*6+x+2)] := 0;x := x+2]
+					}
+
+					from q to q {
+						[y<5-2 and a[((y+1)*6+x)]=1 and a[((y+2)*6+x)]=2; a[((y)*6+x)] := 2;a[((y+2)*6+x)] := 0;y := y+2]
+					}
+
+				}
+	
+			Check {
+				variables
+					
+				initial dvenotdone
+				states  done
+				transitions
+					from dvenotdone to done {
+						a[0] = 2 and a[1] = 2 and a[2] = 2 and a[3] = 2 and a[4] = 2 and a[5] = 2 and 
+a[6] = 2 and a[7] = 2 and a[8] = 2 and a[9] = 2 and a[10] = 2 and a[11] = 2 and 
+
+a[12] = 2 and a[13] = 2 and  a[15] = 1 and a[16] = 1 and 
+a[18] = 1  and a[19] = 1  and a[20] = 1  and a[21] = 1  and a[22] = 1  and a[23] = 1   and a[24] = 1  and a[25] = 1  and a[26] = 1  and a[27] = 1  and a[28] = 1  and a[29] = 1
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

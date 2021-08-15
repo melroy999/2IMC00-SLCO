@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.openarchitectureware.debug.WFLaunchConfigType">
+<booleanAttribute key="java_debug" value="false"/>
+<stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="slco2poosl"/>
+<booleanAttribute key="org.eclipse.jdt.launching.STOP_IN_MAIN" value="false"/>
+<stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-Xms40m&#10;-Xmx256m"/>
+<stringAttribute key="startWorkflow" value="/slco2poosl/src/slco2poosl_LegoCase-bug-plain-as-arg-ll.oaw"/>
+</launchConfiguration>

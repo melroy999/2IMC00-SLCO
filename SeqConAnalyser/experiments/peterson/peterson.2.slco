@@ -1,0 +1,78 @@
+model dve_peterson_1 {
+
+  classes
+  GlobalClass {
+    variables
+      Boolean flag1 flag2 flag3
+      Integer turn
+    
+    state machines
+    thr1 {
+      
+      initial NCS states wait STOP SimpleState0
+
+      transitions
+      NCS -> SimpleState0 {
+        flag1 := true
+      }
+      
+      wait -> wait {
+        (flag2 and turn=1) or (flag3 and turn=2)
+      }
+      
+      1: wait -> STOP {
+				flag1 := false
+      }
+      
+      SimpleState0 -> wait {
+        turn := 1
+      }
+    }
+    
+    thr2 {
+      
+      initial NCS states wait STOP SimpleState0
+
+      transitions
+      NCS -> SimpleState0 {
+        flag2 := true
+      }
+      
+      wait -> wait {
+        (flag1 and turn=0) or (flag3 and turn=2)
+      }
+      
+      1: wait -> STOP {
+        flag2 := false
+      }
+      
+      SimpleState0 -> wait {
+        turn := 2
+      }
+    }
+
+    thr3 {
+      
+      initial NCS states wait STOP SimpleState0
+
+      transitions
+      NCS -> SimpleState0 {
+        flag3 := true
+      }
+      
+      wait -> wait {
+        (flag1 and turn=0) or (flag2 and turn=1)
+      }
+      
+      1: wait -> STOP {
+				flag3 := false
+      }
+      
+      SimpleState0 -> wait {
+        turn := 0
+      }
+    }
+  }
+  objects globalObject: GlobalClass()
+
+}

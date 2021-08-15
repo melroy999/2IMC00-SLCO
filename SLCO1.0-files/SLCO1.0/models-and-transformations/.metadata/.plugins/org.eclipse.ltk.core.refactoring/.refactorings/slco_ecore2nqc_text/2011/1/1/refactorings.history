@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 1 elements(s) to &apos;LegoCase&apos;&#x0D;&#x0A;- Original project: &apos;slco_ecore2nqc_text&apos;&#x0D;&#x0A;- Destination element: &apos;LegoCase&apos;&#x0D;&#x0A;- Original element: &apos;as_arg_uni_ll_time_merge_int.mwe&apos;" description="Copy file" element1="src/Workflows/wf-Simple/P__C/as_arg_uni_ll_time_merge_int.mwe" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1294221934708" target="/slco_ecore2nqc_text/src/Workflows/wf-Legacy/LegoCase" units="0" version="1.0"/>
+</session>

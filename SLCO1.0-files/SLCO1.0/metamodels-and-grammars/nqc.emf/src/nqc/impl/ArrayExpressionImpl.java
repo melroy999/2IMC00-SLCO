@@ -1,0 +1,160 @@
+/**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
+ */
+package nqc.impl;
+
+import nqc.ArrayExpression;
+import nqc.NqcPackage;
+import nqc.ValueExpression;
+
+import org.eclipse.emf.common.notify.Notification;
+
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.InternalEObject;
+
+import org.eclipse.emf.ecore.impl.ENotificationImpl;
+
+/**
+ * <!-- begin-user-doc -->
+ * An implementation of the model object '<em><b>Array Expression</b></em>'.
+ * <!-- end-user-doc -->
+ * <p>
+ * The following features are implemented:
+ * <ul>
+ *   <li>{@link nqc.impl.ArrayExpressionImpl#getIndex <em>Index</em>}</li>
+ * </ul>
+ * </p>
+ *
+ * @generated
+ */
+public class ArrayExpressionImpl extends VariableExpressionImpl implements ArrayExpression {
+	/**
+	 * The cached value of the '{@link #getIndex() <em>Index</em>}' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getIndex()
+	 * @generated
+	 * @ordered
+	 */
+	protected ValueExpression index;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected ArrayExpressionImpl() {
+		super();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	protected EClass eStaticClass() {
+		return NqcPackage.eINSTANCE.getArrayExpression();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public ValueExpression getIndex() {
+		if (index != null && index.eIsProxy()) {
+			InternalEObject oldIndex = (InternalEObject)index;
+			index = (ValueExpression)eResolveProxy(oldIndex);
+			if (index != oldIndex) {
+				if (eNotificationRequired())
+					eNotify(new ENotificationImpl(this, Notification.RESOLVE, NqcPackage.ARRAY_EXPRESSION__INDEX, oldIndex, index));
+			}
+		}
+		return index;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public ValueExpression basicGetIndex() {
+		return index;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setIndex(ValueExpression newIndex) {
+		ValueExpression oldIndex = index;
+		index = newIndex;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, NqcPackage.ARRAY_EXPRESSION__INDEX, oldIndex, index));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Object eGet(int featureID, boolean resolve, boolean coreType) {
+		switch (featureID) {
+			case NqcPackage.ARRAY_EXPRESSION__INDEX:
+				if (resolve) return getIndex();
+				return basicGetIndex();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void eSet(int featureID, Object newValue) {
+		switch (featureID) {
+			case NqcPackage.ARRAY_EXPRESSION__INDEX:
+				setIndex((ValueExpression)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void eUnset(int featureID) {
+		switch (featureID) {
+			case NqcPackage.ARRAY_EXPRESSION__INDEX:
+				setIndex((ValueExpression)null);
+				return;
+		}
+		super.eUnset(featureID);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean eIsSet(int featureID) {
+		switch (featureID) {
+			case NqcPackage.ARRAY_EXPRESSION__INDEX:
+				return index != null;
+		}
+		return super.eIsSet(featureID);
+	}
+
+} //ArrayExpressionImpl

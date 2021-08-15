@@ -1,0 +1,40 @@
+model Strings2Integers_int {
+  classes
+    A {
+      variables
+        Integer v1 = 0
+        Integer v2 = 0
+
+      state machines
+        A {
+          initial
+            Initial
+
+          state
+            State
+
+          final
+            Final
+
+          transitions
+            InitialToState from Initial to State {
+              v1 := 1;
+              v2 := 1
+            }
+
+            StateToState from State to State {
+              (v1 == v2);
+              v1 := 2
+            }
+
+            StateToFinal from State to Final {
+              (v1 != v2)
+            }
+        }
+    }
+
+  objects
+    a: A
+
+  channels
+}

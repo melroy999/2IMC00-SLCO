@@ -1,0 +1,20 @@
+model Test {
+  classes
+  P {
+    variables
+			Byte[8] x
+
+    state machines
+    REC1 {
+      variables
+        Byte i
+      initial R0 states R1
+
+      transitions
+      R0 -> R1 {
+        [i := 7; x[i] := 17; x[0] := x[i]]
+      }
+    }
+  }
+  objects p: P()
+}

@@ -1,0 +1,20 @@
+
+digraph Simple {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_P{
+    label = "P: Producer";
+    node [shape = box];
+    P_C[label = C]
+  }
+
+  subgraph cluster_C{
+    label = "C: Consumer";
+    node [shape = box];
+    C_P[label = P]
+  }
+
+  
+ P_C -> C_P [label = "Producer_To_Consumer()"];
+
+}

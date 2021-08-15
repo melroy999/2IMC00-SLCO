@@ -1,0 +1,27 @@
+actions
+	init
+	
+model example1 {
+	classes
+		Example1 {
+
+			state machines
+				sm1 {
+					variables
+						Integer sm1
+					initial X
+					state	X Y Z
+					final
+						Z
+					transitions
+						from Y to Z {
+							do init
+						}
+				}
+		}
+	
+	objects
+		example : Example1
+
+	channels	
+}

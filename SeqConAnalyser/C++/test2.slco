@@ -1,0 +1,33 @@
+model TestA {
+  classes
+  P {
+		variables Integer[2] v := [2,2] w := [2,2]
+    state machines
+    SM0 {
+			variables Integer b := 0
+      initial S0
+      states S1
+			transitions
+      S0 -> S1 {
+        w[b] > 0
+      }
+      S1 -> S0 {
+         [v[b] > 0; v[b] := v[b] - 1]
+      }
+    }
+
+    SM1 {
+			variables Integer b := 1
+      initial S0
+      states S1
+			transitions
+      S0 -> S1 {
+        v[b] > 0
+      }
+      S1 -> S0 {
+         [w[b] > 0; w[b] := w[b] - 1]
+      }
+    }
+  }
+  objects p: P()
+}

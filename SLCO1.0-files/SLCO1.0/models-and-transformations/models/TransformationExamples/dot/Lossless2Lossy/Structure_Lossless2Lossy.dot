@@ -1,0 +1,17 @@
+
+digraph Lossless2Lossy {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_9
+ [label="{A||}"]
+A_9_A [label="{A||}", style=filled, fillcolor=gray95]
+A_9 -> A_9_A
+
+B_8
+ [label="{B||}"]
+B_8_B [label="{B||}", style=filled, fillcolor=gray95]
+B_8 -> B_8_B
+
+
+}

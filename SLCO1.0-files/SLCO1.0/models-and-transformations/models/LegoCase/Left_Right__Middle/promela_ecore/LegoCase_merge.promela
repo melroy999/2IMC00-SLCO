@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<promela:spec xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:promela="promela" name="LegoCase_merge">
+  <mtypes name="Right"/>
+  <mtypes name="Off"/>
+  <mtypes name="Left"/>
+  <mtypes name="Block"/>
+  <mtypes name="BlockPassed"/>
+  <mtypes name="On"/>
+  <one_decls visible="SHOW" typename="//@primitivetypes.4">
+    <ivars name="Environment_BlockLeft">
+      <any_expr_or_ch_init xsi:type="promela:enum_const" const_enum="FALSE"/>
+    </ivars>
+  </one_decls>
+  <one_decls visible="SHOW" typename="//@primitivetypes.4">
+    <ivars name="Environment_BlockRight">
+      <any_expr_or_ch_init xsi:type="promela:enum_const" const_enum="FALSE"/>
+    </ivars>
+  </one_decls>
+  <one_decls visible="SHOW" typename="//@primitivetypes.0">
+    <ivars name="ELeftSensor_to_LSensor__Environment_2_R_L">
+      <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="//@primitivetypes.2"/>
+    </ivars>
+  </one_decls>
+  <one_decls visible="SHOW" typename="//@primitivetypes.0">
+    <ivars name="LMotor_to_ELeftMotor__R_L_2_Environment">
+      <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="//@primitivetypes.2"/>
+    </ivars>
+  </one_decls>
+  <one_decls visible="SHOW" typename="//@primitivetypes.0">
+    <ivars name="ERightSensor_to_RSensor__Environment_2_R_L">
+      <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="//@primitivetypes.2"/>
+    </ivars>
+  </one_decls>
+  <one_decls visible="SHOW" typename="//@primitivetypes.0">
+    <ivars name="RMotor_to_ERightMotor__R_L_2_Environment">
+      <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="//@primitivetypes.2"/>
+    </ivars>
+  </one_decls>
+  <one_decls visible="SHOW" typename="//@primitivetypes.0">
+    <ivars name="RMiddle_to_MRight__R_L_2_Middle">
+      <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="//@primitivetypes.2"/>
+    </ivars>
+  </one_decls>
+  <one_decls visible="SHOW" typename="//@primitivetypes.0">
+    <ivars name="LMiddle_to_MLeft__R_L_2_Middle">
+      <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="//@primitivetypes.2"/>
+    </ivars>
+  </one_decls>
+  <one_decls visible="SHOW" typename="//@primitivetypes.0">
+    <ivars name="EMiddleSensor_to_MSensor__Environment_2_Middle">
+      <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="//@primitivetypes.2"/>
+    </ivars>
+  </one_decls>
+  <one_decls visible="SHOW" typename="//@primitivetypes.0">
+    <ivars name="MMotor_to_EMiddleMotor__Middle_2_Environment">
+      <any_expr_or_ch_init xsi:type="promela:ch_init" typenames="//@primitivetypes.2"/>
+    </ivars>
+  </one_decls>
+  <proctypes active="1" name="Middle_Middle">
+    <sequence xsi:type="promela:block_stmnt" label="Label_Idle">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="LMiddle_to_MLeft__R_L_2_Middle"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.3"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="MMotor_to_EMiddleMotor__Middle_2_Environment"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.0"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.0/@sequence.1"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="RMiddle_to_MRight__R_L_2_Middle"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.3"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="MMotor_to_EMiddleMotor__Middle_2_Environment"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.2"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.0/@sequence.1"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+    <sequence xsi:type="promela:block_stmnt" label="Label_Running">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="EMiddleSensor_to_MSensor__Environment_2_Middle"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.3"/>
+            </sequence>
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="EMiddleSensor_to_MSensor__Environment_2_Middle"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.4"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="MMotor_to_EMiddleMotor__Middle_2_Environment"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.1"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.0/@sequence.0"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+  </proctypes>
+  <proctypes active="1" name="Environment_RightMotor">
+    <sequence xsi:type="promela:block_stmnt" label="Label_Start">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="RMotor_to_ERightMotor__R_L_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.5"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.1/@sequence.2"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+    <sequence xsi:type="promela:block_stmnt" label="Label_Off">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="RMotor_to_ERightMotor__R_L_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.5"/>
+            </sequence>
+            <sequence xsi:type="promela:assign_std">
+              <varref var_name="Environment_BlockRight"/>
+              <any_expr xsi:type="promela:enum_const"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.1/@sequence.2"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="RMotor_to_ERightMotor__R_L_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.1"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.1/@sequence.1"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+    <sequence xsi:type="promela:block_stmnt" label="Label_Running">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="RMotor_to_ERightMotor__R_L_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.1"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.1/@sequence.1"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="ERightSensor_to_RSensor__Environment_2_R_L"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.3"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="ERightSensor_to_RSensor__Environment_2_R_L"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.4"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.1/@sequence.2"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="RMotor_to_ERightMotor__R_L_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.5"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.1/@sequence.2"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+  </proctypes>
+  <proctypes active="1" name="Environment_MiddleMotor">
+    <sequence xsi:type="promela:one_decl" visible="SHOW" typename="//@primitivetypes.4">
+      <ivars name="Environment_BlockFellOff">
+        <any_expr_or_ch_init xsi:type="promela:enum_const" const_enum="FALSE"/>
+      </ivars>
+    </sequence>
+    <sequence xsi:type="promela:block_stmnt" label="Label_Off">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="MMotor_to_EMiddleMotor__Middle_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.0"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.2/@sequence.2"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="MMotor_to_EMiddleMotor__Middle_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.1"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.2/@sequence.1"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="MMotor_to_EMiddleMotor__Middle_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.2"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.2/@sequence.3"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+    <sequence xsi:type="promela:block_stmnt" label="Label_Right">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="MMotor_to_EMiddleMotor__Middle_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.1"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.2/@sequence.1"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+              <operand1 xsi:type="promela:varref" var_name="Environment_BlockRight"/>
+              <operand2 xsi:type="promela:enum_const"/>
+            </sequence>
+            <sequence xsi:type="promela:assign_std">
+              <varref var_name="Environment_BlockFellOff"/>
+              <any_expr xsi:type="promela:enum_const"/>
+            </sequence>
+            <sequence xsi:type="promela:assign_std">
+              <varref var_name="Environment_BlockRight"/>
+              <any_expr xsi:type="promela:enum_const" const_enum="FALSE"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.2/@sequence.2"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="MMotor_to_EMiddleMotor__Middle_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.0"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.2/@sequence.2"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="MMotor_to_EMiddleMotor__Middle_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.2"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.2/@sequence.3"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+              <operand1 xsi:type="promela:varref" var_name="Environment_BlockLeft"/>
+              <operand2 xsi:type="promela:enum_const"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="EMiddleSensor_to_MSensor__Environment_2_Middle"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.3"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="EMiddleSensor_to_MSensor__Environment_2_Middle"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.4"/>
+            </sequence>
+            <sequence xsi:type="promela:assign_std">
+              <varref var_name="Environment_BlockLeft"/>
+              <any_expr xsi:type="promela:enum_const" const_enum="FALSE"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.2/@sequence.2"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+    <sequence xsi:type="promela:block_stmnt" label="Label_Left">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="MMotor_to_EMiddleMotor__Middle_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.1"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.2/@sequence.1"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+              <operand1 xsi:type="promela:varref" var_name="Environment_BlockLeft"/>
+              <operand2 xsi:type="promela:enum_const"/>
+            </sequence>
+            <sequence xsi:type="promela:assign_std">
+              <varref var_name="Environment_BlockFellOff"/>
+              <any_expr xsi:type="promela:enum_const"/>
+            </sequence>
+            <sequence xsi:type="promela:assign_std">
+              <varref var_name="Environment_BlockLeft"/>
+              <any_expr xsi:type="promela:enum_const" const_enum="FALSE"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.2/@sequence.3"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="MMotor_to_EMiddleMotor__Middle_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.2"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.2/@sequence.3"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="MMotor_to_EMiddleMotor__Middle_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.0"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.2/@sequence.2"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:bin_expr" operator="EQUALS">
+              <operand1 xsi:type="promela:varref" var_name="Environment_BlockRight"/>
+              <operand2 xsi:type="promela:enum_const"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="EMiddleSensor_to_MSensor__Environment_2_Middle"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.3"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="EMiddleSensor_to_MSensor__Environment_2_Middle"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.4"/>
+            </sequence>
+            <sequence xsi:type="promela:assign_std">
+              <varref var_name="Environment_BlockRight"/>
+              <any_expr xsi:type="promela:enum_const" const_enum="FALSE"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.2/@sequence.3"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+  </proctypes>
+  <proctypes active="1" name="Environment_LeftMotor">
+    <sequence xsi:type="promela:block_stmnt" label="Label_Start">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="LMotor_to_ELeftMotor__R_L_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.5"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.3/@sequence.2"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+    <sequence xsi:type="promela:block_stmnt" label="Label_Off">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="LMotor_to_ELeftMotor__R_L_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.5"/>
+            </sequence>
+            <sequence xsi:type="promela:assign_std">
+              <varref var_name="Environment_BlockLeft"/>
+              <any_expr xsi:type="promela:enum_const"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.3/@sequence.2"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="LMotor_to_ELeftMotor__R_L_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.1"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.3/@sequence.1"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+    <sequence xsi:type="promela:block_stmnt" label="Label_Running">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="LMotor_to_ELeftMotor__R_L_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.1"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.3/@sequence.1"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="ELeftSensor_to_LSensor__Environment_2_R_L"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.3"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="ELeftSensor_to_LSensor__Environment_2_R_L"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.4"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.3/@sequence.2"/>
+          </sequence>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="LMotor_to_ELeftMotor__R_L_2_Environment"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.5"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.3/@sequence.2"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+  </proctypes>
+  <proctypes active="1" name="R_L_Right_Single">
+    <sequence xsi:type="promela:block_stmnt" label="Label_Start">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="RMotor_to_ERightMotor__R_L_2_Environment"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.5"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.4/@sequence.1"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+    <sequence xsi:type="promela:block_stmnt" label="Label_Running">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="ERightSensor_to_RSensor__Environment_2_R_L"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.3"/>
+            </sequence>
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="ERightSensor_to_RSensor__Environment_2_R_L"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.4"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="RMotor_to_ERightMotor__R_L_2_Environment"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.1"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="RMiddle_to_MRight__R_L_2_Middle"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.3"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="RMotor_to_ERightMotor__R_L_2_Environment"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.5"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.4/@sequence.1"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+  </proctypes>
+  <proctypes active="1" name="R_L_Left_Single">
+    <sequence xsi:type="promela:block_stmnt" label="Label_Start">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="LMotor_to_ELeftMotor__R_L_2_Environment"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.5"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.5/@sequence.1"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+    <sequence xsi:type="promela:block_stmnt" label="Label_Running">
+      <sequence xsi:type="promela:if_stmnt">
+        <options>
+          <sequence xsi:type="promela:block_stmnt">
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="ELeftSensor_to_LSensor__Environment_2_R_L"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.3"/>
+            </sequence>
+            <sequence xsi:type="promela:receive" receivetype="normal">
+              <varref var_name="ELeftSensor_to_LSensor__Environment_2_R_L"/>
+              <recv_args xsi:type="promela:mtype_const" mtype="//@mtypes.4"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="LMotor_to_ELeftMotor__R_L_2_Environment"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.1"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="LMiddle_to_MLeft__R_L_2_Middle"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.3"/>
+            </sequence>
+            <sequence xsi:type="promela:send" sendtype="normal_fifo">
+              <varref var_name="LMotor_to_ELeftMotor__R_L_2_Environment"/>
+              <send_args xsi:type="promela:mtype_const" mtype="//@mtypes.5"/>
+            </sequence>
+            <sequence xsi:type="promela:goto_stmnt" stmnt="//@proctypes.5/@sequence.1"/>
+          </sequence>
+        </options>
+      </sequence>
+    </sequence>
+  </proctypes>
+  <primitivetypes primitivetype="CHAN"/>
+  <primitivetypes primitivetype="BYTE"/>
+  <primitivetypes primitivetype="MTYPE"/>
+  <primitivetypes primitivetype="INT"/>
+  <primitivetypes primitivetype="BOOL"/>
+</promela:spec>

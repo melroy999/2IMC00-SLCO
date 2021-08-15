@@ -1,0 +1,746 @@
+import slco;
+import textualSlco;
+
+extension org::eclipse::xtend::util::stdlib::io;
+
+// ----------------------------------------------------------------------------
+
+create slco::Model convert(textualSlco::Model model) :
+   this.setName(
+     model.name
+   )
+-> this.setChannels(
+      model.channels.convertChannel()
+   )
+-> this.setClasses(
+      model.classes.convertClass()
+   )
+-> this.setObjects(
+      model.objects.convertObject()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::BidirectionalChannel convertChannel(
+   textualSlco::BidirectionalChannel channel
+) :
+   this.setArgumentTypes(
+      channel.argumentTypes.convertArgumentType()
+   )
+-> this.setChannelType(
+     channel.channelType.convertChannelType()
+   )
+-> this.setName(channel.name)
+-> this.setObject1(
+      channel.object1.convertObject()
+   )
+-> this.setObject2(
+      channel.object2.convertObject()
+   )
+-> this.setPort1(
+      channel.port1.convertPortReference()
+   )
+-> this.setPort2(
+      channel.port2.convertPortReference()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::UnidirectionalChannel convertChannel(
+   textualSlco::UnidirectionalChannel channel
+) :
+   this.setArgumentTypes(
+      channel.argumentTypes.convertArgumentType()
+   )
+-> this.setChannelType(
+     channel.channelType.convertChannelType()
+   )
+-> this.setName(channel.name)
+-> this.setSourceObject(
+      channel.sourceObject.convertObject()
+   )
+-> this.setTargetObject(
+      channel.targetObject.convertObject()
+   )
+-> this.setSourcePort(
+      channel.sourcePort.convertPortReference()
+   )
+-> this.setTargetPort(
+      channel.targetPort.convertPortReference()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+slco::Channel convertChannel(textualSlco::Channel channel) :
+   syserr(
+      "Channel with unknown Type encountered: "
+      +
+      channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+slco::ChannelTypeEnum convertChannelType(
+   textualSlco::ChannelType channelType
+) :
+   if(channelType == textualSlco::ChannelType::Synchronous) then (
+      slco::ChannelTypeEnum::sync
+   ) else if (channelType == textualSlco::ChannelType::AsynchronousLossless) then (
+      slco::ChannelTypeEnum::async_lossless
+   ) else if (channelType == textualSlco::ChannelType::AsynchronousLossy) then (
+      slco::ChannelTypeEnum::async_lossy
+   ) else (
+      syserr(
+         "Unknown ChannelType encounterd: " + channelType.toString()
+      )
+   )
+;
+
+
+// ----------------------------------------------------------------------------
+
+slco::Port convertPortReference(textualSlco::PortReference portReference) :
+   if (
+      portReference.eContainer.metaType == textualSlco::BidirectionalChannel
+   ) then (
+      if (
+         ((textualSlco::BidirectionalChannel) portReference.eContainer).port1
+         ==
+         portReference
+      ) then (
+         (
+            (textualSlco::BidirectionalChannel) portReference.eContainer
+         ).object1.class.getPort(
+            portReference.name
+         )
+      ) else if (
+         ((textualSlco::BidirectionalChannel) portReference.eContainer).port2
+         ==
+         portReference
+      ) then (
+         (
+            (textualSlco::BidirectionalChannel) portReference.eContainer
+         ).object2.class.getPort(
+            portReference.name
+         )
+      ) else (
+         syserr("PortReference not found.")
+      )
+   ) else if (
+      portReference.eContainer.metaType == textualSlco::UnidirectionalChannel
+   ) then (
+      if (
+         (
+            (textualSlco::UnidirectionalChannel) portReference.eContainer
+         ).sourcePort
+         ==
+         portReference
+      ) then (
+         (
+            (textualSlco::UnidirectionalChannel) portReference.eContainer
+         ).sourceObject.class.getPort(
+            portReference.name
+         )
+      ) else if (
+         (
+            (textualSlco::UnidirectionalChannel) portReference.eContainer
+         ).targetPort
+         ==
+         portReference
+      ) then (
+         (
+            (textualSlco::UnidirectionalChannel) portReference.eContainer
+         ).targetObject.class.getPort(
+            portReference.name
+         )
+      ) else (
+         syserr("PortReference not found.")
+      )
+   ) else if (
+      portReference.eContainer.metaType == textualSlco::SignalReception
+   ) then (
+      (
+         (textualSlco::Class)
+         portReference.eContainer.eContainer.eContainer.eContainer
+      ).getPort(
+         portReference.name
+      )
+   ) else if (
+      portReference.eContainer.metaType == textualSlco::SendSignal
+   ) then (
+      (
+         (textualSlco::Class)
+         portReference.eContainer.eContainer.eContainer.eContainer
+      ).getPort(
+         portReference.name
+      )
+   ) else (
+      syserr(
+         "Unknown Container for this Port encountered: " +
+         portReference.eContainer.metaType.toString()
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::Object convertObject(textualSlco::Object object) :
+   this.setClass(
+      object.class.convertClass()
+   )
+-> this.setName(object.name)
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::Class convertClass(textualSlco::Class class) :
+   this.setName(class.name)
+-> this.setPorts(
+      class.ports.convertPort()
+   )
+-> this.setStateMachines(
+      class.stateMachines.convertStateMachine()
+   )
+-> this.setVariables(
+      class.variables.convertVariable()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::Port convertPort(textualSlco::Port port) :
+   this.setName(port.name)
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::StateMachine convertStateMachine(
+   textualSlco::StateMachine stateMachine
+) :
+   this.setName(stateMachine.name)
+-> this.setTransitions(
+      stateMachine.transitions.convertTransition()
+   )
+-> this.setVariables(
+      stateMachine.variables.convertVariable()
+   )
+-> this.setVertices(
+      stateMachine.vertices.convertVertex()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::Variable convertVariable(textualSlco::Variable variable) :
+  if (variable.intialValue != null) then (
+      this.setInitialValue(
+         variable.intialValue.convertExpression()
+      )
+   )
+-> this.setName(variable.name)
+-> this.setType(
+      variable.type.convertPrimitiveType()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+slco::PrimitiveTypeEnum convertPrimitiveType(
+   textualSlco::PrimitiveType primitiveType
+) :
+   if(primitiveType == textualSlco::PrimitiveType::Integer) then (
+      slco::PrimitiveTypeEnum::Integer
+   ) else if (primitiveType == textualSlco::PrimitiveType::String) then (
+      slco::PrimitiveTypeEnum::String
+   ) else if (primitiveType == textualSlco::PrimitiveType::Boolean) then (
+      slco::PrimitiveTypeEnum::Boolean
+   ) else (
+      syserr(
+         "Unknown primitiveType encounterd: " + primitiveType.toString()
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+slco::Expression convertExpression(textualSlco::Expression expression) :
+   syserr(
+      "Unknown Expression encountered: "
+      +
+      expression.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::BinaryOperatorExpression convertExpression(
+   textualSlco::BinaryOperatorExpression expression
+) :
+   this.setOperand1(
+      expression.operand1.convertExpression()
+   )
+-> this.setOperand2(
+      expression.operand2.convertExpression()
+   )
+-> switch (expression.operator) {
+      case textualSlco::Operator::atLeast :
+         this.setOperator(slco::OperatorEnum::atLeast)
+      case textualSlco::Operator::atMost :
+         this.setOperator(slco::OperatorEnum::atMost)
+      case textualSlco::Operator::add :
+         this.setOperator(slco::OperatorEnum::add)
+      case textualSlco::Operator::and :
+         this.setOperator(slco::OperatorEnum::and)
+      case textualSlco::Operator::or :
+         this.setOperator(slco::OperatorEnum::or)
+      case textualSlco::Operator::equals :
+         this.setOperator(slco::OperatorEnum::equals)
+      case textualSlco::Operator::differs :
+         this.setOperator(slco::OperatorEnum::differs)
+      case textualSlco::Operator::subtract :
+         this.setOperator(slco::OperatorEnum::subtract)
+      default :
+         syserr("Unknown Operator encountered.")
+   }
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::BooleanConstantExpression convertExpression(
+   textualSlco::BooleanConstantExpression expression
+) :
+   if (expression.value == "true") then (
+      this.setValue(true)
+   ) else if (expression.value == "false") then (
+      this.setValue(false)
+   ) else (
+      syserr("BooleanConstantExpression does not represent true or false.")
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::IntegerConstantExpression convertExpression(
+   textualSlco::IntegerConstantExpression expression
+) :
+   this.setValue(expression.value)
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::StringConstantExpression convertExpression(
+   textualSlco::StringConstantExpression expression
+) :
+   this.setValue(expression.value)
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::VariableExpression convertExpression(
+   textualSlco::VariableExpression expression
+) :
+   this.setVariable(
+      expression.variable.convertVariableReference()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+slco::Vertex convertVertex(textualSlco::Vertex vertex) :
+   if (vertex.metaType == textualSlco::Initial) then (
+      ((textualSlco::Initial) vertex).convertInitial()
+   ) else if (vertex.metaType == textualSlco::Final) then (
+      ((textualSlco::Final) vertex).convertFinal()
+   ) else if (vertex.metaType == textualSlco::State) then (
+      ((textualSlco::State) vertex).convertState()
+   ) else (
+      syserr("Unknown Vertex encountered: " + vertex.metaType.toString())
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::Transition convertTransition(textualSlco::Transition transition) :
+   this.setName(
+      transition.name
+   )
+-> this.statements.addAll(
+      transition.statements.convertStatement()
+   )
+-> this.setSource(
+      transition.source.convertVertexReference()
+   )
+-> this.setTarget(
+      transition.target.convertVertexReference()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::ArgumentType convertArgumentType(
+   textualSlco::ArgumentType argumentType
+) :
+   this.setType(
+      argumentType.type.convertPrimitiveType()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+slco::Port getPort(textualSlco::Class class, String portName) :
+   if (
+      class.ports.select(
+         p
+      |
+         p.name == portName
+      ).isEmpty
+   ) then (
+      syserr("Port " + portName + " is not found in the Class " + class.name)
+   ) else (
+      class.ports.selectFirst(
+         p
+      |
+         p.name == portName
+      ).convertPort()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::Initial convertInitial(textualSlco::Initial initial) :
+   this.setName(initial.name)
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::Final convertFinal(textualSlco::Final final) :
+   this.setName(final.name)
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::State convertState(textualSlco::State state) :
+   this.setName(state.name)
+;
+
+// ----------------------------------------------------------------------------
+
+slco::Vertex getVertex(
+   textualSlco::StateMachine stateMachine, String vertexName
+) :
+   stateMachine.vertices.convertVertex().selectFirst(
+      v
+   |
+      v.name == vertexName
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::Delay convertStatement(textualSlco::Delay delay) :
+   this.setValue(delay.value)
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::SignalReception convertStatement(
+   textualSlco::SignalReception signalReception
+) :
+   this.setArguments(
+      signalReception.arguments.convertSignalArgument()
+   )
+-> this.setPort(
+      signalReception.port.convertPortReference()
+   )
+-> this.setSignalName(signalReception.signalName)
+-> if (signalReception.condition != null) then (
+      this.setCondition(signalReception.condition.convertExpression())
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+slco::Expression convertStatement(
+  textualSlco::Expression expression
+) :
+   expression.convertExpression()
+;
+
+// ----------------------------------------------------------------------------
+
+slco::Statement convertStatement(textualSlco::Statement statement) :
+   syserr("Unknown Statement encountered: " + statement.metaType.toString())
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::Assignment convertStatement(
+   textualSlco::Assignment statement
+) :
+   this.setExpression(
+      statement.expression.convertExpression()
+   )
+-> this.setVariable(
+      statement.variable.convertVariableReference()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::SendSignal convertStatement(
+   textualSlco::SendSignal statement
+) :
+   this.setArguments(
+      statement.arguments.convertExpression()
+   )
+-> this.setPort(
+      statement.port.convertPortReference()
+   )
+-> this.setSignalName(
+      statement.signalName
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+slco::SignalArgument convertSignalArgument(
+   textualSlco::SignalArgument signalArgument
+) :
+   if (signalArgument.metaType == textualSlco::SignalArgumentExpression) then (
+      (
+         (textualSlco::SignalArgumentExpression)
+         signalArgument
+      ).convertSignalArgumentExpression() 
+   ) else if (
+      signalArgument.metaType == textualSlco::SignalArgumentVariable
+   ) then (
+      (
+         (textualSlco::SignalArgumentVariable)
+         signalArgument
+      ).convertSignalArgumentVariable()
+   ) else (
+      syserr(
+         "SignalArgument with unknown MetaType encountered: "
+         +
+         signalArgument.metaType.toString()
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::SignalArgumentExpression convertSignalArgumentExpression(
+   textualSlco::SignalArgumentExpression signalArgument
+) :
+   this.setExpression(
+      signalArgument.expression.convertExpression()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create slco::SignalArgumentVariable convertSignalArgumentVariable(
+   textualSlco::SignalArgumentVariable signalArgument
+) :
+   this.setVariable(
+      signalArgument.variable.convertVariableReference()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+slco::Vertex convertVertexReference(
+   textualSlco::VertexReference vertexReference
+) :
+   if (vertexReference.eContainer.metaType == textualSlco::Transition) then (
+      (
+         (textualSlco::StateMachine)
+         vertexReference.eContainer.eContainer
+      ).getVertex(
+         vertexReference.name
+      )
+   ) else (
+      syserr(
+         "Unknown Container for this Vertex encountered: " +
+         vertexReference.eContainer.metaType.toString()
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+slco::Variable convertVariableReference(
+   textualSlco::VariableReference variableReference
+) :
+   if (
+      variableReference.eContainer.metaType
+      ==
+      textualSlco::SignalArgumentVariable
+   ) then (
+      (
+         (textualSlco::StateMachine)
+         variableReference.eContainer.eContainer.eContainer.eContainer
+      ).getVariable(
+         variableReference.name
+      )
+   ) else if (
+      variableReference.eContainer.metaType
+      ==
+      textualSlco::VariableExpression
+   ) then (
+      (
+         (textualSlco::Expression)
+         variableReference.eContainer
+      ).getContainingStateMachine().getVariable(
+         variableReference.name
+      )
+   ) else if (
+      variableReference.eContainer.metaType
+      ==
+      textualSlco::Assignment
+   ) then (
+      (
+         (textualSlco::StateMachine)
+         variableReference.eContainer.eContainer.eContainer
+      ).getVariable(
+         variableReference.name
+      )
+   ) else (
+      syserr(
+         "Unknown Container for this Variable encountered: " +
+         variableReference.eContainer.metaType.toString()
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+textualSlco::StateMachine getContainingStateMachine(
+   textualSlco::Expression expression
+) :
+  if (expression.eContainer.metaType == textualSlco::Transition) then (
+     ((textualSlco::StateMachine) expression.eContainer.eContainer)
+  ) else if (
+     expression.eContainer.metaType == textualSlco::BinaryOperatorExpression
+  ) then (
+     (
+        (textualSlco::BinaryOperatorExpression)
+        expression.eContainer
+     ).getContainingStateMachine()
+  ) else if (
+     expression.eContainer.metaType == textualSlco::SendSignal
+  ) then (
+     (
+        (textualSlco::Statement)
+        expression.eContainer
+     ).getContainingStateMachine()
+  ) else if (
+     expression.eContainer.metaType == textualSlco::SignalReception
+  ) then (
+     (
+        (textualSlco::Statement)
+        expression.eContainer
+     ).getContainingStateMachine()
+  ) else if (
+     expression.eContainer.metaType == textualSlco::Assignment
+  ) then (
+     (
+        (textualSlco::Statement) expression.eContainer
+     ).getContainingStateMachine()
+  ) else if (
+     expression.eContainer.metaType == textualSlco::SignalArgument
+  ) then (
+     (
+        (textualSlco::SignalArgument)
+        expression.eContainer
+     ).getContainingStateMachine()
+  ) else if (
+     expression.eContainer.metaType == textualSlco::SignalArgumentExpression
+  ) then (
+    (
+      (textualSlco::SignalArgumentExpression)
+      expression.eContainer
+    ).getContainingStateMachine()
+  ) else (
+     syserr(
+        expression.eContainer.metaType.toString()
+     )
+  )
+;
+
+// ----------------------------------------------------------------------------
+
+textualSlco::StateMachine getContainingStateMachine(
+   textualSlco::SignalArgument signalArgument
+):
+   if (
+      signalArgument.eContainer.metaType == textualSlco::SignalReception
+   ) then (
+      (
+         (textualSlco::StateMachine)
+         signalArgument.eContainer.eContainer.eContainer
+      )
+   ) else (
+     syserr(
+        "Unknown container encountered: " +
+        signalArgument.eContainer.metaType.toString()
+     )
+  )
+;
+
+// ----------------------------------------------------------------------------
+
+textualSlco::StateMachine getContainingStateMachine(
+   textualSlco::Statement statement
+) :
+  if (statement.eContainer.metaType == textualSlco::Transition) then (
+     ((textualSlco::StateMachine) statement.eContainer.eContainer)
+  ) else (
+     syserr(
+        "Unknown container encountered: " +
+        statement.eContainer.metaType.toString()
+     )
+  )
+;
+
+// ----------------------------------------------------------------------------
+
+slco::Variable getVariable(
+   textualSlco::StateMachine stateMachine, String variableName
+) :
+   if (
+      stateMachine.variables.exists(
+         v
+      |
+         v.name == variableName
+      )
+   ) then (
+      stateMachine.variables.selectFirst(
+         v
+      |
+         v.name == variableName
+      ).convertVariable()
+   ) else if (
+      ((textualSlco::Class) stateMachine.eContainer).variables.exists(
+         v
+      |
+         v.name == variableName
+      )
+   ) then (
+      ((textualSlco::Class) stateMachine.eContainer).variables.selectFirst(
+         v
+      |
+         v.name == variableName
+      ).convertVariable()
+   ) else (
+      syserr(
+         "Variable " +
+         variableName +
+         " cannot be related to a Class or StateMachine"
+      )
+   )
+;

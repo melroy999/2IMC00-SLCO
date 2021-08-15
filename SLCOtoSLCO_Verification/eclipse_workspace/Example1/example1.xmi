@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="ASCII"?>
+<textualSlco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:textualSlco="http://www.xtext.org/slco/textualslco/TextualSlco" name="example1">
+  <actions name="A"/>
+  <classes name="Example1">
+    <stateMachines name="sm1">
+      <variables name="sm1">
+        <type/>
+      </variables>
+      <vertices xsi:type="textualSlco:Initial" name="X"/>
+      <vertices xsi:type="textualSlco:State" name="X"/>
+      <vertices xsi:type="textualSlco:State" name="Y"/>
+      <vertices xsi:type="textualSlco:State" name="Z"/>
+      <vertices xsi:type="textualSlco:Final" name="Z"/>
+      <transitions source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.2">
+        <statements xsi:type="textualSlco:DoAction" name="A"/>
+      </transitions>
+      <transitions source="//@classes.0/@stateMachines.0/@vertices.2" target="//@classes.0/@stateMachines.0/@vertices.3">
+        <statements xsi:type="textualSlco:DoAction" name="A"/>
+      </transitions>
+    </stateMachines>
+  </classes>
+  <objects name="example" class="//@classes.0"/>
+</textualSlco:Model>

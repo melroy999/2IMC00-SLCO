@@ -1,0 +1,5817 @@
+/**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
+ */
+package NQC;
+
+import org.eclipse.emf.ecore.EAttribute;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EEnum;
+import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
+
+/**
+ * <!-- begin-user-doc -->
+ * The <b>Package</b> for the model.
+ * It contains accessors for the meta objects to represent
+ * <ul>
+ *   <li>each class,</li>
+ *   <li>each feature of each class,</li>
+ *   <li>each enum,</li>
+ *   <li>and each data type</li>
+ * </ul>
+ * <!-- end-user-doc -->
+ * @see NQC.NQCFactory
+ * @model kind="package"
+ * @generated
+ */
+public interface NQCPackage extends EPackage {
+	/**
+	 * The package name.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	String eNAME = "NQC";
+
+	/**
+	 * The package namespace URI.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	String eNS_URI = "NQC_URI";
+
+	/**
+	 * The package namespace name.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	String eNS_PREFIX = "NQC_NS_Prefix";
+
+	/**
+	 * The singleton instance of the package.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	NQCPackage eINSTANCE = NQC.impl.NQCPackageImpl.init();
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.StatementImpl <em>Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.StatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getStatement()
+	 * @generated
+	 */
+	int STATEMENT = 55;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STATEMENT__LABEL = 0;
+
+	/**
+	 * The number of structural features of the '<em>Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STATEMENT_FEATURE_COUNT = 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.ExpressionImpl <em>Expression</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.ExpressionImpl
+	 * @see NQC.impl.NQCPackageImpl#getExpression()
+	 * @generated
+	 */
+	int EXPRESSION = 23;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXPRESSION__LABEL = STATEMENT__LABEL;
+
+	/**
+	 * The number of structural features of the '<em>Expression</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EXPRESSION_FEATURE_COUNT = STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.ValueExpressionImpl <em>Value Expression</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.ValueExpressionImpl
+	 * @see NQC.impl.NQCPackageImpl#getValueExpression()
+	 * @generated
+	 */
+	int VALUE_EXPRESSION = 69;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int VALUE_EXPRESSION__LABEL = EXPRESSION__LABEL;
+
+	/**
+	 * The number of structural features of the '<em>Value Expression</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int VALUE_EXPRESSION_FEATURE_COUNT = EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.ConstantExpressionImpl <em>Constant Expression</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.ConstantExpressionImpl
+	 * @see NQC.impl.NQCPackageImpl#getConstantExpression()
+	 * @generated
+	 */
+	int CONSTANT_EXPRESSION = 15;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CONSTANT_EXPRESSION__LABEL = VALUE_EXPRESSION__LABEL;
+
+	/**
+	 * The number of structural features of the '<em>Constant Expression</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CONSTANT_EXPRESSION_FEATURE_COUNT = VALUE_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.AcquireConstantImpl <em>Acquire Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.AcquireConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getAcquireConstant()
+	 * @generated
+	 */
+	int ACQUIRE_CONSTANT = 0;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ACQUIRE_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Acquire</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ACQUIRE_CONSTANT__ACQUIRE = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Acquire Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ACQUIRE_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.AcquireStatementImpl <em>Acquire Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.AcquireStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getAcquireStatement()
+	 * @generated
+	 */
+	int ACQUIRE_STATEMENT = 1;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ACQUIRE_STATEMENT__LABEL = STATEMENT__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Resource</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ACQUIRE_STATEMENT__RESOURCE = STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Body</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ACQUIRE_STATEMENT__BODY = STATEMENT_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Handler</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ACQUIRE_STATEMENT__HANDLER = STATEMENT_FEATURE_COUNT + 2;
+
+	/**
+	 * The number of structural features of the '<em>Acquire Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ACQUIRE_STATEMENT_FEATURE_COUNT = STATEMENT_FEATURE_COUNT + 3;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.VariableExpressionImpl <em>Variable Expression</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.VariableExpressionImpl
+	 * @see NQC.impl.NQCPackageImpl#getVariableExpression()
+	 * @generated
+	 */
+	int VARIABLE_EXPRESSION = 71;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int VARIABLE_EXPRESSION__LABEL = VALUE_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Variable</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int VARIABLE_EXPRESSION__VARIABLE = VALUE_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Variable Expression</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int VARIABLE_EXPRESSION_FEATURE_COUNT = VALUE_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.ArrayExpressionImpl <em>Array Expression</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.ArrayExpressionImpl
+	 * @see NQC.impl.NQCPackageImpl#getArrayExpression()
+	 * @generated
+	 */
+	int ARRAY_EXPRESSION = 2;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ARRAY_EXPRESSION__LABEL = VARIABLE_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Variable</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ARRAY_EXPRESSION__VARIABLE = VARIABLE_EXPRESSION__VARIABLE;
+
+	/**
+	 * The feature id for the '<em><b>Index</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ARRAY_EXPRESSION__INDEX = VARIABLE_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Array Expression</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ARRAY_EXPRESSION_FEATURE_COUNT = VARIABLE_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.AssignmentStatementImpl <em>Assignment Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.AssignmentStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getAssignmentStatement()
+	 * @generated
+	 */
+	int ASSIGNMENT_STATEMENT = 3;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ASSIGNMENT_STATEMENT__LABEL = STATEMENT__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Variable</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ASSIGNMENT_STATEMENT__VARIABLE = STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Expression</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ASSIGNMENT_STATEMENT__EXPRESSION = STATEMENT_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Operator</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ASSIGNMENT_STATEMENT__OPERATOR = STATEMENT_FEATURE_COUNT + 2;
+
+	/**
+	 * The number of structural features of the '<em>Assignment Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int ASSIGNMENT_STATEMENT_FEATURE_COUNT = STATEMENT_FEATURE_COUNT + 3;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.CompoundExpressionImpl <em>Compound Expression</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.CompoundExpressionImpl
+	 * @see NQC.impl.NQCPackageImpl#getCompoundExpression()
+	 * @generated
+	 */
+	int COMPOUND_EXPRESSION = 14;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int COMPOUND_EXPRESSION__LABEL = EXPRESSION__LABEL;
+
+	/**
+	 * The number of structural features of the '<em>Compound Expression</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int COMPOUND_EXPRESSION_FEATURE_COUNT = EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.BinaryExpressionImpl <em>Binary Expression</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.BinaryExpressionImpl
+	 * @see NQC.impl.NQCPackageImpl#getBinaryExpression()
+	 * @generated
+	 */
+	int BINARY_EXPRESSION = 4;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_EXPRESSION__LABEL = COMPOUND_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Operator</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_EXPRESSION__OPERATOR = COMPOUND_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Operand1</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_EXPRESSION__OPERAND1 = COMPOUND_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Operand2</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_EXPRESSION__OPERAND2 = COMPOUND_EXPRESSION_FEATURE_COUNT + 2;
+
+	/**
+	 * The number of structural features of the '<em>Binary Expression</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_EXPRESSION_FEATURE_COUNT = COMPOUND_EXPRESSION_FEATURE_COUNT + 3;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.CallStatementImpl <em>Call Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.CallStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getCallStatement()
+	 * @generated
+	 */
+	int CALL_STATEMENT = 12;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CALL_STATEMENT__LABEL = STATEMENT__LABEL;
+
+	/**
+	 * The number of structural features of the '<em>Call Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CALL_STATEMENT_FEATURE_COUNT = STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.BuiltInFunctionCallImpl <em>Built In Function Call</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.BuiltInFunctionCallImpl
+	 * @see NQC.impl.NQCPackageImpl#getBuiltInFunctionCall()
+	 * @generated
+	 */
+	int BUILT_IN_FUNCTION_CALL = 10;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BUILT_IN_FUNCTION_CALL__LABEL = CALL_STATEMENT__LABEL;
+
+	/**
+	 * The number of structural features of the '<em>Built In Function Call</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BUILT_IN_FUNCTION_CALL_FEATURE_COUNT = CALL_STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.BinaryBuiltInFunctionCallImpl <em>Binary Built In Function Call</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.BinaryBuiltInFunctionCallImpl
+	 * @see NQC.impl.NQCPackageImpl#getBinaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	int BINARY_BUILT_IN_FUNCTION_CALL = 5;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_BUILT_IN_FUNCTION_CALL__LABEL = BUILT_IN_FUNCTION_CALL__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Binary Built In Function</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_BUILT_IN_FUNCTION_CALL__BINARY_BUILT_IN_FUNCTION = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Parameter1</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_BUILT_IN_FUNCTION_CALL__PARAMETER1 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Parameter2</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_BUILT_IN_FUNCTION_CALL__PARAMETER2 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 2;
+
+	/**
+	 * The number of structural features of the '<em>Binary Built In Function Call</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_BUILT_IN_FUNCTION_CALL_FEATURE_COUNT = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 3;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.BuiltInValueFunctionCallImpl <em>Built In Value Function Call</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.BuiltInValueFunctionCallImpl
+	 * @see NQC.impl.NQCPackageImpl#getBuiltInValueFunctionCall()
+	 * @generated
+	 */
+	int BUILT_IN_VALUE_FUNCTION_CALL = 11;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BUILT_IN_VALUE_FUNCTION_CALL__LABEL = EXPRESSION__LABEL;
+
+	/**
+	 * The number of structural features of the '<em>Built In Value Function Call</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BUILT_IN_VALUE_FUNCTION_CALL_FEATURE_COUNT = EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.BinaryBuiltInValueFunctionCallImpl <em>Binary Built In Value Function Call</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.BinaryBuiltInValueFunctionCallImpl
+	 * @see NQC.impl.NQCPackageImpl#getBinaryBuiltInValueFunctionCall()
+	 * @generated
+	 */
+	int BINARY_BUILT_IN_VALUE_FUNCTION_CALL = 6;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_BUILT_IN_VALUE_FUNCTION_CALL__LABEL = BUILT_IN_VALUE_FUNCTION_CALL__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Binary Built In Value Function</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_BUILT_IN_VALUE_FUNCTION_CALL__BINARY_BUILT_IN_VALUE_FUNCTION = BUILT_IN_VALUE_FUNCTION_CALL_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Parameter1</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_BUILT_IN_VALUE_FUNCTION_CALL__PARAMETER1 = BUILT_IN_VALUE_FUNCTION_CALL_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Parameter2</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_BUILT_IN_VALUE_FUNCTION_CALL__PARAMETER2 = BUILT_IN_VALUE_FUNCTION_CALL_FEATURE_COUNT + 2;
+
+	/**
+	 * The number of structural features of the '<em>Binary Built In Value Function Call</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BINARY_BUILT_IN_VALUE_FUNCTION_CALL_FEATURE_COUNT = BUILT_IN_VALUE_FUNCTION_CALL_FEATURE_COUNT + 3;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.BlockStatementImpl <em>Block Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.BlockStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getBlockStatement()
+	 * @generated
+	 */
+	int BLOCK_STATEMENT = 7;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BLOCK_STATEMENT__LABEL = STATEMENT__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Local Variables</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BLOCK_STATEMENT__LOCAL_VARIABLES = STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Statements</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BLOCK_STATEMENT__STATEMENTS = STATEMENT_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>Block Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BLOCK_STATEMENT_FEATURE_COUNT = STATEMENT_FEATURE_COUNT + 2;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.BooleanConstantImpl <em>Boolean Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.BooleanConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getBooleanConstant()
+	 * @generated
+	 */
+	int BOOLEAN_CONSTANT = 8;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BOOLEAN_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Value</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BOOLEAN_CONSTANT__VALUE = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Boolean Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BOOLEAN_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.BreakStatementImpl <em>Break Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.BreakStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getBreakStatement()
+	 * @generated
+	 */
+	int BREAK_STATEMENT = 9;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BREAK_STATEMENT__LABEL = STATEMENT__LABEL;
+
+	/**
+	 * The number of structural features of the '<em>Break Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int BREAK_STATEMENT_FEATURE_COUNT = STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.CaseImpl <em>Case</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.CaseImpl
+	 * @see NQC.impl.NQCPackageImpl#getCase()
+	 * @generated
+	 */
+	int CASE = 13;
+
+	/**
+	 * The feature id for the '<em><b>Is Default</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CASE__IS_DEFAULT = 0;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CASE__LABEL = 1;
+
+	/**
+	 * The feature id for the '<em><b>Statements</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CASE__STATEMENTS = 2;
+
+	/**
+	 * The number of structural features of the '<em>Case</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CASE_FEATURE_COUNT = 3;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.ContinueStatementImpl <em>Continue Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.ContinueStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getContinueStatement()
+	 * @generated
+	 */
+	int CONTINUE_STATEMENT = 16;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CONTINUE_STATEMENT__LABEL = STATEMENT__LABEL;
+
+	/**
+	 * The number of structural features of the '<em>Continue Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CONTINUE_STATEMENT_FEATURE_COUNT = STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.ControlStructureImpl <em>Control Structure</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.ControlStructureImpl
+	 * @see NQC.impl.NQCPackageImpl#getControlStructure()
+	 * @generated
+	 */
+	int CONTROL_STRUCTURE = 17;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CONTROL_STRUCTURE__LABEL = STATEMENT__LABEL;
+
+	/**
+	 * The number of structural features of the '<em>Control Structure</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int CONTROL_STRUCTURE_FEATURE_COUNT = STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.DirectionConstantImpl <em>Direction Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.DirectionConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getDirectionConstant()
+	 * @generated
+	 */
+	int DIRECTION_CONSTANT = 18;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DIRECTION_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Direction</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DIRECTION_CONSTANT__DIRECTION = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Direction Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DIRECTION_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.DisplayModeConstantImpl <em>Display Mode Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.DisplayModeConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getDisplayModeConstant()
+	 * @generated
+	 */
+	int DISPLAY_MODE_CONSTANT = 19;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DISPLAY_MODE_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Display Mode</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DISPLAY_MODE_CONSTANT__DISPLAY_MODE = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Display Mode Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DISPLAY_MODE_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.DoWhileStatementImpl <em>Do While Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.DoWhileStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getDoWhileStatement()
+	 * @generated
+	 */
+	int DO_WHILE_STATEMENT = 20;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DO_WHILE_STATEMENT__LABEL = CONTROL_STRUCTURE__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Body</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DO_WHILE_STATEMENT__BODY = CONTROL_STRUCTURE_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Condition</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DO_WHILE_STATEMENT__CONDITION = CONTROL_STRUCTURE_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>Do While Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int DO_WHILE_STATEMENT_FEATURE_COUNT = CONTROL_STRUCTURE_FEATURE_COUNT + 2;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.EmptyStatementImpl <em>Empty Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.EmptyStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getEmptyStatement()
+	 * @generated
+	 */
+	int EMPTY_STATEMENT = 21;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EMPTY_STATEMENT__LABEL = STATEMENT__LABEL;
+
+	/**
+	 * The number of structural features of the '<em>Empty Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EMPTY_STATEMENT_FEATURE_COUNT = STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.EventTypeConstantImpl <em>Event Type Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.EventTypeConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getEventTypeConstant()
+	 * @generated
+	 */
+	int EVENT_TYPE_CONSTANT = 22;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EVENT_TYPE_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Event Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EVENT_TYPE_CONSTANT__EVENT_TYPE = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Event Type Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int EVENT_TYPE_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.FunctionImpl <em>Function</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.FunctionImpl
+	 * @see NQC.impl.NQCPackageImpl#getFunction()
+	 * @generated
+	 */
+	int FUNCTION = 24;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION__NAME = 0;
+
+	/**
+	 * The feature id for the '<em><b>Statements</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION__STATEMENTS = 1;
+
+	/**
+	 * The feature id for the '<em><b>Local Variables</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION__LOCAL_VARIABLES = 2;
+
+	/**
+	 * The feature id for the '<em><b>Parameters</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION__PARAMETERS = 3;
+
+	/**
+	 * The number of structural features of the '<em>Function</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_FEATURE_COUNT = 4;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.FunctionCallImpl <em>Function Call</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.FunctionCallImpl
+	 * @see NQC.impl.NQCPackageImpl#getFunctionCall()
+	 * @generated
+	 */
+	int FUNCTION_CALL = 25;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_CALL__LABEL = CALL_STATEMENT__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Callee</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_CALL__CALLEE = CALL_STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Parameters</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_CALL__PARAMETERS = CALL_STATEMENT_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>Function Call</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FUNCTION_CALL_FEATURE_COUNT = CALL_STATEMENT_FEATURE_COUNT + 2;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.ForStatementImpl <em>For Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.ForStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getForStatement()
+	 * @generated
+	 */
+	int FOR_STATEMENT = 26;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FOR_STATEMENT__LABEL = CONTROL_STRUCTURE__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Initialization</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FOR_STATEMENT__INITIALIZATION = CONTROL_STRUCTURE_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Condition</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FOR_STATEMENT__CONDITION = CONTROL_STRUCTURE_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Update</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FOR_STATEMENT__UPDATE = CONTROL_STRUCTURE_FEATURE_COUNT + 2;
+
+	/**
+	 * The number of structural features of the '<em>For Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int FOR_STATEMENT_FEATURE_COUNT = CONTROL_STRUCTURE_FEATURE_COUNT + 3;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.GoToStatementImpl <em>Go To Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.GoToStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getGoToStatement()
+	 * @generated
+	 */
+	int GO_TO_STATEMENT = 27;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int GO_TO_STATEMENT__LABEL = CONTROL_STRUCTURE__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Jump Label</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int GO_TO_STATEMENT__JUMP_LABEL = CONTROL_STRUCTURE_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Go To Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int GO_TO_STATEMENT_FEATURE_COUNT = CONTROL_STRUCTURE_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.IfStatementImpl <em>If Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.IfStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getIfStatement()
+	 * @generated
+	 */
+	int IF_STATEMENT = 28;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int IF_STATEMENT__LABEL = CONTROL_STRUCTURE__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Condition</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int IF_STATEMENT__CONDITION = CONTROL_STRUCTURE_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Consequence</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int IF_STATEMENT__CONSEQUENCE = CONTROL_STRUCTURE_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Alternative</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int IF_STATEMENT__ALTERNATIVE = CONTROL_STRUCTURE_FEATURE_COUNT + 2;
+
+	/**
+	 * The number of structural features of the '<em>If Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int IF_STATEMENT_FEATURE_COUNT = CONTROL_STRUCTURE_FEATURE_COUNT + 3;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.IntegerConstantImpl <em>Integer Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.IntegerConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getIntegerConstant()
+	 * @generated
+	 */
+	int INTEGER_CONSTANT = 29;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INTEGER_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Value</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INTEGER_CONSTANT__VALUE = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Integer Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int INTEGER_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.LabelImpl <em>Label</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.LabelImpl
+	 * @see NQC.impl.NQCPackageImpl#getLabel()
+	 * @generated
+	 */
+	int LABEL = 30;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LABEL__LABEL = 0;
+
+	/**
+	 * The number of structural features of the '<em>Label</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int LABEL_FEATURE_COUNT = 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.MonitorHandlerImpl <em>Monitor Handler</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.MonitorHandlerImpl
+	 * @see NQC.impl.NQCPackageImpl#getMonitorHandler()
+	 * @generated
+	 */
+	int MONITOR_HANDLER = 31;
+
+	/**
+	 * The feature id for the '<em><b>Catch Event</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MONITOR_HANDLER__CATCH_EVENT = 0;
+
+	/**
+	 * The feature id for the '<em><b>Handler</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MONITOR_HANDLER__HANDLER = 1;
+
+	/**
+	 * The number of structural features of the '<em>Monitor Handler</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MONITOR_HANDLER_FEATURE_COUNT = 2;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.MonitorStatementImpl <em>Monitor Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.MonitorStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getMonitorStatement()
+	 * @generated
+	 */
+	int MONITOR_STATEMENT = 32;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MONITOR_STATEMENT__LABEL = STATEMENT__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Events</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MONITOR_STATEMENT__EVENTS = STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Body</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MONITOR_STATEMENT__BODY = STATEMENT_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Handlers</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MONITOR_STATEMENT__HANDLERS = STATEMENT_FEATURE_COUNT + 2;
+
+	/**
+	 * The number of structural features of the '<em>Monitor Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int MONITOR_STATEMENT_FEATURE_COUNT = STATEMENT_FEATURE_COUNT + 3;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.NullaryBuiltInFunctionCallImpl <em>Nullary Built In Function Call</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.NullaryBuiltInFunctionCallImpl
+	 * @see NQC.impl.NQCPackageImpl#getNullaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	int NULLARY_BUILT_IN_FUNCTION_CALL = 33;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NULLARY_BUILT_IN_FUNCTION_CALL__LABEL = BUILT_IN_FUNCTION_CALL__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Nullary Built In Function</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NULLARY_BUILT_IN_FUNCTION_CALL__NULLARY_BUILT_IN_FUNCTION = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Nullary Built In Function Call</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NULLARY_BUILT_IN_FUNCTION_CALL_FEATURE_COUNT = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.NullaryBuiltInValueFunctionCallImpl <em>Nullary Built In Value Function Call</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.NullaryBuiltInValueFunctionCallImpl
+	 * @see NQC.impl.NQCPackageImpl#getNullaryBuiltInValueFunctionCall()
+	 * @generated
+	 */
+	int NULLARY_BUILT_IN_VALUE_FUNCTION_CALL = 34;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NULLARY_BUILT_IN_VALUE_FUNCTION_CALL__LABEL = BUILT_IN_VALUE_FUNCTION_CALL__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Nullary Built In Value Function</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NULLARY_BUILT_IN_VALUE_FUNCTION_CALL__NULLARY_BUILT_IN_VALUE_FUNCTION = BUILT_IN_VALUE_FUNCTION_CALL_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Nullary Built In Value Function Call</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int NULLARY_BUILT_IN_VALUE_FUNCTION_CALL_FEATURE_COUNT = BUILT_IN_VALUE_FUNCTION_CALL_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.OutputModeConstantImpl <em>Output Mode Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.OutputModeConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getOutputModeConstant()
+	 * @generated
+	 */
+	int OUTPUT_MODE_CONSTANT = 35;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_MODE_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Output Mode</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_MODE_CONSTANT__OUTPUT_MODE = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Output Mode Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_MODE_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.OutputPortNameConstantImpl <em>Output Port Name Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.OutputPortNameConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getOutputPortNameConstant()
+	 * @generated
+	 */
+	int OUTPUT_PORT_NAME_CONSTANT = 36;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_PORT_NAME_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Output Port Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_PORT_NAME_CONSTANT__OUTPUT_PORT_NAME = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Output Port Name Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int OUTPUT_PORT_NAME_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.ParameterImpl <em>Parameter</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.ParameterImpl
+	 * @see NQC.impl.NQCPackageImpl#getParameter()
+	 * @generated
+	 */
+	int PARAMETER = 37;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETER__NAME = 0;
+
+	/**
+	 * The feature id for the '<em><b>Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETER__TYPE = 1;
+
+	/**
+	 * The number of structural features of the '<em>Parameter</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PARAMETER_FEATURE_COUNT = 2;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.ProgramImpl <em>Program</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.ProgramImpl
+	 * @see NQC.impl.NQCPackageImpl#getProgram()
+	 * @generated
+	 */
+	int PROGRAM = 38;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROGRAM__NAME = 0;
+
+	/**
+	 * The feature id for the '<em><b>Tasks</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROGRAM__TASKS = 1;
+
+	/**
+	 * The feature id for the '<em><b>Functions</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROGRAM__FUNCTIONS = 2;
+
+	/**
+	 * The feature id for the '<em><b>Subroutines</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROGRAM__SUBROUTINES = 3;
+
+	/**
+	 * The feature id for the '<em><b>Global Variables</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROGRAM__GLOBAL_VARIABLES = 4;
+
+	/**
+	 * The number of structural features of the '<em>Program</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROGRAM_FEATURE_COUNT = 5;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.ProgramsImpl <em>Programs</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.ProgramsImpl
+	 * @see NQC.impl.NQCPackageImpl#getPrograms()
+	 * @generated
+	 */
+	int PROGRAMS = 39;
+
+	/**
+	 * The feature id for the '<em><b>Programs</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROGRAMS__PROGRAMS = 0;
+
+	/**
+	 * The number of structural features of the '<em>Programs</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PROGRAMS_FEATURE_COUNT = 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.QuaternaryBuiltInFunctionCallImpl <em>Quaternary Built In Function Call</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.QuaternaryBuiltInFunctionCallImpl
+	 * @see NQC.impl.NQCPackageImpl#getQuaternaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	int QUATERNARY_BUILT_IN_FUNCTION_CALL = 40;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int QUATERNARY_BUILT_IN_FUNCTION_CALL__LABEL = BUILT_IN_FUNCTION_CALL__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Quaternary Built In Function</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int QUATERNARY_BUILT_IN_FUNCTION_CALL__QUATERNARY_BUILT_IN_FUNCTION = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Parameter1</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int QUATERNARY_BUILT_IN_FUNCTION_CALL__PARAMETER1 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Parameter2</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int QUATERNARY_BUILT_IN_FUNCTION_CALL__PARAMETER2 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 2;
+
+	/**
+	 * The feature id for the '<em><b>Parameter3</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int QUATERNARY_BUILT_IN_FUNCTION_CALL__PARAMETER3 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 3;
+
+	/**
+	 * The feature id for the '<em><b>Parameter4</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int QUATERNARY_BUILT_IN_FUNCTION_CALL__PARAMETER4 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 4;
+
+	/**
+	 * The number of structural features of the '<em>Quaternary Built In Function Call</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int QUATERNARY_BUILT_IN_FUNCTION_CALL_FEATURE_COUNT = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 5;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.RepeatStatementImpl <em>Repeat Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.RepeatStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getRepeatStatement()
+	 * @generated
+	 */
+	int REPEAT_STATEMENT = 41;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REPEAT_STATEMENT__LABEL = CONTROL_STRUCTURE__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Condition</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REPEAT_STATEMENT__CONDITION = CONTROL_STRUCTURE_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Body</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REPEAT_STATEMENT__BODY = CONTROL_STRUCTURE_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>Repeat Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int REPEAT_STATEMENT_FEATURE_COUNT = CONTROL_STRUCTURE_FEATURE_COUNT + 2;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.ReturnStatementImpl <em>Return Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.ReturnStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getReturnStatement()
+	 * @generated
+	 */
+	int RETURN_STATEMENT = 42;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RETURN_STATEMENT__LABEL = STATEMENT__LABEL;
+
+	/**
+	 * The number of structural features of the '<em>Return Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int RETURN_STATEMENT_FEATURE_COUNT = STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SenaryBuiltInFunctionCallImpl <em>Senary Built In Function Call</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SenaryBuiltInFunctionCallImpl
+	 * @see NQC.impl.NQCPackageImpl#getSenaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	int SENARY_BUILT_IN_FUNCTION_CALL = 43;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENARY_BUILT_IN_FUNCTION_CALL__LABEL = BUILT_IN_FUNCTION_CALL__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Senary Built In Function</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENARY_BUILT_IN_FUNCTION_CALL__SENARY_BUILT_IN_FUNCTION = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Parameter1</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER1 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Parameter2</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER2 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 2;
+
+	/**
+	 * The feature id for the '<em><b>Parameter3</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER3 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 3;
+
+	/**
+	 * The feature id for the '<em><b>Parameter4</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER4 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 4;
+
+	/**
+	 * The feature id for the '<em><b>Parameter5</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER5 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 5;
+
+	/**
+	 * The feature id for the '<em><b>Parameter6</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENARY_BUILT_IN_FUNCTION_CALL__PARAMETER6 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 6;
+
+	/**
+	 * The number of structural features of the '<em>Senary Built In Function Call</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENARY_BUILT_IN_FUNCTION_CALL_FEATURE_COUNT = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 7;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SensorConfigConstantImpl <em>Sensor Config Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SensorConfigConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getSensorConfigConstant()
+	 * @generated
+	 */
+	int SENSOR_CONFIG_CONSTANT = 44;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENSOR_CONFIG_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Sensor Config</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENSOR_CONFIG_CONSTANT__SENSOR_CONFIG = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Sensor Config Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENSOR_CONFIG_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SensorModeConstantImpl <em>Sensor Mode Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SensorModeConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getSensorModeConstant()
+	 * @generated
+	 */
+	int SENSOR_MODE_CONSTANT = 45;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENSOR_MODE_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Sensor Mode</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENSOR_MODE_CONSTANT__SENSOR_MODE = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Sensor Mode Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENSOR_MODE_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SensorNameConstantImpl <em>Sensor Name Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SensorNameConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getSensorNameConstant()
+	 * @generated
+	 */
+	int SENSOR_NAME_CONSTANT = 46;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENSOR_NAME_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Sensor Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENSOR_NAME_CONSTANT__SENSOR_NAME = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Sensor Name Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENSOR_NAME_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SensorTypeConstantImpl <em>Sensor Type Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SensorTypeConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getSensorTypeConstant()
+	 * @generated
+	 */
+	int SENSOR_TYPE_CONSTANT = 47;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENSOR_TYPE_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Sensor Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENSOR_TYPE_CONSTANT__SENSOR_TYPE = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Sensor Type Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SENSOR_TYPE_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SerialBaudConstantImpl <em>Serial Baud Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SerialBaudConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getSerialBaudConstant()
+	 * @generated
+	 */
+	int SERIAL_BAUD_CONSTANT = 48;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_BAUD_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Serial Baud</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_BAUD_CONSTANT__SERIAL_BAUD = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Serial Baud Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_BAUD_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SerialBiphaseConstantImpl <em>Serial Biphase Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SerialBiphaseConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getSerialBiphaseConstant()
+	 * @generated
+	 */
+	int SERIAL_BIPHASE_CONSTANT = 49;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_BIPHASE_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Serial Biphase</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_BIPHASE_CONSTANT__SERIAL_BIPHASE = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Serial Biphase Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_BIPHASE_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SerialChecksumConstantImpl <em>Serial Checksum Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SerialChecksumConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getSerialChecksumConstant()
+	 * @generated
+	 */
+	int SERIAL_CHECKSUM_CONSTANT = 50;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_CHECKSUM_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Serial Checksum</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_CHECKSUM_CONSTANT__SERIAL_CHECKSUM = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Serial Checksum Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_CHECKSUM_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SerialChannelConstantImpl <em>Serial Channel Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SerialChannelConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getSerialChannelConstant()
+	 * @generated
+	 */
+	int SERIAL_CHANNEL_CONSTANT = 51;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_CHANNEL_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Serial Channel</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_CHANNEL_CONSTANT__SERIAL_CHANNEL = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Serial Channel Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_CHANNEL_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SerialCommConstantImpl <em>Serial Comm Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SerialCommConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getSerialCommConstant()
+	 * @generated
+	 */
+	int SERIAL_COMM_CONSTANT = 52;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_COMM_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Serial Comm</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_COMM_CONSTANT__SERIAL_COMM = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Serial Comm Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_COMM_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SerialPacketConstantImpl <em>Serial Packet Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SerialPacketConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getSerialPacketConstant()
+	 * @generated
+	 */
+	int SERIAL_PACKET_CONSTANT = 53;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_PACKET_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Serial Packet</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_PACKET_CONSTANT__SERIAL_PACKET = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Serial Packet Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SERIAL_PACKET_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SoundConstantImpl <em>Sound Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SoundConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getSoundConstant()
+	 * @generated
+	 */
+	int SOUND_CONSTANT = 54;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SOUND_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Sound</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SOUND_CONSTANT__SOUND = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Sound Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SOUND_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.StartStatementImpl <em>Start Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.StartStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getStartStatement()
+	 * @generated
+	 */
+	int START_STATEMENT = 56;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int START_STATEMENT__LABEL = STATEMENT__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Task</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int START_STATEMENT__TASK = STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Start Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int START_STATEMENT_FEATURE_COUNT = STATEMENT_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.StopStatementImpl <em>Stop Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.StopStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getStopStatement()
+	 * @generated
+	 */
+	int STOP_STATEMENT = 57;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STOP_STATEMENT__LABEL = STATEMENT__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Task</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STOP_STATEMENT__TASK = STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Stop Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int STOP_STATEMENT_FEATURE_COUNT = STATEMENT_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SubroutineImpl <em>Subroutine</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SubroutineImpl
+	 * @see NQC.impl.NQCPackageImpl#getSubroutine()
+	 * @generated
+	 */
+	int SUBROUTINE = 58;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SUBROUTINE__NAME = 0;
+
+	/**
+	 * The feature id for the '<em><b>Statements</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SUBROUTINE__STATEMENTS = 1;
+
+	/**
+	 * The feature id for the '<em><b>Local Variables</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SUBROUTINE__LOCAL_VARIABLES = 2;
+
+	/**
+	 * The number of structural features of the '<em>Subroutine</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SUBROUTINE_FEATURE_COUNT = 3;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SubroutineCallImpl <em>Subroutine Call</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SubroutineCallImpl
+	 * @see NQC.impl.NQCPackageImpl#getSubroutineCall()
+	 * @generated
+	 */
+	int SUBROUTINE_CALL = 59;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SUBROUTINE_CALL__LABEL = CALL_STATEMENT__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Callee</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SUBROUTINE_CALL__CALLEE = CALL_STATEMENT_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Subroutine Call</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SUBROUTINE_CALL_FEATURE_COUNT = CALL_STATEMENT_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.SwitchStatementImpl <em>Switch Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.SwitchStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getSwitchStatement()
+	 * @generated
+	 */
+	int SWITCH_STATEMENT = 60;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SWITCH_STATEMENT__LABEL = CONTROL_STRUCTURE__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Condition</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SWITCH_STATEMENT__CONDITION = CONTROL_STRUCTURE_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Cases</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SWITCH_STATEMENT__CASES = CONTROL_STRUCTURE_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>Switch Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int SWITCH_STATEMENT_FEATURE_COUNT = CONTROL_STRUCTURE_FEATURE_COUNT + 2;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.TaskImpl <em>Task</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.TaskImpl
+	 * @see NQC.impl.NQCPackageImpl#getTask()
+	 * @generated
+	 */
+	int TASK = 61;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TASK__NAME = 0;
+
+	/**
+	 * The feature id for the '<em><b>Statements</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TASK__STATEMENTS = 1;
+
+	/**
+	 * The feature id for the '<em><b>Local Variables</b></em>' containment reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TASK__LOCAL_VARIABLES = 2;
+
+	/**
+	 * The number of structural features of the '<em>Task</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TASK_FEATURE_COUNT = 3;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.TernaryBuiltInFunctionCallImpl <em>Ternary Built In Function Call</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.TernaryBuiltInFunctionCallImpl
+	 * @see NQC.impl.NQCPackageImpl#getTernaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	int TERNARY_BUILT_IN_FUNCTION_CALL = 62;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TERNARY_BUILT_IN_FUNCTION_CALL__LABEL = BUILT_IN_FUNCTION_CALL__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Ternary Built In Function</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TERNARY_BUILT_IN_FUNCTION_CALL__TERNARY_BUILT_IN_FUNCTION = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Parameter1</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TERNARY_BUILT_IN_FUNCTION_CALL__PARAMETER1 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Parameter2</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TERNARY_BUILT_IN_FUNCTION_CALL__PARAMETER2 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 2;
+
+	/**
+	 * The feature id for the '<em><b>Parameter3</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TERNARY_BUILT_IN_FUNCTION_CALL__PARAMETER3 = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 3;
+
+	/**
+	 * The number of structural features of the '<em>Ternary Built In Function Call</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TERNARY_BUILT_IN_FUNCTION_CALL_FEATURE_COUNT = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 4;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.TernaryExpressionImpl <em>Ternary Expression</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.TernaryExpressionImpl
+	 * @see NQC.impl.NQCPackageImpl#getTernaryExpression()
+	 * @generated
+	 */
+	int TERNARY_EXPRESSION = 63;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TERNARY_EXPRESSION__LABEL = COMPOUND_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Operator</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TERNARY_EXPRESSION__OPERATOR = COMPOUND_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Operand1</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TERNARY_EXPRESSION__OPERAND1 = COMPOUND_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The feature id for the '<em><b>Operand2</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TERNARY_EXPRESSION__OPERAND2 = COMPOUND_EXPRESSION_FEATURE_COUNT + 2;
+
+	/**
+	 * The feature id for the '<em><b>Operand3</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TERNARY_EXPRESSION__OPERAND3 = COMPOUND_EXPRESSION_FEATURE_COUNT + 3;
+
+	/**
+	 * The number of structural features of the '<em>Ternary Expression</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TERNARY_EXPRESSION_FEATURE_COUNT = COMPOUND_EXPRESSION_FEATURE_COUNT + 4;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.TxPowerConstantImpl <em>Tx Power Constant</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.TxPowerConstantImpl
+	 * @see NQC.impl.NQCPackageImpl#getTxPowerConstant()
+	 * @generated
+	 */
+	int TX_POWER_CONSTANT = 64;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TX_POWER_CONSTANT__LABEL = CONSTANT_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Tx Power</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TX_POWER_CONSTANT__TX_POWER = CONSTANT_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The number of structural features of the '<em>Tx Power Constant</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int TX_POWER_CONSTANT_FEATURE_COUNT = CONSTANT_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.UnaryBuiltInFunctionCallImpl <em>Unary Built In Function Call</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.UnaryBuiltInFunctionCallImpl
+	 * @see NQC.impl.NQCPackageImpl#getUnaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	int UNARY_BUILT_IN_FUNCTION_CALL = 65;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNARY_BUILT_IN_FUNCTION_CALL__LABEL = BUILT_IN_FUNCTION_CALL__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Unary Built In Function</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNARY_BUILT_IN_FUNCTION_CALL__UNARY_BUILT_IN_FUNCTION = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Parameter</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNARY_BUILT_IN_FUNCTION_CALL__PARAMETER = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>Unary Built In Function Call</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNARY_BUILT_IN_FUNCTION_CALL_FEATURE_COUNT = BUILT_IN_FUNCTION_CALL_FEATURE_COUNT + 2;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.UnaryBuiltInValueFunctionCallImpl <em>Unary Built In Value Function Call</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.UnaryBuiltInValueFunctionCallImpl
+	 * @see NQC.impl.NQCPackageImpl#getUnaryBuiltInValueFunctionCall()
+	 * @generated
+	 */
+	int UNARY_BUILT_IN_VALUE_FUNCTION_CALL = 66;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNARY_BUILT_IN_VALUE_FUNCTION_CALL__LABEL = BUILT_IN_VALUE_FUNCTION_CALL__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Unary Built In Value Function</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNARY_BUILT_IN_VALUE_FUNCTION_CALL__UNARY_BUILT_IN_VALUE_FUNCTION = BUILT_IN_VALUE_FUNCTION_CALL_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Parameter</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNARY_BUILT_IN_VALUE_FUNCTION_CALL__PARAMETER = BUILT_IN_VALUE_FUNCTION_CALL_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>Unary Built In Value Function Call</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNARY_BUILT_IN_VALUE_FUNCTION_CALL_FEATURE_COUNT = BUILT_IN_VALUE_FUNCTION_CALL_FEATURE_COUNT + 2;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.UnaryExpressionImpl <em>Unary Expression</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.UnaryExpressionImpl
+	 * @see NQC.impl.NQCPackageImpl#getUnaryExpression()
+	 * @generated
+	 */
+	int UNARY_EXPRESSION = 67;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNARY_EXPRESSION__LABEL = COMPOUND_EXPRESSION__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Operand</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNARY_EXPRESSION__OPERAND = COMPOUND_EXPRESSION_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Operator</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNARY_EXPRESSION__OPERATOR = COMPOUND_EXPRESSION_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>Unary Expression</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNARY_EXPRESSION_FEATURE_COUNT = COMPOUND_EXPRESSION_FEATURE_COUNT + 2;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.UntilStatementImpl <em>Until Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.UntilStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getUntilStatement()
+	 * @generated
+	 */
+	int UNTIL_STATEMENT = 68;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNTIL_STATEMENT__LABEL = CONTROL_STRUCTURE__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Condition</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNTIL_STATEMENT__CONDITION = CONTROL_STRUCTURE_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Body</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNTIL_STATEMENT__BODY = CONTROL_STRUCTURE_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>Until Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int UNTIL_STATEMENT_FEATURE_COUNT = CONTROL_STRUCTURE_FEATURE_COUNT + 2;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.VariableImpl <em>Variable</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.VariableImpl
+	 * @see NQC.impl.NQCPackageImpl#getVariable()
+	 * @generated
+	 */
+	int VARIABLE = 70;
+
+	/**
+	 * The feature id for the '<em><b>Name</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int VARIABLE__NAME = 0;
+
+	/**
+	 * The feature id for the '<em><b>Type</b></em>' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int VARIABLE__TYPE = 1;
+
+	/**
+	 * The feature id for the '<em><b>Initial Value</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int VARIABLE__INITIAL_VALUE = 2;
+
+	/**
+	 * The feature id for the '<em><b>Array Max Size</b></em>' reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int VARIABLE__ARRAY_MAX_SIZE = 3;
+
+	/**
+	 * The number of structural features of the '<em>Variable</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int VARIABLE_FEATURE_COUNT = 4;
+
+	/**
+	 * The meta object id for the '{@link NQC.impl.WhileStatementImpl <em>While Statement</em>}' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.impl.WhileStatementImpl
+	 * @see NQC.impl.NQCPackageImpl#getWhileStatement()
+	 * @generated
+	 */
+	int WHILE_STATEMENT = 72;
+
+	/**
+	 * The feature id for the '<em><b>Label</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WHILE_STATEMENT__LABEL = CONTROL_STRUCTURE__LABEL;
+
+	/**
+	 * The feature id for the '<em><b>Condition</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WHILE_STATEMENT__CONDITION = CONTROL_STRUCTURE_FEATURE_COUNT + 0;
+
+	/**
+	 * The feature id for the '<em><b>Body</b></em>' containment reference.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WHILE_STATEMENT__BODY = CONTROL_STRUCTURE_FEATURE_COUNT + 1;
+
+	/**
+	 * The number of structural features of the '<em>While Statement</em>' class.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int WHILE_STATEMENT_FEATURE_COUNT = CONTROL_STRUCTURE_FEATURE_COUNT + 2;
+
+	/**
+	 * The meta object id for the '{@link NQC.AcquireEnum <em>Acquire Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.AcquireEnum
+	 * @see NQC.impl.NQCPackageImpl#getAcquireEnum()
+	 * @generated
+	 */
+	int ACQUIRE_ENUM = 73;
+
+	/**
+	 * The meta object id for the '{@link NQC.AssignmentStatementEnum <em>Assignment Statement Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.AssignmentStatementEnum
+	 * @see NQC.impl.NQCPackageImpl#getAssignmentStatementEnum()
+	 * @generated
+	 */
+	int ASSIGNMENT_STATEMENT_ENUM = 74;
+
+	/**
+	 * The meta object id for the '{@link NQC.BinaryOperatorEnum <em>Binary Operator Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.BinaryOperatorEnum
+	 * @see NQC.impl.NQCPackageImpl#getBinaryOperatorEnum()
+	 * @generated
+	 */
+	int BINARY_OPERATOR_ENUM = 75;
+
+	/**
+	 * The meta object id for the '{@link NQC.BuiltInBinaryFunctionEnum <em>Built In Binary Function Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.BuiltInBinaryFunctionEnum
+	 * @see NQC.impl.NQCPackageImpl#getBuiltInBinaryFunctionEnum()
+	 * @generated
+	 */
+	int BUILT_IN_BINARY_FUNCTION_ENUM = 76;
+
+	/**
+	 * The meta object id for the '{@link NQC.BuiltInBinaryValueFunctionEnum <em>Built In Binary Value Function Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.BuiltInBinaryValueFunctionEnum
+	 * @see NQC.impl.NQCPackageImpl#getBuiltInBinaryValueFunctionEnum()
+	 * @generated
+	 */
+	int BUILT_IN_BINARY_VALUE_FUNCTION_ENUM = 77;
+
+	/**
+	 * The meta object id for the '{@link NQC.BuiltInNullaryFunctionEnum <em>Built In Nullary Function Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.BuiltInNullaryFunctionEnum
+	 * @see NQC.impl.NQCPackageImpl#getBuiltInNullaryFunctionEnum()
+	 * @generated
+	 */
+	int BUILT_IN_NULLARY_FUNCTION_ENUM = 78;
+
+	/**
+	 * The meta object id for the '{@link NQC.BuiltInNullaryValueFunctionEnum <em>Built In Nullary Value Function Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.BuiltInNullaryValueFunctionEnum
+	 * @see NQC.impl.NQCPackageImpl#getBuiltInNullaryValueFunctionEnum()
+	 * @generated
+	 */
+	int BUILT_IN_NULLARY_VALUE_FUNCTION_ENUM = 79;
+
+	/**
+	 * The meta object id for the '{@link NQC.BuiltInUnaryValueFunctionEnum <em>Built In Unary Value Function Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.BuiltInUnaryValueFunctionEnum
+	 * @see NQC.impl.NQCPackageImpl#getBuiltInUnaryValueFunctionEnum()
+	 * @generated
+	 */
+	int BUILT_IN_UNARY_VALUE_FUNCTION_ENUM = 80;
+
+	/**
+	 * The meta object id for the '{@link NQC.BuiltInUnaryFunctionEnum <em>Built In Unary Function Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.BuiltInUnaryFunctionEnum
+	 * @see NQC.impl.NQCPackageImpl#getBuiltInUnaryFunctionEnum()
+	 * @generated
+	 */
+	int BUILT_IN_UNARY_FUNCTION_ENUM = 81;
+
+	/**
+	 * The meta object id for the '{@link NQC.BuiltInQuaternaryFunctionEnum <em>Built In Quaternary Function Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.BuiltInQuaternaryFunctionEnum
+	 * @see NQC.impl.NQCPackageImpl#getBuiltInQuaternaryFunctionEnum()
+	 * @generated
+	 */
+	int BUILT_IN_QUATERNARY_FUNCTION_ENUM = 82;
+
+	/**
+	 * The meta object id for the '{@link NQC.BuiltInSenaryFunctionEnum <em>Built In Senary Function Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.BuiltInSenaryFunctionEnum
+	 * @see NQC.impl.NQCPackageImpl#getBuiltInSenaryFunctionEnum()
+	 * @generated
+	 */
+	int BUILT_IN_SENARY_FUNCTION_ENUM = 83;
+
+	/**
+	 * The meta object id for the '{@link NQC.BuiltInTernaryFunctionEnum <em>Built In Ternary Function Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.BuiltInTernaryFunctionEnum
+	 * @see NQC.impl.NQCPackageImpl#getBuiltInTernaryFunctionEnum()
+	 * @generated
+	 */
+	int BUILT_IN_TERNARY_FUNCTION_ENUM = 84;
+
+	/**
+	 * The meta object id for the '{@link NQC.DirectionEnum <em>Direction Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.DirectionEnum
+	 * @see NQC.impl.NQCPackageImpl#getDirectionEnum()
+	 * @generated
+	 */
+	int DIRECTION_ENUM = 85;
+
+	/**
+	 * The meta object id for the '{@link NQC.DisplayModeEnum <em>Display Mode Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.DisplayModeEnum
+	 * @see NQC.impl.NQCPackageImpl#getDisplayModeEnum()
+	 * @generated
+	 */
+	int DISPLAY_MODE_ENUM = 86;
+
+	/**
+	 * The meta object id for the '{@link NQC.EventTypeEnum <em>Event Type Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.EventTypeEnum
+	 * @see NQC.impl.NQCPackageImpl#getEventTypeEnum()
+	 * @generated
+	 */
+	int EVENT_TYPE_ENUM = 87;
+
+	/**
+	 * The meta object id for the '{@link NQC.OutputModeEnum <em>Output Mode Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.OutputModeEnum
+	 * @see NQC.impl.NQCPackageImpl#getOutputModeEnum()
+	 * @generated
+	 */
+	int OUTPUT_MODE_ENUM = 88;
+
+	/**
+	 * The meta object id for the '{@link NQC.OutputPortNameEnum <em>Output Port Name Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.OutputPortNameEnum
+	 * @see NQC.impl.NQCPackageImpl#getOutputPortNameEnum()
+	 * @generated
+	 */
+	int OUTPUT_PORT_NAME_ENUM = 89;
+
+	/**
+	 * The meta object id for the '{@link NQC.SerialBaudEnum <em>Serial Baud Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.SerialBaudEnum
+	 * @see NQC.impl.NQCPackageImpl#getSerialBaudEnum()
+	 * @generated
+	 */
+	int SERIAL_BAUD_ENUM = 90;
+
+	/**
+	 * The meta object id for the '{@link NQC.SerialBiphaseEnum <em>Serial Biphase Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.SerialBiphaseEnum
+	 * @see NQC.impl.NQCPackageImpl#getSerialBiphaseEnum()
+	 * @generated
+	 */
+	int SERIAL_BIPHASE_ENUM = 91;
+
+	/**
+	 * The meta object id for the '{@link NQC.SerialChannelEnum <em>Serial Channel Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.SerialChannelEnum
+	 * @see NQC.impl.NQCPackageImpl#getSerialChannelEnum()
+	 * @generated
+	 */
+	int SERIAL_CHANNEL_ENUM = 92;
+
+	/**
+	 * The meta object id for the '{@link NQC.SerialChecksumEnum <em>Serial Checksum Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.SerialChecksumEnum
+	 * @see NQC.impl.NQCPackageImpl#getSerialChecksumEnum()
+	 * @generated
+	 */
+	int SERIAL_CHECKSUM_ENUM = 93;
+
+	/**
+	 * The meta object id for the '{@link NQC.SerialCommEnum <em>Serial Comm Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.SerialCommEnum
+	 * @see NQC.impl.NQCPackageImpl#getSerialCommEnum()
+	 * @generated
+	 */
+	int SERIAL_COMM_ENUM = 94;
+
+	/**
+	 * The meta object id for the '{@link NQC.SerialPacketEnum <em>Serial Packet Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.SerialPacketEnum
+	 * @see NQC.impl.NQCPackageImpl#getSerialPacketEnum()
+	 * @generated
+	 */
+	int SERIAL_PACKET_ENUM = 95;
+
+	/**
+	 * The meta object id for the '{@link NQC.SensorConfigEnum <em>Sensor Config Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.SensorConfigEnum
+	 * @see NQC.impl.NQCPackageImpl#getSensorConfigEnum()
+	 * @generated
+	 */
+	int SENSOR_CONFIG_ENUM = 96;
+
+	/**
+	 * The meta object id for the '{@link NQC.SensorModeEnum <em>Sensor Mode Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.SensorModeEnum
+	 * @see NQC.impl.NQCPackageImpl#getSensorModeEnum()
+	 * @generated
+	 */
+	int SENSOR_MODE_ENUM = 97;
+
+	/**
+	 * The meta object id for the '{@link NQC.SensorNameEnum <em>Sensor Name Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.SensorNameEnum
+	 * @see NQC.impl.NQCPackageImpl#getSensorNameEnum()
+	 * @generated
+	 */
+	int SENSOR_NAME_ENUM = 98;
+
+	/**
+	 * The meta object id for the '{@link NQC.SensorTypeEnum <em>Sensor Type Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.SensorTypeEnum
+	 * @see NQC.impl.NQCPackageImpl#getSensorTypeEnum()
+	 * @generated
+	 */
+	int SENSOR_TYPE_ENUM = 99;
+
+	/**
+	 * The meta object id for the '{@link NQC.SoundEnum <em>Sound Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.SoundEnum
+	 * @see NQC.impl.NQCPackageImpl#getSoundEnum()
+	 * @generated
+	 */
+	int SOUND_ENUM = 100;
+
+	/**
+	 * The meta object id for the '{@link NQC.TernaryOperatorEnum <em>Ternary Operator Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.TernaryOperatorEnum
+	 * @see NQC.impl.NQCPackageImpl#getTernaryOperatorEnum()
+	 * @generated
+	 */
+	int TERNARY_OPERATOR_ENUM = 101;
+
+	/**
+	 * The meta object id for the '{@link NQC.TxPowerEnum <em>Tx Power Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.TxPowerEnum
+	 * @see NQC.impl.NQCPackageImpl#getTxPowerEnum()
+	 * @generated
+	 */
+	int TX_POWER_ENUM = 102;
+
+	/**
+	 * The meta object id for the '{@link NQC.TypeEnum <em>Type Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.TypeEnum
+	 * @see NQC.impl.NQCPackageImpl#getTypeEnum()
+	 * @generated
+	 */
+	int TYPE_ENUM = 103;
+
+	/**
+	 * The meta object id for the '{@link NQC.UnaryOperatorEnum <em>Unary Operator Enum</em>}' enum.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see NQC.UnaryOperatorEnum
+	 * @see NQC.impl.NQCPackageImpl#getUnaryOperatorEnum()
+	 * @generated
+	 */
+	int UNARY_OPERATOR_ENUM = 104;
+
+
+	/**
+	 * Returns the meta object for class '{@link NQC.AcquireConstant <em>Acquire Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Acquire Constant</em>'.
+	 * @see NQC.AcquireConstant
+	 * @generated
+	 */
+	EClass getAcquireConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.AcquireConstant#getAcquire <em>Acquire</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Acquire</em>'.
+	 * @see NQC.AcquireConstant#getAcquire()
+	 * @see #getAcquireConstant()
+	 * @generated
+	 */
+	EAttribute getAcquireConstant_Acquire();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.AcquireStatement <em>Acquire Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Acquire Statement</em>'.
+	 * @see NQC.AcquireStatement
+	 * @generated
+	 */
+	EClass getAcquireStatement();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.AcquireStatement#getResource <em>Resource</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Resource</em>'.
+	 * @see NQC.AcquireStatement#getResource()
+	 * @see #getAcquireStatement()
+	 * @generated
+	 */
+	EReference getAcquireStatement_Resource();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.AcquireStatement#getBody <em>Body</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Body</em>'.
+	 * @see NQC.AcquireStatement#getBody()
+	 * @see #getAcquireStatement()
+	 * @generated
+	 */
+	EReference getAcquireStatement_Body();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.AcquireStatement#getHandler <em>Handler</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Handler</em>'.
+	 * @see NQC.AcquireStatement#getHandler()
+	 * @see #getAcquireStatement()
+	 * @generated
+	 */
+	EReference getAcquireStatement_Handler();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.ArrayExpression <em>Array Expression</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Array Expression</em>'.
+	 * @see NQC.ArrayExpression
+	 * @generated
+	 */
+	EClass getArrayExpression();
+
+	/**
+	 * Returns the meta object for the reference '{@link NQC.ArrayExpression#getIndex <em>Index</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Index</em>'.
+	 * @see NQC.ArrayExpression#getIndex()
+	 * @see #getArrayExpression()
+	 * @generated
+	 */
+	EReference getArrayExpression_Index();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.AssignmentStatement <em>Assignment Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Assignment Statement</em>'.
+	 * @see NQC.AssignmentStatement
+	 * @generated
+	 */
+	EClass getAssignmentStatement();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.AssignmentStatement#getVariable <em>Variable</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Variable</em>'.
+	 * @see NQC.AssignmentStatement#getVariable()
+	 * @see #getAssignmentStatement()
+	 * @generated
+	 */
+	EReference getAssignmentStatement_Variable();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.AssignmentStatement#getExpression <em>Expression</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Expression</em>'.
+	 * @see NQC.AssignmentStatement#getExpression()
+	 * @see #getAssignmentStatement()
+	 * @generated
+	 */
+	EReference getAssignmentStatement_Expression();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.AssignmentStatement#getOperator <em>Operator</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Operator</em>'.
+	 * @see NQC.AssignmentStatement#getOperator()
+	 * @see #getAssignmentStatement()
+	 * @generated
+	 */
+	EAttribute getAssignmentStatement_Operator();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.BinaryExpression <em>Binary Expression</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Binary Expression</em>'.
+	 * @see NQC.BinaryExpression
+	 * @generated
+	 */
+	EClass getBinaryExpression();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.BinaryExpression#getOperator <em>Operator</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Operator</em>'.
+	 * @see NQC.BinaryExpression#getOperator()
+	 * @see #getBinaryExpression()
+	 * @generated
+	 */
+	EAttribute getBinaryExpression_Operator();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.BinaryExpression#getOperand1 <em>Operand1</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Operand1</em>'.
+	 * @see NQC.BinaryExpression#getOperand1()
+	 * @see #getBinaryExpression()
+	 * @generated
+	 */
+	EReference getBinaryExpression_Operand1();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.BinaryExpression#getOperand2 <em>Operand2</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Operand2</em>'.
+	 * @see NQC.BinaryExpression#getOperand2()
+	 * @see #getBinaryExpression()
+	 * @generated
+	 */
+	EReference getBinaryExpression_Operand2();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.BinaryBuiltInFunctionCall <em>Binary Built In Function Call</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Binary Built In Function Call</em>'.
+	 * @see NQC.BinaryBuiltInFunctionCall
+	 * @generated
+	 */
+	EClass getBinaryBuiltInFunctionCall();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.BinaryBuiltInFunctionCall#getBinaryBuiltInFunction <em>Binary Built In Function</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Binary Built In Function</em>'.
+	 * @see NQC.BinaryBuiltInFunctionCall#getBinaryBuiltInFunction()
+	 * @see #getBinaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EAttribute getBinaryBuiltInFunctionCall_BinaryBuiltInFunction();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.BinaryBuiltInFunctionCall#getParameter1 <em>Parameter1</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter1</em>'.
+	 * @see NQC.BinaryBuiltInFunctionCall#getParameter1()
+	 * @see #getBinaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getBinaryBuiltInFunctionCall_Parameter1();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.BinaryBuiltInFunctionCall#getParameter2 <em>Parameter2</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter2</em>'.
+	 * @see NQC.BinaryBuiltInFunctionCall#getParameter2()
+	 * @see #getBinaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getBinaryBuiltInFunctionCall_Parameter2();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.BinaryBuiltInValueFunctionCall <em>Binary Built In Value Function Call</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Binary Built In Value Function Call</em>'.
+	 * @see NQC.BinaryBuiltInValueFunctionCall
+	 * @generated
+	 */
+	EClass getBinaryBuiltInValueFunctionCall();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.BinaryBuiltInValueFunctionCall#getBinaryBuiltInValueFunction <em>Binary Built In Value Function</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Binary Built In Value Function</em>'.
+	 * @see NQC.BinaryBuiltInValueFunctionCall#getBinaryBuiltInValueFunction()
+	 * @see #getBinaryBuiltInValueFunctionCall()
+	 * @generated
+	 */
+	EAttribute getBinaryBuiltInValueFunctionCall_BinaryBuiltInValueFunction();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.BinaryBuiltInValueFunctionCall#getParameter1 <em>Parameter1</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter1</em>'.
+	 * @see NQC.BinaryBuiltInValueFunctionCall#getParameter1()
+	 * @see #getBinaryBuiltInValueFunctionCall()
+	 * @generated
+	 */
+	EReference getBinaryBuiltInValueFunctionCall_Parameter1();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.BinaryBuiltInValueFunctionCall#getParameter2 <em>Parameter2</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter2</em>'.
+	 * @see NQC.BinaryBuiltInValueFunctionCall#getParameter2()
+	 * @see #getBinaryBuiltInValueFunctionCall()
+	 * @generated
+	 */
+	EReference getBinaryBuiltInValueFunctionCall_Parameter2();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.BlockStatement <em>Block Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Block Statement</em>'.
+	 * @see NQC.BlockStatement
+	 * @generated
+	 */
+	EClass getBlockStatement();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.BlockStatement#getLocalVariables <em>Local Variables</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Local Variables</em>'.
+	 * @see NQC.BlockStatement#getLocalVariables()
+	 * @see #getBlockStatement()
+	 * @generated
+	 */
+	EReference getBlockStatement_LocalVariables();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.BlockStatement#getStatements <em>Statements</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Statements</em>'.
+	 * @see NQC.BlockStatement#getStatements()
+	 * @see #getBlockStatement()
+	 * @generated
+	 */
+	EReference getBlockStatement_Statements();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.BooleanConstant <em>Boolean Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Boolean Constant</em>'.
+	 * @see NQC.BooleanConstant
+	 * @generated
+	 */
+	EClass getBooleanConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.BooleanConstant#isValue <em>Value</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Value</em>'.
+	 * @see NQC.BooleanConstant#isValue()
+	 * @see #getBooleanConstant()
+	 * @generated
+	 */
+	EAttribute getBooleanConstant_Value();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.BreakStatement <em>Break Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Break Statement</em>'.
+	 * @see NQC.BreakStatement
+	 * @generated
+	 */
+	EClass getBreakStatement();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.BuiltInFunctionCall <em>Built In Function Call</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Built In Function Call</em>'.
+	 * @see NQC.BuiltInFunctionCall
+	 * @generated
+	 */
+	EClass getBuiltInFunctionCall();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.BuiltInValueFunctionCall <em>Built In Value Function Call</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Built In Value Function Call</em>'.
+	 * @see NQC.BuiltInValueFunctionCall
+	 * @generated
+	 */
+	EClass getBuiltInValueFunctionCall();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.CallStatement <em>Call Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Call Statement</em>'.
+	 * @see NQC.CallStatement
+	 * @generated
+	 */
+	EClass getCallStatement();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.Case <em>Case</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Case</em>'.
+	 * @see NQC.Case
+	 * @generated
+	 */
+	EClass getCase();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.Case#isIsDefault <em>Is Default</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Is Default</em>'.
+	 * @see NQC.Case#isIsDefault()
+	 * @see #getCase()
+	 * @generated
+	 */
+	EAttribute getCase_IsDefault();
+
+	/**
+	 * Returns the meta object for the reference list '{@link NQC.Case#getLabel <em>Label</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference list '<em>Label</em>'.
+	 * @see NQC.Case#getLabel()
+	 * @see #getCase()
+	 * @generated
+	 */
+	EReference getCase_Label();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.Case#getStatements <em>Statements</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Statements</em>'.
+	 * @see NQC.Case#getStatements()
+	 * @see #getCase()
+	 * @generated
+	 */
+	EReference getCase_Statements();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.CompoundExpression <em>Compound Expression</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Compound Expression</em>'.
+	 * @see NQC.CompoundExpression
+	 * @generated
+	 */
+	EClass getCompoundExpression();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.ConstantExpression <em>Constant Expression</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Constant Expression</em>'.
+	 * @see NQC.ConstantExpression
+	 * @generated
+	 */
+	EClass getConstantExpression();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.ContinueStatement <em>Continue Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Continue Statement</em>'.
+	 * @see NQC.ContinueStatement
+	 * @generated
+	 */
+	EClass getContinueStatement();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.ControlStructure <em>Control Structure</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Control Structure</em>'.
+	 * @see NQC.ControlStructure
+	 * @generated
+	 */
+	EClass getControlStructure();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.DirectionConstant <em>Direction Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Direction Constant</em>'.
+	 * @see NQC.DirectionConstant
+	 * @generated
+	 */
+	EClass getDirectionConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.DirectionConstant#getDirection <em>Direction</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Direction</em>'.
+	 * @see NQC.DirectionConstant#getDirection()
+	 * @see #getDirectionConstant()
+	 * @generated
+	 */
+	EAttribute getDirectionConstant_Direction();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.DisplayModeConstant <em>Display Mode Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Display Mode Constant</em>'.
+	 * @see NQC.DisplayModeConstant
+	 * @generated
+	 */
+	EClass getDisplayModeConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.DisplayModeConstant#getDisplayMode <em>Display Mode</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Display Mode</em>'.
+	 * @see NQC.DisplayModeConstant#getDisplayMode()
+	 * @see #getDisplayModeConstant()
+	 * @generated
+	 */
+	EAttribute getDisplayModeConstant_DisplayMode();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.DoWhileStatement <em>Do While Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Do While Statement</em>'.
+	 * @see NQC.DoWhileStatement
+	 * @generated
+	 */
+	EClass getDoWhileStatement();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.DoWhileStatement#getBody <em>Body</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Body</em>'.
+	 * @see NQC.DoWhileStatement#getBody()
+	 * @see #getDoWhileStatement()
+	 * @generated
+	 */
+	EReference getDoWhileStatement_Body();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.DoWhileStatement#getCondition <em>Condition</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Condition</em>'.
+	 * @see NQC.DoWhileStatement#getCondition()
+	 * @see #getDoWhileStatement()
+	 * @generated
+	 */
+	EReference getDoWhileStatement_Condition();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.EmptyStatement <em>Empty Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Empty Statement</em>'.
+	 * @see NQC.EmptyStatement
+	 * @generated
+	 */
+	EClass getEmptyStatement();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.EventTypeConstant <em>Event Type Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Event Type Constant</em>'.
+	 * @see NQC.EventTypeConstant
+	 * @generated
+	 */
+	EClass getEventTypeConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.EventTypeConstant#getEventType <em>Event Type</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Event Type</em>'.
+	 * @see NQC.EventTypeConstant#getEventType()
+	 * @see #getEventTypeConstant()
+	 * @generated
+	 */
+	EAttribute getEventTypeConstant_EventType();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.Expression <em>Expression</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Expression</em>'.
+	 * @see NQC.Expression
+	 * @generated
+	 */
+	EClass getExpression();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.Function <em>Function</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Function</em>'.
+	 * @see NQC.Function
+	 * @generated
+	 */
+	EClass getFunction();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.Function#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see NQC.Function#getName()
+	 * @see #getFunction()
+	 * @generated
+	 */
+	EAttribute getFunction_Name();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.Function#getStatements <em>Statements</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Statements</em>'.
+	 * @see NQC.Function#getStatements()
+	 * @see #getFunction()
+	 * @generated
+	 */
+	EReference getFunction_Statements();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.Function#getLocalVariables <em>Local Variables</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Local Variables</em>'.
+	 * @see NQC.Function#getLocalVariables()
+	 * @see #getFunction()
+	 * @generated
+	 */
+	EReference getFunction_LocalVariables();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.Function#getParameters <em>Parameters</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Parameters</em>'.
+	 * @see NQC.Function#getParameters()
+	 * @see #getFunction()
+	 * @generated
+	 */
+	EReference getFunction_Parameters();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.FunctionCall <em>Function Call</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Function Call</em>'.
+	 * @see NQC.FunctionCall
+	 * @generated
+	 */
+	EClass getFunctionCall();
+
+	/**
+	 * Returns the meta object for the reference '{@link NQC.FunctionCall#getCallee <em>Callee</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Callee</em>'.
+	 * @see NQC.FunctionCall#getCallee()
+	 * @see #getFunctionCall()
+	 * @generated
+	 */
+	EReference getFunctionCall_Callee();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.FunctionCall#getParameters <em>Parameters</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Parameters</em>'.
+	 * @see NQC.FunctionCall#getParameters()
+	 * @see #getFunctionCall()
+	 * @generated
+	 */
+	EReference getFunctionCall_Parameters();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.ForStatement <em>For Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>For Statement</em>'.
+	 * @see NQC.ForStatement
+	 * @generated
+	 */
+	EClass getForStatement();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.ForStatement#getInitialization <em>Initialization</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Initialization</em>'.
+	 * @see NQC.ForStatement#getInitialization()
+	 * @see #getForStatement()
+	 * @generated
+	 */
+	EReference getForStatement_Initialization();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.ForStatement#getCondition <em>Condition</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Condition</em>'.
+	 * @see NQC.ForStatement#getCondition()
+	 * @see #getForStatement()
+	 * @generated
+	 */
+	EReference getForStatement_Condition();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.ForStatement#getUpdate <em>Update</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Update</em>'.
+	 * @see NQC.ForStatement#getUpdate()
+	 * @see #getForStatement()
+	 * @generated
+	 */
+	EReference getForStatement_Update();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.GoToStatement <em>Go To Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Go To Statement</em>'.
+	 * @see NQC.GoToStatement
+	 * @generated
+	 */
+	EClass getGoToStatement();
+
+	/**
+	 * Returns the meta object for the reference '{@link NQC.GoToStatement#getJumpLabel <em>Jump Label</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Jump Label</em>'.
+	 * @see NQC.GoToStatement#getJumpLabel()
+	 * @see #getGoToStatement()
+	 * @generated
+	 */
+	EReference getGoToStatement_JumpLabel();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.IfStatement <em>If Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>If Statement</em>'.
+	 * @see NQC.IfStatement
+	 * @generated
+	 */
+	EClass getIfStatement();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.IfStatement#getCondition <em>Condition</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Condition</em>'.
+	 * @see NQC.IfStatement#getCondition()
+	 * @see #getIfStatement()
+	 * @generated
+	 */
+	EReference getIfStatement_Condition();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.IfStatement#getConsequence <em>Consequence</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Consequence</em>'.
+	 * @see NQC.IfStatement#getConsequence()
+	 * @see #getIfStatement()
+	 * @generated
+	 */
+	EReference getIfStatement_Consequence();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.IfStatement#getAlternative <em>Alternative</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Alternative</em>'.
+	 * @see NQC.IfStatement#getAlternative()
+	 * @see #getIfStatement()
+	 * @generated
+	 */
+	EReference getIfStatement_Alternative();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.IntegerConstant <em>Integer Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Integer Constant</em>'.
+	 * @see NQC.IntegerConstant
+	 * @generated
+	 */
+	EClass getIntegerConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.IntegerConstant#getValue <em>Value</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Value</em>'.
+	 * @see NQC.IntegerConstant#getValue()
+	 * @see #getIntegerConstant()
+	 * @generated
+	 */
+	EAttribute getIntegerConstant_Value();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.Label <em>Label</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Label</em>'.
+	 * @see NQC.Label
+	 * @generated
+	 */
+	EClass getLabel();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.Label#getLabel <em>Label</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Label</em>'.
+	 * @see NQC.Label#getLabel()
+	 * @see #getLabel()
+	 * @generated
+	 */
+	EAttribute getLabel_Label();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.MonitorHandler <em>Monitor Handler</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Monitor Handler</em>'.
+	 * @see NQC.MonitorHandler
+	 * @generated
+	 */
+	EClass getMonitorHandler();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.MonitorHandler#getCatchEvent <em>Catch Event</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Catch Event</em>'.
+	 * @see NQC.MonitorHandler#getCatchEvent()
+	 * @see #getMonitorHandler()
+	 * @generated
+	 */
+	EReference getMonitorHandler_CatchEvent();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.MonitorHandler#getHandler <em>Handler</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Handler</em>'.
+	 * @see NQC.MonitorHandler#getHandler()
+	 * @see #getMonitorHandler()
+	 * @generated
+	 */
+	EReference getMonitorHandler_Handler();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.MonitorStatement <em>Monitor Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Monitor Statement</em>'.
+	 * @see NQC.MonitorStatement
+	 * @generated
+	 */
+	EClass getMonitorStatement();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.MonitorStatement#getEvents <em>Events</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Events</em>'.
+	 * @see NQC.MonitorStatement#getEvents()
+	 * @see #getMonitorStatement()
+	 * @generated
+	 */
+	EReference getMonitorStatement_Events();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.MonitorStatement#getBody <em>Body</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Body</em>'.
+	 * @see NQC.MonitorStatement#getBody()
+	 * @see #getMonitorStatement()
+	 * @generated
+	 */
+	EReference getMonitorStatement_Body();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.MonitorStatement#getHandlers <em>Handlers</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Handlers</em>'.
+	 * @see NQC.MonitorStatement#getHandlers()
+	 * @see #getMonitorStatement()
+	 * @generated
+	 */
+	EReference getMonitorStatement_Handlers();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.NullaryBuiltInFunctionCall <em>Nullary Built In Function Call</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Nullary Built In Function Call</em>'.
+	 * @see NQC.NullaryBuiltInFunctionCall
+	 * @generated
+	 */
+	EClass getNullaryBuiltInFunctionCall();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.NullaryBuiltInFunctionCall#getNullaryBuiltInFunction <em>Nullary Built In Function</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Nullary Built In Function</em>'.
+	 * @see NQC.NullaryBuiltInFunctionCall#getNullaryBuiltInFunction()
+	 * @see #getNullaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EAttribute getNullaryBuiltInFunctionCall_NullaryBuiltInFunction();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.NullaryBuiltInValueFunctionCall <em>Nullary Built In Value Function Call</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Nullary Built In Value Function Call</em>'.
+	 * @see NQC.NullaryBuiltInValueFunctionCall
+	 * @generated
+	 */
+	EClass getNullaryBuiltInValueFunctionCall();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.NullaryBuiltInValueFunctionCall#getNullaryBuiltInValueFunction <em>Nullary Built In Value Function</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Nullary Built In Value Function</em>'.
+	 * @see NQC.NullaryBuiltInValueFunctionCall#getNullaryBuiltInValueFunction()
+	 * @see #getNullaryBuiltInValueFunctionCall()
+	 * @generated
+	 */
+	EAttribute getNullaryBuiltInValueFunctionCall_NullaryBuiltInValueFunction();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.OutputModeConstant <em>Output Mode Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Output Mode Constant</em>'.
+	 * @see NQC.OutputModeConstant
+	 * @generated
+	 */
+	EClass getOutputModeConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.OutputModeConstant#getOutputMode <em>Output Mode</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Output Mode</em>'.
+	 * @see NQC.OutputModeConstant#getOutputMode()
+	 * @see #getOutputModeConstant()
+	 * @generated
+	 */
+	EAttribute getOutputModeConstant_OutputMode();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.OutputPortNameConstant <em>Output Port Name Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Output Port Name Constant</em>'.
+	 * @see NQC.OutputPortNameConstant
+	 * @generated
+	 */
+	EClass getOutputPortNameConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.OutputPortNameConstant#getOutputPortName <em>Output Port Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Output Port Name</em>'.
+	 * @see NQC.OutputPortNameConstant#getOutputPortName()
+	 * @see #getOutputPortNameConstant()
+	 * @generated
+	 */
+	EAttribute getOutputPortNameConstant_OutputPortName();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.Parameter <em>Parameter</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Parameter</em>'.
+	 * @see NQC.Parameter
+	 * @generated
+	 */
+	EClass getParameter();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.Parameter#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see NQC.Parameter#getName()
+	 * @see #getParameter()
+	 * @generated
+	 */
+	EAttribute getParameter_Name();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.Parameter#getType <em>Type</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Type</em>'.
+	 * @see NQC.Parameter#getType()
+	 * @see #getParameter()
+	 * @generated
+	 */
+	EAttribute getParameter_Type();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.Program <em>Program</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Program</em>'.
+	 * @see NQC.Program
+	 * @generated
+	 */
+	EClass getProgram();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.Program#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see NQC.Program#getName()
+	 * @see #getProgram()
+	 * @generated
+	 */
+	EAttribute getProgram_Name();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.Program#getTasks <em>Tasks</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Tasks</em>'.
+	 * @see NQC.Program#getTasks()
+	 * @see #getProgram()
+	 * @generated
+	 */
+	EReference getProgram_Tasks();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.Program#getFunctions <em>Functions</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Functions</em>'.
+	 * @see NQC.Program#getFunctions()
+	 * @see #getProgram()
+	 * @generated
+	 */
+	EReference getProgram_Functions();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.Program#getSubroutines <em>Subroutines</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Subroutines</em>'.
+	 * @see NQC.Program#getSubroutines()
+	 * @see #getProgram()
+	 * @generated
+	 */
+	EReference getProgram_Subroutines();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.Program#getGlobalVariables <em>Global Variables</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Global Variables</em>'.
+	 * @see NQC.Program#getGlobalVariables()
+	 * @see #getProgram()
+	 * @generated
+	 */
+	EReference getProgram_GlobalVariables();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.Programs <em>Programs</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Programs</em>'.
+	 * @see NQC.Programs
+	 * @generated
+	 */
+	EClass getPrograms();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.Programs#getPrograms <em>Programs</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Programs</em>'.
+	 * @see NQC.Programs#getPrograms()
+	 * @see #getPrograms()
+	 * @generated
+	 */
+	EReference getPrograms_Programs();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.QuaternaryBuiltInFunctionCall <em>Quaternary Built In Function Call</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Quaternary Built In Function Call</em>'.
+	 * @see NQC.QuaternaryBuiltInFunctionCall
+	 * @generated
+	 */
+	EClass getQuaternaryBuiltInFunctionCall();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.QuaternaryBuiltInFunctionCall#getQuaternaryBuiltInFunction <em>Quaternary Built In Function</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Quaternary Built In Function</em>'.
+	 * @see NQC.QuaternaryBuiltInFunctionCall#getQuaternaryBuiltInFunction()
+	 * @see #getQuaternaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EAttribute getQuaternaryBuiltInFunctionCall_QuaternaryBuiltInFunction();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.QuaternaryBuiltInFunctionCall#getParameter1 <em>Parameter1</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter1</em>'.
+	 * @see NQC.QuaternaryBuiltInFunctionCall#getParameter1()
+	 * @see #getQuaternaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getQuaternaryBuiltInFunctionCall_Parameter1();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.QuaternaryBuiltInFunctionCall#getParameter2 <em>Parameter2</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter2</em>'.
+	 * @see NQC.QuaternaryBuiltInFunctionCall#getParameter2()
+	 * @see #getQuaternaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getQuaternaryBuiltInFunctionCall_Parameter2();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.QuaternaryBuiltInFunctionCall#getParameter3 <em>Parameter3</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter3</em>'.
+	 * @see NQC.QuaternaryBuiltInFunctionCall#getParameter3()
+	 * @see #getQuaternaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getQuaternaryBuiltInFunctionCall_Parameter3();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.QuaternaryBuiltInFunctionCall#getParameter4 <em>Parameter4</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter4</em>'.
+	 * @see NQC.QuaternaryBuiltInFunctionCall#getParameter4()
+	 * @see #getQuaternaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getQuaternaryBuiltInFunctionCall_Parameter4();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.RepeatStatement <em>Repeat Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Repeat Statement</em>'.
+	 * @see NQC.RepeatStatement
+	 * @generated
+	 */
+	EClass getRepeatStatement();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.RepeatStatement#getCondition <em>Condition</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Condition</em>'.
+	 * @see NQC.RepeatStatement#getCondition()
+	 * @see #getRepeatStatement()
+	 * @generated
+	 */
+	EReference getRepeatStatement_Condition();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.RepeatStatement#getBody <em>Body</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Body</em>'.
+	 * @see NQC.RepeatStatement#getBody()
+	 * @see #getRepeatStatement()
+	 * @generated
+	 */
+	EReference getRepeatStatement_Body();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.ReturnStatement <em>Return Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Return Statement</em>'.
+	 * @see NQC.ReturnStatement
+	 * @generated
+	 */
+	EClass getReturnStatement();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SenaryBuiltInFunctionCall <em>Senary Built In Function Call</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Senary Built In Function Call</em>'.
+	 * @see NQC.SenaryBuiltInFunctionCall
+	 * @generated
+	 */
+	EClass getSenaryBuiltInFunctionCall();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.SenaryBuiltInFunctionCall#getSenaryBuiltInFunction <em>Senary Built In Function</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Senary Built In Function</em>'.
+	 * @see NQC.SenaryBuiltInFunctionCall#getSenaryBuiltInFunction()
+	 * @see #getSenaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EAttribute getSenaryBuiltInFunctionCall_SenaryBuiltInFunction();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.SenaryBuiltInFunctionCall#getParameter1 <em>Parameter1</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter1</em>'.
+	 * @see NQC.SenaryBuiltInFunctionCall#getParameter1()
+	 * @see #getSenaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getSenaryBuiltInFunctionCall_Parameter1();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.SenaryBuiltInFunctionCall#getParameter2 <em>Parameter2</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter2</em>'.
+	 * @see NQC.SenaryBuiltInFunctionCall#getParameter2()
+	 * @see #getSenaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getSenaryBuiltInFunctionCall_Parameter2();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.SenaryBuiltInFunctionCall#getParameter3 <em>Parameter3</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter3</em>'.
+	 * @see NQC.SenaryBuiltInFunctionCall#getParameter3()
+	 * @see #getSenaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getSenaryBuiltInFunctionCall_Parameter3();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.SenaryBuiltInFunctionCall#getParameter4 <em>Parameter4</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter4</em>'.
+	 * @see NQC.SenaryBuiltInFunctionCall#getParameter4()
+	 * @see #getSenaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getSenaryBuiltInFunctionCall_Parameter4();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.SenaryBuiltInFunctionCall#getParameter5 <em>Parameter5</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter5</em>'.
+	 * @see NQC.SenaryBuiltInFunctionCall#getParameter5()
+	 * @see #getSenaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getSenaryBuiltInFunctionCall_Parameter5();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.SenaryBuiltInFunctionCall#getParameter6 <em>Parameter6</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter6</em>'.
+	 * @see NQC.SenaryBuiltInFunctionCall#getParameter6()
+	 * @see #getSenaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getSenaryBuiltInFunctionCall_Parameter6();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SensorConfigConstant <em>Sensor Config Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Sensor Config Constant</em>'.
+	 * @see NQC.SensorConfigConstant
+	 * @generated
+	 */
+	EClass getSensorConfigConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.SensorConfigConstant#getSensorConfig <em>Sensor Config</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Sensor Config</em>'.
+	 * @see NQC.SensorConfigConstant#getSensorConfig()
+	 * @see #getSensorConfigConstant()
+	 * @generated
+	 */
+	EAttribute getSensorConfigConstant_SensorConfig();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SensorModeConstant <em>Sensor Mode Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Sensor Mode Constant</em>'.
+	 * @see NQC.SensorModeConstant
+	 * @generated
+	 */
+	EClass getSensorModeConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.SensorModeConstant#getSensorMode <em>Sensor Mode</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Sensor Mode</em>'.
+	 * @see NQC.SensorModeConstant#getSensorMode()
+	 * @see #getSensorModeConstant()
+	 * @generated
+	 */
+	EAttribute getSensorModeConstant_SensorMode();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SensorNameConstant <em>Sensor Name Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Sensor Name Constant</em>'.
+	 * @see NQC.SensorNameConstant
+	 * @generated
+	 */
+	EClass getSensorNameConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.SensorNameConstant#getSensorName <em>Sensor Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Sensor Name</em>'.
+	 * @see NQC.SensorNameConstant#getSensorName()
+	 * @see #getSensorNameConstant()
+	 * @generated
+	 */
+	EAttribute getSensorNameConstant_SensorName();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SensorTypeConstant <em>Sensor Type Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Sensor Type Constant</em>'.
+	 * @see NQC.SensorTypeConstant
+	 * @generated
+	 */
+	EClass getSensorTypeConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.SensorTypeConstant#getSensorType <em>Sensor Type</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Sensor Type</em>'.
+	 * @see NQC.SensorTypeConstant#getSensorType()
+	 * @see #getSensorTypeConstant()
+	 * @generated
+	 */
+	EAttribute getSensorTypeConstant_SensorType();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SerialBaudConstant <em>Serial Baud Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Serial Baud Constant</em>'.
+	 * @see NQC.SerialBaudConstant
+	 * @generated
+	 */
+	EClass getSerialBaudConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.SerialBaudConstant#getSerialBaud <em>Serial Baud</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Serial Baud</em>'.
+	 * @see NQC.SerialBaudConstant#getSerialBaud()
+	 * @see #getSerialBaudConstant()
+	 * @generated
+	 */
+	EAttribute getSerialBaudConstant_SerialBaud();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SerialBiphaseConstant <em>Serial Biphase Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Serial Biphase Constant</em>'.
+	 * @see NQC.SerialBiphaseConstant
+	 * @generated
+	 */
+	EClass getSerialBiphaseConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.SerialBiphaseConstant#getSerialBiphase <em>Serial Biphase</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Serial Biphase</em>'.
+	 * @see NQC.SerialBiphaseConstant#getSerialBiphase()
+	 * @see #getSerialBiphaseConstant()
+	 * @generated
+	 */
+	EAttribute getSerialBiphaseConstant_SerialBiphase();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SerialChecksumConstant <em>Serial Checksum Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Serial Checksum Constant</em>'.
+	 * @see NQC.SerialChecksumConstant
+	 * @generated
+	 */
+	EClass getSerialChecksumConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.SerialChecksumConstant#getSerialChecksum <em>Serial Checksum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Serial Checksum</em>'.
+	 * @see NQC.SerialChecksumConstant#getSerialChecksum()
+	 * @see #getSerialChecksumConstant()
+	 * @generated
+	 */
+	EAttribute getSerialChecksumConstant_SerialChecksum();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SerialChannelConstant <em>Serial Channel Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Serial Channel Constant</em>'.
+	 * @see NQC.SerialChannelConstant
+	 * @generated
+	 */
+	EClass getSerialChannelConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.SerialChannelConstant#getSerialChannel <em>Serial Channel</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Serial Channel</em>'.
+	 * @see NQC.SerialChannelConstant#getSerialChannel()
+	 * @see #getSerialChannelConstant()
+	 * @generated
+	 */
+	EAttribute getSerialChannelConstant_SerialChannel();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SerialCommConstant <em>Serial Comm Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Serial Comm Constant</em>'.
+	 * @see NQC.SerialCommConstant
+	 * @generated
+	 */
+	EClass getSerialCommConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.SerialCommConstant#getSerialComm <em>Serial Comm</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Serial Comm</em>'.
+	 * @see NQC.SerialCommConstant#getSerialComm()
+	 * @see #getSerialCommConstant()
+	 * @generated
+	 */
+	EAttribute getSerialCommConstant_SerialComm();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SerialPacketConstant <em>Serial Packet Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Serial Packet Constant</em>'.
+	 * @see NQC.SerialPacketConstant
+	 * @generated
+	 */
+	EClass getSerialPacketConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.SerialPacketConstant#getSerialPacket <em>Serial Packet</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Serial Packet</em>'.
+	 * @see NQC.SerialPacketConstant#getSerialPacket()
+	 * @see #getSerialPacketConstant()
+	 * @generated
+	 */
+	EAttribute getSerialPacketConstant_SerialPacket();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SoundConstant <em>Sound Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Sound Constant</em>'.
+	 * @see NQC.SoundConstant
+	 * @generated
+	 */
+	EClass getSoundConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.SoundConstant#getSound <em>Sound</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Sound</em>'.
+	 * @see NQC.SoundConstant#getSound()
+	 * @see #getSoundConstant()
+	 * @generated
+	 */
+	EAttribute getSoundConstant_Sound();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.Statement <em>Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Statement</em>'.
+	 * @see NQC.Statement
+	 * @generated
+	 */
+	EClass getStatement();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.Statement#getLabel <em>Label</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Label</em>'.
+	 * @see NQC.Statement#getLabel()
+	 * @see #getStatement()
+	 * @generated
+	 */
+	EReference getStatement_Label();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.StartStatement <em>Start Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Start Statement</em>'.
+	 * @see NQC.StartStatement
+	 * @generated
+	 */
+	EClass getStartStatement();
+
+	/**
+	 * Returns the meta object for the reference '{@link NQC.StartStatement#getTask <em>Task</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Task</em>'.
+	 * @see NQC.StartStatement#getTask()
+	 * @see #getStartStatement()
+	 * @generated
+	 */
+	EReference getStartStatement_Task();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.StopStatement <em>Stop Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Stop Statement</em>'.
+	 * @see NQC.StopStatement
+	 * @generated
+	 */
+	EClass getStopStatement();
+
+	/**
+	 * Returns the meta object for the reference '{@link NQC.StopStatement#getTask <em>Task</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Task</em>'.
+	 * @see NQC.StopStatement#getTask()
+	 * @see #getStopStatement()
+	 * @generated
+	 */
+	EReference getStopStatement_Task();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.Subroutine <em>Subroutine</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Subroutine</em>'.
+	 * @see NQC.Subroutine
+	 * @generated
+	 */
+	EClass getSubroutine();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.Subroutine#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see NQC.Subroutine#getName()
+	 * @see #getSubroutine()
+	 * @generated
+	 */
+	EAttribute getSubroutine_Name();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.Subroutine#getStatements <em>Statements</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Statements</em>'.
+	 * @see NQC.Subroutine#getStatements()
+	 * @see #getSubroutine()
+	 * @generated
+	 */
+	EReference getSubroutine_Statements();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.Subroutine#getLocalVariables <em>Local Variables</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Local Variables</em>'.
+	 * @see NQC.Subroutine#getLocalVariables()
+	 * @see #getSubroutine()
+	 * @generated
+	 */
+	EReference getSubroutine_LocalVariables();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SubroutineCall <em>Subroutine Call</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Subroutine Call</em>'.
+	 * @see NQC.SubroutineCall
+	 * @generated
+	 */
+	EClass getSubroutineCall();
+
+	/**
+	 * Returns the meta object for the reference '{@link NQC.SubroutineCall#getCallee <em>Callee</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Callee</em>'.
+	 * @see NQC.SubroutineCall#getCallee()
+	 * @see #getSubroutineCall()
+	 * @generated
+	 */
+	EReference getSubroutineCall_Callee();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.SwitchStatement <em>Switch Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Switch Statement</em>'.
+	 * @see NQC.SwitchStatement
+	 * @generated
+	 */
+	EClass getSwitchStatement();
+
+	/**
+	 * Returns the meta object for the reference '{@link NQC.SwitchStatement#getCondition <em>Condition</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Condition</em>'.
+	 * @see NQC.SwitchStatement#getCondition()
+	 * @see #getSwitchStatement()
+	 * @generated
+	 */
+	EReference getSwitchStatement_Condition();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.SwitchStatement#getCases <em>Cases</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Cases</em>'.
+	 * @see NQC.SwitchStatement#getCases()
+	 * @see #getSwitchStatement()
+	 * @generated
+	 */
+	EReference getSwitchStatement_Cases();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.Task <em>Task</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Task</em>'.
+	 * @see NQC.Task
+	 * @generated
+	 */
+	EClass getTask();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.Task#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see NQC.Task#getName()
+	 * @see #getTask()
+	 * @generated
+	 */
+	EAttribute getTask_Name();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.Task#getStatements <em>Statements</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Statements</em>'.
+	 * @see NQC.Task#getStatements()
+	 * @see #getTask()
+	 * @generated
+	 */
+	EReference getTask_Statements();
+
+	/**
+	 * Returns the meta object for the containment reference list '{@link NQC.Task#getLocalVariables <em>Local Variables</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference list '<em>Local Variables</em>'.
+	 * @see NQC.Task#getLocalVariables()
+	 * @see #getTask()
+	 * @generated
+	 */
+	EReference getTask_LocalVariables();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.TernaryBuiltInFunctionCall <em>Ternary Built In Function Call</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Ternary Built In Function Call</em>'.
+	 * @see NQC.TernaryBuiltInFunctionCall
+	 * @generated
+	 */
+	EClass getTernaryBuiltInFunctionCall();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.TernaryBuiltInFunctionCall#getTernaryBuiltInFunction <em>Ternary Built In Function</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Ternary Built In Function</em>'.
+	 * @see NQC.TernaryBuiltInFunctionCall#getTernaryBuiltInFunction()
+	 * @see #getTernaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EAttribute getTernaryBuiltInFunctionCall_TernaryBuiltInFunction();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.TernaryBuiltInFunctionCall#getParameter1 <em>Parameter1</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter1</em>'.
+	 * @see NQC.TernaryBuiltInFunctionCall#getParameter1()
+	 * @see #getTernaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getTernaryBuiltInFunctionCall_Parameter1();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.TernaryBuiltInFunctionCall#getParameter2 <em>Parameter2</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter2</em>'.
+	 * @see NQC.TernaryBuiltInFunctionCall#getParameter2()
+	 * @see #getTernaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getTernaryBuiltInFunctionCall_Parameter2();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.TernaryBuiltInFunctionCall#getParameter3 <em>Parameter3</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter3</em>'.
+	 * @see NQC.TernaryBuiltInFunctionCall#getParameter3()
+	 * @see #getTernaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getTernaryBuiltInFunctionCall_Parameter3();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.TernaryExpression <em>Ternary Expression</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Ternary Expression</em>'.
+	 * @see NQC.TernaryExpression
+	 * @generated
+	 */
+	EClass getTernaryExpression();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.TernaryExpression#getOperator <em>Operator</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Operator</em>'.
+	 * @see NQC.TernaryExpression#getOperator()
+	 * @see #getTernaryExpression()
+	 * @generated
+	 */
+	EAttribute getTernaryExpression_Operator();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.TernaryExpression#getOperand1 <em>Operand1</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Operand1</em>'.
+	 * @see NQC.TernaryExpression#getOperand1()
+	 * @see #getTernaryExpression()
+	 * @generated
+	 */
+	EReference getTernaryExpression_Operand1();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.TernaryExpression#getOperand2 <em>Operand2</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Operand2</em>'.
+	 * @see NQC.TernaryExpression#getOperand2()
+	 * @see #getTernaryExpression()
+	 * @generated
+	 */
+	EReference getTernaryExpression_Operand2();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.TernaryExpression#getOperand3 <em>Operand3</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Operand3</em>'.
+	 * @see NQC.TernaryExpression#getOperand3()
+	 * @see #getTernaryExpression()
+	 * @generated
+	 */
+	EReference getTernaryExpression_Operand3();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.TxPowerConstant <em>Tx Power Constant</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Tx Power Constant</em>'.
+	 * @see NQC.TxPowerConstant
+	 * @generated
+	 */
+	EClass getTxPowerConstant();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.TxPowerConstant#getTxPower <em>Tx Power</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Tx Power</em>'.
+	 * @see NQC.TxPowerConstant#getTxPower()
+	 * @see #getTxPowerConstant()
+	 * @generated
+	 */
+	EAttribute getTxPowerConstant_TxPower();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.UnaryBuiltInFunctionCall <em>Unary Built In Function Call</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Unary Built In Function Call</em>'.
+	 * @see NQC.UnaryBuiltInFunctionCall
+	 * @generated
+	 */
+	EClass getUnaryBuiltInFunctionCall();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.UnaryBuiltInFunctionCall#getUnaryBuiltInFunction <em>Unary Built In Function</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Unary Built In Function</em>'.
+	 * @see NQC.UnaryBuiltInFunctionCall#getUnaryBuiltInFunction()
+	 * @see #getUnaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EAttribute getUnaryBuiltInFunctionCall_UnaryBuiltInFunction();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.UnaryBuiltInFunctionCall#getParameter <em>Parameter</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter</em>'.
+	 * @see NQC.UnaryBuiltInFunctionCall#getParameter()
+	 * @see #getUnaryBuiltInFunctionCall()
+	 * @generated
+	 */
+	EReference getUnaryBuiltInFunctionCall_Parameter();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.UnaryBuiltInValueFunctionCall <em>Unary Built In Value Function Call</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Unary Built In Value Function Call</em>'.
+	 * @see NQC.UnaryBuiltInValueFunctionCall
+	 * @generated
+	 */
+	EClass getUnaryBuiltInValueFunctionCall();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.UnaryBuiltInValueFunctionCall#getUnaryBuiltInValueFunction <em>Unary Built In Value Function</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Unary Built In Value Function</em>'.
+	 * @see NQC.UnaryBuiltInValueFunctionCall#getUnaryBuiltInValueFunction()
+	 * @see #getUnaryBuiltInValueFunctionCall()
+	 * @generated
+	 */
+	EAttribute getUnaryBuiltInValueFunctionCall_UnaryBuiltInValueFunction();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.UnaryBuiltInValueFunctionCall#getParameter <em>Parameter</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Parameter</em>'.
+	 * @see NQC.UnaryBuiltInValueFunctionCall#getParameter()
+	 * @see #getUnaryBuiltInValueFunctionCall()
+	 * @generated
+	 */
+	EReference getUnaryBuiltInValueFunctionCall_Parameter();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.UnaryExpression <em>Unary Expression</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Unary Expression</em>'.
+	 * @see NQC.UnaryExpression
+	 * @generated
+	 */
+	EClass getUnaryExpression();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.UnaryExpression#getOperand <em>Operand</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Operand</em>'.
+	 * @see NQC.UnaryExpression#getOperand()
+	 * @see #getUnaryExpression()
+	 * @generated
+	 */
+	EReference getUnaryExpression_Operand();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.UnaryExpression#getOperator <em>Operator</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Operator</em>'.
+	 * @see NQC.UnaryExpression#getOperator()
+	 * @see #getUnaryExpression()
+	 * @generated
+	 */
+	EAttribute getUnaryExpression_Operator();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.UntilStatement <em>Until Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Until Statement</em>'.
+	 * @see NQC.UntilStatement
+	 * @generated
+	 */
+	EClass getUntilStatement();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.UntilStatement#getCondition <em>Condition</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Condition</em>'.
+	 * @see NQC.UntilStatement#getCondition()
+	 * @see #getUntilStatement()
+	 * @generated
+	 */
+	EReference getUntilStatement_Condition();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.UntilStatement#getBody <em>Body</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Body</em>'.
+	 * @see NQC.UntilStatement#getBody()
+	 * @see #getUntilStatement()
+	 * @generated
+	 */
+	EReference getUntilStatement_Body();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.ValueExpression <em>Value Expression</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Value Expression</em>'.
+	 * @see NQC.ValueExpression
+	 * @generated
+	 */
+	EClass getValueExpression();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.Variable <em>Variable</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Variable</em>'.
+	 * @see NQC.Variable
+	 * @generated
+	 */
+	EClass getVariable();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.Variable#getName <em>Name</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Name</em>'.
+	 * @see NQC.Variable#getName()
+	 * @see #getVariable()
+	 * @generated
+	 */
+	EAttribute getVariable_Name();
+
+	/**
+	 * Returns the meta object for the attribute '{@link NQC.Variable#getType <em>Type</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the attribute '<em>Type</em>'.
+	 * @see NQC.Variable#getType()
+	 * @see #getVariable()
+	 * @generated
+	 */
+	EAttribute getVariable_Type();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.Variable#getInitialValue <em>Initial Value</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Initial Value</em>'.
+	 * @see NQC.Variable#getInitialValue()
+	 * @see #getVariable()
+	 * @generated
+	 */
+	EReference getVariable_InitialValue();
+
+	/**
+	 * Returns the meta object for the reference '{@link NQC.Variable#getArrayMaxSize <em>Array Max Size</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Array Max Size</em>'.
+	 * @see NQC.Variable#getArrayMaxSize()
+	 * @see #getVariable()
+	 * @generated
+	 */
+	EReference getVariable_ArrayMaxSize();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.VariableExpression <em>Variable Expression</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>Variable Expression</em>'.
+	 * @see NQC.VariableExpression
+	 * @generated
+	 */
+	EClass getVariableExpression();
+
+	/**
+	 * Returns the meta object for the reference '{@link NQC.VariableExpression#getVariable <em>Variable</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference '<em>Variable</em>'.
+	 * @see NQC.VariableExpression#getVariable()
+	 * @see #getVariableExpression()
+	 * @generated
+	 */
+	EReference getVariableExpression_Variable();
+
+	/**
+	 * Returns the meta object for class '{@link NQC.WhileStatement <em>While Statement</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for class '<em>While Statement</em>'.
+	 * @see NQC.WhileStatement
+	 * @generated
+	 */
+	EClass getWhileStatement();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.WhileStatement#getCondition <em>Condition</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Condition</em>'.
+	 * @see NQC.WhileStatement#getCondition()
+	 * @see #getWhileStatement()
+	 * @generated
+	 */
+	EReference getWhileStatement_Condition();
+
+	/**
+	 * Returns the meta object for the containment reference '{@link NQC.WhileStatement#getBody <em>Body</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the containment reference '<em>Body</em>'.
+	 * @see NQC.WhileStatement#getBody()
+	 * @see #getWhileStatement()
+	 * @generated
+	 */
+	EReference getWhileStatement_Body();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.AcquireEnum <em>Acquire Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Acquire Enum</em>'.
+	 * @see NQC.AcquireEnum
+	 * @generated
+	 */
+	EEnum getAcquireEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.AssignmentStatementEnum <em>Assignment Statement Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Assignment Statement Enum</em>'.
+	 * @see NQC.AssignmentStatementEnum
+	 * @generated
+	 */
+	EEnum getAssignmentStatementEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.BinaryOperatorEnum <em>Binary Operator Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Binary Operator Enum</em>'.
+	 * @see NQC.BinaryOperatorEnum
+	 * @generated
+	 */
+	EEnum getBinaryOperatorEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.BuiltInBinaryFunctionEnum <em>Built In Binary Function Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Built In Binary Function Enum</em>'.
+	 * @see NQC.BuiltInBinaryFunctionEnum
+	 * @generated
+	 */
+	EEnum getBuiltInBinaryFunctionEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.BuiltInBinaryValueFunctionEnum <em>Built In Binary Value Function Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Built In Binary Value Function Enum</em>'.
+	 * @see NQC.BuiltInBinaryValueFunctionEnum
+	 * @generated
+	 */
+	EEnum getBuiltInBinaryValueFunctionEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.BuiltInNullaryFunctionEnum <em>Built In Nullary Function Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Built In Nullary Function Enum</em>'.
+	 * @see NQC.BuiltInNullaryFunctionEnum
+	 * @generated
+	 */
+	EEnum getBuiltInNullaryFunctionEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.BuiltInNullaryValueFunctionEnum <em>Built In Nullary Value Function Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Built In Nullary Value Function Enum</em>'.
+	 * @see NQC.BuiltInNullaryValueFunctionEnum
+	 * @generated
+	 */
+	EEnum getBuiltInNullaryValueFunctionEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.BuiltInUnaryValueFunctionEnum <em>Built In Unary Value Function Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Built In Unary Value Function Enum</em>'.
+	 * @see NQC.BuiltInUnaryValueFunctionEnum
+	 * @generated
+	 */
+	EEnum getBuiltInUnaryValueFunctionEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.BuiltInUnaryFunctionEnum <em>Built In Unary Function Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Built In Unary Function Enum</em>'.
+	 * @see NQC.BuiltInUnaryFunctionEnum
+	 * @generated
+	 */
+	EEnum getBuiltInUnaryFunctionEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.BuiltInQuaternaryFunctionEnum <em>Built In Quaternary Function Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Built In Quaternary Function Enum</em>'.
+	 * @see NQC.BuiltInQuaternaryFunctionEnum
+	 * @generated
+	 */
+	EEnum getBuiltInQuaternaryFunctionEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.BuiltInSenaryFunctionEnum <em>Built In Senary Function Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Built In Senary Function Enum</em>'.
+	 * @see NQC.BuiltInSenaryFunctionEnum
+	 * @generated
+	 */
+	EEnum getBuiltInSenaryFunctionEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.BuiltInTernaryFunctionEnum <em>Built In Ternary Function Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Built In Ternary Function Enum</em>'.
+	 * @see NQC.BuiltInTernaryFunctionEnum
+	 * @generated
+	 */
+	EEnum getBuiltInTernaryFunctionEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.DirectionEnum <em>Direction Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Direction Enum</em>'.
+	 * @see NQC.DirectionEnum
+	 * @generated
+	 */
+	EEnum getDirectionEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.DisplayModeEnum <em>Display Mode Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Display Mode Enum</em>'.
+	 * @see NQC.DisplayModeEnum
+	 * @generated
+	 */
+	EEnum getDisplayModeEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.EventTypeEnum <em>Event Type Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Event Type Enum</em>'.
+	 * @see NQC.EventTypeEnum
+	 * @generated
+	 */
+	EEnum getEventTypeEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.OutputModeEnum <em>Output Mode Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Output Mode Enum</em>'.
+	 * @see NQC.OutputModeEnum
+	 * @generated
+	 */
+	EEnum getOutputModeEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.OutputPortNameEnum <em>Output Port Name Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Output Port Name Enum</em>'.
+	 * @see NQC.OutputPortNameEnum
+	 * @generated
+	 */
+	EEnum getOutputPortNameEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.SerialBaudEnum <em>Serial Baud Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Serial Baud Enum</em>'.
+	 * @see NQC.SerialBaudEnum
+	 * @generated
+	 */
+	EEnum getSerialBaudEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.SerialBiphaseEnum <em>Serial Biphase Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Serial Biphase Enum</em>'.
+	 * @see NQC.SerialBiphaseEnum
+	 * @generated
+	 */
+	EEnum getSerialBiphaseEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.SerialChannelEnum <em>Serial Channel Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Serial Channel Enum</em>'.
+	 * @see NQC.SerialChannelEnum
+	 * @generated
+	 */
+	EEnum getSerialChannelEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.SerialChecksumEnum <em>Serial Checksum Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Serial Checksum Enum</em>'.
+	 * @see NQC.SerialChecksumEnum
+	 * @generated
+	 */
+	EEnum getSerialChecksumEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.SerialCommEnum <em>Serial Comm Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Serial Comm Enum</em>'.
+	 * @see NQC.SerialCommEnum
+	 * @generated
+	 */
+	EEnum getSerialCommEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.SerialPacketEnum <em>Serial Packet Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Serial Packet Enum</em>'.
+	 * @see NQC.SerialPacketEnum
+	 * @generated
+	 */
+	EEnum getSerialPacketEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.SensorConfigEnum <em>Sensor Config Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Sensor Config Enum</em>'.
+	 * @see NQC.SensorConfigEnum
+	 * @generated
+	 */
+	EEnum getSensorConfigEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.SensorModeEnum <em>Sensor Mode Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Sensor Mode Enum</em>'.
+	 * @see NQC.SensorModeEnum
+	 * @generated
+	 */
+	EEnum getSensorModeEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.SensorNameEnum <em>Sensor Name Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Sensor Name Enum</em>'.
+	 * @see NQC.SensorNameEnum
+	 * @generated
+	 */
+	EEnum getSensorNameEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.SensorTypeEnum <em>Sensor Type Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Sensor Type Enum</em>'.
+	 * @see NQC.SensorTypeEnum
+	 * @generated
+	 */
+	EEnum getSensorTypeEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.SoundEnum <em>Sound Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Sound Enum</em>'.
+	 * @see NQC.SoundEnum
+	 * @generated
+	 */
+	EEnum getSoundEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.TernaryOperatorEnum <em>Ternary Operator Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Ternary Operator Enum</em>'.
+	 * @see NQC.TernaryOperatorEnum
+	 * @generated
+	 */
+	EEnum getTernaryOperatorEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.TxPowerEnum <em>Tx Power Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Tx Power Enum</em>'.
+	 * @see NQC.TxPowerEnum
+	 * @generated
+	 */
+	EEnum getTxPowerEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.TypeEnum <em>Type Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Type Enum</em>'.
+	 * @see NQC.TypeEnum
+	 * @generated
+	 */
+	EEnum getTypeEnum();
+
+	/**
+	 * Returns the meta object for enum '{@link NQC.UnaryOperatorEnum <em>Unary Operator Enum</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for enum '<em>Unary Operator Enum</em>'.
+	 * @see NQC.UnaryOperatorEnum
+	 * @generated
+	 */
+	EEnum getUnaryOperatorEnum();
+
+	/**
+	 * Returns the factory that creates the instances of the model.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the factory that creates the instances of the model.
+	 * @generated
+	 */
+	NQCFactory getNQCFactory();
+
+} //NQCPackage

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;promela_ecore2promela_text/src/Workflows/wf-LegoCase/Left__Right__Middle/as_arg_uni_ll_time_merge_ic_arg_int.mwe&apos; to &apos;as_arg_uni_ll_time_merge_ic_int_arg_uni.mwe&apos;" description="Rename resource &apos;as_arg_uni_ll_time_merge_ic_arg_int.mwe&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/Workflows/wf-LegoCase/Left__Right__Middle/as_arg_uni_ll_time_merge_ic_arg_int.mwe" name="as_arg_uni_ll_time_merge_ic_int_arg_uni.mwe" stamp="1297429937472" updateReferences="true"/>
+</session>

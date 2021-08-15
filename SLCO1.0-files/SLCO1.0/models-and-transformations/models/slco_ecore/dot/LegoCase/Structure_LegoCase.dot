@@ -1,0 +1,26 @@
+
+digraph LegoCase {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+Single_129
+ [label="{Single||}"]
+Single_129_Single [label="{Single||}", style=filled, fillcolor=gray95]
+Single_129 -> Single_129_Single
+
+Middle_128
+ [label="{Middle||}"]
+Middle_128_Middle [label="{Middle||}", style=filled, fillcolor=gray95]
+Middle_128 -> Middle_128_Middle
+
+Environment_84
+ [label="{Environment|Boolean BlockLeft = false\n Boolean BlockRight = false|}"]
+Environment_84_RightMotor [label="{RightMotor||}", style=filled, fillcolor=gray95]
+Environment_84 -> Environment_84_RightMotor
+Environment_84_MiddleMotor [label="{MiddleMotor|Boolean BlockFellOff = false|}", style=filled, fillcolor=gray95]
+Environment_84 -> Environment_84_MiddleMotor
+Environment_84_LeftMotor [label="{LeftMotor||}", style=filled, fillcolor=gray95]
+Environment_84 -> Environment_84_LeftMotor
+
+
+}

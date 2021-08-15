@@ -1,0 +1,3 @@
+python slco2dot.py $@
+dot -Tpdf:cairo $1.dot -o $1.pdf
+

@@ -1,0 +1,37 @@
+digraph MiddleMotor {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Off_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Off Off_extra -> Off
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Right
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Left
+
+
+
+Off -> Right [label = "receive Right() from MiddleMotor"];
+
+Right -> Off [label = "receive Off() from MiddleMotor"];
+
+Off -> Off [label = "receive Off() from MiddleMotor"];
+
+Off -> Left [label = "receive Left() from MiddleMotor"];
+
+Left -> Off [label = "receive Off() from MiddleMotor"];
+
+Right -> Right [label = "BlockRight == true;\n BlockFellOff := true;\n BlockRight := false"];
+
+Left -> Left [label = "BlockLeft == true;\n BlockFellOff := true;\n BlockLeft := false"];
+
+Right -> Right [label = "receive Right() from MiddleMotor"];
+
+Left -> Left [label = "receive Left() from MiddleMotor"];
+
+Right -> Left [label = "receive Left() from MiddleMotor"];
+
+Left -> Right [label = "receive Right() from MiddleMotor"];
+
+Right -> Right [label = "BlockLeft == true;\n send Block() to MiddleSensor;\n send BlockPassed() to MiddleSensor;\n BlockLeft := false"];
+
+Left -> Left [label = "BlockRight == true;\n send Block() to MiddleSensor;\n send BlockPassed() to MiddleSensor;\n BlockRight := false"];
+
+}

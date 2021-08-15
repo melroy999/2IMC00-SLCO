@@ -1,0 +1,631 @@
+///////////
+//-------//
+// Model //
+//-------//
+///////////
+
+system specification Simple_as_arg_uni_ll_time_merge_int()
+
+behaviour specification
+  (
+   C_C_C_C_C: C_C_C_C_C[
+     P_as_C_out_AS_to_AR/C_as_P_inABP_AS_AASAR,
+     C_as_P_out_Sender_to_Receiver/C_as_P_outABP_Sender_ASReceiver,
+     P_as_C_out_Sender_to_Receiver/C_as_P_inABP_Receiver_ARSender,
+     C_as_P_out_AS_to_AR/C_as_P_outABP_AR_AARAS
+   ]
+  ||
+   P_P_P_P_P: P_P_P_P_P[
+     P_as_C_out_Sender_to_Receiver/P_as_C_outABP_Sender_ASReceiver,
+     C_as_P_out_AS_to_AR/P_as_C_inABP_AS_AASAR,
+     P_as_C_out_AS_to_AR/P_as_C_outABP_AR_AARAS,
+     C_as_P_out_Sender_to_Receiver/P_as_C_inABP_Receiver_ARSender
+   ]
+  )
+  \
+  {P_as_C_out_Sender_to_Receiver, P_as_C_out_AS_to_AR, C_as_P_out_Sender_to_Receiver, C_as_P_out_AS_to_AR}
+ 
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class C_C_C_C_C()
+instance variables
+  C_as_P_out_Original_to_Sender_abl: Integer,
+  C_as_P_out_Original_to_Sender_name: Integer,
+  C_as_P_out_Original_to_Sender_arg_0: Integer,
+  C_as_P_in_Receiver_to_Original_abl: Integer,
+  C_as_P_in_Receiver_to_Original_name: Integer,
+  C_as_P_in_Receiver_to_Original_arg_0: Integer,
+  C_as_P_in_Receiver_to_AS_abl: Integer,
+  C_as_P_in_Receiver_to_AS_name: Integer,
+  C_as_P_out_AR_to_Sender_abl: Integer,
+  C_as_P_out_AR_to_Sender_name: Integer,
+  C_C_C_C_CC_as_P_inABP_Receiver_Receiverr: Integer,
+  C_C_C_C_CC_as_P_inABP_Receiver_Receiverd: Integer,
+  C_C_C_C_CC_as_P_inABP_AS_ASb: Integer,
+  C_C_C_C_CC_as_P_outABP_Sender_Senders: Integer,
+  C_C_C_C_CC_as_P_outABP_Sender_Senderd: Integer,
+  C_C_C_C_CC_as_P_outABP_AR_ARb: Integer
+initial method call
+  C_C_C_C_C_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  C_as_Consumer_State()()
+    |  |
+    [(((C_as_P_in_Receiver_to_Original_abl=1)&(C_as_P_in_Receiver_to_Original_name=1))&(C_as_P_in_Receiver_to_Original_arg_0=3))]skip;
+    C_as_P_in_Receiver_to_Original_abl := 2;
+    C_as_Consumer_State_r_Signal_rbl_StateToState()()
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_inABP_Receiver_Receiver_Zero()()
+    |   var_41: Integer,  var_14: Integer |
+    sel
+      C_as_P_inABP_Receiver_ARSender?Message(C_C_C_C_CC_as_P_inABP_Receiver_Receiverd,var_41|(var_41=C_C_C_C_CC_as_P_inABP_Receiver_Receiverr));
+      C_as_P_in_Receiver_to_Original_name := 1;
+      C_as_P_in_Receiver_to_Original_arg_0 := C_C_C_C_CC_as_P_inABP_Receiver_Receiverd;
+      C_as_P_in_Receiver_to_Original_abl := 1;
+      C_as_P_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    or
+      C_as_P_inABP_Receiver_ARSender?Message(C_C_C_C_CC_as_P_inABP_Receiver_Receiverd,var_14|(var_14=(1-C_C_C_C_CC_as_P_inABP_Receiver_Receiverr)));
+      C_as_P_inABP_Receiver_Receiver_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_inABP_AS_AS_Zero()()
+    |  |
+    sel
+      delay (900);
+      C_as_P_inABP_AS_AASAR!Acknowledge(C_C_C_C_CC_as_P_inABP_AS_ASb);
+      C_as_P_inABP_AS_AS_Zero()()
+    or
+      [((C_as_P_in_Receiver_to_AS_abl=1)&(C_as_P_in_Receiver_to_AS_name=2))]skip;
+      C_as_P_in_Receiver_to_AS_abl := 2;
+      C_as_P_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_outABP_Sender_Sender_Zero()()
+    |  |
+    [((C_as_P_out_Original_to_Sender_abl=1)&(C_as_P_out_Original_to_Sender_name=1))]skip;
+    C_as_P_out_Original_to_Sender_abl := 2;
+    C_as_P_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_outABP_AR_AR_Zero()()
+    |   var_27: Integer,  var_13: Integer |
+    sel
+      C_as_P_outABP_AR_AARAS?Acknowledge(var_27|(var_27=C_C_C_C_CC_as_P_outABP_AR_ARb));
+      C_as_P_out_AR_to_Sender_name := 2;
+      C_as_P_out_AR_to_Sender_abl := 1;
+      C_as_P_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    or
+      C_as_P_outABP_AR_AARAS?Acknowledge(var_13|(var_13=(1-C_C_C_C_CC_as_P_outABP_AR_ARb)));
+      C_as_P_outABP_AR_AR_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_Consumer_State_r_Signal_rbl_StateToState()()
+    |  |
+    sel
+      [(C_as_P_in_Receiver_to_Original_abl=3)]skip;
+      C_as_P_in_Receiver_to_Original_abl := 0;
+      C_as_P_out_Original_to_Sender_name := 1;
+      C_as_P_out_Original_to_Sender_arg_0 := 0;
+      C_as_P_out_Original_to_Sender_abl := 1;
+      C_as_Consumer_State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State()()
+    or
+      [(C_as_P_in_Receiver_to_Original_abl=0)]skip;
+      C_as_Consumer_State()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_Consumer_State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State()()
+    |  |
+    [(C_as_P_out_Original_to_Sender_abl=2)]skip;
+    C_as_P_out_Original_to_Sender_abl := 3;
+    [(C_as_P_out_Original_to_Sender_abl=0)]skip;
+    C_as_Consumer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    |  |
+    [(C_as_P_in_Receiver_to_Original_abl=2)]skip;
+    C_as_P_in_Receiver_to_Original_abl := 3;
+    [(C_as_P_in_Receiver_to_Original_abl=0)]skip;
+    C_as_P_in_Receiver_to_AS_name := 2;
+    C_as_P_in_Receiver_to_AS_abl := 1;
+    C_as_P_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+    |  |
+    [(C_as_P_in_Receiver_to_AS_abl=2)]skip;
+    C_as_P_in_Receiver_to_AS_abl := 3;
+    [(C_as_P_in_Receiver_to_AS_abl=0)]skip;
+    C_C_C_C_CC_as_P_inABP_Receiver_Receiverr := (1-C_C_C_C_CC_as_P_inABP_Receiver_Receiverr);
+    C_as_P_inABP_Receiver_Receiver_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    |  |
+    sel
+      [(C_as_P_in_Receiver_to_AS_abl=3)]skip;
+      C_as_P_in_Receiver_to_AS_abl := 0;
+      C_C_C_C_CC_as_P_inABP_AS_ASb := (1-C_C_C_C_CC_as_P_inABP_AS_ASb);
+      C_as_P_inABP_AS_AS_Zero()()
+    or
+      [(C_as_P_in_Receiver_to_AS_abl=0)]skip;
+      C_as_P_inABP_AS_AS_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_outABP_Sender_Sender_One()()
+    |  |
+    sel
+      delay (900);
+      C_as_P_outABP_Sender_ASReceiver!Message(C_C_C_C_CC_as_P_outABP_Sender_Senderd,C_C_C_C_CC_as_P_outABP_Sender_Senders);
+      C_as_P_outABP_Sender_Sender_One()()
+    or
+      [((C_as_P_out_AR_to_Sender_abl=1)&(C_as_P_out_AR_to_Sender_name=2))]skip;
+      C_as_P_out_AR_to_Sender_abl := 2;
+      C_as_P_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+    |  |
+    sel
+      [(C_as_P_out_Original_to_Sender_abl=3)]skip;
+      C_C_C_C_CC_as_P_outABP_Sender_Senderd := C_as_P_out_Original_to_Sender_arg_0;
+      C_as_P_out_Original_to_Sender_abl := 0;
+      C_as_P_outABP_Sender_Sender_One()()
+    or
+      [(C_as_P_out_Original_to_Sender_abl=0)]skip;
+      C_as_P_outABP_Sender_Sender_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    |  |
+    sel
+      [(C_as_P_out_AR_to_Sender_abl=3)]skip;
+      C_as_P_out_AR_to_Sender_abl := 0;
+      C_C_C_C_CC_as_P_outABP_Sender_Senders := (1-C_C_C_C_CC_as_P_outABP_Sender_Senders);
+      C_as_P_outABP_Sender_Sender_Zero()()
+    or
+      [(C_as_P_out_AR_to_Sender_abl=0)]skip;
+      C_as_P_outABP_Sender_Sender_One()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  C_as_P_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    |  |
+    [(C_as_P_out_AR_to_Sender_abl=2)]skip;
+    C_as_P_out_AR_to_Sender_abl := 3;
+    [(C_as_P_out_AR_to_Sender_abl=0)]skip;
+    C_C_C_C_CC_as_P_outABP_AR_ARb := (1-C_C_C_C_CC_as_P_outABP_AR_ARb);
+    C_as_P_outABP_AR_AR_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  C_C_C_C_C_initial()()
+    |  |
+    C_as_P_out_Original_to_Sender_abl := 0;
+    C_as_P_in_Receiver_to_Original_abl := 0;
+    C_as_P_in_Receiver_to_AS_abl := 0;
+    C_as_P_out_AR_to_Sender_abl := 0;
+    C_C_C_C_CC_as_P_inABP_Receiver_Receiverr := 0;
+    C_C_C_C_CC_as_P_inABP_AS_ASb := 1;
+    C_C_C_C_CC_as_P_outABP_Sender_Senders := 0;
+    C_C_C_C_CC_as_P_outABP_AR_ARb := 0;
+    par
+      C_as_Consumer_State()()
+    and
+      C_as_P_inABP_Receiver_Receiver_Zero()()
+    and
+      C_as_P_inABP_AS_AS_Zero()()
+    and
+      C_as_P_outABP_Sender_Sender_Zero()()
+    and
+      C_as_P_outABP_AR_AR_Zero()()
+    rap
+  .
+
+//////////////////
+//--------------//
+// ProcessClass //
+//--------------//
+//////////////////
+
+process class P_P_P_P_P()
+instance variables
+  P_as_C_out_Original_to_Sender_abl: Integer,
+  P_as_C_out_Original_to_Sender_name: Integer,
+  P_as_C_out_Original_to_Sender_arg_0: Integer,
+  P_as_C_out_AR_to_Sender_abl: Integer,
+  P_as_C_out_AR_to_Sender_name: Integer,
+  P_as_C_in_Receiver_to_Original_abl: Integer,
+  P_as_C_in_Receiver_to_Original_name: Integer,
+  P_as_C_in_Receiver_to_Original_arg_0: Integer,
+  P_as_C_in_Receiver_to_AS_abl: Integer,
+  P_as_C_in_Receiver_to_AS_name: Integer,
+  P_P_P_P_PP_as_C_outABP_Sender_Senders: Integer,
+  P_P_P_P_PP_as_C_outABP_Sender_Senderd: Integer,
+  P_P_P_P_PP_as_C_outABP_AR_ARb: Integer,
+  P_P_P_P_PP_as_C_inABP_Receiver_Receiverr: Integer,
+  P_P_P_P_PP_as_C_inABP_Receiver_Receiverd: Integer,
+  P_P_P_P_PP_as_C_inABP_AS_ASb: Integer
+initial method call
+  P_P_P_P_P_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  P_as_Producer_State()()
+    |  |
+    P_as_C_out_Original_to_Sender_name := 1;
+    P_as_C_out_Original_to_Sender_arg_0 := 3;
+    P_as_C_out_Original_to_Sender_abl := 1;
+    P_as_Producer_State_s_Signal_abl_StateToState()()
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_outABP_Sender_Sender_Zero()()
+    |  |
+    [((P_as_C_out_Original_to_Sender_abl=1)&(P_as_C_out_Original_to_Sender_name=1))]skip;
+    P_as_C_out_Original_to_Sender_abl := 2;
+    P_as_C_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_outABP_AR_AR_Zero()()
+    |   var_15: Integer,  var_21: Integer |
+    sel
+      P_as_C_outABP_AR_AARAS?Acknowledge(var_15|(var_15=P_P_P_P_PP_as_C_outABP_AR_ARb));
+      P_as_C_out_AR_to_Sender_name := 2;
+      P_as_C_out_AR_to_Sender_abl := 1;
+      P_as_C_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    or
+      P_as_C_outABP_AR_AARAS?Acknowledge(var_21|(var_21=(1-P_P_P_P_PP_as_C_outABP_AR_ARb)));
+      P_as_C_outABP_AR_AR_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_inABP_Receiver_Receiver_Zero()()
+    |   var_28: Integer,  var_14: Integer |
+    sel
+      P_as_C_inABP_Receiver_ARSender?Message(P_P_P_P_PP_as_C_inABP_Receiver_Receiverd,var_28|(var_28=P_P_P_P_PP_as_C_inABP_Receiver_Receiverr));
+      P_as_C_in_Receiver_to_Original_name := 1;
+      P_as_C_in_Receiver_to_Original_arg_0 := P_P_P_P_PP_as_C_inABP_Receiver_Receiverd;
+      P_as_C_in_Receiver_to_Original_abl := 1;
+      P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    or
+      P_as_C_inABP_Receiver_ARSender?Message(P_P_P_P_PP_as_C_inABP_Receiver_Receiverd,var_14|(var_14=(1-P_P_P_P_PP_as_C_inABP_Receiver_Receiverr)));
+      P_as_C_inABP_Receiver_Receiver_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_inABP_AS_AS_Zero()()
+    |  |
+    sel
+      delay (900);
+      P_as_C_inABP_AS_AASAR!Acknowledge(P_P_P_P_PP_as_C_inABP_AS_ASb);
+      P_as_C_inABP_AS_AS_Zero()()
+    or
+      [((P_as_C_in_Receiver_to_AS_abl=1)&(P_as_C_in_Receiver_to_AS_name=2))]skip;
+      P_as_C_in_Receiver_to_AS_abl := 2;
+      P_as_C_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_Producer_State_s_Signal_abl_StateToState()()
+    |  |
+    [(((P_as_C_in_Receiver_to_Original_abl=1)&(P_as_C_in_Receiver_to_Original_name=1))&(P_as_C_in_Receiver_to_Original_arg_0=0))]skip;
+    P_as_C_in_Receiver_to_Original_abl := 2;
+    P_as_Producer_State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State()()
+  .
+/* ------ ProcessMethod ------ */
+  P_as_Producer_State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State()()
+    |  |
+    sel
+      [(P_as_C_in_Receiver_to_Original_abl=3)]skip;
+      P_as_C_in_Receiver_to_Original_abl := 0;
+      [(P_as_C_out_Original_to_Sender_abl=2)]skip;
+      P_as_C_out_Original_to_Sender_abl := 3;
+      [(P_as_C_out_Original_to_Sender_abl=0)]skip;
+      P_as_Producer_State()()
+    or
+      [(P_as_C_in_Receiver_to_Original_abl=0)]skip;
+      P_as_Producer_State_s_Signal_abl_StateToState()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_outABP_Sender_Sender_One()()
+    |  |
+    sel
+      delay (900);
+      P_as_C_outABP_Sender_ASReceiver!Message(P_P_P_P_PP_as_C_outABP_Sender_Senderd,P_P_P_P_PP_as_C_outABP_Sender_Senders);
+      P_as_C_outABP_Sender_Sender_One()()
+    or
+      [((P_as_C_out_AR_to_Sender_abl=1)&(P_as_C_out_AR_to_Sender_name=2))]skip;
+      P_as_C_out_AR_to_Sender_abl := 2;
+      P_as_C_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_outABP_Sender_Sender_Zero_r_Signal_rbl_ZeroToOne()()
+    |  |
+    sel
+      [(P_as_C_out_Original_to_Sender_abl=3)]skip;
+      P_P_P_P_PP_as_C_outABP_Sender_Senderd := P_as_C_out_Original_to_Sender_arg_0;
+      P_as_C_out_Original_to_Sender_abl := 0;
+      P_as_C_outABP_Sender_Sender_One()()
+    or
+      [(P_as_C_out_Original_to_Sender_abl=0)]skip;
+      P_as_C_outABP_Sender_Sender_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_outABP_Sender_Sender_One_r_Acknowledge_rbl_OneToZero()()
+    |  |
+    sel
+      [(P_as_C_out_AR_to_Sender_abl=3)]skip;
+      P_as_C_out_AR_to_Sender_abl := 0;
+      P_P_P_P_PP_as_C_outABP_Sender_Senders := (1-P_P_P_P_PP_as_C_outABP_Sender_Senders);
+      P_as_C_outABP_Sender_Sender_Zero()()
+    or
+      [(P_as_C_out_AR_to_Sender_abl=0)]skip;
+      P_as_C_outABP_Sender_Sender_One()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_outABP_AR_AR_Zero_s_Acknowledge_abl_ZeroToZeroAck()()
+    |  |
+    [(P_as_C_out_AR_to_Sender_abl=2)]skip;
+    P_as_C_out_AR_to_Sender_abl := 3;
+    [(P_as_C_out_AR_to_Sender_abl=0)]skip;
+    P_P_P_P_PP_as_C_outABP_AR_ARb := (1-P_P_P_P_PP_as_C_outABP_AR_ARb);
+    P_as_C_outABP_AR_AR_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck()()
+    |  |
+    [(P_as_C_in_Receiver_to_Original_abl=2)]skip;
+    P_as_C_in_Receiver_to_Original_abl := 3;
+    [(P_as_C_in_Receiver_to_Original_abl=0)]skip;
+    P_as_C_in_Receiver_to_AS_name := 2;
+    P_as_C_in_Receiver_to_AS_abl := 1;
+    P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_inABP_Receiver_Receiver_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero()()
+    |  |
+    [(P_as_C_in_Receiver_to_AS_abl=2)]skip;
+    P_as_C_in_Receiver_to_AS_abl := 3;
+    [(P_as_C_in_Receiver_to_AS_abl=0)]skip;
+    P_P_P_P_PP_as_C_inABP_Receiver_Receiverr := (1-P_P_P_P_PP_as_C_inABP_Receiver_Receiverr);
+    P_as_C_inABP_Receiver_Receiver_Zero()()
+  .
+/* ------ ProcessMethod ------ */
+  P_as_C_inABP_AS_AS_Zero_r_Acknowledge_rbl_ZeroToZeroAck()()
+    |  |
+    sel
+      [(P_as_C_in_Receiver_to_AS_abl=3)]skip;
+      P_as_C_in_Receiver_to_AS_abl := 0;
+      P_P_P_P_PP_as_C_inABP_AS_ASb := (1-P_P_P_P_PP_as_C_inABP_AS_ASb);
+      P_as_C_inABP_AS_AS_Zero()()
+    or
+      [(P_as_C_in_Receiver_to_AS_abl=0)]skip;
+      P_as_C_inABP_AS_AS_Zero()()
+    les
+  .
+/* ------ ProcessMethod ------ */
+  P_P_P_P_P_initial()()
+    |  |
+    P_as_C_out_Original_to_Sender_abl := 0;
+    P_as_C_out_AR_to_Sender_abl := 0;
+    P_as_C_in_Receiver_to_Original_abl := 0;
+    P_as_C_in_Receiver_to_AS_abl := 0;
+    P_P_P_P_PP_as_C_outABP_Sender_Senders := 0;
+    P_P_P_P_PP_as_C_outABP_AR_ARb := 0;
+    P_P_P_P_PP_as_C_inABP_Receiver_Receiverr := 0;
+    P_P_P_P_PP_as_C_inABP_AS_ASb := 1;
+    par
+      P_as_Producer_State()()
+    and
+      P_as_C_outABP_Sender_Sender_Zero()()
+    and
+      P_as_C_outABP_AR_AR_Zero()()
+    and
+      P_as_C_inABP_Receiver_Receiver_Zero()()
+    and
+      P_as_C_inABP_AS_AS_Zero()()
+    rap
+  .
+
+
+/*========================*/
+/*------------------------*/
+/* Primitive Data Classes */
+/*------------------------*/
+/*========================*/
+
+data class Object
+instance variables
+instance methods
+	error(ErrorMessage: String): Object primitive.
+	deepCopy: Object primitive.
+	=  (Operand2: Object): Boolean primitive.
+	!= (Operand2: Object): Boolean primitive.
+	== (Operand2: Object): Boolean primitive.
+	!==(Operand2: Object): Boolean primitive.
+	printString: String primitive.
+	shallowCopy: Object primitive.
+
+data class Number
+extends Object
+instance variables
+instance methods
+
+data class Integer
+extends Object
+instance variables
+instance methods
+	+  (Operand2: Number): Number primitive.
+	/  (Operand2: Number): Number primitive.
+	*  (Operand2: Number): Number primitive.
+	-  (Operand2: Number): Number primitive.
+	<  (Operand2: Number): Boolean primitive.
+	>  (Operand2: Number): Boolean primitive.
+	<= (Operand2: Number): Boolean primitive.
+	>= (Operand2: Number): Boolean primitive.
+	unaryMinus: Integer primitive.
+
+	abs: Integer primitive.
+
+	&  (Operand2: Integer): Integer primitive.
+	|  (Operand2: Integer): Integer primitive.
+	not: Integer primitive.
+
+	sqrt: Number primitive.
+	power(Operand2: Number): Number primitive.
+	sqr: Integer primitive.
+
+	div(Operand2: Integer): Integer primitive.
+	modulo(Operand2: Number): Number primitive.
+
+	asInteger: Integer primitive.
+	asReal: Real primitive.
+	asString: String primitive.
+	printString: String primitive.
+
+	fac: Integer primitive.
+	monus(n: Integer): Integer if n > self then 0 else self - n fi.
+
+data class Real
+extends Object
+instance variables
+instance methods
+	+  (Operand2: Number): Real primitive.
+	/  (Operand2: Number): Real primitive.
+	*  (Operand2: Number): Real primitive.
+	-  (Operand2: Number): Real primitive.
+	<  (Operand2: Number): Boolean primitive.
+	>  (Operand2: Number): Boolean primitive.
+	<= (Operand2: Number): Boolean primitive.
+	>= (Operand2: Number): Boolean primitive.
+	unaryMinus: Real primitive.
+
+	acos: Real primitive.
+	asin: Real primitive.
+	atan: Real primitive.
+	atan2(Denom: Real): Real primitive.
+	cos: Real primitive.
+	sin: Real primitive.
+	tan: Real primitive.
+
+	abs: Real primitive.
+
+	log: Real primitive.
+	ln: Real primitive.
+	sqrt: Real primitive.
+	exp: Real primitive.
+	power(Operand2: Number): Real primitive.
+	sqr: Real primitive.
+	
+	ceiling: Integer primitive.
+	floor: Integer primitive.
+	round: Integer primitive.
+
+	div(Operand2: Number): Integer primitive.
+	modulo(Operand2: Number): Real primitive.
+
+	asInteger: Integer primitive.
+	asReal: Real primitive.
+	asString: String primitive.
+	printString: String primitive.
+
+primitive data class Boolean
+extends Object
+instance variables
+instance methods
+	&  (Operand2: Boolean): Boolean primitive.
+	|  (Operand2: Boolean): Boolean primitive.
+	not: Boolean primitive.
+	printString: String primitive.
+
+primitive data class Char
+extends Object
+instance variables
+instance methods
+	printString: String primitive.
+
+primitive data class Array
+extends Object
+instance variables
+instance methods
+	get(FromPosition: Integer): Object primitive.
+	getSize: Integer primitive.
+	size(newSize: Integer): Array primitive.
+	printString: String
+		| i, s: Integer, Str: String |
+		Str := "Array ("; i := 0; s := self getSize;
+		while i < s do Str append(self get(i := i + 1) printString) append(if i < s then "," else ")" fi) od;
+		Str.
+	put(AtPosition: Integer, Element: Object): Array primitive.
+	putAll(Element: Object): Array primitive.
+
+primitive data class String
+extends Object
+instance variables
+instance methods
+	+  (aString: String): String primitive.
+	<  (Operand2: String): Boolean primitive.
+	>  (Operand2: String): Boolean primitive.
+	<= (Operand2: String): Boolean primitive.
+	>= (Operand2: String): Boolean primitive.    
+	append(aString: String): String primitive.
+	copy(From, To: Integer): String primitive.
+	concat(aString: String): String primitive.
+	cr: String primitive.
+	get(FromPosition: Integer): Char primitive.
+	length: Integer primitive.
+	printString: String primitive.
+	put(AtPosition: Integer, aChar: Char): String primitive.
+	tab: String primitive.
+
+primitive data class RandomGenerator
+extends Object
+instance variables
+instance methods
+	random: Real primitive.
+	randomInt(n: Integer): Integer primitive.
+	randomiseSeed: RandomGenerator primitive.
+	setSeed(aSeed: Integer): RandomGenerator primitive.
+
+primitive data class FileOut
+extends Object
+instance variables
+instance methods
+	append: FileOut primitive.
+	destination(FileName: String): FileOut primitive.
+	close: Object primitive.
+	open: FileOut primitive.
+	write(anObject: Object): FileOut
+		self writeString(anObject printString append(' ')).
+	writeln(anObject: Object): FileOut
+		self writeString(anObject printString cr).
+	writeString(aString: String): FileOut primitive.
+
+primitive data class FileIn
+extends Object
+instance variables
+instance methods
+	open: FileIn primitive.
+	close: Object primitive.
+	readString: String primitive.
+	readInteger: Integer primitive.
+	readNumber: Object primitive.
+	readReal: Real primitive.
+	readBoolean: Boolean primitive.
+	readChar: Char primitive.
+	source(FileName: String): FileIn primitive.
+

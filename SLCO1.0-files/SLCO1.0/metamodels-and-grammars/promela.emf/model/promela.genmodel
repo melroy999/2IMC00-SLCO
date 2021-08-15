@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/promela.emf/src" modelPluginID="promela.emf" modelName="Promela"
+    importerID="org.eclipse.emf.importer.ecore" complianceLevel="6.0" copyrightFields="false">
+  <foreignModel>promela.ecore</foreignModel>
+  <genPackages prefix="Promela" disposableProviderFactory="true" ecorePackage="promela.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="promela.ecore#//visibleenum">
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//visibleenum/HIDDEN"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//visibleenum/SHOW"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="promela.ecore#//primitivetypeenum">
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//primitivetypeenum/BIT"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//primitivetypeenum/BOOL"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//primitivetypeenum/BYTE"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//primitivetypeenum/SHORT"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//primitivetypeenum/INT"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//primitivetypeenum/MTYPE"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//primitivetypeenum/CHAN"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="promela.ecore#//channelassertion">
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//channelassertion/XR"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//channelassertion/XS"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="promela.ecore#//sendtypeenum">
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//sendtypeenum/normal_fifo"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//sendtypeenum/sorted"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="promela.ecore#//receivetypeenum">
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//receivetypeenum/normal"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//receivetypeenum/random"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//receivetypeenum/normal_poll_side_effect"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//receivetypeenum/random_poll_side_effect"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="promela.ecore#//polltypeenum">
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//polltypeenum/normal_poll_no_side_effect"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//polltypeenum/random_poll_no_side_effect"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="promela.ecore#//andor">
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//andor/AND"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//andor/OR"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="promela.ecore#//binarop">
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/PLUS"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/MINUS"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/TIMES"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/DIV"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/MOD"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/AMPERSAND"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/CARET"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/BAR"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/GREATER"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/SMALLER"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/GEQ"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/LEQ"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/EQUALS"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/DIFFERS"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/SHIFT_RIGHT"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/SHIFT_LEFT"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/AND"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//binarop/OR"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="promela.ecore#//unarop">
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//unarop/NOT"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//unarop/NEG"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//unarop/NOT1"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="promela.ecore#//chanpoll">
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//chanpoll/FULL"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//chanpoll/EMPTY"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//chanpoll/NFULL"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//chanpoll/NEMTPY"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="promela.ecore#//constenum">
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//constenum/TRUE"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//constenum/FALSE"/>
+      <genEnumLiterals ecoreEnumLiteral="promela.ecore#//constenum/SKIP"/>
+    </genEnums>
+    <genClasses ecoreClass="promela.ecore#//spec">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//spec/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//spec/utypes"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//spec/mtypes"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//spec/one_decls"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//spec/proctypes"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//spec/inits"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//spec/nevers"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//spec/traces"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//spec/primitivetypes"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//proctype">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//proctype/active"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//proctype/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//proctype/one_decls"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//proctype/priority"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//proctype/enabler"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//proctype/sequence"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//init">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//init/priority"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//init/sequence"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//never">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//never/sequence"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//trace">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//trace/sequence"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//utype">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//utype/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//utype/one_decls"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//mtype">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//mtype/name"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//one_decl">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//one_decl/visible"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference promela.ecore#//one_decl/typename"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//one_decl/ivars"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="promela.ecore#//typename"/>
+    <genClasses ecoreClass="promela.ecore#//primitivetype">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//primitivetype/primitivetype"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//uname">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//uname/name"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="promela.ecore#//step"/>
+    <genClasses image="false" ecoreClass="promela.ecore#//stmnt">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//stmnt/label"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//stmnt/unless"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//chanassert">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//chanassert/channel_assertion"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//chanassert/varrefs"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//ivar">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//ivar/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//ivar/constant"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//ivar/any_expr_or_ch_init"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="promela.ecore#//any_expr_or_ch_init"/>
+    <genClasses ecoreClass="promela.ecore#//ch_init">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//ch_init/constant"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference promela.ecore#//ch_init/typenames"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//varref">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//varref/var_name"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference promela.ecore#//varref/any_expr"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference promela.ecore#//varref/varref"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//send">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//send/varref"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//send/send_args"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//send/sendtype"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//receive">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//receive/varref"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//receive/recv_args"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//receive/receivetype"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="promela.ecore#//poll">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//poll/varref"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//poll/recv_args"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//poll/polltype"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="promela.ecore#//recv_arg"/>
+    <genClasses ecoreClass="promela.ecore#//recv_arg_varref">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//recv_arg_varref/varref"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//recv_arg_eval_expr">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//recv_arg_eval_expr/expr"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="promela.ecore#//assign"/>
+    <genClasses ecoreClass="promela.ecore#//assign_std">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//assign_std/varref"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//assign_std/any_expr"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//assign_inc">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//assign_inc/varref"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//assign_dec">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//assign_dec/varref"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//if_stmnt">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//if_stmnt/options"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//do_stmnt">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//do_stmnt/options"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//atomic_stmnt">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//atomic_stmnt/sequence"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//d_step_stmnt">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//d_step_stmnt/sequence"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//block_stmnt">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//block_stmnt/sequence"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//else_stmnt"/>
+    <genClasses ecoreClass="promela.ecore#//break_stmnt"/>
+    <genClasses ecoreClass="promela.ecore#//goto_stmnt">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference promela.ecore#//goto_stmnt/stmnt"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//print_stmnt">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//print_stmnt/string"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//print_stmnt/arg_lst"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//assert_stmnt">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//assert_stmnt/expr"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//c_code">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//c_code/embedded_c_code"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//c_expr">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//c_expr/embedded_c_code"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//c_decl">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//c_decl/embedded_c_code"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//c_track">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//c_track/embedded_c_code"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//c_state">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//c_state/embedded_c_code"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//options">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//options/sequence"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="promela.ecore#//any_expr"/>
+    <genClasses ecoreClass="promela.ecore#//bin_expr">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//bin_expr/operator"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//bin_expr/operand1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//bin_expr/operand2"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//un_expr">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//un_expr/operator"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//un_expr/operand"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//cond_expr">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//cond_expr/expr1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//cond_expr/expr2"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//cond_expr/expr3"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//len_expr">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference promela.ecore#//len_expr/varref"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//timeout_expr"/>
+    <genClasses ecoreClass="promela.ecore#//np__expr"/>
+    <genClasses ecoreClass="promela.ecore#//enabled_expr">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//enabled_expr/any_expr"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//pc_value_expr">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//pc_value_expr/any_expr"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//name_expr">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//name_expr/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//name_expr/any_expr"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//name_expr/at_name"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//run_expr">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference promela.ecore#//run_expr/proc"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//run_expr/arg_lst"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//run_expr/priority"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="promela.ecore#//expr"/>
+    <genClasses ecoreClass="promela.ecore#//andor_expr">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//andor_expr/operator"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//andor_expr/operand1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//andor_expr/operand2"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//chanpoll_expr">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//chanpoll_expr/chan_poll"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference promela.ecore#//chanpoll_expr/varref"/>
+    </genClasses>
+    <genClasses image="false" ecoreClass="promela.ecore#//constant"/>
+    <genClasses ecoreClass="promela.ecore#//num_const">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//num_const/number"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//enum_const">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute promela.ecore#//enum_const/const_enum"/>
+    </genClasses>
+    <genClasses ecoreClass="promela.ecore#//mtype_const">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference promela.ecore#//mtype_const/mtype"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

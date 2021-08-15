@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<slco2nqc:Slco2Nqc xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:slco2nqc="slco2nqc">
+  <signal2MotorList>
+    <signal2Motors xsi:type="slco2nqc:Signal2MotorWithDirection" signalName="On" outputMode="OUT_ON">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.1"/>
+    </signal2Motors>
+    <signal2Motors signalName="Off">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.1"/>
+    </signal2Motors>
+    <signal2Motors xsi:type="slco2nqc:Signal2MotorWithDirection" signalName="On" outputMode="OUT_ON">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.3"/>
+    </signal2Motors>
+    <signal2Motors signalName="Off">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.3"/>
+    </signal2Motors>
+    <signal2Motors xsi:type="slco2nqc:Signal2MotorWithDirection" signalName="Right" outputMode="OUT_ON">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.5"/>
+    </signal2Motors>
+    <signal2Motors xsi:type="slco2nqc:Signal2MotorWithDirection" signalName="Left" outputMode="OUT_ON" outputDirection="OUT_REV">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.5"/>
+    </signal2Motors>
+    <signal2Motors signalName="Off" outputMode="OUT_FLOAT">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.5"/>
+    </signal2Motors>
+  </signal2MotorList>
+  <signal2SensorList>
+    <signal2Sensors signalName="Block" sensorIsHigh="true" treshold="4">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.0"/>
+    </signal2Sensors>
+    <signal2Sensors signalName="Block" sensorIsHigh="true" treshold="4">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.2"/>
+    </signal2Sensors>
+    <signal2Sensors signalName="Block" treshold="-10">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.4"/>
+    </signal2Sensors>
+    <signal2Sensors signalName="BlockPassed" treshold="2">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.0"/>
+    </signal2Sensors>
+    <signal2Sensors signalName="BlockPassed" treshold="2">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.2"/>
+    </signal2Sensors>
+    <signal2Sensors signalName="BlockPassed" sensorIsHigh="true" treshold="-2">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.4"/>
+    </signal2Sensors>
+  </signal2SensorList>
+  <motorInitList>
+    <motorInits power="7">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.3"/>
+    </motorInits>
+    <motorInits power="7" outputName="OUT_B">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.5"/>
+    </motorInits>
+    <motorInits power="7" outputName="OUT_C">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.1"/>
+    </motorInits>
+  </motorInitList>
+  <classList>
+    <classes href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1"/>
+  </classList>
+  <sensorInitList>
+    <sensorInits sensorConfiguration="SENSOR_LIGHT">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.2"/>
+    </sensorInits>
+    <sensorInits sensorName="SENSOR_2" sensorConfiguration="SENSOR_LIGHT">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.4"/>
+    </sensorInits>
+    <sensorInits sensorName="SENSOR_3" sensorConfiguration="SENSOR_LIGHT">
+      <port href="../nqc_slco_ecore/LegoCase_merge_int.slco#//@classes.1/@ports.0"/>
+    </sensorInits>
+  </sensorInitList>
+</slco2nqc:Slco2Nqc>

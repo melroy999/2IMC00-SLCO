@@ -1,0 +1,128 @@
+model ExclusiveChannels_ex {
+  classes
+    A {
+      ports
+        Out_A1_B1
+        Out_A1_B2
+        Out_A2_B1
+        Out_A2_B2
+
+      state machines
+        A1 {
+          variables
+            Integer n = 0
+
+          initial
+            Initial
+
+          state
+            ns4
+            ns5
+
+          final
+            Final
+
+          transitions
+            Initial_to_ns4 from Initial to ns4 {
+              n := n
+            }
+
+            ns5_to_Final from ns5 to Final {
+              n := n
+            }
+
+            InitialToFinal_B1 from ns4 to ns5 {
+              send S() to Out_A1_B1
+            }
+
+            InitialToFinal_B2 from ns4 to ns5 {
+              send S() to Out_A1_B2
+            }
+        }
+
+        A2 {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal_B1 from Initial to Final {
+              send S() to Out_A2_B1
+            }
+
+            InitialToFinal_B2 from Initial to Final {
+              send S() to Out_A2_B2
+            }
+        }
+    }
+
+    B {
+      ports
+        In_A1_B1
+        In_A2_B1
+        In_A1_B2
+        In_A2_B2
+
+      state machines
+        B1 {
+          variables
+            Integer n = 0
+
+          initial
+            Initial
+
+          state
+            ns4
+            ns5
+
+          final
+            Final
+
+          transitions
+            Initial_to_ns4 from Initial to ns4 {
+              n := n
+            }
+
+            ns5_to_Final from ns5 to Final {
+              n := n
+            }
+
+            InitialToFinal_A1 from ns4 to ns5 {
+              receive S() from In_A1_B1
+            }
+
+            InitialToFinal_A2 from ns4 to ns5 {
+              receive S() from In_A2_B1
+            }
+        }
+
+        B2 {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal_A1 from Initial to Final {
+              receive S() from In_A1_B2
+            }
+
+            InitialToFinal_A2 from Initial to Final {
+              receive S() from In_A2_B2
+            }
+        }
+    }
+
+  objects
+    a: A
+    b: B
+
+  channels
+    Out_A1_to_In_B1() sync from a.Out_A1_B1 to b.In_A1_B1
+    Out_A1_to_In_B2() sync from a.Out_A1_B2 to b.In_A1_B2
+    Out_A2_to_In_B1() sync from a.Out_A2_B1 to b.In_A2_B1
+    Out_A2_to_In_B2() sync from a.Out_A2_B2 to b.In_A2_B2
+}

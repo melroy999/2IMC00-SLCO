@@ -1,0 +1,12 @@
+
+digraph Strings2Integers {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_10
+ [label="{A|String v1 = \"\"\n String v2 = \"\"|}"]
+A_10_A [label="{A||}", style=filled, fillcolor=gray95]
+A_10 -> A_10_A
+
+
+}

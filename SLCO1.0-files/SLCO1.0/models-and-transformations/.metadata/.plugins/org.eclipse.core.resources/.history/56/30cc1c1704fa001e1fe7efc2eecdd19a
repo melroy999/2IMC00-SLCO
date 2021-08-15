@@ -1,0 +1,19 @@
+<workflow>
+  <property name="model" value="SM2Text/src/Test_SM.xmi"/>
+  <property name="src-gen" value="src-gen"/>
+
+
+
+  <!-- load model and store it in slot 'model' -->
+  <component class="org.eclipse.emf.mwe.utils.Reader">
+    <uri value="platform:/resource/${model}"/>
+    <modelSlot value="model"/>
+  </component>
+
+  <!--  generate code -->
+  <component class="org.eclipse.xpand2.Generator">
+    <metaModel id="mm" class="org.eclipse.xtend.typesystem.emf.EmfRegistryMetaModel"/>
+    <expand value="template::SM2Text::generateTextFromSM FOR model"/>
+    <outlet path="${src-gen}"/>
+  </component>
+</workflow>

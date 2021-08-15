@@ -1,0 +1,49 @@
+model Sync2Async1_as {
+  classes
+    A {
+      ports
+        Out
+
+      state machines
+        A {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              send Send_S() to Out;
+              receive Acknowledge_S() from Out
+            }
+        }
+    }
+
+    B {
+      ports
+        In
+
+      state machines
+        B {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              receive Send_S() from In;
+              send Acknowledge_S() to In
+            }
+        }
+    }
+
+  objects
+    a: A
+    b: B
+
+  channels
+    C() async lossless between a.Out and b.In
+}

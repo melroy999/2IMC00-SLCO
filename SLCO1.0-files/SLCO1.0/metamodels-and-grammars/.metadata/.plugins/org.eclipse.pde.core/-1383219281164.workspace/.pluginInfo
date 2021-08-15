@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map>
+	<bundle bundleID="1072" localization="plugin" name="%pluginName" project="nqc.emf.tests" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1073" localization="plugin" name="%pluginName" project="nqc.emf" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1074" localization="plugin" name="%pluginName" project="slco2nqc.emf" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1075" class="delays.presentation.DelaysEditorPlugin$Implementation" localization="plugin" name="%pluginName" project="delays.emf.editor" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1076" class="org.xtext.ui.internal.TextualSlcoActivator" localization="OSGI-INF/l10n/bundle" name="org.xtext.textualslco.ui" project="org.xtext.textualslco.ui" provider="My Company"/>
+	<bundle bundleID="1077" localization="plugin" name="%pluginName" project="channels.emf.tests" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1078" localization="plugin" name="%pluginName" project="slco.emf" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1079" class="delays.provider.DelaysEditPlugin$Implementation" localization="plugin" name="%pluginName" project="delays.emf.edit" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1080" class="objects.presentation.ObjectsEditorPlugin$Implementation" localization="plugin" name="%pluginName" project="objects.emf.editor" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1081" class="poosl.provider.PooslEditPlugin$Implementation" localization="plugin" name="%pluginName" project="poosl.emf.edit" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1082" class="nqc.presentation.NqcEditorPlugin$Implementation" localization="plugin" name="%pluginName" project="nqc.emf.editor" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1083" class="promela.provider.PromelaEditPlugin$Implementation" localization="plugin" name="%pluginName" project="promela.emf.edit" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1084" localization="plugin" name="%pluginName" project="promela.emf" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1085" localization="plugin" name="%pluginName" project="channels.emf" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1086" localization="plugin" name="%pluginName" project="slco2nqc.emf.tests" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1087" localization="plugin" name="%pluginName" project="slco.emf.tests" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1088" class="promela.presentation.PromelaEditorPlugin$Implementation" localization="plugin" name="%pluginName" project="promela.emf.editor" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1089" class="poosl.presentation.PooslEditorPlugin$Implementation" localization="plugin" name="%pluginName" project="poosl.emf.editor" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1090" localization="plugin" name="%pluginName" project="promela.emf.tests" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1091" class="slco.presentation.SlcoEditorPlugin$Implementation" localization="plugin" name="%pluginName" project="slco.emf.editor" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1092" localization="plugin" name="%pluginName" project="objects.emf" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1093" localization="plugin" name="%pluginName" project="poosl.emf.tests" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1094" localization="OSGI-INF/l10n/bundle" name="org.xtext.textualslco" project="org.xtext.textualslco" provider="My Company"/>
+	<bundle bundleID="1095" class="nqc.provider.NqcEditPlugin$Implementation" localization="plugin" name="%pluginName" project="nqc.emf.edit" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1096" class="channels.presentation.ChannelsEditorPlugin$Implementation" localization="plugin" name="%pluginName" project="channels.emf.editor" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1097" class="slco2nqc.provider.Slco2nqcEditPlugin$Implementation" localization="plugin" name="%pluginName" project="slco2nqc.emf.edit" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1098" localization="plugin" name="%pluginName" project="delays.emf" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1099" localization="plugin" name="%pluginName" project="delays.emf.tests" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1100" class="slco2nqc.presentation.Slco2nqcEditorPlugin$Implementation" localization="plugin" name="%pluginName" project="slco2nqc.emf.editor" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1101" class="channels.provider.ChannelsEditPlugin$Implementation" localization="plugin" name="%pluginName" project="channels.emf.edit" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1102" localization="OSGI-INF/l10n/bundle" name="org.xtext.textualslco.tests" project="org.xtext.textualslco.tests" provider="My Company"/>
+	<bundle bundleID="1103" localization="plugin" name="%pluginName" project="objects.emf.tests" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1104" class="slco.provider.SlcoEditPlugin$Implementation" localization="plugin" name="%pluginName" project="slco.emf.edit" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1105" class="objects.provider.ObjectsEditPlugin$Implementation" localization="plugin" name="%pluginName" project="objects.emf.edit" provider="%providerName">
+		<library name="."/>
+	</bundle>
+	<bundle bundleID="1106" localization="plugin" name="%pluginName" project="poosl.emf" provider="%providerName">
+		<library name="."/>
+	</bundle>
+</map>

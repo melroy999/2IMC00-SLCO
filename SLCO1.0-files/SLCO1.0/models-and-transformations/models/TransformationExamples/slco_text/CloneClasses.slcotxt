@@ -1,0 +1,77 @@
+model CloneClasses {
+  classes
+    A {
+      ports
+        BOut COut
+
+      state machines
+        A {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              send S() to BOut
+            }
+
+            InitialToFinal from Initial to Final {
+              send S() to COut
+            }
+        }
+    }
+
+    B {
+      ports
+        In
+
+      state machines
+        B {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              receive S() from In
+            }
+        }
+    }
+
+    C {
+      ports
+        In
+
+      state machines
+        C {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              receive S() from In
+            }
+        }
+    }
+
+  objects
+    a1: A
+    b1: B
+    c1: C
+    a2: A
+    b2: B
+    c2: C
+
+  channels
+    e1() sync from a1.BOut to b1.In
+    f1() sync from a1.COut to c1.In
+    e2() sync from a2.BOut to b2.In
+    f2() sync from a2.COut to c2.In
+}

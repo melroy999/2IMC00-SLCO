@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 1 elements(s) to &apos;slco_ecore&apos;&#x0D;&#x0A;- Original project: &apos;models&apos;&#x0D;&#x0A;- Destination element: &apos;slco_ecore&apos;&#x0D;&#x0A;- Original element: &apos;OnceABP_ll.slco&apos;" description="Copy file" element1="slco_text/slco_ecore/OnceABP_ll.slco" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1308660898709" target="/models/slco_ecore" units="0" version="1.0"/>
+</session>

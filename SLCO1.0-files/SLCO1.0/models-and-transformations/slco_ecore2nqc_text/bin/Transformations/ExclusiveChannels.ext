@@ -1,0 +1,547 @@
+import slco;
+import channels;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension org::eclipse::xtend::util::stdlib::cloning;
+extension Libraries::Equality;
+extension Libraries::ModifyModel;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// These functions replace one unidirectional channel by a number of
+// unidirectional channels. Each new channel is used for communication by one
+// pair of state machines. This is needed to ensure proper commnication after
+// shared variables have been added, and after replacing synchronous
+// communication by asynchronous communication.
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// Copy the classes that need to be modified
+// and update all references to these classes.
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+slco::Model modifyModelEX(slco::Model model, channels::ChannelList channels) :
+   let cl = model.channels.select(
+      c1
+   |
+      channels.channels.exists(
+         c2 
+      |
+         c1.channelEqualsChannel(c2)
+      )
+   ) :
+      model.modifyModel(cl, "")
+   -> model.setName(
+         model.name + "_ex"
+      )
+   -> cl.modifyModelUsingChannel(model)
+   -> model
+;
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// 
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+slco::Model exclusiveChannels(
+   slco::Model model, channels::ChannelList channels
+) :
+   let cl = model.channels.select(
+      c1
+   |
+      channels.channels.exists(
+         c2 
+      |
+         c1.channelEqualsChannel(c2)
+      )
+   ) :
+      model.setName(
+         model.name + "_ex"
+      )
+   -> cl.modifyModelUsingChannel(model)
+   -> model
+;
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// 
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+private Void modifyModelUsingChannel(
+   slco::Channel channel, slco::Model model
+) :
+   syserr(
+      "ExclusiveChannels - modifyModelUsingChannel - unknown channel type: "
+      +
+      channel.metaType.toString()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyModelUsingChannel(
+   slco::BidirectionalChannel channel, slco::Model model
+) :
+   syserr(
+      "ExclusiveChannels - modifyModelUsingChannel - "
+      +
+      "bidirectional channels are not allowed: "
+      +
+      channel.name
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyModelUsingChannel(
+   slco::UnidirectionalChannel channel, slco::Model model
+) :
+   if (channel.channelType == slco::ChannelTypeEnum::sync) then (
+      modifyClasses(
+         channel.sourceObject,
+         channel.sourcePort,
+         channel.targetObject,
+         channel.targetPort,
+         channel.argumentTypes,
+         channel.channelType,
+         model
+      )
+   -> channel.sourceObject.class.ports.remove(channel.sourcePort)
+   -> channel.targetObject.class.ports.remove(channel.targetPort)
+   -> model.channels.remove(channel)
+   ) else (
+      syserr( "ExclusiveChannels: Only synchronous channels are allowed" )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyClasses(
+   slco::Object sendingObject, slco::Port sendingPort,
+   slco::Object receivingObject, slco::Port receivingPort,
+   List [slco::ArgumentType] argumentTypes,
+   slco::ChannelTypeEnum channelType,
+   slco::Model model
+) :
+   let ssms = sendingObject.class.stateMachines.select(
+      sm
+   |
+      sm.transitions.statements.typeSelect(
+         slco::SendSignal
+      ).port.contains(sendingPort)
+   ) :
+   let rsms = receivingObject.class.stateMachines.select(
+      sm
+   |
+      sm.transitions.statements.typeSelect(
+         slco::SignalReception
+      ).port.contains(receivingPort)
+   ) :  
+      sendingObject.class.ports.addAll(
+         ssms.createOutputPorts(rsms, sendingPort)
+      )
+   -> ssms.modifySendingStateMachine(
+         rsms, sendingPort
+      )
+   -> receivingObject.class.ports.addAll(
+         rsms.createInputPorts(ssms, receivingPort)
+      )
+   -> rsms.modifyReceivingStateMachine(
+         ssms, receivingPort
+      )
+   -> model.channels.addAll(
+         ssms.createChannels(
+            rsms,
+            sendingObject, sendingPort, receivingObject, receivingPort,
+            argumentTypes, channelType
+         )
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[slco::UnidirectionalChannel] createChannels(
+   slco::StateMachine sendingStateMachine,
+   List[slco::StateMachine] receivingStateMachines, slco::Object sendingObject,
+   slco::Port sendingPort, slco::Object receivingObject,
+   slco::Port receivingPort, List[slco::ArgumentType] argumentTypes,
+   slco::ChannelTypeEnum channelType
+) :
+   this.addAll(
+      receivingStateMachines.createChannel(
+         sendingStateMachine, sendingObject, sendingPort, receivingObject,
+         receivingPort, argumentTypes, channelType
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::UnidirectionalChannel createChannel(
+   slco::StateMachine receivingStateMachine,
+   slco::StateMachine sendingStateMachine, slco::Object sendingObject,
+   slco::Port sendingPort, slco::Object receivingObject,
+   slco::Port receivingPort, List[slco::ArgumentType] argumentTypes,
+   slco::ChannelTypeEnum channelType
+) :
+   this.setChannelType(channelType)
+-> this.setName(
+      sendingPort.name + "_" + sendingStateMachine.name
+      + "_to_" +
+      receivingPort.name + "_" + receivingStateMachine.name
+   )
+-> this.setSourceObject(sendingObject)
+-> this.setSourcePort(
+      createOutputPort(receivingStateMachine, sendingStateMachine, sendingPort)
+   )
+-> this.setTargetObject(receivingObject)
+-> this.setTargetPort(
+      createInputPort(
+         sendingStateMachine, receivingStateMachine, receivingPort
+      )
+   )
+-> this.argumentTypes.addAll(
+      argumentTypes.clone()
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifySendingStateMachine(
+   slco::StateMachine sendingStateMachine,
+   List[slco::StateMachine] receivingStateMachines, slco::Port port
+) :
+   sendingStateMachine.transitions.select(
+      tr
+   |
+      tr.statements.typeSelect(
+         slco::SendSignal
+      ).port.contains(port)
+   &&
+      tr.statements.size > 1
+   ).isolateSendSignalStatements(sendingStateMachine, port)
+-> sendingStateMachine.transitions.select(
+      tr
+   |
+      tr.statements.typeSelect(
+         slco::SendSignal
+      ).port.contains(port)
+   ).addSendingTransitions(sendingStateMachine, receivingStateMachines, port)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void isolateSendSignalStatements(
+   slco::Transition transition, slco::StateMachine stateMachine,
+   slco::Port port
+) :
+   let fsss = transition.statements.typeSelect(
+      slco::SendSignal
+   ).selectFirst(
+      s
+   |
+      s.port == port
+   ) :
+      if (transition.statements.first() != fsss) then (
+         let ns = new slco::State :
+         let nt = new slco::Transition :
+            stateMachine.vertices.add(ns)
+         -> stateMachine.transitions.add(nt)
+         -> ns.setName("ns" + (stateMachine.vertices.size + 1).toString())
+         -> nt.setSource(transition.source)
+         -> nt.setTarget(ns)
+         -> transition.setSource(ns)
+         -> nt.setName(
+               nt.source.name + "_to_" + nt.target.name
+            )
+         -> nt.statements.addAll(
+               transition.statements.select(
+                  teos
+               |
+                  transition.statements.indexOf(teos)
+               <
+                  transition.statements.indexOf(fsss)
+               )
+            )
+         -> if (
+               transition.statements.typeSelect(slco::SendSignal).exists(
+                  sss
+               |
+                  sss.port == port
+               )
+            ) then (
+               transition.isolateSendSignalStatements(stateMachine, port)
+            )
+      ) else (
+         let ns = new slco::State :
+         let nt = new slco::Transition :
+            stateMachine.vertices.add(ns)
+         -> stateMachine.transitions.add(nt)
+         -> ns.setName("ns" + (stateMachine.vertices.size + 1).toString())
+         -> nt.setSource(ns)
+         -> nt.setTarget(transition.target)
+         -> transition.setTarget(ns)
+         -> nt.setName(
+               nt.source.name + "_to_" + nt.target.name
+            )
+         -> nt.statements.addAll(
+               transition.statements.select(
+                  teos
+               |
+                  transition.statements.indexOf(teos)
+                  >
+                  transition.statements.indexOf(fsss)
+               )
+            )
+         -> if (
+               nt.statements.typeSelect(slco::SendSignal).exists(
+                  sss
+               |
+                  sss.port == port
+               )
+            ) then (
+               nt.isolateSendSignalStatements(stateMachine, port)
+            )
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addSendingTransitions(
+   slco::Transition transition, slco::StateMachine sendingStateMachine, 
+   List[slco::StateMachine] receivingStateMachines, slco::Port port
+) : 
+   sendingStateMachine.transitions.addAll(
+      receivingStateMachines.createSendingTransition(
+         transition, sendingStateMachine, port
+      )
+   )
+-> sendingStateMachine.removeTransition(transition)
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Transition createSendingTransition(
+   slco::StateMachine receivingStateMachine, slco::Transition transition,
+   slco::StateMachine sendingStateMachine, slco::Port port
+) :
+   let tr = ((slco::Transition) transition.clone()) :
+      tr.statements.typeSelect(
+         slco::SendSignal
+      ).select(
+        st
+      |
+        st.port == port
+      ).setPort(
+         createOutputPort(receivingStateMachine, sendingStateMachine, port)
+      )
+   -> tr.setName(tr.name + "_" + receivingStateMachine.name)
+   -> tr.setSource(transition.source)
+   -> tr.setTarget(transition.target)
+   -> tr
+;
+
+// ----------------------------------------------------------------------------
+
+private Void modifyReceivingStateMachine(
+   slco::StateMachine receivingStateMachine,
+   List[slco::StateMachine] sendingStateMachines, slco::Port port
+) :
+   receivingStateMachine.transitions.select(
+      tr
+   |
+      tr.statements.typeSelect(
+         slco::SignalReception
+      ).port.contains(port)
+   &&
+      tr.statements.size > 1
+   ).isolateSignalReceptions(receivingStateMachine, port)
+-> receivingStateMachine.transitions.select(
+      tr
+   |
+      tr.statements.typeSelect(
+         slco::SignalReception
+      ).port.contains(port)
+   ).addReceivingTransitions(receivingStateMachine, sendingStateMachines, port)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void isolateSignalReceptions(
+   slco::Transition transition, slco::StateMachine stateMachine,
+   slco::Port port
+) :
+   let fsr = transition.statements.typeSelect(
+      slco::SignalReception
+   ).selectFirst(
+      s
+   |
+      s.port == port
+   ) :
+      if (transition.statements.first() != fsr) then (
+         let ns = new slco::State :
+         let nt = new slco::Transition :
+            stateMachine.vertices.add(ns)
+         -> stateMachine.transitions.add(nt)
+         -> ns.setName("ns" + (stateMachine.vertices.size + 1).toString())
+         -> nt.setSource(transition.source)
+         -> nt.setTarget(ns)
+         -> transition.setSource(ns)
+         -> nt.setName(
+               nt.source.name + "_to_" + nt.target.name
+            )
+         -> nt.statements.addAll(
+               transition.statements.select(
+                  teos
+               |
+                  transition.statements.indexOf(teos)
+               <
+                  transition.statements.indexOf(fsr)
+               )
+            )
+         -> if (
+               transition.statements.typeSelect(slco::SignalReception).exists(
+                  sss
+               |
+                  sss.port == port
+               )
+            ) then (
+               transition.isolateSignalReceptions(stateMachine, port)
+            )
+      ) else (
+         let ns = new slco::State :
+         let nt = new slco::Transition :
+            stateMachine.vertices.add(ns)
+         -> stateMachine.transitions.add(nt)
+         -> ns.setName("ns" + (stateMachine.vertices.size + 1).toString())
+         -> nt.setSource(ns)
+         -> nt.setTarget(transition.target)
+         -> transition.setTarget(ns)
+         -> nt.setName(
+               nt.source.name + "_to_" + nt.target.name
+            )
+         -> nt.statements.addAll(
+               transition.statements.select(
+                  teos
+               |
+                  transition.statements.indexOf(teos)
+                  >
+                  transition.statements.indexOf(fsr)
+               )
+            )
+         -> if (
+               nt.statements.typeSelect(slco::SignalReception).exists(
+                  sss
+               |
+                  sss.port == port
+               )
+            ) then (
+               nt.isolateSignalReceptions(stateMachine, port)
+            )
+      )
+;
+
+// ----------------------------------------------------------------------------
+
+private Void addReceivingTransitions(
+   slco::Transition transition, slco::StateMachine receivingStateMachine, 
+   List[slco::StateMachine] sendingStateMachines, slco::Port port
+) : 
+   receivingStateMachine.transitions.addAll(
+      sendingStateMachines.createReceivingTransition(
+         transition, receivingStateMachine, port
+      )
+   )
+-> receivingStateMachine.removeTransition(transition)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void removeTransition(
+   slco::StateMachine stateMachine, slco::Transition transition
+) :
+   stateMachine.vertices.removeTransition(transition)
+-> stateMachine.transitions.remove(transition)
+;
+
+// ----------------------------------------------------------------------------
+
+private Void removeTransition(slco::Vertex vertex, slco::Transition transition) :
+   vertex.incoming.remove(transition)
+-> vertex.outgoing.remove(transition)
+;
+
+// ----------------------------------------------------------------------------
+
+private slco::Transition createReceivingTransition(
+   slco::StateMachine sendingStateMachine, slco::Transition transition,
+   slco::StateMachine receivingStateMachine, slco::Port port
+) :
+   let tr = ((slco::Transition) transition.clone()) :
+      tr.statements.typeSelect(
+         slco::SignalReception
+      ).setPort(
+         createInputPort(sendingStateMachine, receivingStateMachine, port)
+      )
+   -> tr.setName(tr.name + "_" + sendingStateMachine.name)
+   -> tr.setSource(transition.source)
+   -> tr.setTarget(transition.target)
+   -> tr
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[slco::Port] createOutputPorts(
+   slco::StateMachine sendingStateMachine,
+   List[slco::StateMachine] receivingStateMachines,
+   slco::Port port
+) :
+   this.addAll(
+      receivingStateMachines.createOutputPort(sendingStateMachine, port)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Port createOutputPort(
+   slco::StateMachine receivingStateMachine,
+   slco::StateMachine sendingStateMachine,
+   slco::Port port
+) :
+   this.setName(
+      port.name + "_" + sendingStateMachine.name + "_" +
+      receivingStateMachine.name
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create List[slco::Port] createInputPorts(
+   slco::StateMachine receivingStateMachine,
+   List[slco::StateMachine] sendingStateMachines,
+   slco::Port port
+) :
+   this.addAll(
+      sendingStateMachines.createInputPort(receivingStateMachine, port)
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+private create slco::Port createInputPort(
+   slco::StateMachine sendingStateMachine,
+   slco::StateMachine receivingStateMachine,
+   slco::Port port
+) :
+   this.setName(
+      port.name + "_" + sendingStateMachine.name + "_" +
+      receivingStateMachine.name
+   )
+;

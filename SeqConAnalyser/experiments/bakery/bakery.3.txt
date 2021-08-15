@@ -1,0 +1,185 @@
+int choosing[4] = {0,0,0,0};
+int number[4] = {0,0,0,0};
+
+proctype P0 {
+int j;
+int max;
+int tmp;
+int tmp2;
+
+do
+:: true ->
+	store(choosing[0],1);
+	j = 0;
+	max = 0;
+	do
+	:: true ->
+		if
+		:: j < 3 ->
+			tmp = loadval(number[j]);
+			if
+			:: tmp > max ->
+				tmp = loadval(number[j]);
+				max = tmp;
+				j = j + 1;
+			:: tmp <= max ->
+				j = j + 1;
+			fi;
+		:: j == 3 && max < 4 ->
+			store(number[0], max+1);
+			j = 0;
+			store(choosing[0], 0);
+			do
+			:: true ->
+				if
+				:: j < 3 ->
+					tmp = loadval(choosing[j]);
+					if
+					:: tmp == 0 ->
+						do
+						:: true ->
+							tmp = loadval(number[j]);
+							tmp2 = loadval(number[0]);
+							if
+							:: tmp == 0 || (tmp > tmp2) || (tmp == tmp2 && 0 <= j) ->
+								j = j + 1;
+								break;
+							:: !(tmp == 0 || (tmp > tmp2) || (tmp == tmp2 && 0 <= j)) ->
+								skip;
+							fi;
+						od;
+					:: tmp != 0 ->
+						skip;
+					fi;
+				:: j == 3 ->
+					store(number[0], 0);
+					break;
+				fi;
+			od;
+			break;
+		fi;
+	od;
+od;
+}
+
+proctype P1 {
+int j;
+int max;
+int tmp;
+int tmp2;
+
+do
+:: true ->
+	store(choosing[1],1);
+	j = 0;
+	max = 0;
+	do
+	:: true ->
+		if
+		:: j < 3 ->
+			tmp = loadval(number[j]);
+			if
+			:: tmp > max ->
+				tmp = loadval(number[j]);
+				max = tmp;
+				j = j + 1;
+			:: tmp <= max ->
+				j = j + 1;
+			fi;
+		:: j == 3 && max < 4 ->
+			store(number[1], max+1);
+			j = 0;
+			store(choosing[1], 0);
+			do
+			:: true ->
+				if
+				:: j < 3 ->
+					tmp = loadval(choosing[j]);
+					if
+					:: tmp == 0 ->
+						do
+						:: true ->
+							tmp = loadval(number[j]);
+							tmp2 = loadval(number[1]);
+							if
+							:: tmp == 0 || (tmp > tmp2) || (tmp == tmp2 && 1 <= j) ->
+								j = j + 1;
+								break;
+							:: !(tmp == 0 || (tmp > tmp2) || (tmp == tmp2 && 1 <= j)) ->
+								skip;
+							fi;
+						od;
+					:: tmp != 0 ->
+						skip;
+					fi;
+				:: j == 3 ->
+					store(number[1], 0);
+					break;
+				fi;
+			od;
+			break;
+		fi;
+	od;
+od;
+}
+
+proctype P2 {
+int j;
+int max;
+int tmp;
+int tmp2;
+
+do
+:: true ->
+	store(choosing[2],1);
+	j = 0;
+	max = 0;
+	do
+	:: true ->
+		if
+		:: j < 3 ->
+			tmp = loadval(number[j]);
+			if
+			:: tmp > max ->
+				tmp = loadval(number[j]);
+				max = tmp;
+				j = j + 1;
+			:: tmp <= max ->
+				j = j + 1;
+			fi;
+		:: j == 3 && max < 4 ->
+			store(number[2], max+1);
+			j = 0;
+			store(choosing[2], 0);
+			do
+			:: true ->
+				if
+				:: j < 3 ->
+					tmp = loadval(choosing[j]);
+					if
+					:: tmp == 0 ->
+						do
+						:: true ->
+							tmp = loadval(number[j]);
+							tmp2 = loadval(number[2]);
+							if
+							:: tmp == 0 || (tmp > tmp2) || (tmp == tmp2 && 2 <= j) ->
+								j = j + 1;
+								break;
+							:: !(tmp == 0 || (tmp > tmp2) || (tmp == tmp2 && 2 <= j)) ->
+								skip;
+							fi;
+						od;
+					:: tmp != 0 ->
+						skip;
+					fi;
+				:: j == 3 ->
+					store(number[2], 0);
+					break;
+				fi;
+			od;
+			break;
+		fi;
+	od;
+od;
+}

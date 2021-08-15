@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring accessors="true" comment="Delete 3 element(s) from project &apos;uml&apos;&#x0D;&#x0A;- Original project: &apos;uml&apos;&#x0D;&#x0A;- Original elements:&#x0D;&#x0A;     recursion-sl.uml&#x0D;&#x0A;     recursion.uml&#x0D;&#x0A;     stats.uml" description="Delete elements" element1="recursion.uml" element2="recursion-sl.uml" element3="stats.uml" elements="0" flags="589830" id="org.eclipse.jdt.ui.delete" resources="3" stamp="1237899320039" subPackages="false" version="1.0"/>
+</session>

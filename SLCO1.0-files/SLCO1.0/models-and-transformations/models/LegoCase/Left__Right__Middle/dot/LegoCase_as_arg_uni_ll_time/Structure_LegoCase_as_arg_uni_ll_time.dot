@@ -1,0 +1,46 @@
+
+digraph LegoCase_as_arg_uni_ll_time {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+Environment_203
+ [label="{Environment|Boolean BlockLeft = false\n Boolean BlockRight = false|}"]
+Environment_203_RightMotor [label="{RightMotor||}", style=filled, fillcolor=gray95]
+Environment_203 -> Environment_203_RightMotor
+Environment_203_MiddleMotor [label="{MiddleMotor|Boolean BlockFellOff = false|}", style=filled, fillcolor=gray95]
+Environment_203 -> Environment_203_MiddleMotor
+Environment_203_LeftMotor [label="{LeftMotor||}", style=filled, fillcolor=gray95]
+Environment_203 -> Environment_203_LeftMotor
+
+Single_as_297
+ [label="{Single_as||}"]
+Single_as_297_Single [label="{Single||}", style=filled, fillcolor=gray95]
+Single_as_297 -> Single_as_297_Single
+
+Middle_as_153
+ [label="{Middle_as||}"]
+Middle_as_153_Middle [label="{Middle||}", style=filled, fillcolor=gray95]
+Middle_as_153 -> Middle_as_153_Middle
+
+ABP_Sender_4
+ [label="{ABP_Sender||}"]
+ABP_Sender_4_Sender [label="{Sender|Integer s = 0\n String d|}", style=filled, fillcolor=gray95]
+ABP_Sender_4 -> ABP_Sender_4_Sender
+
+ABP_AR_85
+ [label="{ABP_AR||}"]
+ABP_AR_85_AR [label="{AR|Integer b = 0|}", style=filled, fillcolor=gray95]
+ABP_AR_85 -> ABP_AR_85_AR
+
+ABP_Receiver_102
+ [label="{ABP_Receiver||}"]
+ABP_Receiver_102_Receiver [label="{Receiver|Integer r = 0\n String d|}", style=filled, fillcolor=gray95]
+ABP_Receiver_102 -> ABP_Receiver_102_Receiver
+
+ABP_AS_197
+ [label="{ABP_AS||}"]
+ABP_AS_197_AS [label="{AS|Integer b = 1|}", style=filled, fillcolor=gray95]
+ABP_AS_197 -> ABP_AS_197_AS
+
+
+}

@@ -1,0 +1,89 @@
+int want1;
+int want2;
+int want3;
+int turn;
+
+proctype p1 {	
+int tmp;
+do
+:: true ->
+		store(want1, 1);
+		tmp = loadval(want2);
+		do
+		:: tmp == 1 || load(want3,1) ->
+			if
+			:: load(turn,1) || load(turn,2) ->
+				store(want1, 0);
+				
+				if
+				:: load(turn,0) -> skip;
+				fi;
+				
+				store(want1, 1);
+			:: load(turn,0) -> skip;
+			fi;
+			
+		:: tmp == 0 && load(want3,0) -> break;
+		od;
+		
+		store(turn, 1);
+		store(want1, 0);
+		break;
+od;
+}
+
+proctype p2 {
+int tmp;
+do
+:: true ->
+		store(want2, 1);
+		tmp = loadval(want1);
+		do
+		:: tmp == 1 || load(want3,1) ->			
+			if
+			:: load(turn,0) || load(turn,2) ->
+				store(want2, 0);
+				
+				if
+				:: load(turn,1) -> skip;
+				fi;
+				
+				store(want2, 1);
+			:: load(turn,1) -> skip;
+			fi;
+			
+		:: tmp == 0 && load(want3,0) -> break;
+		od;
+		
+		store(turn, 2);
+		store(want2, 0);
+od;
+}
+
+proctype p3 {
+int tmp;
+do
+:: true ->
+		store(want3, 1);
+		tmp = loadval(want1);
+		do
+		:: tmp == 1 || load(want2,1) ->			
+			if
+			:: load(turn,0) || load(turn,1) ->
+				store(want3, 0);
+				
+				if
+				:: load(turn,2) -> skip;
+				fi;
+				
+				store(want3, 1);
+			:: load(turn,2) -> skip;
+			fi;
+			
+		:: tmp == 0 && load(want2,0) -> break;
+		od;
+		
+		store(turn, 0);
+		store(want3, 0);
+od;
+}

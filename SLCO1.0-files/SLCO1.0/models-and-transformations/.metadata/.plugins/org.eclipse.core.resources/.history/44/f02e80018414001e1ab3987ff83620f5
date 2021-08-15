@@ -1,0 +1,5 @@
+«IMPORT My»
+
+«DEFINE generateProgram FOR Program»
+  program «this.name»
+«ENDDEFINE»

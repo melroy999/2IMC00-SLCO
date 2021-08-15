@@ -1,0 +1,55 @@
+model MergeObjects2 {
+  classes
+    A {
+      ports
+        Out
+
+      state machines
+        A {
+          variables
+            Boolean v
+
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinalSend from Initial to Final {
+              v := true;
+              send S() to Out
+            }
+
+            InitialToFinalSkip from Initial to Final {
+
+            }
+        }
+    }
+
+    B {
+      ports
+        In
+
+      state machines
+        B {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              receive S() from In
+            }
+        }
+    }
+
+  objects
+    a: A
+    b: B
+
+  channels
+    C() sync from a.Out to b.In
+}

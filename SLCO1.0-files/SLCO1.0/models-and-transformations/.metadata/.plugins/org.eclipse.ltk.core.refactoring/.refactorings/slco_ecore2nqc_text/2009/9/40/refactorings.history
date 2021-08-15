@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;slco2nqcv2/src/Transformations/Names2Numbers.ext&apos; to &apos;Names2Arguments.ext&apos;" description="Rename resource &apos;Names2Numbers.ext&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/Transformations/Names2Numbers.ext" name="Names2Arguments.ext" stamp="1254125852758" updateReferences="true"/>
+</session>

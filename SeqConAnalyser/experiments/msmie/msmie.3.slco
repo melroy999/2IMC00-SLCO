@@ -1,0 +1,1051 @@
+model dve_msmie_3 {
+classes
+	GlobalClass {
+		variables
+			Byte[4] b := [0,0,0,2]
+			Byte readers
+			Byte sem := 1
+			Byte changeto
+		state machines
+			slave_1 {
+				variables Integer dummy
+					
+				initial idle
+				states  q0 q1 q2 q3 errorstate
+				transitions
+					from idle to q0 {
+						[sem = 1; sem := 0]
+					}
+
+					from q0 to q1 {
+						[b[0] = 1; b[0] := 0]
+					}
+
+					from q0 to q1 {
+						[b[1] = 1; b[1] := 0]
+					}
+
+					from q0 to q1 {
+						[b[2] = 1; b[2] := 0]
+					}
+
+					from q0 to q1 {
+						[b[3] = 1; b[3] := 0]
+					}
+
+					1: from q0 to q1 {
+						dummy := 0
+					}
+
+					from q1 to q2 {
+						[b[0] = 2; b[0] := 1]
+					}
+
+					from q1 to q2 {
+						[b[1] = 2; b[1] := 1]
+					}
+
+					from q1 to q2 {
+						[b[2] = 2; b[2] := 1]
+					}
+
+					from q1 to q2 {
+						[b[3] = 2; b[3] := 1]
+					}
+
+					1: from q1 to errorstate {
+						dummy := 0
+					}
+
+					from q2 to q3 {
+						[b[0] = 0; b[0] := 2]
+					}
+
+					from q2 to q3 {
+						[b[1] = 0; b[1] := 2]
+					}
+
+					from q2 to q3 {
+						[b[2] = 0; b[2] := 2]
+					}
+
+					from q2 to q3 {
+						[b[3] = 0; b[3] := 2]
+					}
+
+					1: from q2 to errorstate {
+						dummy := 0
+					}
+
+					from q3 to idle {
+						[sem := 1]
+					}
+
+				}
+
+			slave_2 {
+				variables Integer dummy
+					
+				initial idle
+				states  q0 q1 q2 q3 errorstate
+				transitions
+					from idle to q0 {
+						[sem = 1; sem := 0]
+					}
+
+					from q0 to q1 {
+						[b[0] = 1; b[0] := 0]
+					}
+
+					from q0 to q1 {
+						[b[1] = 1; b[1] := 0]
+					}
+
+					from q0 to q1 {
+						[b[2] = 1; b[2] := 0]
+					}
+
+					from q0 to q1 {
+						[b[3] = 1; b[3] := 0]
+					}
+
+					1: from q0 to q1 {
+						dummy := 0
+					}
+
+					from q1 to q2 {
+						[b[0] = 2; b[0] := 1]
+					}
+
+					from q1 to q2 {
+						[b[1] = 2; b[1] := 1]
+					}
+
+					from q1 to q2 {
+						[b[2] = 2; b[2] := 1]
+					}
+
+					from q1 to q2 {
+						[b[3] = 2; b[3] := 1]
+					}
+
+					1: from q1 to errorstate {
+						dummy := 0
+					}
+
+					from q2 to q3 {
+						[b[0] = 0; b[0] := 2]
+					}
+
+					from q2 to q3 {
+						[b[1] = 0; b[1] := 2]
+					}
+
+					from q2 to q3 {
+						[b[2] = 0; b[2] := 2]
+					}
+
+					from q2 to q3 {
+						[b[3] = 0; b[3] := 2]
+					}
+
+					1: from q2 to errorstate {
+						dummy := 0
+					}
+
+					from q3 to idle {
+						[sem := 1]
+					}
+
+				}
+
+			slave_3 {
+				variables Integer dummy
+					
+				initial idle
+				states  q0 q1 q2 q3 errorstate
+				transitions
+					from idle to q0 {
+						[sem = 1; sem := 0]
+					}
+
+					from q0 to q1 {
+						[b[0] = 1; b[0] := 0]
+					}
+
+					from q0 to q1 {
+						[b[1] = 1; b[1] := 0]
+					}
+
+					from q0 to q1 {
+						[b[2] = 1; b[2] := 0]
+					}
+
+					from q0 to q1 {
+						[b[3] = 1; b[3] := 0]
+					}
+
+					1: from q0 to q1 {
+						dummy := 0
+					}
+
+					from q1 to q2 {
+						[b[0] = 2; b[0] := 1]
+					}
+
+					from q1 to q2 {
+						[b[1] = 2; b[1] := 1]
+					}
+
+					from q1 to q2 {
+						[b[2] = 2; b[2] := 1]
+					}
+
+					from q1 to q2 {
+						[b[3] = 2; b[3] := 1]
+					}
+
+					1: from q1 to errorstate {
+						dummy := 0
+					}
+
+					from q2 to q3 {
+						[b[0] = 0; b[0] := 2]
+					}
+
+					from q2 to q3 {
+						[b[1] = 0; b[1] := 2]
+					}
+
+					from q2 to q3 {
+						[b[2] = 0; b[2] := 2]
+					}
+
+					from q2 to q3 {
+						[b[3] = 0; b[3] := 2]
+					}
+
+					1: from q2 to errorstate {
+						dummy := 0
+					}
+
+					from q3 to idle {
+						[sem := 1]
+					}
+
+				}
+
+			slave_4 {
+				variables Integer dummy
+					
+				initial idle
+				states  q0 q1 q2 q3 errorstate
+				transitions
+					from idle to q0 {
+						[sem = 1; sem := 0]
+					}
+
+					from q0 to q1 {
+						[b[0] = 1; b[0] := 0]
+					}
+
+					from q0 to q1 {
+						[b[1] = 1; b[1] := 0]
+					}
+
+					from q0 to q1 {
+						[b[2] = 1; b[2] := 0]
+					}
+
+					from q0 to q1 {
+						[b[3] = 1; b[3] := 0]
+					}
+
+					1: from q0 to q1 {
+						dummy := 0
+					}
+
+					from q1 to q2 {
+						[b[0] = 2; b[0] := 1]
+					}
+
+					from q1 to q2 {
+						[b[1] = 2; b[1] := 1]
+					}
+
+					from q1 to q2 {
+						[b[2] = 2; b[2] := 1]
+					}
+
+					from q1 to q2 {
+						[b[3] = 2; b[3] := 1]
+					}
+
+					1: from q1 to errorstate {
+						dummy := 0
+					}
+
+					from q2 to q3 {
+						[b[0] = 0; b[0] := 2]
+					}
+
+					from q2 to q3 {
+						[b[1] = 0; b[1] := 2]
+					}
+
+					from q2 to q3 {
+						[b[2] = 0; b[2] := 2]
+					}
+
+					from q2 to q3 {
+						[b[3] = 0; b[3] := 2]
+					}
+
+					1: from q2 to errorstate {
+						dummy := 0
+					}
+
+					from q3 to idle {
+						[sem := 1]
+					}
+
+				}
+
+			slave_5 {
+				variables Integer dummy
+					
+				initial idle
+				states  q0 q1 q2 q3 errorstate
+				transitions
+					from idle to q0 {
+						[sem = 1; sem := 0]
+					}
+
+					from q0 to q1 {
+						[b[0] = 1; b[0] := 0]
+					}
+
+					from q0 to q1 {
+						[b[1] = 1; b[1] := 0]
+					}
+
+					from q0 to q1 {
+						[b[2] = 1; b[2] := 0]
+					}
+
+					from q0 to q1 {
+						[b[3] = 1; b[3] := 0]
+					}
+
+					1: from q0 to q1 {
+						dummy := 0
+					}
+
+					from q1 to q2 {
+						[b[0] = 2; b[0] := 1]
+					}
+
+					from q1 to q2 {
+						[b[1] = 2; b[1] := 1]
+					}
+
+					from q1 to q2 {
+						[b[2] = 2; b[2] := 1]
+					}
+
+					from q1 to q2 {
+						[b[3] = 2; b[3] := 1]
+					}
+
+					1: from q1 to errorstate {
+						dummy := 0
+					}
+
+					from q2 to q3 {
+						[b[0] = 0; b[0] := 2]
+					}
+
+					from q2 to q3 {
+						[b[1] = 0; b[1] := 2]
+					}
+
+					from q2 to q3 {
+						[b[2] = 0; b[2] := 2]
+					}
+
+					from q2 to q3 {
+						[b[3] = 0; b[3] := 2]
+					}
+
+					1: from q2 to errorstate {
+						dummy := 0
+					}
+
+					from q3 to idle {
+						[sem := 1]
+					}
+
+				}
+
+			slave_6 {
+				variables Integer dummy
+					
+				initial idle
+				states  q0 q1 q2 q3 errorstate
+				transitions
+					from idle to q0 {
+						[sem = 1; sem := 0]
+					}
+
+					from q0 to q1 {
+						[b[0] = 1; b[0] := 0]
+					}
+
+					from q0 to q1 {
+						[b[1] = 1; b[1] := 0]
+					}
+
+					from q0 to q1 {
+						[b[2] = 1; b[2] := 0]
+					}
+
+					from q0 to q1 {
+						[b[3] = 1; b[3] := 0]
+					}
+
+					1: from q0 to q1 {
+						dummy := 0
+					}
+
+					from q1 to q2 {
+						[b[0] = 2; b[0] := 1]
+					}
+
+					from q1 to q2 {
+						[b[1] = 2; b[1] := 1]
+					}
+
+					from q1 to q2 {
+						[b[2] = 2; b[2] := 1]
+					}
+
+					from q1 to q2 {
+						[b[3] = 2; b[3] := 1]
+					}
+
+					1: from q1 to errorstate {
+						dummy := 0
+					}
+
+					from q2 to q3 {
+						[b[0] = 0; b[0] := 2]
+					}
+
+					from q2 to q3 {
+						[b[1] = 0; b[1] := 2]
+					}
+
+					from q2 to q3 {
+						[b[2] = 0; b[2] := 2]
+					}
+
+					from q2 to q3 {
+						[b[3] = 0; b[3] := 2]
+					}
+
+					1: from q2 to errorstate {
+						dummy := 0
+					}
+
+					from q3 to idle {
+						[sem := 1]
+					}
+
+				}
+
+			slave_7 {
+				variables Integer dummy
+					
+				initial idle
+				states  q0 q1 q2 q3 errorstate
+				transitions
+					from idle to q0 {
+						[sem = 1; sem := 0]
+					}
+
+					from q0 to q1 {
+						[b[0] = 1; b[0] := 0]
+					}
+
+					from q0 to q1 {
+						[b[1] = 1; b[1] := 0]
+					}
+
+					from q0 to q1 {
+						[b[2] = 1; b[2] := 0]
+					}
+
+					from q0 to q1 {
+						[b[3] = 1; b[3] := 0]
+					}
+
+					1: from q0 to q1 {
+						dummy := 0
+					}
+
+					from q1 to q2 {
+						[b[0] = 2; b[0] := 1]
+					}
+
+					from q1 to q2 {
+						[b[1] = 2; b[1] := 1]
+					}
+
+					from q1 to q2 {
+						[b[2] = 2; b[2] := 1]
+					}
+
+					from q1 to q2 {
+						[b[3] = 2; b[3] := 1]
+					}
+
+					1: from q1 to errorstate {
+						dummy := 0
+					}
+
+					from q2 to q3 {
+						[b[0] = 0; b[0] := 2]
+					}
+
+					from q2 to q3 {
+						[b[1] = 0; b[1] := 2]
+					}
+
+					from q2 to q3 {
+						[b[2] = 0; b[2] := 2]
+					}
+
+					from q2 to q3 {
+						[b[3] = 0; b[3] := 2]
+					}
+
+					1: from q2 to errorstate {
+						dummy := 0
+					}
+
+					from q3 to idle {
+						[sem := 1]
+					}
+
+				}
+
+
+			master_1 {
+				variables Integer dummy
+					
+				initial idle
+				states  q0 nomaster master reading r0 noreaders change r1
+				transitions
+					from idle to q0 {
+						[sem = 1; sem := 0]
+					}
+
+					from q0 to master {
+						b[0] = 3
+					}
+
+					from q0 to master {
+						b[1] = 3
+					}
+
+					from q0 to master {
+						b[2] = 3
+					}
+
+					from q0 to master {
+						b[3] = 3
+					}
+
+					1: from q0 to nomaster {
+						dummy := 0
+					}
+
+					from nomaster to master {
+						[b[0] = 1; b[0] := 3]
+					}
+
+					from nomaster to master {
+						[b[1] = 1; b[1] := 3]
+					}
+
+					from nomaster to master {
+						[b[2] = 1; b[2] := 3]
+					}
+
+					from nomaster to master {
+						[b[3] = 1; b[3] := 3]
+					}
+
+					1: from nomaster to idle {
+						sem := 1
+					}
+
+					from master to reading {
+						[readers := readers+1;sem := 1]
+					}
+
+					from reading to r0 {
+						[sem = 1; sem := 0;readers := readers -1]
+					}
+
+					from r0 to noreaders {
+						readers =0
+					}
+
+					1: from r0 to r1 {
+						dummy := 0
+					}
+
+					from noreaders to change {
+						[b[0] = 1  or b[0] = 1  or b[0] = 1  or b[0] = 1; changeto := 0]
+					}
+
+					1: from noreaders to change {
+						[changeto := 1]
+					}
+
+					from change to r1 {
+						[b[0] = 3; b[0] := changeto]
+					}
+
+					from r1 to idle {
+						[sem := 1]
+					}
+
+				}
+
+			master_2 {
+				variables Integer dummy
+					
+				initial idle
+				states  q0 nomaster master reading r0 noreaders change r1
+				transitions
+					from idle to q0 {
+						[sem = 1; sem := 0]
+					}
+
+					from q0 to master {
+						b[0] = 3
+					}
+
+					from q0 to master {
+						b[1] = 3
+					}
+
+					from q0 to master {
+						b[2] = 3
+					}
+
+					from q0 to master {
+						b[3] = 3
+					}
+
+					1: from q0 to nomaster {
+						dummy := 0
+					}
+
+					from nomaster to master {
+						[b[0] = 1; b[0] := 3]
+					}
+
+					from nomaster to master {
+						[b[1] = 1; b[1] := 3]
+					}
+
+					from nomaster to master {
+						[b[2] = 1; b[2] := 3]
+					}
+
+					from nomaster to master {
+						[b[3] = 1; b[3] := 3]
+					}
+
+					1: from nomaster to idle {
+						sem := 1
+					}
+
+					from master to reading {
+						[readers := readers+1;sem := 1]
+					}
+
+					from reading to r0 {
+						[sem = 1; sem := 0;readers := readers -1]
+					}
+
+					from r0 to noreaders {
+						readers =0
+					}
+
+					1: from r0 to r1 {
+						dummy := 0
+					}
+
+					from noreaders to change {
+						[b[0] = 1  or b[0] = 1  or b[0] = 1  or b[0] = 1; changeto := 0]
+					}
+
+					1: from noreaders to change {
+						[changeto := 1]
+					}
+
+					from change to r1 {
+						[b[0] = 3; b[0] := changeto]
+					}
+
+					from r1 to idle {
+						[sem := 1]
+					}
+
+				}
+
+			master_3 {
+				variables Integer dummy
+					
+				initial idle
+				states  q0 nomaster master reading r0 noreaders change r1
+				transitions
+					from idle to q0 {
+						[sem = 1; sem := 0]
+					}
+
+					from q0 to master {
+						b[0] = 3
+					}
+
+					from q0 to master {
+						b[1] = 3
+					}
+
+					from q0 to master {
+						b[2] = 3
+					}
+
+					from q0 to master {
+						b[3] = 3
+					}
+
+					1: from q0 to nomaster {
+						dummy := 0
+					}
+
+					from nomaster to master {
+						[b[0] = 1; b[0] := 3]
+					}
+
+					from nomaster to master {
+						[b[1] = 1; b[1] := 3]
+					}
+
+					from nomaster to master {
+						[b[2] = 1; b[2] := 3]
+					}
+
+					from nomaster to master {
+						[b[3] = 1; b[3] := 3]
+					}
+
+					1: from nomaster to idle {
+						sem := 1
+					}
+
+					from master to reading {
+						[readers := readers+1;sem := 1]
+					}
+
+					from reading to r0 {
+						[sem = 1; sem := 0;readers := readers -1]
+					}
+
+					from r0 to noreaders {
+						readers =0
+					}
+
+					1: from r0 to r1 {
+						dummy := 0
+					}
+
+					from noreaders to change {
+						[b[0] = 1  or b[0] = 1  or b[0] = 1  or b[0] = 1; changeto := 0]
+					}
+
+					1: from noreaders to change {
+						[changeto := 1]
+					}
+
+					from change to r1 {
+						[b[0] = 3; b[0] := changeto]
+					}
+
+					from r1 to idle {
+						[sem := 1]
+					}
+
+				}
+
+			master_4 {
+				variables Integer dummy
+					
+				initial idle
+				states  q0 nomaster master reading r0 noreaders change r1
+				transitions
+					from idle to q0 {
+						[sem = 1; sem := 0]
+					}
+
+					from q0 to master {
+						b[0] = 3
+					}
+
+					from q0 to master {
+						b[1] = 3
+					}
+
+					from q0 to master {
+						b[2] = 3
+					}
+
+					from q0 to master {
+						b[3] = 3
+					}
+
+					1: from q0 to nomaster {
+						dummy := 0
+					}
+
+					from nomaster to master {
+						[b[0] = 1; b[0] := 3]
+					}
+
+					from nomaster to master {
+						[b[1] = 1; b[1] := 3]
+					}
+
+					from nomaster to master {
+						[b[2] = 1; b[2] := 3]
+					}
+
+					from nomaster to master {
+						[b[3] = 1; b[3] := 3]
+					}
+
+					1: from nomaster to idle {
+						sem := 1
+					}
+
+					from master to reading {
+						[readers := readers+1;sem := 1]
+					}
+
+					from reading to r0 {
+						[sem = 1; sem := 0;readers := readers -1]
+					}
+
+					from r0 to noreaders {
+						readers =0
+					}
+
+					1: from r0 to r1 {
+						dummy := 0
+					}
+
+					from noreaders to change {
+						[b[0] = 1  or b[0] = 1  or b[0] = 1  or b[0] = 1; changeto := 0]
+					}
+
+					1: from noreaders to change {
+						[changeto := 1]
+					}
+
+					from change to r1 {
+						[b[0] = 3; b[0] := changeto]
+					}
+
+					from r1 to idle {
+						[sem := 1]
+					}
+
+				}
+
+			master_5 {
+				variables Integer dummy
+					
+				initial idle
+				states  q0 nomaster master reading r0 noreaders change r1
+				transitions
+					from idle to q0 {
+						[sem = 1; sem := 0]
+					}
+
+					from q0 to master {
+						b[0] = 3
+					}
+
+					from q0 to master {
+						b[1] = 3
+					}
+
+					from q0 to master {
+						b[2] = 3
+					}
+
+					from q0 to master {
+						b[3] = 3
+					}
+
+					1: from q0 to nomaster {
+						dummy := 0
+					}
+
+					from nomaster to master {
+						[b[0] = 1; b[0] := 3]
+					}
+
+					from nomaster to master {
+						[b[1] = 1; b[1] := 3]
+					}
+
+					from nomaster to master {
+						[b[2] = 1; b[2] := 3]
+					}
+
+					from nomaster to master {
+						[b[3] = 1; b[3] := 3]
+					}
+
+					1: from nomaster to idle {
+						sem := 1
+					}
+
+					from master to reading {
+						[readers := readers+1;sem := 1]
+					}
+
+					from reading to r0 {
+						[sem = 1; sem := 0;readers := readers -1]
+					}
+
+					from r0 to noreaders {
+						readers =0
+					}
+
+					1: from r0 to r1 {
+						dummy := 0
+					}
+
+					from noreaders to change {
+						[b[0] = 1  or b[0] = 1  or b[0] = 1  or b[0] = 1; changeto := 0]
+					}
+
+					1: from noreaders to change {
+						[changeto := 1]
+					}
+
+					from change to r1 {
+						[b[0] = 3; b[0] := changeto]
+					}
+
+					from r1 to idle {
+						[sem := 1]
+					}
+
+				}
+
+			master_6 {
+				variables Integer dummy
+					
+				initial idle
+				states  q0 nomaster master reading r0 noreaders change r1
+				transitions
+					from idle to q0 {
+						[sem = 1; sem := 0]
+					}
+
+					from q0 to master {
+						b[0] = 3
+					}
+
+					from q0 to master {
+						b[1] = 3
+					}
+
+					from q0 to master {
+						b[2] = 3
+					}
+
+					from q0 to master {
+						b[3] = 3
+					}
+
+					1: from q0 to nomaster {
+						dummy := 0
+					}
+
+					from nomaster to master {
+						[b[0] = 1; b[0] := 3]
+					}
+
+					from nomaster to master {
+						[b[1] = 1; b[1] := 3]
+					}
+
+					from nomaster to master {
+						[b[2] = 1; b[2] := 3]
+					}
+
+					from nomaster to master {
+						[b[3] = 1; b[3] := 3]
+					}
+
+					1: from nomaster to idle {
+						sem := 1
+					}
+
+					from master to reading {
+						[readers := readers+1;sem := 1]
+					}
+
+					from reading to r0 {
+						[sem = 1; sem := 0;readers := readers -1]
+					}
+
+					from r0 to noreaders {
+						readers =0
+					}
+
+					1: from r0 to r1 {
+						dummy := 0
+					}
+
+					from noreaders to change {
+						[b[0] = 1  or b[0] = 1  or b[0] = 1  or b[0] = 1; changeto := 0]
+					}
+
+					1: from noreaders to change {
+						[changeto := 1]
+					}
+
+					from change to r1 {
+						[b[0] = 3; b[0] := changeto]
+					}
+
+					from r1 to idle {
+						[sem := 1]
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

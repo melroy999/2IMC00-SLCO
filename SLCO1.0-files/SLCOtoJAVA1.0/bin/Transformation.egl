@@ -1,0 +1,78 @@
+[%
+    TemplateFactory.setOutputRoot("../src/GeneratedCode");
+    
+	var m = Model.allInstances().first();
+	var stateMachine : slco::StateMachine;
+	var class : slco::Class;
+	var t = TemplateFactory.load("SLCO2Java.egl");
+	t.generate("SLCO2Java.java");
+	
+	t = TemplateFactory.load("Model.egl");
+	t.generate("Slco"+m.name+".java");
+	
+	for(class in Class.all()){
+	t = TemplateFactory.load("Class.egl");
+	t.populate("class", class);
+	t.generate(class.name+".java");
+	}	
+%]
+
+[% 
+    for(class in Class.all()){
+      for (stateMachine in class.stateMachines){
+      	t = TemplateFactory.load("StateMachine.egl");
+		t.populate("stateMachine", stateMachine);
+		t.populate("class", class);
+		t.generate(stateMachine.name+".java");
+      }
+    }
+%]
+
+[% 
+    for(class in Class.all()){
+      for (stateMachine in class.stateMachines){
+      	for(vertex in stateMachine.vertices){
+        	if (not vertex.isTypeOf(Final)){
+      			for (statement in vertex.outgoing.at(0).statements){
+      				if (statement.isTypeOf(Assignment)){
+      					t = TemplateFactory.load("Assignment.egl");
+						t.populate("stateMachine", stateMachine);
+						t.populate("class", class);
+						t.populate("vertex", vertex);
+						t.populate("statement", statement);
+						t.populate("transition", vertex.outgoing.at(0));
+						t.generate("Assignment_"+vertex.outgoing.at(0).name+".java");
+					}
+					else if (statement.isTypeOf(BinaryOperatorExpression)){
+      					t = TemplateFactory.load("Expression.egl");
+						t.populate("stateMachine", stateMachine);
+						t.populate("class", class);
+						t.populate("vertex", vertex);
+						t.populate("statement", statement);
+						t.populate("transition", vertex.outgoing.at(0));
+						t.generate("BooleanExpression_"+vertex.outgoing.at(0).name+".java");
+					}
+					else if (statement.isTypeOf(SignalReception)){
+      					t = TemplateFactory.load("SignalReception.egl");
+      					t.populate("stateMachine", stateMachine);
+						t.populate("class", class);
+						t.populate("vertex", vertex);
+						t.populate("statement", statement);
+						t.populate("transition", vertex.outgoing.at(0));
+						t.generate("ReceiveSignal_"+vertex.outgoing.at(0).name+".java");
+					}
+					else if (statement.isTypeOf(SendSignal)){
+      					t = TemplateFactory.load("SendSignal.egl");
+      					t.populate("stateMachine", stateMachine);
+						t.populate("class", class);
+						t.populate("vertex", vertex);
+						t.populate("statement", statement);
+						t.populate("transition", vertex.outgoing.at(0));
+						t.generate("SendSignal_"+vertex.outgoing.at(0).name+".java");
+					}
+				}
+			}
+		}
+      }
+    }
+%]

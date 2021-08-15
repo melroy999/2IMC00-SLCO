@@ -1,0 +1,109 @@
+grammar org.xtext.dve.DVE with org.eclipse.xtext.common.Terminals
+
+generate dve "http://www.xtext.org/dve/DVE"
+
+DVEModel hidden(WS, ML_COMMENT, SL_COMMENT):
+	(declarations+=Declaration)+
+	'system' 'async' ';'
+;
+	
+Declaration:
+	  VarList
+	| Process
+	| ChannelList
+;
+
+Process:
+	'process' name=ID '{'
+		(varlists+=VarList)* // VarList includes the ';'
+		'state' states+=State (',' states+=State)* ';'
+		'init' init=[State] ';'
+		'trans' (transitions+=Transition)? (',' transitions+=Transition)* ';'
+	'}'
+;
+
+ChannelList:
+	'channel' channels+=Channel (',' channels+=Channel)* ';'
+;
+
+Channel:
+	name=ID
+;
+
+State:
+	name=ID
+;
+
+Transition:
+	source=[State] '->' target=[State] '{' 
+	('guard'  guard=Expression ';')?
+	(
+		  ('effect' (effects+=Statement)+)?
+		& ('sync' channel=[Channel] ('?'|'!'))?
+	)
+	'}'
+;
+
+Statement :
+  (AssignmentSequence /*| Expression*/) ';'
+;
+	
+VarList:
+	type=PrimitiveType 
+	variables+=Var
+	(',' variables+=Var)* ';'
+;
+
+Var:
+	name=ID 
+	('[' length=INT ']')?
+	('=' initialValue=Expression)?
+;
+
+AssignmentSequence:
+	assignments+=Assignment (',' assignments+=Assignment)*
+;
+
+Assignment:
+	variable=[Var] ('[' index=Expression ']')? '=' expression = Expression
+;
+
+enum PrimitiveType:
+	ByteType = 'byte' | IntType = 'int' | BoolType = 'boolean'
+;
+  
+Expression :
+  TerminalExpression ({BinaryOperatorExpression.operand1 = current} operator = Operator operand2 = Expression)?;
+
+TerminalExpression returns Expression :
+  BooleanConstantExpression |
+  IntegerConstantExpression |
+  ArrayConstantExpression |
+  VariableExpression |
+  BracketExpression;
+
+enum Operator :
+    moreThan = '>' | lessThan = '<' | atLeast = '>=' | atMost = '<=' 
+  | and = '&&' | and = 'and' | or = '||' | or = 'or' | equals = '==' | differs = '!=' 
+  | mutiplication = '*' | add = '+' | subtract = '-' | modulo = '%'
+  | alternativeComposition = '|'
+;
+
+ArrayConstantExpression:
+	'{' (values+=Expression) (',' values+=Expression)* '}'
+;
+
+BooleanConstantExpression :
+  value = BOOLEAN;
+
+IntegerConstantExpression :
+  value = INT;
+
+VariableExpression :
+  variable=[Var] ('[' index=Expression ']')?;
+
+BracketExpression returns Expression:
+  "(" Expression ")";
+
+terminal BOOLEAN :
+  'true' | 'false';

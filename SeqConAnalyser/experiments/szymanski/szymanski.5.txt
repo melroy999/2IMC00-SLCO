@@ -1,0 +1,504 @@
+int flag0 = 0;
+int flag1 = 0;
+int flag2 = 0;
+int flag3 = 0;
+int flag4 = 0;
+int flag5 = 0;
+
+proctype P0 {
+int tmp;
+int tmp2;
+int tmp3;
+int tmp4;
+int tmp5;
+do
+:: true ->
+	store(flag0,1);
+
+	do
+	:: true ->
+		tmp = loadval(flag1);
+		tmp2 = loadval(flag2);
+		tmp3 = loadval(flag3);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp < 3 && tmp2 < 3 && tmp3 < 3 && tmp4 < 3 && tmp5 < 3 -> break;
+		:: tmp >= 3 || tmp2 >= 3 || tmp3 >= 3 || tmp4 >= 3 || tmp5 >= 3 -> skip;
+		fi;
+	od;
+	
+	store(flag0,3);
+
+	do
+	:: true ->
+		tmp = loadval(flag1);
+		tmp2 = loadval(flag2);
+		tmp3 = loadval(flag3);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp == 1 || tmp2 == 1 || tmp3 == 1 || tmp4 == 1 || tmp5 == 1 ->
+			store(flag0,2);
+			do
+			:: true ->
+				tmp = loadval(flag1);
+				tmp2 = loadval(flag2);
+				tmp3 = loadval(flag3);
+				tmp4 = loadval(flag4);
+				tmp5 = loadval(flag5);
+				if
+				:: tmp == 4 || tmp2 == 4 || tmp3 == 4 || tmp4 == 4 || tmp5 == 4 -> break;
+				:: tmp != 4 && tmp2 != 4 && tmp3 != 4 && tmp4 != 4 && tmp5 != 4 -> skip;
+				fi;
+			od;
+			break;
+		:: tmp != 1 && tmp2 != 1 && tmp3 != 1 && tmp4 != 1 && tmp5 != 1 -> break;
+		fi;
+	od;
+	store(flag0,4);
+
+	do
+	:: true ->
+		tmp = loadval(flag1);
+		tmp2 = loadval(flag2);
+		tmp3 = loadval(flag3);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp < 2 || tmp2 < 2 || tmp3 < 2 || tmp4 < 2 || tmp5 < 2 -> break;
+		:: tmp >= 2 && tmp2 >= 2 && tmp3 >= 2 && tmp4 >= 2 && tmp5 >= 2 -> skip;
+		fi;
+	od;
+
+	do
+	:: true ->
+		tmp = loadval(flag1);
+		tmp2 = loadval(flag2);
+		tmp3 = loadval(flag3);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: (2 > tmp || tmp > 3) && (2 > tmp2 || tmp2 > 3) && (2 > tmp3 || tmp3 > 3) && (2 > tmp4 || tmp4 > 3) && (2 > tmp5 || tmp5 > 3) -> break;
+		:: (2 <= tmp && tmp <= 3) || (2 <= tmp2 && tmp2 <= 3) || (2 <= tmp3 && tmp3 <= 3) || (2 <= tmp4 && tmp4 <= 3) || (2 <= tmp5 && tmp5 <= 3) -> skip;
+		fi;
+	od;
+
+	store(flag0,0);
+od;
+}
+
+proctype P1 {
+int tmp;
+int tmp2;
+int tmp3;
+int tmp4;
+int tmp5;
+do
+:: true ->
+	store(flag1,1);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag2);
+		tmp3 = loadval(flag3);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp < 3 && tmp2 < 3 && tmp3 < 3 && tmp4 < 3 && tmp5 < 3 -> break;
+		:: tmp >= 3 || tmp2 >= 3 || tmp3 >= 3 || tmp4 >= 3 || tmp5 >= 3 -> skip;
+		fi;
+	od;
+	
+	store(flag1,3);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag2);
+		tmp3 = loadval(flag3);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp == 1 || tmp2 == 1 || tmp3 == 1 || tmp4 == 1 || tmp5 == 1 ->
+			store(flag1,2);
+			do
+			:: true ->
+				tmp = loadval(flag0);
+				tmp2 = loadval(flag2);
+				tmp3 = loadval(flag3);
+				tmp4 = loadval(flag4);
+				tmp5 = loadval(flag5);
+				if
+				:: tmp == 4 || tmp2 == 4 || tmp3 == 4 || tmp4 == 4 || tmp5 == 4 -> break;
+				:: tmp != 4 && tmp2 != 4 && tmp3 != 4 && tmp4 != 4 && tmp5 != 4 -> skip;
+				fi;
+			od;
+			break;
+		:: tmp != 1 && tmp2 != 1 && tmp3 != 1 && tmp4 != 1 && tmp5 != 1 -> break;
+		fi;
+	od;
+	store(flag1,4);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag2);
+		tmp3 = loadval(flag3);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp < 2 || tmp2 < 2 || tmp3 < 2 || tmp4 < 2 || tmp5 < 2 -> break;
+		:: tmp >= 2 && tmp2 >= 2 && tmp3 >= 2 && tmp4 >= 2 && tmp5 >= 2 -> skip;
+		fi;
+	od;
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag2);
+		tmp3 = loadval(flag3);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: (2 > tmp || tmp > 3) && (2 > tmp2 || tmp2 > 3) && (2 > tmp3 || tmp3 > 3) && (2 > tmp4 || tmp4 > 3) && (2 > tmp5 || tmp5 > 3) -> break;
+		:: (2 <= tmp && tmp <= 3) || (2 <= tmp2 && tmp2 <= 3) || (2 <= tmp3 && tmp3 <= 3) || (2 <= tmp4 && tmp4 <= 3) || (2 <= tmp5 && tmp5 <= 3) -> skip;
+		fi;
+	od;
+
+	store(flag1,0);
+od;
+}
+
+proctype P2 {
+int tmp;
+int tmp2;
+int tmp3;
+int tmp4;
+int tmp5;
+do
+:: true ->
+	store(flag2,1);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag3);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp < 3 && tmp2 < 3 && tmp3 < 3 && tmp4 < 3 && tmp5 < 3 -> break;
+		:: tmp >= 3 || tmp2 >= 3 || tmp3 >= 3 || tmp4 >= 3 || tmp5 >= 3 -> skip;
+		fi;
+	od;
+	
+	store(flag2,3);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag3);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp == 1 || tmp2 == 1 || tmp3 == 1 || tmp4 == 1 || tmp5 == 1 ->
+			store(flag2,2);
+			do
+			:: true ->
+				tmp = loadval(flag0);
+				tmp2 = loadval(flag1);
+				tmp3 = loadval(flag3);
+				tmp4 = loadval(flag4);
+				tmp5 = loadval(flag5);
+				if
+				:: tmp == 4 || tmp2 == 4 || tmp3 == 4 || tmp4 == 4 || tmp5 == 4 -> break;
+				:: tmp != 4 && tmp2 != 4 && tmp3 != 4 && tmp4 != 4 && tmp5 != 4 -> skip;
+				fi;
+			od;
+			break;
+		:: tmp != 1 && tmp2 != 1 && tmp3 != 1 && tmp4 != 1 && tmp5 != 1 -> break;
+		fi;
+	od;
+	store(flag2,4);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag3);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp < 2 || tmp2 < 2 || tmp3 < 2 || tmp4 < 2 || tmp5 < 2 -> break;
+		:: tmp >= 2 && tmp2 >= 2 && tmp3 >= 2 && tmp4 >= 2 && tmp5 >= 2 -> skip;
+		fi;
+	od;
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag3);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: (2 > tmp || tmp > 3) && (2 > tmp2 || tmp2 > 3) && (2 > tmp3 || tmp3 > 3) && (2 > tmp4 || tmp4 > 3) && (2 > tmp5 || tmp5 > 3) -> break;
+		:: (2 <= tmp && tmp <= 3) || (2 <= tmp2 && tmp2 <= 3) || (2 <= tmp3 && tmp3 <= 3) || (2 <= tmp4 && tmp4 <= 3) || (2 <= tmp5 && tmp5 <= 3) -> skip;
+		fi;
+	od;
+
+	store(flag2,0);
+od;
+}
+
+proctype P3 {
+int tmp;
+int tmp2;
+int tmp3;
+int tmp4;
+int tmp5;
+do
+:: true ->
+	store(flag3,1);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag2);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp < 3 && tmp2 < 3 && tmp3 < 3 && tmp4 < 3 && tmp5 < 3 -> break;
+		:: tmp >= 3 || tmp2 >= 3 || tmp3 >= 3 || tmp4 >= 3 || tmp5 >= 3 -> skip;
+		fi;
+	od;
+	
+	store(flag3,3);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag2);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp == 1 || tmp2 == 1 || tmp3 == 1 || tmp4 == 1 || tmp5 == 1 ->
+			store(flag3,2);
+			do
+			:: true ->
+				tmp = loadval(flag0);
+				tmp2 = loadval(flag1);
+				tmp3 = loadval(flag2);
+				tmp4 = loadval(flag4);
+				tmp5 = loadval(flag5);
+				if
+				:: tmp == 4 || tmp2 == 4 || tmp3 == 4 || tmp4 == 4 || tmp5 == 4 -> break;
+				:: tmp != 4 && tmp2 != 4 && tmp3 != 4 && tmp4 != 4 && tmp5 != 4 -> skip;
+				fi;
+			od;
+			break;
+		:: tmp != 1 && tmp2 != 1 && tmp3 != 1 && tmp4 != 1 && tmp5 != 1 -> break;
+		fi;
+	od;
+	store(flag3,4);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag2);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp < 2 || tmp2 < 2 || tmp3 < 2 || tmp4 < 2 || tmp5 < 2 -> break;
+		:: tmp >= 2 && tmp2 >= 2 && tmp3 >= 2 && tmp4 >= 2 && tmp5 >= 2 -> skip;
+		fi;
+	od;
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag2);
+		tmp4 = loadval(flag4);
+		tmp5 = loadval(flag5);
+		if
+		:: (2 > tmp || tmp > 3) && (2 > tmp2 || tmp2 > 3) && (2 > tmp3 || tmp3 > 3) && (2 > tmp4 || tmp4 > 3) && (2 > tmp5 || tmp5 > 3) -> break;
+		:: (2 <= tmp && tmp <= 3) || (2 <= tmp2 && tmp2 <= 3) || (2 <= tmp3 && tmp3 <= 3) || (2 <= tmp4 && tmp4 <= 3) || (2 <= tmp5 && tmp5 <= 3) -> skip;
+		fi;
+	od;
+
+	store(flag3,0);
+od;
+}
+
+proctype P4 {
+int tmp;
+int tmp2;
+int tmp3;
+int tmp4;
+int tmp5;
+do
+:: true ->
+	store(flag4,1);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag2);
+		tmp4 = loadval(flag3);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp < 3 && tmp2 < 3 && tmp3 < 3 && tmp4 < 3 && tmp5 < 3 -> break;
+		:: tmp >= 3 || tmp2 >= 3 || tmp3 >= 3 || tmp4 >= 3 || tmp5 >= 3 -> skip;
+		fi;
+	od;
+	
+	store(flag4,3);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag2);
+		tmp4 = loadval(flag3);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp == 1 || tmp2 == 1 || tmp3 == 1 || tmp4 == 1 || tmp5 == 1 ->
+			store(flag4,2);
+			do
+			:: true ->
+				tmp = loadval(flag0);
+				tmp2 = loadval(flag1);
+				tmp3 = loadval(flag2);
+				tmp4 = loadval(flag3);
+				tmp5 = loadval(flag5);
+				if
+				:: tmp == 4 || tmp2 == 4 || tmp3 == 4 || tmp4 == 4 || tmp5 == 4 -> break;
+				:: tmp != 4 && tmp2 != 4 && tmp3 != 4 && tmp4 != 4 && tmp5 != 4 -> skip;
+				fi;
+			od;
+			break;
+		:: tmp != 1 && tmp2 != 1 && tmp3 != 1 && tmp4 != 1 && tmp5 != 1 -> break;
+		fi;
+	od;
+	store(flag4,4);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag2);
+		tmp4 = loadval(flag3);
+		tmp5 = loadval(flag5);
+		if
+		:: tmp < 2 || tmp2 < 2 || tmp3 < 2 || tmp4 < 2 || tmp5 < 2 -> break;
+		:: tmp >= 2 && tmp2 >= 2 && tmp3 >= 2 && tmp4 >= 2 && tmp5 >= 2 -> skip;
+		fi;
+	od;
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag2);
+		tmp4 = loadval(flag3);
+		tmp5 = loadval(flag5);
+		if
+		:: (2 > tmp || tmp > 3) && (2 > tmp2 || tmp2 > 3) && (2 > tmp3 || tmp3 > 3) && (2 > tmp4 || tmp4 > 3) && (2 > tmp5 || tmp5 > 3) -> break;
+		:: (2 <= tmp && tmp <= 3) || (2 <= tmp2 && tmp2 <= 3) || (2 <= tmp3 && tmp3 <= 3) || (2 <= tmp4 && tmp4 <= 3) || (2 <= tmp5 && tmp5 <= 3) -> skip;
+		fi;
+	od;
+
+	store(flag4,0);
+od;
+}
+
+proctype P5 {
+int tmp;
+int tmp2;
+int tmp3;
+int tmp4;
+int tmp5;
+do
+:: true ->
+	store(flag5,1);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag2);
+		tmp4 = loadval(flag3);
+		tmp5 = loadval(flag4);
+		if
+		:: tmp < 3 && tmp2 < 3 && tmp3 < 3 && tmp4 < 3 && tmp5 < 3 -> break;
+		:: tmp >= 3 || tmp2 >= 3 || tmp3 >= 3 || tmp4 >= 3 || tmp5 >= 3 -> skip;
+		fi;
+	od;
+	
+	store(flag5,3);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag2);
+		tmp4 = loadval(flag3);
+		tmp5 = loadval(flag4);
+		if
+		:: tmp == 1 || tmp2 == 1 || tmp3 == 1 || tmp4 == 1 || tmp5 == 1 ->
+			store(flag5,2);
+			do
+			:: true ->
+				tmp = loadval(flag0);
+				tmp2 = loadval(flag1);
+				tmp3 = loadval(flag2);
+				tmp4 = loadval(flag3);
+				tmp5 = loadval(flag4);
+				if
+				:: tmp == 4 || tmp2 == 4 || tmp3 == 4 || tmp4 == 4 || tmp5 == 4 -> break;
+				:: tmp != 4 && tmp2 != 4 && tmp3 != 4 && tmp4 != 4 && tmp5 != 4 -> skip;
+				fi;
+			od;
+			break;
+		:: tmp != 1 && tmp2 != 1 && tmp3 != 1 && tmp4 != 1 && tmp5 != 1 -> break;
+		fi;
+	od;
+	store(flag5,4);
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag2);
+		tmp4 = loadval(flag3);
+		tmp5 = loadval(flag4);
+		if
+		:: tmp < 2 || tmp2 < 2 || tmp3 < 2 || tmp4 < 2 || tmp5 < 2 -> break;
+		:: tmp >= 2 && tmp2 >= 2 && tmp3 >= 2 && tmp4 >= 2 && tmp5 >= 2 -> skip;
+		fi;
+	od;
+
+	do
+	:: true ->
+		tmp = loadval(flag0);
+		tmp2 = loadval(flag1);
+		tmp3 = loadval(flag2);
+		tmp4 = loadval(flag3);
+		tmp5 = loadval(flag4);
+		if
+		:: (2 > tmp || tmp > 3) && (2 > tmp2 || tmp2 > 3) && (2 > tmp3 || tmp3 > 3) && (2 > tmp4 || tmp4 > 3) && (2 > tmp5 || tmp5 > 3) -> break;
+		:: (2 <= tmp && tmp <= 3) || (2 <= tmp2 && tmp2 <= 3) || (2 <= tmp3 && tmp3 <= 3) || (2 <= tmp4 && tmp4 <= 3) || (2 <= tmp5 && tmp5 <= 3) -> skip;
+		fi;
+	od;
+
+	store(flag5,0);
+od;
+}

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;Slco2nqctxt.xtext&apos; to &apos;org.xtext.slco2nqctxt/src/org.xtext&apos;&#x0D;&#x0A;- Original project: &apos;z.org.xtext.slco2nqctxt&apos;&#x0D;&#x0A;- Destination element: &apos;org.xtext.slco2nqctxt/src/org.xtext&apos;&#x0D;&#x0A;- Original element: &apos;Slco2nqctxt.xtext&apos;" description="Copy file" destination="=org.xtext.slco2nqctxt/src&lt;org.xtext" element1="src/org/xtext/Slco2nqctxt.xtext" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1363255966062" units="0" version="1.0"/>
+</session>

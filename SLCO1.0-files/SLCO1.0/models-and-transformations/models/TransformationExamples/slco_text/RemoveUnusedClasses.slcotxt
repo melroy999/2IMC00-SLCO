@@ -1,0 +1,10 @@
+model RemoveUnusedClasses {
+  classes
+    A {
+    }
+
+  objects
+    a: A
+
+  channels
+}

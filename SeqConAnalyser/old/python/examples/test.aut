@@ -1,0 +1,4 @@
+des(0,5,4)
+(0,"rw_p(Com, [], [var_x(0)])",1)
+(0,"rw_p(SMC, [var_x(1)], [var_x(0)])",0)
+(0,"rw_p(SMC, [var_x(0)], [var_x(0), var_x(1)])",2)

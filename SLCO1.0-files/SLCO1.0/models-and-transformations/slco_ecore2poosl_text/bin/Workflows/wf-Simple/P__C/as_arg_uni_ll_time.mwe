@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<workflow>
+
+  <property name='inputname' value='Simple_as_arg_uni_ll_time' />
+  <property name='inputfile' value='${inputname}.slco' />
+  <property name='poosloutputfile' value='${inputname}.poosl' />
+
+  <property name='sourcedir' value='../models/Simple/P__C/nqc_slco_ecore'/>
+  <property name='ecore_targetdir' value='../models/Simple/P__C/poosl_ecore'/>
+  <property name='text_targetdir' value='../models/Simple/P__C/poosl_text'/>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${sourcedir}/${inputfile}"/>
+    <outputSlot value="SLCOModel"/>
+  </component>
+
+  <component id="slco2poosl" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="poosl" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="poosl.PooslPackage"/>
+    </metaModel>
+    <invoke value="Transformations::Slco2Poosl::createModel(SLCOModel)"/>
+    <outputSlot value="PooslModel"/>
+  </component>
+
+  <component class='org.eclipse.xpand2.Generator'>
+    <metaModel id="poosl" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="poosl.PooslPackage"/>
+    </metaModel>
+    <expand value='Transformations::PooslModel2PooslCode::generateModel FOR PooslModel'/>
+    <genPath value='${text_targetdir}'/>
+  </component>
+  
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${ecore_targetdir}/${poosloutputfile}"/>
+    <inputSlot value="PooslModel"/>
+  </component>
+  
+</workflow>

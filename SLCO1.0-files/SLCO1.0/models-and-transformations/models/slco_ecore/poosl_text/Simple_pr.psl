@@ -1,0 +1,62 @@
+/*=================*/
+/*-----------------*/
+/* Process Classes */
+/*-----------------*/
+/*=================*/
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Producer()
+instance variables
+
+communication channels
+  C
+message interface
+  C!Bericht()
+initial method call
+  Producer_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Producer_State()()
+    |  |
+    C!Bericht();
+    Producer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Producer_initial()()
+    |  |
+    Producer_State()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Consumer()
+instance variables
+
+communication channels
+  P
+message interface
+  P?Bericht()
+initial method call
+  Consumer_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Consumer_State()()
+    |  |
+    P?Bericht();
+    Consumer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Consumer_initial()()
+    |  |
+    Consumer_State()()
+  .
+

@@ -1,0 +1,6 @@
+2017-10-19 17:31:16 - INFO: Starting Race Condition Explorer
+2017-10-19 17:31:16 - INFO: Input LTS  : examples/Test.aut
+2017-10-19 17:31:16 - INFO: Output File: examples/Test.rc
+2017-10-19 17:31:16 - INFO: cycle_sets: set()
+2017-10-19 17:31:16 - INFO: locks: {frozenset({'p.var_x(0)'})}
+2017-10-19 17:31:16 - INFO: Finished, output written to examples/Test.rc

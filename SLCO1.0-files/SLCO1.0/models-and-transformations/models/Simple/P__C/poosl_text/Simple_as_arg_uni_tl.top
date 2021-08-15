@@ -1,0 +1,130 @@
+drawing
+system
+
+instances
+
+process of class 'Producer_as' in 0@0 to 50@50 name 'P_as' at 5@5
+connectors
+  'C_in' at 0@0 name at 0@0
+  'C_out' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'Consumer_as' in 0@0 to 50@50 name 'C_as' at 5@5
+connectors
+  'P_in' at 0@0 name at 0@0
+  'P_out' at 0@0 name at 0@0
+scenarios
+'normal'
+
+channels
+
+name 'Producer_To_Consumer_as_1_to_2' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'C_out' of instance 'P_as' to socket 'P_in' of instance 'C_as'
+
+scenarios
+  'normal'
+
+name 'Producer_To_Consumer_as_2_to_1' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'P_out' of instance 'C_as' to socket 'C_in' of instance 'P_as'
+
+scenarios
+  'normal'
+
+scenarios
+'all', 'normal'
+
+poosl specification
+'
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Producer_as()
+instance variables
+
+communication channels
+  C_in,
+  C_out
+message interface
+  C_in?Signal(String);
+  C_out!Signal(Object)
+initial method call
+  Producer_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Producer_State()()
+    |   var_1: String |
+    C_out!Signal("Send_Bericht");
+    C_in?Signal(var_1|(var_1="Acknowledge_Bericht"));
+    Producer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Producer_as_initial()()
+    |  |
+    Producer_State()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Consumer_as()
+instance variables
+
+communication channels
+  P_in,
+  P_out
+message interface
+  P_in?Signal(String);
+  P_out!Signal(Object)
+initial method call
+  Consumer_as_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Consumer_State()()
+    |   var_4: String |
+    P_in?Signal(var_4|(var_4="Send_Bericht"));
+    P_out!Signal("Acknowledge_Bericht");
+    Consumer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Consumer_as_initial()()
+    |  |
+    Consumer_State()()
+  .
+
+
+cluster class aClass()
+
+communication channels
+
+message interface
+
+behaviour specification
+  (
+   P_as: Producer_as[
+     Producer_To_Consumer_as_1_to_2/C_out,
+     Producer_To_Consumer_as_2_to_1/C_in
+   ]
+  ||
+   C_as: Consumer_as[
+     Producer_To_Consumer_as_2_to_1/P_out,
+     Producer_To_Consumer_as_1_to_2/P_in
+   ]
+  )
+  \
+  {Producer_To_Consumer_as_1_to_2, Producer_To_Consumer_as_2_to_1}
+'

@@ -1,0 +1,21 @@
+
+digraph ExclusiveChannels_ex {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_5
+ [label="{A||}"]
+A_5_A1 [label="{A1|Integer n = 0|}", style=filled, fillcolor=gray95]
+A_5 -> A_5_A1
+A_5_A2 [label="{A2||}", style=filled, fillcolor=gray95]
+A_5 -> A_5_A2
+
+B_3
+ [label="{B||}"]
+B_3_B1 [label="{B1|Integer n = 0|}", style=filled, fillcolor=gray95]
+B_3 -> B_3_B1
+B_3_B2 [label="{B2||}", style=filled, fillcolor=gray95]
+B_3 -> B_3_B2
+
+
+}

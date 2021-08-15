@@ -1,0 +1,333 @@
+model dve_lamport_7 {
+classes
+	GlobalClass {
+		variables
+			Integer[5] b
+			Integer x := 255
+			Integer y := 255
+		state machines
+			P_0 {
+				variables
+					Integer j
+				initial NCS
+				states  CS q1 q2 q22 p q3 q4 q5 e1
+				transitions
+					from NCS to q1 {
+						b[0] := 1
+					}
+
+					from q1 to q2 {
+						x := 0
+					}
+
+					from q2 to q22 {
+						y <> 255; b[0] := 0
+					}
+
+					from q22 to NCS {
+						y = 255
+					}
+
+					from q2 to p {
+						y = 255
+					}
+
+					from p to q3 {
+						y := 0
+					}
+
+					from q3 to CS {
+						x = 0
+					}
+
+					from q3 to q4 {
+						x <> 0; b[0] := 0;j := 0
+					}
+
+					from q4 to q4 {
+						j<5 and b[j]=0; j := j+1
+					}
+
+					from q4 to q5 {
+						j=5
+					}
+
+					from q5 to CS {
+						y = 0
+					}
+
+					from q5 to NCS {
+						y = 255
+					}
+
+					from CS to e1 {
+						y := 255
+					}
+
+					from e1 to NCS {
+						b[0] := 0
+					}
+
+				}
+	
+			P_1 {
+				variables
+					Integer j
+				initial NCS
+				states  CS q1 q2 q22 p q3 q4 q5 e1
+				transitions
+					from NCS to q1 {
+						b[1] := 1
+					}
+
+					from q1 to q2 {
+						x := 1
+					}
+
+					from q2 to q22 {
+						y <> 255; b[1] := 0
+					}
+
+					from q22 to NCS {
+						y = 255
+					}
+
+					from q2 to p {
+						y = 255
+					}
+
+					from p to q3 {
+						y := 1
+					}
+
+					from q3 to CS {
+						x = 1
+					}
+
+					from q3 to q4 {
+						x <> 1; b[1] := 0;j := 0
+					}
+
+					from q4 to q4 {
+						j<5 and b[j]=0; j := j+1
+					}
+
+					from q4 to q5 {
+						j=5
+					}
+
+					from q5 to CS {
+						y = 1
+					}
+
+					from q5 to NCS {
+						y = 255
+					}
+
+					from CS to e1 {
+						y := 255
+					}
+
+					from e1 to NCS {
+						b[1] := 0
+					}
+
+				}
+	
+			P_2 {
+				variables
+					Integer j
+				initial NCS
+				states  CS q1 q2 q22 p q3 q4 q5 e1
+				transitions
+					from NCS to q1 {
+						b[2] := 1
+					}
+
+					from q1 to q2 {
+						x := 2
+					}
+
+					from q2 to q22 {
+						y <> 255; b[2] := 0
+					}
+
+					from q22 to NCS {
+						y = 255
+					}
+
+					from q2 to p {
+						y = 255
+					}
+
+					from p to q3 {
+						y := 2
+					}
+
+					from q3 to CS {
+						x = 2
+					}
+
+					from q3 to q4 {
+						x <> 2; b[2] := 0;j := 0
+					}
+
+					from q4 to q4 {
+						j<5 and b[j]=0; j := j+1
+					}
+
+					from q4 to q5 {
+						j=5
+					}
+
+					from q5 to CS {
+						y = 2
+					}
+
+					from q5 to NCS {
+						y = 255
+					}
+
+					from CS to e1 {
+						y := 255
+					}
+
+					from e1 to NCS {
+						b[2] := 0
+					}
+
+				}
+	
+			P_3 {
+				variables
+					Integer j
+				initial NCS
+				states  CS q1 q2 q22 p q3 q4 q5 e1
+				transitions
+					from NCS to q1 {
+						b[3] := 1
+					}
+
+					from q1 to q2 {
+						x := 3
+					}
+
+					from q2 to q22 {
+						y <> 255; b[3] := 0
+					}
+
+					from q22 to NCS {
+						y = 255
+					}
+
+					from q2 to p {
+						y = 255
+					}
+
+					from p to q3 {
+						y := 3
+					}
+
+					from q3 to CS {
+						x = 3
+					}
+
+					from q3 to q4 {
+						x <> 3; b[3] := 0;j := 0
+					}
+
+					from q4 to q4 {
+						j<5 and b[j]=0; j := j+1
+					}
+
+					from q4 to q5 {
+						j=5
+					}
+
+					from q5 to CS {
+						y = 3
+					}
+
+					from q5 to NCS {
+						y = 255
+					}
+
+					from CS to e1 {
+						y := 255
+					}
+
+					from e1 to NCS {
+						b[3] := 0
+					}
+
+				}
+	
+			P_4 {
+				variables
+					Integer j
+				initial NCS
+				states  CS q1 q2 q22 p q3 q4 q5 e1
+				transitions
+					from NCS to q1 {
+						b[4] := 1
+					}
+
+					from q1 to q2 {
+						x := 4
+					}
+
+					from q2 to q22 {
+						y <> 255; b[4] := 0
+					}
+
+					from q22 to NCS {
+						y = 255
+					}
+
+					from q2 to p {
+						y = 255
+					}
+
+					from p to q3 {
+						y := 4
+					}
+
+					from q3 to CS {
+						x = 4
+					}
+
+					from q3 to q4 {
+						x <> 4; b[4] := 0;j := 0
+					}
+
+					from q4 to q4 {
+						j<5 and b[j]=0; j := j+1
+					}
+
+					from q4 to q5 {
+						j=5
+					}
+
+					from q5 to CS {
+						y = 4
+					}
+
+					from q5 to NCS {
+						y = 255
+					}
+
+					from CS to e1 {
+						y := 255
+					}
+
+					from e1 to NCS {
+						b[4] := 0
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

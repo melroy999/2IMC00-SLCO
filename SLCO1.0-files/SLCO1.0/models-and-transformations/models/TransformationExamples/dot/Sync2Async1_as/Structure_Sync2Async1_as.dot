@@ -1,0 +1,17 @@
+
+digraph Sync2Async1_as {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_18
+ [label="{A||}"]
+A_18_A [label="{A||}", style=filled, fillcolor=gray95]
+A_18 -> A_18_A
+
+B_15
+ [label="{B||}"]
+B_15_B [label="{B||}", style=filled, fillcolor=gray95]
+B_15 -> B_15_B
+
+
+}

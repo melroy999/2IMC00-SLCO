@@ -1,0 +1,34 @@
+model PaperExample1 {
+  classes
+    P {
+      variables
+        Integer m = 0
+      state machines
+		Rec2 {
+		  initial
+		    Rec2a
+		  transitions
+		  	Rec2a2Rec2a from Rec2a to Rec2a {
+              m := 1	  	
+            }
+		}
+		SendRec {
+		  initial
+            SendRec0
+		  transitions
+		    SendRec02SendRec0 from SendRec0 to SendRec0 {
+		  	   m := 2	
+		    }
+        }
+        Send {
+		  initial
+            Send0
+		  transitions
+		    Send02Send0 from Send0 to Send0 {
+		  	   m := 3	
+		    }
+        }
+    }
+	objects
+	  p: P 
+}

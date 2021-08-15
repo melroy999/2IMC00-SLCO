@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 1 elements(s) to &apos;DoubleDebug-plain&apos;&#x0D;&#x0A;- Original project: &apos;slco2dot&apos;&#x0D;&#x0A;- Destination element: &apos;DoubleDebug-plain&apos;&#x0D;&#x0A;- Original element: &apos;plain-as-arg-ll-uni-int.mwe&apos;" description="Copy file" element1="src/Workflows/DoubleDebug-plain/plain-as-arg-ll-uni-int.mwe" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1265707151090" target="/slco2dot/src/Workflows/DoubleDebug-plain" units="0" version="1.0"/>
+</session>

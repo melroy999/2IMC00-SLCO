@@ -1,0 +1,58 @@
+
+digraph LegoCase_as_arg {
+  graph [rankdir = "LR"];
+  
+  subgraph cluster_Right_as{
+    label = "Right_as: Single_as";
+    node [shape = box];
+    Right_as_Middle[label = Middle]
+    Right_as_Sensor[label = Sensor]
+    Right_as_Motor[label = Motor]
+  }
+
+  subgraph cluster_Left_as{
+    label = "Left_as: Single_as";
+    node [shape = box];
+    Left_as_Middle[label = Middle]
+    Left_as_Sensor[label = Sensor]
+    Left_as_Motor[label = Motor]
+  }
+
+  subgraph cluster_Middle_as{
+    label = "Middle_as: Middle_as";
+    node [shape = box];
+    Middle_as_Left[label = Left]
+    Middle_as_Right[label = Right]
+    Middle_as_Sensor[label = Sensor]
+    Middle_as_Motor[label = Motor]
+  }
+
+  subgraph cluster_Environment{
+    label = "Environment: Environment";
+    node [shape = box];
+    Environment_LeftSensor[label = LeftSensor]
+    Environment_LeftMotor[label = LeftMotor]
+    Environment_MiddleSensor[label = MiddleSensor]
+    Environment_MiddleMotor[label = MiddleMotor]
+    Environment_RightSensor[label = RightSensor]
+    Environment_RightMotor[label = RightMotor]
+  }
+
+  
+ Environment_LeftSensor -> Left_as_Sensor [label = "ELeftSensor_to_LSensor_as()"];
+
+ Left_as_Motor -> Environment_LeftMotor [label = "LMotor_to_ELeftMotor_as()"];
+
+ Environment_RightSensor -> Right_as_Sensor [label = "ERightSensor_to_RSensor_as()"];
+
+ Right_as_Motor -> Environment_RightMotor [label = "RMotor_to_ERightMotor_as()"];
+
+ Environment_MiddleSensor -> Middle_as_Sensor [label = "EMiddleSensor_to_MSensor_as()"];
+
+ Middle_as_Motor -> Environment_MiddleMotor [label = "MMotor_to_EMiddleMotor_as()"];
+
+ Right_as_Middle -> Middle_as_Right [label = "RMiddle_to_MRight_as(String)", dir = both, style=dashed];
+
+ Left_as_Middle -> Middle_as_Left [label = "LMiddle_to_MLeft_as(String)", dir = both, style=dashed];
+
+}

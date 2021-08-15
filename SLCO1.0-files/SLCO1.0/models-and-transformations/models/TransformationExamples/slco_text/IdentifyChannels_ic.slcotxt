@@ -1,0 +1,58 @@
+model IdentifyChannels_ic {
+  classes
+    A {
+      ports
+        Out1
+        Out2
+
+      state machines
+        A {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal1 from Initial to Final {
+              send S_0() to Out1
+            }
+
+            InitialToFinal2 from Initial to Final {
+              send S_1() to Out2
+            }
+        }
+    }
+
+    B {
+      ports
+        In1
+        In2
+
+      state machines
+        B {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal1 from Initial to Final {
+              receive S_0() from In1
+            }
+
+            InitialToFinal2 from Initial to Final {
+              receive S_1() from In2
+            }
+        }
+    }
+
+  objects
+    a: A
+    b: B
+
+  channels
+    C1() sync from a.Out1 to b.In1
+    C2() sync from a.Out2 to b.In2
+}

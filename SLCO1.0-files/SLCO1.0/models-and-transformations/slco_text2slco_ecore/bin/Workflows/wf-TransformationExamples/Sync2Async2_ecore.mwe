@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<workflow>
+
+  <property name='inputname' value='Sync2Async2' />
+  <property name='text_inputfile' value='${inputname}.slcotxt' />
+  <property name='ecore_outputfile' value='${inputname}.slco' />
+
+  <property name='sourcedir' value='../models/TransformationExamples/slco_text'/>
+  <property name='targetdir' value='../models/TransformationExamples/slco_ecore'/>
+
+  <component class="org.eclipse.xtext.mwe.UriBasedReader">
+    <uri value="${sourcedir}/${text_inputfile}"/>
+    <register class="org.xtext.TextualSlcoStandaloneSetup"/>
+    <load>
+      <firstOnly value="true"/>
+      <slot value="TextualModel"/>
+      <type value="Model"/>
+    </load>
+  </component>
+
+  <component id="cam" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="texutal" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="org.xtext.textualSlco.TextualSlcoPackage"/>
+    </metaModel>
+    <invoke value="Transformations::Convert::convert(TextualModel)"/>
+    <outputSlot value="EcoreModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${ecore_outputfile}"/>
+    <inputSlot value="EcoreModel"/>
+  </component>
+</workflow>

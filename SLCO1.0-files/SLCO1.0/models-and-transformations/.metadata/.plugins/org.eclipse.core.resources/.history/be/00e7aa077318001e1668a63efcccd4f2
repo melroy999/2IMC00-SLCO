@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Package xmi:version="2.1" xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://www.eclipse.org/uml2/2.1.0/UML" xmi:id="_bXXtALoFEdySW4dgMK8TCg" name="stats">
+  <packagedElement xmi:type="uml:Class" xmi:id="_geIygLoFEdySW4dgMK8TCg" name="A">
+    <ownedAttribute xmi:id="_ruRqALoFEdySW4dgMK8TCg" name="b" type="_ixDQULoFEdySW4dgMK8TCg"/>
+    <ownedBehavior xmi:type="uml:Activity" xmi:id="_wsN4wLoHEdySW4dgMK8TCg" name="m" specification="_hAf4sLoFEdySW4dgMK8TCg">
+      <ownedParameter xmi:id="__ky2kLoHEdySW4dgMK8TCg" name="rpar" type="_ixDQULoFEdySW4dgMK8TCg" direction="return"/>
+      <ownedParameter xmi:id="__ky2kLoZZZZSW4dgMK8TCg" name="ipar" type="_ixDQULoFEdySW4dgMK8TCg"/>
+      <ownedParameter xmi:id="__ky2kLoYYYSW4dgMK8TCg" name="opar" type="_ixDQULoFEdySW4dgMK8TCg" direction="out"/>
+      <variable xmi:id="Vid_0" name="v" type="_ixDQULoFEdySW4dgMK8TCg"/>
+      <node xmi:type="uml:InitialNode" xmi:id="INid_145" outgoing="CFid_147"/>
+      <node xmi:type="uml:ReadVariableAction" xmi:id="RVAid_4" variable="Vid_0">
+        <result xmi:id="OPid_5" outgoing="OFid_10">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_6"/>
+        </result>
+      </node>
+      <node xmi:type="uml:AddVariableValueAction" xmi:id="AVVAid_7" outgoing="CFid_142" incoming="CFid_147" variable="Vid_0">
+        <value xmi:id="IPid_8" incoming="OFid_10">
+          <upperBound xmi:type="uml:OpaqueExpression" xmi:id="OEid_9"/>
+        </value>
+      </node>
+      <node xmi:type="uml:CreateObjectAction" xmi:id="COAid_16" classifier="_ixDQULoFEdySW4dgMK8TCg">
+        <result xmi:id="OPid_17" outgoing="OFid_22">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_18"/>
+        </result>
+      </node>
+      <node xmi:type="uml:AddVariableValueAction" xmi:id="AVVAid_19" outgoing="CFid_139" incoming="CFid_142" variable="Vid_0">
+        <value xmi:id="IPid_20" incoming="OFid_22">
+          <upperBound xmi:type="uml:OpaqueExpression" xmi:id="OEid_21"/>
+        </value>
+      </node>
+      <node xmi:type="uml:ReadSelfAction" xmi:id="RSAid_28">
+        <result xmi:id="OPid_29" outgoing="OFid_34">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_30"/>
+        </result>
+      </node>
+      <node xmi:type="uml:AddVariableValueAction" xmi:id="AVVAid_31" outgoing="CFid_136" incoming="CFid_139" variable="Vid_0">
+        <value xmi:id="IPid_32" incoming="OFid_34">
+          <upperBound xmi:type="uml:OpaqueExpression" xmi:id="OEid_33"/>
+        </value>
+      </node>
+      <node xmi:type="uml:ReadVariableAction" xmi:id="RVAid_37" outgoing="CFid_133" incoming="CFid_136" variable="Vid_0">
+        <result xmi:id="OPid_38" outgoing="OFid_41">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_39"/>
+        </result>
+      </node>
+      <node xmi:type="uml:ActivityParameterNode" xmi:id="APNid_40" incoming="OFid_41" parameter="__ky2kLoHEdySW4dgMK8TCg">
+        <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_44"/>
+      </node>
+      <node xmi:type="uml:ReadSelfAction" xmi:id="RSAid_48">
+        <result xmi:id="OPid_49" outgoing="OFid_51">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_50"/>
+        </result>
+      </node>
+      <node xmi:type="uml:CallOperationAction" xmi:id="COAid_45" outgoing="CFid_130" incoming="CFid_133" operation="_hAf4sLoFEdySW4dgMK8TCg">
+        <target xmi:id="IPid_46" incoming="OFid_51">
+          <upperBound xmi:type="uml:OpaqueExpression" xmi:id="OEid_47"/>
+        </target>
+      </node>
+      <node xmi:type="uml:ReadSelfAction" xmi:id="RSAid_94">
+        <result xmi:id="OPid_95" outgoing="OFid_97">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_96"/>
+        </result>
+      </node>
+      <node xmi:type="uml:CallOperationAction" xmi:id="COAid_89" operation="_hAf4sLoFEdySW4dgMK8TCg">
+        <result xmi:id="OPid_92" outgoing="OFid_107">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_93"/>
+        </result>
+        <target xmi:id="IPid_90" incoming="OFid_97">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_91"/>
+        </target>
+      </node>
+      <node xmi:type="uml:ReadVariableAction" xmi:id="RVAid_100" variable="Vid_0">
+        <result xmi:id="OPid_101" outgoing="OFid_110">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_102"/>
+        </result>
+      </node>
+      <node xmi:type="uml:ReadSelfAction" xmi:id="RSAid_118">
+        <result xmi:id="OPid_119" outgoing="OFid_121">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_120"/>
+        </result>
+      </node>
+      <node xmi:type="uml:CallOperationAction" xmi:id="COAid_113" operation="_hAf4sLoFEdySW4dgMK8TCg">
+        <argument xmi:id="IPid_103" incoming="OFid_107">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_104"/>
+        </argument>
+        <argument xmi:id="IPid_105" incoming="OFid_110">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_106"/>
+        </argument>
+        <result xmi:id="OPid_116" outgoing="OFid_127">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_117"/>
+        </result>
+        <target xmi:id="IPid_114" incoming="OFid_121">
+          <upperBound xmi:type="uml:LiteralNull" xmi:id="LNid_115"/>
+        </target>
+      </node>
+      <node xmi:type="uml:AddVariableValueAction" xmi:id="AVVAid_124" outgoing="CFid_150" incoming="CFid_130" variable="Vid_0">
+        <value xmi:id="IPid_125" incoming="OFid_127">
+          <upperBound xmi:type="uml:OpaqueExpression" xmi:id="OEid_126"/>
+        </value>
+      </node>
+      <node xmi:type="uml:ActivityFinalNode" xmi:id="AFNid_146" incoming="CFid_150"/>
+      <edge xmi:type="uml:ControlFlow" xmi:id="CFid_147" source="INid_145" target="AVVAid_7">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_148"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_149"/>
+      </edge>
+      <edge xmi:type="uml:ObjectFlow" xmi:id="OFid_10" source="OPid_5" target="IPid_8">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_11"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_12"/>
+      </edge>
+      <edge xmi:type="uml:ControlFlow" xmi:id="CFid_142" source="AVVAid_7" target="AVVAid_19">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_143"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_144"/>
+      </edge>
+      <edge xmi:type="uml:ObjectFlow" xmi:id="OFid_22" source="OPid_17" target="IPid_20">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_23"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_24"/>
+      </edge>
+      <edge xmi:type="uml:ControlFlow" xmi:id="CFid_139" source="AVVAid_19" target="AVVAid_31">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_140"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_141"/>
+      </edge>
+      <edge xmi:type="uml:ObjectFlow" xmi:id="OFid_34" source="OPid_29" target="IPid_32">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_35"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_36"/>
+      </edge>
+      <edge xmi:type="uml:ControlFlow" xmi:id="CFid_136" source="AVVAid_31" target="RVAid_37">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_137"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_138"/>
+      </edge>
+      <edge xmi:type="uml:ObjectFlow" xmi:id="OFid_41" source="OPid_38" target="APNid_40">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_42"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_43"/>
+      </edge>
+      <edge xmi:type="uml:ControlFlow" xmi:id="CFid_133" source="RVAid_37" target="COAid_45">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_134"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_135"/>
+      </edge>
+      <edge xmi:type="uml:ObjectFlow" xmi:id="OFid_51" source="OPid_49" target="IPid_46">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_52"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_53"/>
+      </edge>
+      <edge xmi:type="uml:ControlFlow" xmi:id="CFid_130" source="COAid_45" target="AVVAid_124">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_131"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_132"/>
+      </edge>
+      <edge xmi:type="uml:ObjectFlow" xmi:id="OFid_97" source="OPid_95" target="IPid_90">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_98"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_99"/>
+      </edge>
+      <edge xmi:type="uml:ObjectFlow" xmi:id="OFid_121" source="OPid_119" target="IPid_114">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_122"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_123"/>
+      </edge>
+      <edge xmi:type="uml:ObjectFlow" xmi:id="OFid_107" source="OPid_92" target="IPid_103">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_108"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_109"/>
+      </edge>
+      <edge xmi:type="uml:ObjectFlow" xmi:id="OFid_110" source="OPid_101" target="IPid_105">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_111"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_112"/>
+      </edge>
+      <edge xmi:type="uml:ObjectFlow" xmi:id="OFid_127" source="OPid_116" target="IPid_125">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_128"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_129"/>
+      </edge>
+      <edge xmi:type="uml:ControlFlow" xmi:id="CFid_150" source="AVVAid_124" target="AFNid_146">
+        <guard xmi:type="uml:LiteralNull" xmi:id="LNid_151"/>
+        <weight xmi:type="uml:LiteralNull" xmi:id="LNid_152"/>
+      </edge>
+    </ownedBehavior>
+    <ownedOperation xmi:id="_hAf4sLoFEdySW4dgMK8TCg" name="n" method="_wsN4wLoHEdySW4dgMK8TCg">
+      <ownedParameter xmi:id="_lMlMsLoHEdySW4dgMK8TCg" type="_ixDQULoFEdySW4dgMK8TCg" direction="return"/>
+      <ownedParameter xmi:id="_lMlMsLoZZZZSW4dgMK8TCg" type="_ixDQULoFEdySW4dgMK8TCg"/>
+      <ownedParameter xmi:id="_lMlMsLoYYSW4dgMK8TCg" type="_ixDQULoFEdySW4dgMK8TCg" direction="out"/>
+    </ownedOperation>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_ixDQULoFEdySW4dgMK8TCg" name="B">
+    <ownedOperation xmi:id="_llREYLoFEdySW4dgMK8TCg" name="n"/>
+  </packagedElement>
+</uml:Package>

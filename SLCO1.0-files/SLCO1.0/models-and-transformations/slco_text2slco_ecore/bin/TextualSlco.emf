@@ -1,0 +1,179 @@
+@namespace(uri="http://www.xtext.org/TextualSlco", prefix="textualSlco")
+package textualSlco;
+
+class Model {
+  attr String name;
+  val Class[*] classes;
+  val Object[*] objects;
+  val Channel[*] channels;
+}
+
+class Class {
+  attr String name;
+  val Variable[*] variables;
+  val Port[*] ports;
+  val StateMachine[*] stateMachines;
+}
+
+class StateMachine {
+  attr String name;
+  val Variable[*] variables;
+  val Vertex[*] vertices;
+  val Transition[*] transitions;
+}
+
+class Vertex {
+  attr String name;
+}
+
+class Initial extends Vertex {
+}
+
+class State extends Vertex {
+}
+
+class Final extends Vertex {
+}
+
+class VertexReference {
+  attr String name;
+}
+
+class Transition {
+  attr String name;
+  val VertexReference source;
+  val VertexReference target;
+  val Statement[*] statements;
+}
+
+class Statement {
+}
+
+class Delay extends Statement {
+  attr int value;
+}
+
+class PortReference {
+  attr String name;
+}
+
+class SignalReception extends Statement {
+  attr String signalName;
+  val SignalArgument[*] arguments;
+  val Expression condition;
+  val PortReference port;
+}
+
+class SignalArgument {
+}
+
+class SignalArgumentVariable extends SignalArgument {
+  val VariableReference variable;
+}
+
+class SignalArgumentExpression extends SignalArgument {
+  val Expression expression;
+}
+
+class Assignment extends Statement {
+  val VariableReference variable;
+  val Expression expression;
+}
+
+class SendSignal extends Statement {
+  attr String signalName;
+  val Expression[*] arguments;
+  val PortReference port;
+}
+
+class Object {
+  attr String name;
+  ref Class ~class;
+}
+
+class Port {
+  attr String name;
+}
+
+class Channel {
+  attr String name;
+  val ArgumentType[*] argumentTypes;
+  attr ChannelType channelType;
+}
+
+class UnidirectionalChannel extends Channel {
+  ref Object sourceObject;
+  val PortReference sourcePort;
+  ref Object targetObject;
+  val PortReference targetPort;
+}
+
+class BidirectionalChannel extends Channel {
+  ref Object object1;
+  val PortReference port1;
+  ref Object object2;
+  val PortReference port2;
+}
+
+class ArgumentType {
+  attr PrimitiveType type;
+}
+
+class Variable {
+  attr PrimitiveType type;
+  attr String name;
+  val Expression intialValue;
+}
+
+enum PrimitiveType {
+  Integer = 0;
+  String = 1;
+  Boolean = 2;
+}
+
+enum ChannelType {
+  Synchronous = 0;
+  AsynchronousLossless = 1;
+  AsynchronousLossy = 2;
+}
+
+class Expression extends Statement {
+}
+
+enum Operator {
+  atLeast = 0;
+  atMost = 1;
+  add = 2;
+  and = 3;
+  or = 4;
+  equals = 5;
+  differs = 6;
+  subtract = 7;
+}
+
+class BooleanConstantExpression extends Expression {
+  attr String value;
+}
+
+class IntegerConstantExpression extends Expression {
+  attr int value;
+}
+
+class StringConstantExpression extends Expression {
+  attr String value;
+}
+
+class VariableReference {
+  attr String name;
+}
+
+class VariableExpression extends Expression {
+  val VariableReference variable;
+}
+
+class BinaryOperatorExpression extends Expression {
+  val Expression operand1;
+  attr Operator operator;
+  val Expression operand2;
+}
+

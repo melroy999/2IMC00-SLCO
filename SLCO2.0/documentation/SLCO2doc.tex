@@ -1,0 +1,346 @@
+\documentclass[parskip]{scrartcl}
+%\usepackage[margin=15mm]{geometry}
+\usepackage{tikz}
+\usetikzlibrary{fit,arrows,calc}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{xspace}
+\usepackage{dsfont}
+\usepackage[inference]{semantic}
+\usepackage{bm}
+
+\newcommand{\natdom} {\ensuremath{\mathds{N}}}
+
+\newcommand\pto{\mathrel{\ooalign{\hfil$\mapstochar$\hfil\cr$\to$\cr}}}
+
+\newcommand{\step}[1]{\xrightarrow{#1}}
+
+\newcommand{\comaccept}{\textit{com-accept}\xspace}
+\newcommand{\comreject}{\textit{com-reject}\xspace}
+\newcommand{\comguard}{\textit{com-guard}\xspace}
+\newcommand{\comready}{\textit{com-ready}\xspace}
+\newcommand{\intcom}{\textit{int-com}\xspace}
+\newcommand{\B}{\textit{B}\xspace}
+\newcommand{\preB}{\textit{preBlock}\xspace}
+\newcommand{\postB}{\textit{postBlock}\xspace}
+\newcommand{\PreB}{\textit{PreBlocks}\xspace}
+\newcommand{\PostB}{\textit{PostBlocks}\xspace}
+\newcommand{\executionB}{\textit{executionBlock}\xspace}
+\newcommand{\entrycode}{\textit{entry-code}\xspace}
+\newcommand{\docode}{\textit{do-code}\xspace}
+\newcommand{\smodel}{\mathcal{N}\xspace}
+\newcommand{\Machines}{\mathcal{M}\xspace}
+\newcommand{\Channels}{\mathcal{C}\xspace}
+\newcommand{\Ports}{\mathcal{P}\xspace}
+\newcommand{\smlist}{\mathcal{L}\xspace}
+\newcommand{\Variables}{\mathcal{V}\xspace}
+\newcommand{\graph}{\mathcal{G}\xspace}
+\newcommand{\States}{\mathcal{S}\xspace}
+\newcommand{\Transitions}{\mathcal{T}\xspace}
+\newcommand{\Actions}{\mathcal{A}\xspace}
+\newcommand{\Objects}{\mathcal{O}\xspace}
+\newcommand{\Interpret}{\rho\xspace}
+\newcommand{\Evaluate}{\xi\xspace}
+\newcommand{\type}{\textit{type}\xspace}
+\newcommand{\subtype}{\textit{subtype}\xspace}
+\newcommand{\children}{\textit{children}\xspace}
+\newcommand{\machinechildren}{\textit{machine-children}\xspace}
+\newcommand{\machinecomp}{\textit{machine-comp}\xspace}
+\newcommand{\machineagg}{\textit{machine-agg}\xspace}
+\newcommand{\use}{\textit{use}\xspace}
+\newcommand{\parent}{\textit{parent}\xspace}
+\newcommand{\machineparent}{\textit{machine-parent}\xspace}
+\newcommand{\source}{\textit{source}\xspace}
+\newcommand{\guard}{\textit{guard}\xspace}
+\newcommand{\target}{\textit{target}\xspace}
+\newcommand{\block}{\textit{block}\xspace}
+\newcommand{\initial}{\textit{initial}\xspace}
+\newcommand{\final}{\textit{final}\xspace}
+\newcommand{\exit}{\textit{exit}\xspace}
+\newcommand{\entry}{\textit{entry}\xspace}
+\newcommand{\normal}{\textit{simple}\xspace}
+\newcommand{\basic}{\textit{basic}\xspace}
+\newcommand{\complex}{\textit{complex}\xspace}
+\newcommand{\pseudo}{\textit{pseudo}\xspace}
+\newcommand{\composite}{\textit{composite}\xspace}
+\newcommand{\toplevel}{\textit{toplevel}\xspace}
+\newcommand{\subtoplevel}{\textit{subtoplevel}\xspace}
+\newcommand{\sflat}{\textit{flat}\xspace}
+\newcommand{\submachine}{\textit{submachine}\xspace}
+\newcommand{\choice}{\textit{choice}\xspace}
+\newcommand{\sref}{\textit{sref}\xspace}
+\newcommand{\srefref}{\ensuremath{\textit{sref}^{-1}}\xspace}
+\newcommand{\true}{\textit{true}\xspace}
+\newcommand{\false}{\textit{false}\xspace}
+\newcommand{\sroot}{\textit{root}\xspace}
+\newcommand{\Root}{\textit{Root}\xspace}
+\newcommand{\sdesc}{\textit{sdesc}\xspace}
+\newcommand{\desc}{\textit{desc}\xspace}
+\newcommand{\machineroot}{\textit{machine}\xspace}
+\newcommand{\smachinedesc}{\textit{smachinedesc}\xspace}
+\newcommand{\machinedesc}{\textit{machinedesc}\xspace}
+\newcommand{\dist}{\ensuremath{\delta}\xspace}
+\newcommand{\smindex}{\textit{sm-index}\xspace}
+\newcommand{\smowner}{\textit{sm-owner}\xspace}
+\newcommand{\sanc}{\textit{sanc}\xspace}
+\newcommand{\anc}{\textit{anc}\xspace}
+\newcommand{\lcoa}{\textit{lcoa}\xspace}
+\newcommand{\UExt}{\textit{UExt}\xspace}
+\newcommand{\UEnt}{\textit{UEnt}\xspace}
+\newcommand{\Ext}{\textit{Ext}\xspace}
+\newcommand{\Ent}{\textit{Ent}\xspace}
+\newcommand{\st}{\textit{st}\xspace}
+\newcommand{\mst}{\textit{mst}\xspace}
+\newcommand{\pst}{\textit{pst}\xspace}
+\newcommand{\tr}{\textit{tr}\xspace}
+\newcommand{\Sdesc}{\textit{Sdesc}\xspace}
+\newcommand{\Desc}{\textit{Desc}\xspace}
+\newcommand{\Sanc}{\textit{Sanc}\xspace}
+\newcommand{\Anc}{\textit{Anc}\xspace}
+\newcommand{\Conf}{\textit{Conf}\xspace}
+\newcommand{\SM}{\textit{G}\xspace}
+\newcommand{\nref}{\textit{ref}\xspace}
+\newcommand{\SMmst}{\ensuremath{\SM_{\textit{mst}}}\xspace}
+\newcommand{\TS}{\textit{TS}\xspace}
+\newcommand{\enabled}{\textit{enabled}\xspace}
+\newcommand{\Enabled}{\textit{Enabled}\xspace}
+\newcommand{\strictnextSM}{\textit{strictnextSM}\xspace}
+\newcommand{\nextSM}{\textit{nextSM}\xspace}
+\newcommand{\Ssm}{\ensuremath{S_\textit{sm}}\xspace}
+\newcommand{\Tsm}{\ensuremath{T_\textit{sm}}\xspace}
+\newcommand{\Sm}{\ensuremath{S_\textit{M}}\xspace}
+\newcommand{\Tm}{\ensuremath{T_\textit{M}}\xspace}
+\newcommand{\Sc}{\ensuremath{S_\textit{C}}\xspace}
+\newcommand{\Tc}{\ensuremath{T_\textit{C}}\xspace}
+\newcommand{\stsm}{\ensuremath{\textit{st}_\textit{sm}}\xspace}
+\newcommand{\stm}{\ensuremath{\textit{st}_\textit{M}}\xspace}
+\newcommand{\stc}{\ensuremath{\textit{st}_\textit{C}}\xspace}
+\newcommand{\Valuesst}{\ensuremath{\sigma_\st}\xspace}
+\newcommand{\Valuesmst}{\ensuremath{\sigma_\mst}\xspace}
+\newcommand{\Valuespst}{\ensuremath{\sigma_\pst}\xspace}
+\newcommand{\bottom}{\perp}
+\newcommand{\domain}{\textrm{dom}}
+\newcommand{\sync}{\textit{sync}}
+\newcommand{\lossy}{\textit{lossy}}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+
+\title{Syntax and Formal Semantics of\\ SLCO 2.0}
+\author{}
+\date{\today\\v1.0}
+
+\begin{document}
+
+\maketitle
+
+\section{Syntax}
+
+\subsection{Objects and state machines}
+
+An SLCO model $\smodel$ consists of a set $\Objects$ containing a finite number of \emph{objects} and
+a set $\Channels$ containing a finite number of \emph{channels}.
+
+\begin{definition}[Model]
+An \emph{SLCO model} $\smodel$ is a tuple $(\Objects, \Channels)$, where
+\begin{itemize}
+\item $\Objects$ is a finite number of objects;
+\item $\Channels$ is a finite number of channels.
+\end{itemize}
+\end{definition}
+
+An object consists of a finite number of state machines and a finite number of (object-local) variables.
+
+\begin{definition}[Object]
+An \emph{object} $O$ is a 3-tuple $(\Machines, \Ports, \Variables_o)$, where
+\begin{itemize}
+\item $\Machines$ is a finite set of state machines;
+\item $\Ports$ is a finite set of ports;
+\item $\Variables_o$ is a finite set of variables.
+\end{itemize}
+\end{definition}
+
+A \emph{channel} $C$ is a data structure via which state machines can send messages to each other.
+They can send and receive messages to/from a channel by referring to the \emph{ports} connected to that channel that are owned by the object containing those state machine.
+
+A channel contains a buffer that can store a finite number of messages. We refer with $| C |$ to the size of that buffer, which is fixed when the channel is constructed, and with $\#C$, we refer to the current number of messages stored in the buffer of $C$. Furthermore, with $m \oplus C$ and $C \oplus m$, we refer to a channel $C$ in which a message $m$ has been inserted at the head or the tail of the buffer of $C$, respectively.
+
+In total, SLCO supports four different types of channels: a channel is either \emph{lossy} or \emph{lossless}, and it either allows \emph{synchronous} or \emph{asynchronous} communication. Formally, we indicate this with two predicates. A channel $C$ is lossy if $\lossy(C)$ evaluates to true, and $C$ allows synchronous communication if $\sync{C}$ evaluates to true.
+
+\begin{definition}[State machine]
+A \emph{state machine} \SM is a 5-tuple $(\States, \Actions, \Transitions, \hat s, \Variables_s)$, where
+\begin{itemize}
+\item $\States$ is a finite set of states.
+\item $\Actions$ is a finite set of statement blocks.
+\item $\Transitions: \States \times \Actions \times \natdom \times \States$ is a transition relation, formalising transitions labelled with a statement block between the states in $\States$. A transition has a priority in $\natdom$.
+\item $\hat s \in \States$ is the initial state.
+\item $\Variables_s$ is a finite set of (state machine-local) variables.
+\end{itemize}
+\end{definition}
+
+With $s \Rightarrow(a)_i s'$, we denote the fact that $(s,a,i,s) \in \Transitions$, and in case the priority $i$ is not relevant, we write $s \Rightarrow(a) s'$. The reflexive, transitive closure of $\Rightarrow$ is denoted by $\Rightarrow^*$.
+
+Concerning the priority of transitions, we use the convention that 1 is the highest priority, followed by 2, etc. Priority 0 represents `no priority', and is therefore the lowest property.
+
+\subsection{Statements}
+
+In this section we define what constitutes a valid individual SLCO statement, and in turn, a valid statement block, i.e., a block of statements. The following grammar describes this.
+
+\begingroup
+\renewcommand{\familydefault}{\sfdefault}
+\renewcommand*\rmdefault{sourceserifpro}
+\begin{center}
+\small
+\begin{tabular}{lll}
+block & ::= & (statement `\textbf{;}')* \\
+statement & ::= & assignment $\mid$ expression $\mid$ composite $\mid$ receiveSignal $\mid$ sendSignal $\mid$ Delay $\mid \ell$ \\
+assignment & ::= & variable `\textbf{:=}' expression\\
+composite & ::= & `\textbf{[}' (expression `\textbf{;}')? (assignment `\textbf{;}')+ `\textbf{]}'\\
+receiveSignal & ::= & \textbf{receive} signal `\textbf{(}' receive\_paramlist `\textbf{)}' \textbf{from} port \\
+receive\_paramlist & ::= & variable\_list? `\textbf{$\mid$}' expression? \\
+%receive\_paramlist & ::= & (receive\_guard (`\textbf{,}' receive\_guard)*)? \\
+%receive\_guard & ::= & ((variable\_list `$\mid$')? expression) \\
+variable\_list & ::= & variable (`\textbf{,}' variable)* \\
+sendSignal & ::= & \textbf{send} signal `\textbf{(}' send\_paramlist `\textbf{)}' \textbf{to} port \\
+send\_paramlist & ::= & (expression (`\textbf{,}' expression)*)? \\
+delay & ::= & \textbf{after} integer \textbf{ms}\\
+expression & ::= & (\textbf{not} $\mid$ \textbf{-} $\mid$ \textbf{+})? (expression\_body $\mid$ `\textbf{(}' expression\_body `\textbf{)}' )\\
+expression\_body & ::= & (constant $\mid$ variable $\mid$ expression operator expression)\\
+operator & ::= & \textbf{or} $\mid$ \textbf{xor} $\mid$ \textbf{and} $\mid$ \textbf{==} $\mid$ $\bm{<>}$ $\mid$ $\bm{<=}$ $\mid$ $\bm{>=}$ $\mid$ $\bm{<}$ $\mid$ $\bm{>}$ $\mid$ \textbf{+} $\mid$ \textbf{-} $\mid$ \textbf{mod} $\mid$ \textbf{*} $\mid$ \textbf{/} $\mid$ \textbf{**}\\
+constant & ::= & integer $\mid$ \textbf{true} $\mid$ \textbf{false}\\
+variable & ::= & literal\\
+signal & ::= & literal\\
+port & ::= & literal\\
+$\ell$ & ::= & literal\\
+\end{tabular}
+\end{center}
+\endgroup
+
+\section{SLCO model}
+
+The following is a part of an SLCO example model. It demonstrates the structure of such a description. In this model, two classes are used, $P$ and $Q$, of which part of the definition of $Q$ is shown. Two objects $p$ and $q$ are declared using these classes, and some connections in the form of channels are defined between the objects. Note that when declaring objects, it is possible to initialise its variables. However, this is restricted to the object-level: variables local to a particular state machine cannot be set when initialising an object. These variables are always initialised to the default value (`0' for an integer and 
+\textbf{true} for a Boolean).
+
+In the example, a list of actions is defined. These actions can be used as labels of transitions. Furthermore, a list of transitions between states is provided. It is optional to associate a number with a transition (in the example `1:'). This indicates the priority of that transition from the source state (in the example `Com0'). Finally, note that the declaration of a channel involves providing the type(s) of messages sent over the channel (a message may consist of several values of different types), whether it is asynchronous or not, and if it is, its buffer size should be specified, whether it is lossless or not, and to which ports it connects. If no initial value is given, an Integer variable has as default value 0, while a Boolean variable has \textbf{true} as the default value.
+
+\begin{verbatim}
+actions a ...
+
+model SomeSLCOExample {
+    classes
+        Q {
+            variables Integer y
+            ports Out1 Out2 InOut
+            state machines
+                Com {
+                    variables Integer x := 0
+                    initial Com0 state Com1 Com2
+                    transitions
+                        1: from Com0 to Com1 {
+                            send P(true) to Out1
+                        }
+                        from Com1 to Com2 {
+                            a
+                        }
+                        ...
+                }
+        }
+        ...
+    objects p : P(), q : Q(y:=0)
+    channels
+        c1(Boolean) async[5] lossless from q.Out1 to p.In1
+        c2(Integer,Boolean) async[2] lossy from q.Out2 to p.In2
+        c3(Integer) sync between p.InOut and q.InOut
+\end{verbatim}
+
+\subsection{Well-formedness constraints}
+
+The definitions of an SLCO model, objects and state machines are very general, and therefore allow the construction of inconsistent specifications. Therefore, next, we present a list of well-formedness constraints, that should be satisfied by an SLCO model and the objects and state machines it contains in order to be consistent.
+
+\begin{itemize}
+\item In each state machine, all states are reachable from the initial state:\\
+$\forall o \in \Objects, \langle \States, \Actions, \Transitions, \hat s, \Variables_s \rangle \in \Machines, s \in \States. \hat s \Rightarrow^* s$
+
+\item Send and receive statements used in a state machine only refer to ports that are owned by the object containing that state machine;
+
+\item Variables referred to in a statement of a state machine are either local to that state machine, or owned by the object containing that state machine.
+
+\end{itemize}
+
+\section{Semantics}
+
+To evaluate expressions, we use a function $\xi: \mathds{E} \to \mathds{B}$ that maps an expression $e$ in the domain of expressions $\mathds{E}$ to a Boolean value. Furthermore, we use a function $\gamma$ that maps \emph{ports} to \emph{channels}. It indicates to which channel a given port is connected.
+
+We reason about the state of an SLCO model by means of a \emph{situation}.
+
+\begin{definition}[Situation]
+Given an SLCO model $\smodel = (\Objects, \Channels)$, with $\Objects = \{ (\Machines^1, \Variables_o^1),\ldots,$ $(\Machines^n,\ldots,\Variables_o^n) \}$, and finally, for each $\Machines^i$, we have $\Machines^i = \{ (\States^i_1, \Actions^i_1, \Transitions^i_1, \hat s^i_1, \Variables^i_{s,1}), \ldots,$\\ $(\States^i_{m_i}, \Actions^i_{m_i}, \Transitions^i_{m_i}, \hat s^i_{m_i}, \Variables^i_{s, m_i}) \}$, adding up to $\smodel$ having $p$ state machines in total. Then, we define a \emph{situation} as a 3-tuple $\langle \sigma, s_1||\ldots||s_p, S_1,\ldots,S_p \rangle$, where
+\begin{itemize}
+\item $\sigma$ is a total function mapping variables in $\Channels \cup \bigcup_{i \in 1..|\Objects|}\Variables_o^i \cup \Variables^i_{s,1} \cup \ldots \cup \Variables^i_{s, m_i}$ to values of the appropriate types.
+\item $s_1||\ldots||s_p$ indicates the \emph{current} state machine state of each state machine, where each $s_i$ stems from a different state machine.
+\item $S_i$ is the \emph{statement queue} of current state $s_i$ indicating whether a statement block is currently being executed by the corresponding state machine.
+\end{itemize}
+\end{definition}
+
+The empty statement queue is denoted by $\emptyset$.
+
+With $s \Rightarrow(aa) s'$, we indicate that from state $s$ in a state machine, there is an enabled transition with statement block $aa$ leading to state $s'$, and furthermore, that there is no transition from $s$ enabled that has a higher priority than this transition.
+
+Next, we present the operational semantics of an SLCO model in the form of SOS rules.
+
+%We distinguish two cases:
+%
+%\begin{itemize}
+%\item Either $S \neq \emptyset$ and we have that $aa = S$ and $S' = \emptyset$;
+%\item Or $S = \emptyset$ and in the corresponding state machine, a transition labelled $aa$ exists from $s$ to $s'$.
+%
+%\end{itemize}
+
+$\inference[silent step]{S = \emptyset \wedge s \Rightarrow s'}{\langle \sigma, s, S \rangle \step{\tau} \langle \sigma, s', S\rangle}$
+
+$\inference[action step]{S = \emptyset \wedge s \Rightarrow(\ell; aa) s'}{\langle \sigma, s, S\rangle \step{\ell} \langle \sigma, s', aa\rangle}$
+
+$\inference[delay step]{S = \emptyset \wedge s \Rightarrow(\textbf{after}\ y\ \textbf{ms}; aa) s'}{\langle \sigma, s, S\rangle \step{\textbf{after}\ y\ \textbf{ms}} \langle \sigma, s', aa\rangle}$
+
+$\inference[assignment step]{S = \emptyset \wedge s \Rightarrow(x:=e; aa) s'}{\langle \sigma, s, S \rangle \step{x:=e} \langle \sigma[\xi(e) / x], s', aa \rangle}$
+
+$\inference[expression step]{S = \emptyset \wedge s \Rightarrow(e;aa) s' \wedge \xi(e)}{\langle \sigma, s, S\rangle \step{e} \langle \sigma, s', aa \rangle}$
+
+$\inference[composite step]{S = \emptyset \wedge s \Rightarrow([e;x_1:=e_1;\ldots ; x_n:=e_n];aa) s' \wedge \xi(e)}{\langle \sigma, s, S\rangle \step{[e;x_1:=e_1;\ldots ; x_n:=e_n]} \langle \sigma[\xi(e_1)/x_1] \cdots [\xi(e_n)/x_n], s', aa\rangle }$
+
+$\inference[receiveSignal step]{S = \emptyset \wedge s \Rightarrow (\textbf{receive}\ g(x_1,\ldots,x_n \mid e)\ \textbf{from}\ p;aa) s' \wedge\\ \sigma(\gamma(p)) = g(v_1,\ldots, v_n) \oplus C \wedge \xi_{\sigma[v_1/x_1,\ldots,v_n/x_n]}(e)}{\langle \sigma, s, S\rangle \step{\textbf{receive}\ g(x_1,\ldots,x_n \mid e)\ \textbf{from}\ p} \langle \sigma[v_1/x_1,\ldots,v_n/x_n,C/\gamma(p)],s',aa\rangle}$
+
+$\inference[sendSignal step]{S = \emptyset \wedge s \Rightarrow (\textbf{send}\ g(e_1,\ldots,e_n)\ \textbf{to}\ p;aa) s' \wedge\ \gamma(p) = C \wedge \#C < |C|}{\langle \sigma, s, S\rangle \step{\textbf{send}\ g(e_1,\ldots,e_n)\ \textbf{to}\ p} \langle \sigma[C \oplus g(\xi(e_1),\ldots,\xi(e_n))/\gamma(p)],s',aa\rangle}$
+
+$\inference[sendSignal-lost step]{S = \emptyset \wedge s \Rightarrow (\textbf{send}\ g(e_1,\ldots,e_n)\ \textbf{to}\ p;aa) s' \wedge\ \gamma(p) = C \wedge \lossy(C)}{\langle \sigma, s, S\rangle \step{\textbf{send}\ g(e_1,\ldots,e_n)\ \textbf{to}\ p} \langle \sigma,s',aa\rangle}$
+
+$\inference[action-in-sequence]{S = (\ell;aa)}{\langle \sigma, s, S \rangle \step{\ell} \langle \sigma, s, aa \rangle}$
+
+$\inference[delay-in-sequence]{S = (\textbf{after}\ y\ \textbf{ms}; aa)}{\langle \sigma, s, S\rangle \step{\textbf{after}\ y\ \textbf{ms}} \langle \sigma, s', aa\rangle}$
+
+$\inference[assignment-in-sequence]{S = (x:=e; aa)}{\langle \sigma, s, S \rangle \step{x:=e} \langle \sigma[\xi(e) / x], s, aa \rangle}$
+
+$\inference[expression-in-sequence]{S = (e;aa) \wedge \xi(e)}{\langle \sigma, s, S\rangle \step{e} \langle \sigma, s, aa \rangle}$
+
+$\inference[composite-in-sequence]{S = ([e;x_1:=e_1;\ldots ; x_n:=e_n];aa) \wedge \xi(e)}{\langle \sigma, s, S\rangle \step{[e;x_1:=e_1;\ldots ; x_n:=e_n]} \langle \sigma[\xi(e_1)/x_1] \cdots [\xi(e_n)/x_n], s, aa\rangle }$
+
+$\inference[receiveSignal-in-sequence]{S = (\textbf{receive}\ g(x_1,\ldots,x_n \mid e)\ \textbf{from}\ p;aa) \wedge\\ \sigma(\gamma(p)) = g(v_1,\ldots, v_n) \oplus C \wedge \xi_{\sigma[v_1/x_1,\ldots,v_n/x_n]}(e)}{\langle \sigma, s, S\rangle \step{\textbf{receive}\ g(x_1,\ldots,x_n \mid e)\ \textbf{from}\ p} \langle \sigma[v_1/x_1,\ldots,v_n/x_n,C/\gamma(p)],s,aa\rangle}$
+
+$\inference[sendSignal-in-sequence]{S = (\textbf{send}\ g(e_1,\ldots,e_n)\ \textbf{to}\ p;aa) \wedge\ \gamma(p) = C \wedge \#C < |C|}{\langle \sigma, s, S\rangle \step{\textbf{send}\ g(e_1,\ldots,e_n)\ \textbf{to}\ p} \langle \sigma[C \oplus g(\xi(e_1),\ldots,\xi(e_n))/\gamma(p)],s,aa\rangle}$
+
+$\inference[sendSignal-lost-in-sequence]{S = (\textbf{send}\ g(e_1,\ldots,e_n)\ \textbf{to}\ p;aa) \wedge\ \gamma(p) = C \wedge \lossy(C)}{\langle \sigma, s, S\rangle \step{\textbf{send}\ g(e_1,\ldots,e_n)\ \textbf{to}\ p} \langle \sigma,s',aa\rangle}$
+
+$\inference[parallel-indep-1]{\langle \sigma, s, S \rangle \step{a} \langle \sigma', s', S' \rangle \wedge \neg((a = \textbf{send}\ g\ \textbf{to}\ p \vee a = \textbf{receive}\ g\ \textbf{from}\ p) \wedge \sync(\gamma(p)))}{\langle \sigma, s || t, S,T \rangle \step{a} \langle \sigma', s'||t,S',T\rangle}$
+
+$\inference[parallel-indep-2]{\langle \sigma, s, S \rangle \step{a} \langle \sigma', s', S' \rangle \wedge \neg((a = \textbf{send}\ g\ \textbf{to}\ p \vee a = \textbf{receive}\ g\ \textbf{from}\ p) \wedge \sync(\gamma(p)))}{\langle \sigma, t||s, T,S\rangle \step{a} \langle \sigma', t||s', T,S'\rangle}$
+
+$\inference[parallel-sync-1]{\langle \sigma, s, S \rangle \step{\textbf{send}\ g(e_1,\ldots, e_n)\ \textbf{to}\ p_1} \langle \sigma', s', S' \rangle \wedge\\
+\langle \sigma', t, T\rangle \step{\textbf{receive}\ g(x_1,\ldots,x_n \mid e)\ \textbf{from}\ p_2} \langle \sigma'', t',T'\rangle \wedge\\
+\gamma(p_1) = \gamma(p_2) \wedge \sync(\gamma(p_1))}{\langle \sigma, s||t, S, T \rangle \step{\textbf{comm}\ g(e_1,\ldots,e_n)} \langle \sigma'',s'||t',S',T' \rangle}$
+
+$\inference[parallel-sync-2]{\langle \sigma, s, S \rangle \step{\textbf{send}\ g(e_1,\ldots, e_n)\ \textbf{to}\ p_1} \langle \sigma', s', S' \rangle \wedge\\
+\langle \sigma', t, T\rangle \step{\textbf{receive}\ g(x_1,\ldots,x_n \mid e)\ \textbf{from}\ p_2} \langle \sigma'', t',T'\rangle \wedge\\
+\gamma(p_1) = \gamma(p_2) \wedge \sync(\gamma(p_1))}{\langle \sigma, t||s, T, S \rangle \step{\textbf{comm}\ g(e_1,\ldots,e_n)} \langle \sigma'',t'||s',T',S' \rangle}$
+
+\end{document}

@@ -1,0 +1,61 @@
+actions
+	a
+	b
+	cdefg
+	h i j
+	
+model test {
+	classes
+		Test {
+			variables
+				Integer x
+				Boolean y
+			state machines
+				sm1 {
+					variables
+						Integer sm1
+					initial X
+					state
+						X Y Z
+					final
+						Z
+					transitions
+						from X to Y {
+							x := 1
+						}
+						from Y to Z {
+							sm1 := x + 1
+						}
+				}
+		}
+		
+		Test2 {
+			variables
+				Boolean bBool
+			state machines
+				smx {
+					variables
+						Integer[2] my_array
+						Integer x
+					initial X
+					state
+						X Y Z
+					final Z
+					transitions
+						from X to Z {
+							my_array[3 + 2] := 14
+						}
+						from X to Y {
+							my_array[x] := 2
+						}
+				}
+			
+		}
+	
+	objects
+		test : Test
+		test2 : Test2
+
+	channels
+				
+}

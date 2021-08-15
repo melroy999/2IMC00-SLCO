@@ -1,0 +1,11 @@
+digraph A {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Initial_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Initial Initial_extra -> Initial
+
+
+
+
+Initial -> Initial [label = ""];
+
+}

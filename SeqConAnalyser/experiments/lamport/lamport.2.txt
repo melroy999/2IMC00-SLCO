@@ -1,0 +1,113 @@
+int x;
+int y;
+int b1;
+int b2;
+int b3;
+
+proctype p1 {
+int storing = 0;
+do
+:: true ->
+		store(b1,1);
+		store(x,1);
+		storing = 0;
+		if
+		:: load(y,1) || load(y,2) || load(y,3) ->
+			store(b1,0);
+			skip;
+		:: load(y,0) ->
+			store(y,1);
+			if
+			:: load(x,0) || load(x,2) || load(x,3) ->
+				store(b1,0);
+				if
+				:: load(y,0) || load(y,2) || load(y,3) -> skip;
+				:: load(y,1) ->
+					storing = 1;
+				fi;
+			:: load(x,1) ->
+				storing = 1;
+			fi;
+		fi;
+		if
+		:: storing == 1 ->
+			store(y,0);
+			store(b1,0);
+			break;
+		:: storing == 0 ->
+			skip;
+		fi;
+od;
+}
+
+proctype p2 {
+int storing = 0;
+do
+:: true ->
+		store(b2,1);
+		store(x,2);
+		storing = 0;
+		if
+		:: load(y,1) || load(y,2) || load(y,3) ->
+			store(b2,0);
+			skip;
+		:: load(y,0) ->
+			store(y,2);
+			if
+			:: load(x,0) || load(x,1) || load(x,3) ->
+				store(b2,0);
+				if
+				:: load(y,0) || load(y,1) || load(y,3) -> skip;
+				:: load(y,2) ->
+					storing = 1;
+				fi;
+			:: load(x,2) ->
+				storing = 1;
+			fi;
+		fi;
+		if
+		:: storing == 1 ->
+			store(y,0);
+			store(b2,0);
+			break;
+		:: storing == 0 ->
+			skip;
+		fi;
+od;
+}
+
+proctype p3 {
+int storing = 0;
+do
+:: true ->
+		store(b3,1);
+		store(x,3);
+		storing = 0;
+		if
+		:: load(y,1) || load(y,2) || load(y,3) ->
+			store(b3,0);
+			skip;
+		:: load(y,0) ->
+			store(y,3);
+			if
+			:: load(x,0) || load(x,1) || load(x,2) ->
+				store(b3,0);
+				if
+				:: load(y,0) || load(y,1) || load(y,2) -> skip;
+				:: load(y,3) ->
+					storing = 1;
+				fi;
+			:: load(x,3) ->
+				storing = 1;
+			fi;
+		fi;
+		if
+		:: storing == 1 ->
+			store(y,0);
+			store(b3,0);
+			break;
+		:: storing == 0 ->
+			skip;
+		fi;
+od;
+}

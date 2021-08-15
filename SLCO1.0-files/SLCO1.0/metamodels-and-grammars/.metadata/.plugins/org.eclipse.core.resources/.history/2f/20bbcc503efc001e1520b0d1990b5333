@@ -1,0 +1,21 @@
+/**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
+ */
+package NQC;
+
+
+/**
+ * <!-- begin-user-doc -->
+ * A representation of the model object '<em><b>Continue Statement</b></em>'.
+ * <!-- end-user-doc -->
+ *
+ *
+ * @see NQC.NQCPackage#getContinueStatement()
+ * @model
+ * @generated
+ */
+public interface ContinueStatement extends Statement {
+} // ContinueStatement

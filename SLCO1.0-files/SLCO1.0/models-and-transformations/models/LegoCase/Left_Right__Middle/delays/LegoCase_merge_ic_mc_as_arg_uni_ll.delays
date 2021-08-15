@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<delays:TransitionList xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:delays="delays">
+  <transitions delay="900">
+    <transition href="../nqc_slco_ecore/LegoCase_merge_ic_mc_as_arg_uni_ll.slco#//@classes.6/@stateMachines.0/@transitions.1"/>
+  </transitions>
+  <transitions delay="900">
+    <transition href="../nqc_slco_ecore/LegoCase_merge_ic_mc_as_arg_uni_ll.slco#//@classes.3/@stateMachines.0/@transitions.2"/>
+  </transitions>
+</delays:TransitionList>

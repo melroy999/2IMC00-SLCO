@@ -1,0 +1,112 @@
+drawing
+system
+
+instances
+
+process of class 'Producer' in 0@0 to 50@50 name 'P' at 5@5
+connectors
+  'C' at 0@0 name at 0@0
+scenarios
+'normal'
+
+process of class 'Consumer' in 0@0 to 50@50 name 'C' at 5@5
+connectors
+  'P' at 0@0 name at 0@0
+scenarios
+'normal'
+
+channels
+
+name 'Producer_To_Consumer' at 0@0 message at 0@0 margin 50
+nodes
+
+segments
+segment
+  from socket 'C' of instance 'P' to socket 'P' of instance 'C'
+
+scenarios
+  'normal'
+
+scenarios
+'all', 'normal'
+
+poosl specification
+'
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Producer()
+instance variables
+
+communication channels
+  C
+message interface
+  C!Bericht()
+initial method call
+  Producer_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Producer_State()()
+    |  |
+    C!Bericht();
+    Producer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Producer_initial()()
+    |  |
+    Producer_State()()
+  .
+
+/*==============*/
+/*--------------*/
+/* ProcessClass */
+/*--------------*/
+/*==============*/
+
+process class Consumer()
+instance variables
+
+communication channels
+  P
+message interface
+  P?Bericht()
+initial method call
+  Consumer_initial()()
+instance methods
+/* ------ ProcessMethod ------ */
+  Consumer_State()()
+    |  |
+    P?Bericht();
+    Consumer_State()()
+  .
+/* ------ ProcessMethod ------ */
+  Consumer_initial()()
+    |  |
+    Consumer_State()()
+  .
+
+
+cluster class aClass()
+
+communication channels
+
+message interface
+
+behaviour specification
+  (
+   P: Producer[
+     Producer_To_Consumer/C
+
+   ]
+  ||
+   C: Consumer[
+
+     Producer_To_Consumer/P
+   ]
+  )
+  \
+  {Producer_To_Consumer}
+'

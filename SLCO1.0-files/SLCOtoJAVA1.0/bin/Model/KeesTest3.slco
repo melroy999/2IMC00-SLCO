@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="ASCII"?>
+<slco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:slco="slco" name="PaperExample1">
+  <classes name="Q">
+    <stateMachines name="Com">
+      <vertices xsi:type="slco:Initial" name="Com0" outgoing="//@classes.0/@stateMachines.0/@transitions.0 //@classes.0/@stateMachines.0/@transitions.4"/>
+      <vertices xsi:type="slco:State" name="Com1" incoming="//@classes.0/@stateMachines.0/@transitions.0" outgoing="//@classes.0/@stateMachines.0/@transitions.1"/>
+      <vertices xsi:type="slco:State" name="Com3" incoming="//@classes.0/@stateMachines.0/@transitions.1" outgoing="//@classes.0/@stateMachines.0/@transitions.2"/>
+      <vertices xsi:type="slco:State" name="Com4" incoming="//@classes.0/@stateMachines.0/@transitions.2" outgoing="//@classes.0/@stateMachines.0/@transitions.3"/>
+      <vertices xsi:type="slco:Final" name="Com2" incoming="//@classes.0/@stateMachines.0/@transitions.3 //@classes.0/@stateMachines.0/@transitions.4"/>
+      <transitions name="Com02Com1" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.0" signalName="P">
+          <arguments xsi:type="slco:BooleanConstantExpression" value="true"/>
+        </statements>
+      </transitions>
+      <transitions name="Com12Com3" source="//@classes.0/@stateMachines.0/@vertices.1" target="//@classes.0/@stateMachines.0/@vertices.2">
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.1" signalName="Q">
+          <arguments xsi:type="slco:IntegerConstantExpression" value="5"/>
+        </statements>
+      </transitions>
+      <transitions name="Com32Com4" source="//@classes.0/@stateMachines.0/@vertices.2" target="//@classes.0/@stateMachines.0/@vertices.3">
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.1" signalName="R">
+          <arguments xsi:type="slco:IntegerConstantExpression" value="6"/>
+        </statements>
+      </transitions>
+      <transitions name="Com42Com2" source="//@classes.0/@stateMachines.0/@vertices.3" target="//@classes.0/@stateMachines.0/@vertices.4">
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.2" signalName="T">
+          <arguments xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.0/@variables.0"/>
+        </statements>
+      </transitions>
+      <transitions name="Com02Com2" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.4">
+        <statements xsi:type="slco:Delay" value="5"/>
+      </transitions>
+      <variables name="s" type="String">
+        <initialValue xsi:type="slco:StringConstantExpression" value=""/>
+      </variables>
+    </stateMachines>
+    <ports name="Out1"/>
+    <ports name="Out2"/>
+    <ports name="InOut"/>
+  </classes>
+  <classes name="P">
+    <stateMachines name="Rec1">
+      <vertices xsi:type="slco:Initial" name="Rec1" incoming="//@classes.1/@stateMachines.0/@transitions.0" outgoing="//@classes.1/@stateMachines.0/@transitions.0"/>
+      <transitions name="Rec1toRec1" source="//@classes.1/@stateMachines.0/@vertices.0" target="//@classes.1/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.0" signalName="P">
+          <arguments xsi:type="slco:SignalArgumentVariable" variable="//@classes.1/@stateMachines.0/@variables.0"/>
+          <condition xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@stateMachines.0/@variables.0"/>
+            <operand2 xsi:type="slco:BooleanConstantExpression"/>
+          </condition>
+        </statements>
+      </transitions>
+      <variables name="v" type="Boolean">
+        <initialValue xsi:type="slco:BooleanConstantExpression" value="true"/>
+      </variables>
+    </stateMachines>
+    <stateMachines name="Rec2">
+      <vertices xsi:type="slco:Initial" name="Rec2a" incoming="//@classes.1/@stateMachines.1/@transitions.2" outgoing="//@classes.1/@stateMachines.1/@transitions.0"/>
+      <vertices xsi:type="slco:State" name="Rec2b" incoming="//@classes.1/@stateMachines.1/@transitions.0" outgoing="//@classes.1/@stateMachines.1/@transitions.1"/>
+      <vertices xsi:type="slco:State" name="Rec2c" incoming="//@classes.1/@stateMachines.1/@transitions.1" outgoing="//@classes.1/@stateMachines.1/@transitions.2"/>
+      <transitions name="Rec2a2Rec2b" source="//@classes.1/@stateMachines.1/@vertices.0" target="//@classes.1/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.1" signalName="Q">
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:IntegerConstantExpression" value="5"/>
+          </arguments>
+        </statements>
+      </transitions>
+      <transitions name="Rec2b2Rec2c" source="//@classes.1/@stateMachines.1/@vertices.1" target="//@classes.1/@stateMachines.1/@vertices.2">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.1" signalName="R">
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:IntegerConstantExpression" value="6"/>
+          </arguments>
+        </statements>
+      </transitions>
+      <transitions name="Rec2c2Rec2a" source="//@classes.1/@stateMachines.1/@vertices.2" target="//@classes.1/@stateMachines.1/@vertices.0">
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.0">
+          <expression xsi:type="slco:BinaryOperatorExpression" operator="add">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.0"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+          </expression>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <stateMachines name="SendRec">
+      <vertices xsi:type="slco:Initial" name="SendRec0" incoming="//@classes.1/@stateMachines.2/@transitions.1" outgoing="//@classes.1/@stateMachines.2/@transitions.0"/>
+      <vertices xsi:type="slco:State" name="SendRec1" incoming="//@classes.1/@stateMachines.2/@transitions.0" outgoing="//@classes.1/@stateMachines.2/@transitions.1"/>
+      <transitions name="SendRec02SendRec1" source="//@classes.1/@stateMachines.2/@vertices.0" target="//@classes.1/@stateMachines.2/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="6"/>
+        </statements>
+      </transitions>
+      <transitions name="SendRec12SendRec0" source="//@classes.1/@stateMachines.2/@vertices.1" target="//@classes.1/@stateMachines.2/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.2" signalName="T">
+          <arguments xsi:type="slco:SignalArgumentVariable" variable="//@classes.1/@stateMachines.2/@variables.0"/>
+          <condition xsi:type="slco:BooleanConstantExpression" value="true"/>
+        </statements>
+      </transitions>
+      <variables name="s" type="String">
+        <initialValue xsi:type="slco:StringConstantExpression" value=""/>
+      </variables>
+    </stateMachines>
+    <ports name="In1"/>
+    <ports name="In2"/>
+    <ports name="InOut"/>
+    <variables name="m">
+      <initialValue xsi:type="slco:IntegerConstantExpression"/>
+    </variables>
+  </classes>
+  <objects name="p" class="//@classes.1"/>
+  <objects name="q" class="//@classes.0"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="c1" sourcePort="//@classes.0/@ports.1" targetPort="//@classes.1/@ports.1" sourceObject="q" targetObject="p">
+    <argumentTypes/>
+  </channels>
+  <channels xsi:type="slco:UnidirectionalChannel" name="c2" sourcePort="//@classes.0/@ports.0" targetPort="//@classes.1/@ports.0" sourceObject="q" targetObject="p">
+    <argumentTypes type="Boolean"/>
+  </channels>
+  <channels xsi:type="slco:UnidirectionalChannel" name="c3" channelType="sync" sourcePort="//@classes.0/@ports.2" targetPort="//@classes.1/@ports.2" sourceObject="q" targetObject="p">
+    <argumentTypes type="String"/>
+  </channels>
+</slco:Model>

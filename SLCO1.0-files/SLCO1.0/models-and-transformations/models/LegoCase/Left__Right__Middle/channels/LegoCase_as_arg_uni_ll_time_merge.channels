@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channels:ChannelLists xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:channels="channels" xmlns:slco="slco">
+  <channelLists>
+    <channels xsi:type="slco:UnidirectionalChannel" href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll_time_merge.slco#//@channels.13"/>
+    <channels xsi:type="slco:UnidirectionalChannel" href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll_time_merge.slco#//@channels.12"/>
+    <channels xsi:type="slco:UnidirectionalChannel" href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll_time_merge.slco#//@channels.9"/>
+    <channels xsi:type="slco:UnidirectionalChannel" href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll_time_merge.slco#//@channels.8"/>
+  </channelLists>
+  <channelLists>
+    <channels xsi:type="slco:UnidirectionalChannel" href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll_time_merge.slco#//@channels.7"/>
+    <channels xsi:type="slco:UnidirectionalChannel" href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll_time_merge.slco#//@channels.6"/>
+    <channels xsi:type="slco:UnidirectionalChannel" href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll_time_merge.slco#//@channels.11"/>
+    <channels xsi:type="slco:UnidirectionalChannel" href="../nqc_slco_ecore/LegoCase_as_arg_uni_ll_time_merge.slco#//@channels.10"/>
+  </channelLists>
+</channels:ChannelLists>

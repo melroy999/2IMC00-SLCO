@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy 1 elements(s) to &apos;DoubleDebug.mwe&apos;&#x0D;&#x0A;- Original project: &apos;slco_ecore2slco_text&apos;&#x0D;&#x0A;- Destination element: &apos;DoubleDebug.mwe&apos;&#x0D;&#x0A;- Original element: &apos;DoubleDebug.mwe&apos;" description="Copy file" element1="src/Workflows/wf-slco_ecore/DoubleDebug.mwe" files="1" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1288269979768" target="/slco_ecore2slco_text/src/Workflows/wf-slco_ecore/DoubleDebug.mwe" units="0" version="1.0"/>
+</session>

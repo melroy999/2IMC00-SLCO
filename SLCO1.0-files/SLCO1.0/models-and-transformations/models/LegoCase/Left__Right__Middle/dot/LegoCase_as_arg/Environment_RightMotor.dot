@@ -1,0 +1,23 @@
+digraph RightMotor {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Start_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Start Start_extra -> Start
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Off
+node [shape = "Mrecord", height = "0.8", width = "1.6"] Running
+
+
+
+Start -> Running [label = "receive On() from RightMotor"];
+
+Off -> Running [label = "receive On() from RightMotor;\n BlockRight := true"];
+
+Running -> Off [label = "receive Off() from RightMotor"];
+
+Running -> Running [label = "send Block() to RightSensor;\n send BlockPassed() to RightSensor"];
+
+Off -> Off [label = "receive Off() from RightMotor"];
+
+Running -> Running [label = "receive On() from RightMotor"];
+
+}

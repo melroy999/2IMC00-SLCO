@@ -1,0 +1,711 @@
+<?xml version="1.0" encoding="ASCII"?>
+<slco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:slco="slco" name="Simple_as_arg_uni_ll_time_merge_int">
+  <classes name="C_C_C_C_C">
+    <stateMachines name="C_as_Consumer">
+      <vertices xsi:type="slco:Initial" name="State" incoming="//@classes.0/@stateMachines.0/@transitions.2 //@classes.0/@stateMachines.0/@transitions.3" outgoing="//@classes.0/@stateMachines.0/@transitions.0"/>
+      <vertices xsi:type="slco:State" name="State_r_Signal_rbl_StateToState" incoming="//@classes.0/@stateMachines.0/@transitions.0" outgoing="//@classes.0/@stateMachines.0/@transitions.1 //@classes.0/@stateMachines.0/@transitions.2"/>
+      <vertices xsi:type="slco:State" name="State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State" incoming="//@classes.0/@stateMachines.0/@transitions.1" outgoing="//@classes.0/@stateMachines.0/@transitions.3"/>
+      <transitions name="State_to_State_r_Signal_rbl_StateToState" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="and">
+          <operand1 xsi:type="slco:BinaryOperatorExpression" operator="and">
+            <operand1 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+              <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.3"/>
+              <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            </operand1>
+            <operand2 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+              <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.4"/>
+              <operand2 xsi:type="slco:IntegerConstantExpression"/>
+            </operand2>
+          </operand1>
+          <operand2 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.5"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="2"/>
+          </operand2>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.3">
+          <expression xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+      </transitions>
+      <transitions name="State_r_Signal_rbl_StateToState_to_State" source="//@classes.0/@stateMachines.0/@vertices.1" target="//@classes.0/@stateMachines.0/@vertices.2">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.3"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.3">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.1">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.2">
+          <expression xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+      </transitions>
+      <transitions name="State_r_Signal_rbl_StateToState_to_State" source="//@classes.0/@stateMachines.0/@vertices.1" target="//@classes.0/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.3"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="State_r_Signal_rbl_StateToState_s_Signal_abl_State_r_Signal_rbl_StateToState_to_State_to_State" source="//@classes.0/@stateMachines.0/@vertices.2" target="//@classes.0/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <stateMachines name="C_as_P_inABP_Receiver_Receiver">
+      <vertices xsi:type="slco:Initial" name="Zero" incoming="//@classes.0/@stateMachines.1/@transitions.1 //@classes.0/@stateMachines.1/@transitions.3" outgoing="//@classes.0/@stateMachines.1/@transitions.0 //@classes.0/@stateMachines.1/@transitions.1"/>
+      <vertices xsi:type="slco:State" name="Zero_s_Signal_abl_ZeroToZeroAck" incoming="//@classes.0/@stateMachines.1/@transitions.0" outgoing="//@classes.0/@stateMachines.1/@transitions.2"/>
+      <vertices xsi:type="slco:State" name="Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero" incoming="//@classes.0/@stateMachines.1/@transitions.2" outgoing="//@classes.0/@stateMachines.1/@transitions.3"/>
+      <transitions name="ZeroToZeroAck" source="//@classes.0/@stateMachines.1/@vertices.0" target="//@classes.0/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.0/@ports.0" signalName="Message">
+          <arguments xsi:type="slco:SignalArgumentVariable" variable="//@classes.0/@stateMachines.1/@variables.1"/>
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.1/@variables.0"/>
+          </arguments>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.4">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.5">
+          <expression xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.1/@variables.1"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.3">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+      </transitions>
+      <transitions name="ZeroToZero" source="//@classes.0/@stateMachines.1/@vertices.0" target="//@classes.0/@stateMachines.1/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.0/@ports.0" signalName="Message">
+          <arguments xsi:type="slco:SignalArgumentVariable" variable="//@classes.0/@stateMachines.1/@variables.1"/>
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+              <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+              <operand2 xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.1/@variables.0"/>
+            </expression>
+          </arguments>
+        </statements>
+      </transitions>
+      <transitions name="Zero_s_Signal_abl_ZeroToZeroAck_to_Zero" source="//@classes.0/@stateMachines.1/@vertices.1" target="//@classes.0/@stateMachines.1/@vertices.2">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.3"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.3">
+          <expression xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.3"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.7">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.6">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+      </transitions>
+      <transitions name="Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero_to_Zero" source="//@classes.0/@stateMachines.1/@vertices.2" target="//@classes.0/@stateMachines.1/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.6"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.6">
+          <expression xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.6"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@stateMachines.1/@variables.0">
+          <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+            <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            <operand2 xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.1/@variables.0"/>
+          </expression>
+        </statements>
+      </transitions>
+      <variables name="r">
+        <initialValue xsi:type="slco:IntegerConstantExpression"/>
+      </variables>
+      <variables name="d"/>
+    </stateMachines>
+    <stateMachines name="C_as_P_inABP_AS_AS">
+      <vertices xsi:type="slco:Initial" name="Zero" incoming="//@classes.0/@stateMachines.2/@transitions.0 //@classes.0/@stateMachines.2/@transitions.2 //@classes.0/@stateMachines.2/@transitions.3" outgoing="//@classes.0/@stateMachines.2/@transitions.0 //@classes.0/@stateMachines.2/@transitions.1"/>
+      <vertices xsi:type="slco:State" name="Zero_r_Acknowledge_rbl_ZeroToZeroAck" incoming="//@classes.0/@stateMachines.2/@transitions.1" outgoing="//@classes.0/@stateMachines.2/@transitions.2 //@classes.0/@stateMachines.2/@transitions.3"/>
+      <transitions name="ASZeroToZero" source="//@classes.0/@stateMachines.2/@vertices.0" target="//@classes.0/@stateMachines.2/@vertices.0">
+        <statements xsi:type="slco:Delay" value="900"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.1" signalName="Acknowledge">
+          <arguments xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.2/@variables.0"/>
+        </statements>
+      </transitions>
+      <transitions name="Zero_to_Zero_r_Acknowledge_rbl_ZeroToZeroAck" source="//@classes.0/@stateMachines.2/@vertices.0" target="//@classes.0/@stateMachines.2/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="and">
+          <operand1 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.6"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+          </operand1>
+          <operand2 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.7"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+          </operand2>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.6">
+          <expression xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+      </transitions>
+      <transitions name="Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero" source="//@classes.0/@stateMachines.2/@vertices.1" target="//@classes.0/@stateMachines.2/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.6"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.6">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@stateMachines.2/@variables.0">
+          <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+            <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            <operand2 xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.2/@variables.0"/>
+          </expression>
+        </statements>
+      </transitions>
+      <transitions name="Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero" source="//@classes.0/@stateMachines.2/@vertices.1" target="//@classes.0/@stateMachines.2/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.6"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <variables name="b">
+        <initialValue xsi:type="slco:IntegerConstantExpression" value="1"/>
+      </variables>
+    </stateMachines>
+    <stateMachines name="C_as_P_outABP_Sender_Sender">
+      <vertices xsi:type="slco:Initial" name="Zero" incoming="//@classes.0/@stateMachines.3/@transitions.3 //@classes.0/@stateMachines.3/@transitions.5" outgoing="//@classes.0/@stateMachines.3/@transitions.1"/>
+      <vertices xsi:type="slco:State" name="One" incoming="//@classes.0/@stateMachines.3/@transitions.0 //@classes.0/@stateMachines.3/@transitions.2 //@classes.0/@stateMachines.3/@transitions.6" outgoing="//@classes.0/@stateMachines.3/@transitions.0 //@classes.0/@stateMachines.3/@transitions.4"/>
+      <vertices xsi:type="slco:State" name="Zero_r_Signal_rbl_ZeroToOne" incoming="//@classes.0/@stateMachines.3/@transitions.1" outgoing="//@classes.0/@stateMachines.3/@transitions.2 //@classes.0/@stateMachines.3/@transitions.3"/>
+      <vertices xsi:type="slco:State" name="One_r_Acknowledge_rbl_OneToZero" incoming="//@classes.0/@stateMachines.3/@transitions.4" outgoing="//@classes.0/@stateMachines.3/@transitions.5 //@classes.0/@stateMachines.3/@transitions.6"/>
+      <transitions name="SenderOneToOne" source="//@classes.0/@stateMachines.3/@vertices.1" target="//@classes.0/@stateMachines.3/@vertices.1">
+        <statements xsi:type="slco:Delay" value="900"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.0/@ports.2" signalName="Message">
+          <arguments xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.3/@variables.1"/>
+          <arguments xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.3/@variables.0"/>
+        </statements>
+      </transitions>
+      <transitions name="Zero_to_Zero_r_Signal_rbl_ZeroToOne" source="//@classes.0/@stateMachines.3/@vertices.0" target="//@classes.0/@stateMachines.3/@vertices.2">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="and">
+          <operand1 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+          </operand1>
+          <operand2 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.1"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression"/>
+          </operand2>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+      </transitions>
+      <transitions name="Zero_r_Signal_rbl_ZeroToOne_to_One" source="//@classes.0/@stateMachines.3/@vertices.2" target="//@classes.0/@stateMachines.3/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@stateMachines.3/@variables.1">
+          <expression xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.2"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="Zero_r_Signal_rbl_ZeroToOne_to_Zero" source="//@classes.0/@stateMachines.3/@vertices.2" target="//@classes.0/@stateMachines.3/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="One_to_One_r_Acknowledge_rbl_OneToZero" source="//@classes.0/@stateMachines.3/@vertices.1" target="//@classes.0/@stateMachines.3/@vertices.3">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="and">
+          <operand1 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.8"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+          </operand1>
+          <operand2 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.9"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+          </operand2>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.8">
+          <expression xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+      </transitions>
+      <transitions name="One_r_Acknowledge_rbl_OneToZero_to_Zero" source="//@classes.0/@stateMachines.3/@vertices.3" target="//@classes.0/@stateMachines.3/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.8"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.8">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@stateMachines.3/@variables.0">
+          <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+            <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            <operand2 xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.3/@variables.0"/>
+          </expression>
+        </statements>
+      </transitions>
+      <transitions name="One_r_Acknowledge_rbl_OneToZero_to_One" source="//@classes.0/@stateMachines.3/@vertices.3" target="//@classes.0/@stateMachines.3/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.8"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <variables name="s">
+        <initialValue xsi:type="slco:IntegerConstantExpression"/>
+      </variables>
+      <variables name="d"/>
+    </stateMachines>
+    <stateMachines name="C_as_P_outABP_AR_AR">
+      <vertices xsi:type="slco:Initial" name="Zero" incoming="//@classes.0/@stateMachines.4/@transitions.1 //@classes.0/@stateMachines.4/@transitions.2" outgoing="//@classes.0/@stateMachines.4/@transitions.0 //@classes.0/@stateMachines.4/@transitions.1"/>
+      <vertices xsi:type="slco:State" name="Zero_s_Acknowledge_abl_ZeroToZeroAck" incoming="//@classes.0/@stateMachines.4/@transitions.0" outgoing="//@classes.0/@stateMachines.4/@transitions.2"/>
+      <transitions name="ZeroToZeroAck" source="//@classes.0/@stateMachines.4/@vertices.0" target="//@classes.0/@stateMachines.4/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.0/@ports.3" signalName="Acknowledge">
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.4/@variables.0"/>
+          </arguments>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.9">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.8">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+      </transitions>
+      <transitions name="ZeroToZero" source="//@classes.0/@stateMachines.4/@vertices.0" target="//@classes.0/@stateMachines.4/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.0/@ports.3" signalName="Acknowledge">
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+              <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+              <operand2 xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.4/@variables.0"/>
+            </expression>
+          </arguments>
+        </statements>
+      </transitions>
+      <transitions name="Zero_s_Acknowledge_abl_ZeroToZeroAck_to_Zero" source="//@classes.0/@stateMachines.4/@vertices.1" target="//@classes.0/@stateMachines.4/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.8"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.8">
+          <expression xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.8"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@stateMachines.4/@variables.0">
+          <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+            <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            <operand2 xsi:type="slco:VariableExpression" variable="//@classes.0/@stateMachines.4/@variables.0"/>
+          </expression>
+        </statements>
+      </transitions>
+      <variables name="b">
+        <initialValue xsi:type="slco:IntegerConstantExpression"/>
+      </variables>
+    </stateMachines>
+    <ports name="C_as_P_inABP_Receiver_ARSender"/>
+    <ports name="C_as_P_inABP_AS_AASAR"/>
+    <ports name="C_as_P_outABP_Sender_ASReceiver"/>
+    <ports name="C_as_P_outABP_AR_AARAS"/>
+    <variables name="C_as_P_out_Original_to_Sender_abl">
+      <initialValue xsi:type="slco:IntegerConstantExpression"/>
+    </variables>
+    <variables name="C_as_P_out_Original_to_Sender_name"/>
+    <variables name="C_as_P_out_Original_to_Sender_arg_0"/>
+    <variables name="C_as_P_in_Receiver_to_Original_abl">
+      <initialValue xsi:type="slco:IntegerConstantExpression"/>
+    </variables>
+    <variables name="C_as_P_in_Receiver_to_Original_name"/>
+    <variables name="C_as_P_in_Receiver_to_Original_arg_0"/>
+    <variables name="C_as_P_in_Receiver_to_AS_abl">
+      <initialValue xsi:type="slco:IntegerConstantExpression"/>
+    </variables>
+    <variables name="C_as_P_in_Receiver_to_AS_name"/>
+    <variables name="C_as_P_out_AR_to_Sender_abl">
+      <initialValue xsi:type="slco:IntegerConstantExpression"/>
+    </variables>
+    <variables name="C_as_P_out_AR_to_Sender_name"/>
+  </classes>
+  <classes name="P_P_P_P_P">
+    <stateMachines name="P_as_Producer">
+      <vertices xsi:type="slco:Initial" name="State" incoming="//@classes.1/@stateMachines.0/@transitions.2" outgoing="//@classes.1/@stateMachines.0/@transitions.0"/>
+      <vertices xsi:type="slco:State" name="State_s_Signal_abl_StateToState" incoming="//@classes.1/@stateMachines.0/@transitions.0 //@classes.1/@stateMachines.0/@transitions.3" outgoing="//@classes.1/@stateMachines.0/@transitions.1"/>
+      <vertices xsi:type="slco:State" name="State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State" incoming="//@classes.1/@stateMachines.0/@transitions.1" outgoing="//@classes.1/@stateMachines.0/@transitions.2 //@classes.1/@stateMachines.0/@transitions.3"/>
+      <transitions name="StateToState" source="//@classes.1/@stateMachines.0/@vertices.0" target="//@classes.1/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.1">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.2">
+          <expression xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+      </transitions>
+      <transitions name="State_s_Signal_abl_StateToState_to_State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State" source="//@classes.1/@stateMachines.0/@vertices.1" target="//@classes.1/@stateMachines.0/@vertices.2">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="and">
+          <operand1 xsi:type="slco:BinaryOperatorExpression" operator="and">
+            <operand1 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+              <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.5"/>
+              <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            </operand1>
+            <operand2 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+              <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.6"/>
+              <operand2 xsi:type="slco:IntegerConstantExpression"/>
+            </operand2>
+          </operand1>
+          <operand2 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.7"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="3"/>
+          </operand2>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.5">
+          <expression xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+      </transitions>
+      <transitions name="State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State_to_State" source="//@classes.1/@stateMachines.0/@vertices.2" target="//@classes.1/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.5"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.5">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="State_s_Signal_abl_StateToState_r_Signal_rbl_State_s_Signal_abl_StateToState_to_State_to_State_s_Signal_abl_StateToState" source="//@classes.1/@stateMachines.0/@vertices.2" target="//@classes.1/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.5"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <stateMachines name="P_as_C_outABP_Sender_Sender">
+      <vertices xsi:type="slco:Initial" name="Zero" incoming="//@classes.1/@stateMachines.1/@transitions.3 //@classes.1/@stateMachines.1/@transitions.5" outgoing="//@classes.1/@stateMachines.1/@transitions.1"/>
+      <vertices xsi:type="slco:State" name="One" incoming="//@classes.1/@stateMachines.1/@transitions.0 //@classes.1/@stateMachines.1/@transitions.2 //@classes.1/@stateMachines.1/@transitions.6" outgoing="//@classes.1/@stateMachines.1/@transitions.0 //@classes.1/@stateMachines.1/@transitions.4"/>
+      <vertices xsi:type="slco:State" name="Zero_r_Signal_rbl_ZeroToOne" incoming="//@classes.1/@stateMachines.1/@transitions.1" outgoing="//@classes.1/@stateMachines.1/@transitions.2 //@classes.1/@stateMachines.1/@transitions.3"/>
+      <vertices xsi:type="slco:State" name="One_r_Acknowledge_rbl_OneToZero" incoming="//@classes.1/@stateMachines.1/@transitions.4" outgoing="//@classes.1/@stateMachines.1/@transitions.5 //@classes.1/@stateMachines.1/@transitions.6"/>
+      <transitions name="SenderOneToOne" source="//@classes.1/@stateMachines.1/@vertices.1" target="//@classes.1/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:Delay" value="900"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.0" signalName="Message">
+          <arguments xsi:type="slco:VariableExpression" variable="//@classes.1/@stateMachines.1/@variables.1"/>
+          <arguments xsi:type="slco:VariableExpression" variable="//@classes.1/@stateMachines.1/@variables.0"/>
+        </statements>
+      </transitions>
+      <transitions name="Zero_to_Zero_r_Signal_rbl_ZeroToOne" source="//@classes.1/@stateMachines.1/@vertices.0" target="//@classes.1/@stateMachines.1/@vertices.2">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="and">
+          <operand1 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.0"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+          </operand1>
+          <operand2 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.1"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression"/>
+          </operand2>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+      </transitions>
+      <transitions name="Zero_r_Signal_rbl_ZeroToOne_to_One" source="//@classes.1/@stateMachines.1/@vertices.2" target="//@classes.1/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@stateMachines.1/@variables.1">
+          <expression xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.2"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="Zero_r_Signal_rbl_ZeroToOne_to_Zero" source="//@classes.1/@stateMachines.1/@vertices.2" target="//@classes.1/@stateMachines.1/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="One_to_One_r_Acknowledge_rbl_OneToZero" source="//@classes.1/@stateMachines.1/@vertices.1" target="//@classes.1/@stateMachines.1/@vertices.3">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="and">
+          <operand1 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.3"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+          </operand1>
+          <operand2 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.4"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+          </operand2>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.3">
+          <expression xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+      </transitions>
+      <transitions name="One_r_Acknowledge_rbl_OneToZero_to_Zero" source="//@classes.1/@stateMachines.1/@vertices.3" target="//@classes.1/@stateMachines.1/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.3"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.3">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@stateMachines.1/@variables.0">
+          <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+            <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            <operand2 xsi:type="slco:VariableExpression" variable="//@classes.1/@stateMachines.1/@variables.0"/>
+          </expression>
+        </statements>
+      </transitions>
+      <transitions name="One_r_Acknowledge_rbl_OneToZero_to_One" source="//@classes.1/@stateMachines.1/@vertices.3" target="//@classes.1/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.3"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <variables name="s">
+        <initialValue xsi:type="slco:IntegerConstantExpression"/>
+      </variables>
+      <variables name="d"/>
+    </stateMachines>
+    <stateMachines name="P_as_C_outABP_AR_AR">
+      <vertices xsi:type="slco:Initial" name="Zero" incoming="//@classes.1/@stateMachines.2/@transitions.1 //@classes.1/@stateMachines.2/@transitions.2" outgoing="//@classes.1/@stateMachines.2/@transitions.0 //@classes.1/@stateMachines.2/@transitions.1"/>
+      <vertices xsi:type="slco:State" name="Zero_s_Acknowledge_abl_ZeroToZeroAck" incoming="//@classes.1/@stateMachines.2/@transitions.0" outgoing="//@classes.1/@stateMachines.2/@transitions.2"/>
+      <transitions name="ZeroToZeroAck" source="//@classes.1/@stateMachines.2/@vertices.0" target="//@classes.1/@stateMachines.2/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.1" signalName="Acknowledge">
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:VariableExpression" variable="//@classes.1/@stateMachines.2/@variables.0"/>
+          </arguments>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.4">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.3">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+      </transitions>
+      <transitions name="ZeroToZero" source="//@classes.1/@stateMachines.2/@vertices.0" target="//@classes.1/@stateMachines.2/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.1" signalName="Acknowledge">
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+              <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+              <operand2 xsi:type="slco:VariableExpression" variable="//@classes.1/@stateMachines.2/@variables.0"/>
+            </expression>
+          </arguments>
+        </statements>
+      </transitions>
+      <transitions name="Zero_s_Acknowledge_abl_ZeroToZeroAck_to_Zero" source="//@classes.1/@stateMachines.2/@vertices.1" target="//@classes.1/@stateMachines.2/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.3"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.3">
+          <expression xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.3"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@stateMachines.2/@variables.0">
+          <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+            <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            <operand2 xsi:type="slco:VariableExpression" variable="//@classes.1/@stateMachines.2/@variables.0"/>
+          </expression>
+        </statements>
+      </transitions>
+      <variables name="b">
+        <initialValue xsi:type="slco:IntegerConstantExpression"/>
+      </variables>
+    </stateMachines>
+    <stateMachines name="P_as_C_inABP_Receiver_Receiver">
+      <vertices xsi:type="slco:Initial" name="Zero" incoming="//@classes.1/@stateMachines.3/@transitions.1 //@classes.1/@stateMachines.3/@transitions.3" outgoing="//@classes.1/@stateMachines.3/@transitions.0 //@classes.1/@stateMachines.3/@transitions.1"/>
+      <vertices xsi:type="slco:State" name="Zero_s_Signal_abl_ZeroToZeroAck" incoming="//@classes.1/@stateMachines.3/@transitions.0" outgoing="//@classes.1/@stateMachines.3/@transitions.2"/>
+      <vertices xsi:type="slco:State" name="Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero" incoming="//@classes.1/@stateMachines.3/@transitions.2" outgoing="//@classes.1/@stateMachines.3/@transitions.3"/>
+      <transitions name="ZeroToZeroAck" source="//@classes.1/@stateMachines.3/@vertices.0" target="//@classes.1/@stateMachines.3/@vertices.1">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.2" signalName="Message">
+          <arguments xsi:type="slco:SignalArgumentVariable" variable="//@classes.1/@stateMachines.3/@variables.1"/>
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:VariableExpression" variable="//@classes.1/@stateMachines.3/@variables.0"/>
+          </arguments>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.6">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.7">
+          <expression xsi:type="slco:VariableExpression" variable="//@classes.1/@stateMachines.3/@variables.1"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.5">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+      </transitions>
+      <transitions name="ZeroToZero" source="//@classes.1/@stateMachines.3/@vertices.0" target="//@classes.1/@stateMachines.3/@vertices.0">
+        <statements xsi:type="slco:SignalReception" port="//@classes.1/@ports.2" signalName="Message">
+          <arguments xsi:type="slco:SignalArgumentVariable" variable="//@classes.1/@stateMachines.3/@variables.1"/>
+          <arguments xsi:type="slco:SignalArgumentExpression">
+            <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+              <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+              <operand2 xsi:type="slco:VariableExpression" variable="//@classes.1/@stateMachines.3/@variables.0"/>
+            </expression>
+          </arguments>
+        </statements>
+      </transitions>
+      <transitions name="Zero_s_Signal_abl_ZeroToZeroAck_to_Zero" source="//@classes.1/@stateMachines.3/@vertices.1" target="//@classes.1/@stateMachines.3/@vertices.2">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.5"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.5">
+          <expression xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.5"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.9">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.8">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+      </transitions>
+      <transitions name="Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero_to_Zero" source="//@classes.1/@stateMachines.3/@vertices.2" target="//@classes.1/@stateMachines.3/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.8"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.8">
+          <expression xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.8"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@stateMachines.3/@variables.0">
+          <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+            <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            <operand2 xsi:type="slco:VariableExpression" variable="//@classes.1/@stateMachines.3/@variables.0"/>
+          </expression>
+        </statements>
+      </transitions>
+      <variables name="r">
+        <initialValue xsi:type="slco:IntegerConstantExpression"/>
+      </variables>
+      <variables name="d"/>
+    </stateMachines>
+    <stateMachines name="P_as_C_inABP_AS_AS">
+      <vertices xsi:type="slco:Initial" name="Zero" incoming="//@classes.1/@stateMachines.4/@transitions.0 //@classes.1/@stateMachines.4/@transitions.2 //@classes.1/@stateMachines.4/@transitions.3" outgoing="//@classes.1/@stateMachines.4/@transitions.0 //@classes.1/@stateMachines.4/@transitions.1"/>
+      <vertices xsi:type="slco:State" name="Zero_r_Acknowledge_rbl_ZeroToZeroAck" incoming="//@classes.1/@stateMachines.4/@transitions.1" outgoing="//@classes.1/@stateMachines.4/@transitions.2 //@classes.1/@stateMachines.4/@transitions.3"/>
+      <transitions name="ASZeroToZero" source="//@classes.1/@stateMachines.4/@vertices.0" target="//@classes.1/@stateMachines.4/@vertices.0">
+        <statements xsi:type="slco:Delay" value="900"/>
+        <statements xsi:type="slco:SendSignal" port="//@classes.1/@ports.3" signalName="Acknowledge">
+          <arguments xsi:type="slco:VariableExpression" variable="//@classes.1/@stateMachines.4/@variables.0"/>
+        </statements>
+      </transitions>
+      <transitions name="Zero_to_Zero_r_Acknowledge_rbl_ZeroToZeroAck" source="//@classes.1/@stateMachines.4/@vertices.0" target="//@classes.1/@stateMachines.4/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="and">
+          <operand1 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.8"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+          </operand1>
+          <operand2 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.9"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+          </operand2>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.8">
+          <expression xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+      </transitions>
+      <transitions name="Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero" source="//@classes.1/@stateMachines.4/@vertices.1" target="//@classes.1/@stateMachines.4/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.8"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@variables.8">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.1/@stateMachines.4/@variables.0">
+          <expression xsi:type="slco:BinaryOperatorExpression" operator="subtract">
+            <operand1 xsi:type="slco:IntegerConstantExpression" value="1"/>
+            <operand2 xsi:type="slco:VariableExpression" variable="//@classes.1/@stateMachines.4/@variables.0"/>
+          </expression>
+        </statements>
+      </transitions>
+      <transitions name="Zero_r_Acknowledge_rbl_ZeroToZeroAck_to_Zero" source="//@classes.1/@stateMachines.4/@vertices.1" target="//@classes.1/@stateMachines.4/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.1/@variables.8"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <variables name="b">
+        <initialValue xsi:type="slco:IntegerConstantExpression" value="1"/>
+      </variables>
+    </stateMachines>
+    <ports name="P_as_C_outABP_Sender_ASReceiver"/>
+    <ports name="P_as_C_outABP_AR_AARAS"/>
+    <ports name="P_as_C_inABP_Receiver_ARSender"/>
+    <ports name="P_as_C_inABP_AS_AASAR"/>
+    <variables name="P_as_C_out_Original_to_Sender_abl">
+      <initialValue xsi:type="slco:IntegerConstantExpression"/>
+    </variables>
+    <variables name="P_as_C_out_Original_to_Sender_name"/>
+    <variables name="P_as_C_out_Original_to_Sender_arg_0"/>
+    <variables name="P_as_C_out_AR_to_Sender_abl">
+      <initialValue xsi:type="slco:IntegerConstantExpression"/>
+    </variables>
+    <variables name="P_as_C_out_AR_to_Sender_name"/>
+    <variables name="P_as_C_in_Receiver_to_Original_abl">
+      <initialValue xsi:type="slco:IntegerConstantExpression"/>
+    </variables>
+    <variables name="P_as_C_in_Receiver_to_Original_name"/>
+    <variables name="P_as_C_in_Receiver_to_Original_arg_0"/>
+    <variables name="P_as_C_in_Receiver_to_AS_abl">
+      <initialValue xsi:type="slco:IntegerConstantExpression"/>
+    </variables>
+    <variables name="P_as_C_in_Receiver_to_AS_name"/>
+  </classes>
+  <objects name="C_C_C_C_C" class="//@classes.0"/>
+  <objects name="P_P_P_P_P" class="//@classes.1"/>
+  <channels xsi:type="slco:UnidirectionalChannel" name="P_as_C_out_Sender_to_Receiver" channelType="async_lossy" sourcePort="//@classes.1/@ports.0" targetPort="//@classes.0/@ports.0" sourceObject="P_P_P_P_P" targetObject="C_C_C_C_C">
+    <argumentTypes/>
+    <argumentTypes/>
+  </channels>
+  <channels xsi:type="slco:UnidirectionalChannel" name="P_as_C_out_AS_to_AR" channelType="async_lossy" sourcePort="//@classes.0/@ports.1" targetPort="//@classes.1/@ports.1" sourceObject="C_C_C_C_C" targetObject="P_P_P_P_P">
+    <argumentTypes/>
+  </channels>
+  <channels xsi:type="slco:UnidirectionalChannel" name="C_as_P_out_Sender_to_Receiver" channelType="async_lossy" sourcePort="//@classes.0/@ports.2" targetPort="//@classes.1/@ports.2" sourceObject="C_C_C_C_C" targetObject="P_P_P_P_P">
+    <argumentTypes/>
+    <argumentTypes/>
+  </channels>
+  <channels xsi:type="slco:UnidirectionalChannel" name="C_as_P_out_AS_to_AR" channelType="async_lossy" sourcePort="//@classes.1/@ports.3" targetPort="//@classes.0/@ports.3" sourceObject="P_P_P_P_P" targetObject="C_C_C_C_C">
+    <argumentTypes/>
+  </channels>
+</slco:Model>

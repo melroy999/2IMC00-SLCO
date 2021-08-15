@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects:ObjectLists xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:objects="objects">
+  <objectLists>
+    <objects href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time.slco#C_as"/>
+    <objects href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time.slco#C_as_P_inABP_AS"/>
+    <objects href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time.slco#C_as_P_inABP_Receiver"/>
+    <objects href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time.slco#C_as_P_outABP_AR"/>
+    <objects href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time.slco#C_as_P_outABP_Sender"/>
+  </objectLists>
+  <objectLists>
+    <objects href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time.slco#P_as"/>
+    <objects href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time.slco#P_as_C_inABP_AS"/>
+    <objects href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time.slco#P_as_C_inABP_Receiver"/>
+    <objects href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time.slco#P_as_C_outABP_AR"/>
+    <objects href="../nqc_slco_ecore/Simple_as_arg_uni_ll_time.slco#P_as_C_outABP_Sender"/>
+  </objectLists>
+</objects:ObjectLists>

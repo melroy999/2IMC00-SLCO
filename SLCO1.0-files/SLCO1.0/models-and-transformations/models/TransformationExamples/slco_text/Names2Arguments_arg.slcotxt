@@ -1,0 +1,47 @@
+model Names2Arguments_arg {
+  classes
+    A {
+      ports
+        Out
+
+      state machines
+        A {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              send Signal("S") to Out
+            }
+        }
+    }
+
+    B {
+      ports
+        In
+
+      state machines
+        B {
+          initial
+            Initial
+
+          final
+            Final
+
+          transitions
+            InitialToFinal from Initial to Final {
+              receive Signal([["S"]]) from In
+            }
+        }
+    }
+
+  objects
+    a: A
+    b: B
+
+  channels
+    C(String) sync from a.Out to b.In
+}

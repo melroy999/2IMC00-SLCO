@@ -1,0 +1,244 @@
+/**
+ * <copyright>
+ * </copyright>
+ *
+ * $Id$
+ */
+package poosl.impl;
+
+import java.util.Collection;
+
+import org.eclipse.emf.common.notify.Notification;
+
+import org.eclipse.emf.common.util.EList;
+
+import org.eclipse.emf.ecore.EClass;
+
+import org.eclipse.emf.ecore.impl.ENotificationImpl;
+import org.eclipse.emf.ecore.impl.EObjectImpl;
+
+import org.eclipse.emf.ecore.util.EObjectResolvingEList;
+
+import poosl.Channel;
+import poosl.PooslPackage;
+import poosl.Port;
+import poosl.ProcessInstance;
+
+/**
+ * <!-- begin-user-doc -->
+ * An implementation of the model object '<em><b>Channel</b></em>'.
+ * <!-- end-user-doc -->
+ * <p>
+ * The following features are implemented:
+ * <ul>
+ *   <li>{@link poosl.impl.ChannelImpl#getName <em>Name</em>}</li>
+ *   <li>{@link poosl.impl.ChannelImpl#getPorts <em>Ports</em>}</li>
+ *   <li>{@link poosl.impl.ChannelImpl#getProcessInstances <em>Process Instances</em>}</li>
+ * </ul>
+ * </p>
+ *
+ * @generated
+ */
+public class ChannelImpl extends EObjectImpl implements Channel {
+	/**
+	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getName()
+	 * @generated
+	 * @ordered
+	 */
+	protected static final String NAME_EDEFAULT = null;
+
+	/**
+	 * The cached value of the '{@link #getName() <em>Name</em>}' attribute.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getName()
+	 * @generated
+	 * @ordered
+	 */
+	protected String name = NAME_EDEFAULT;
+
+	/**
+	 * The cached value of the '{@link #getPorts() <em>Ports</em>}' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getPorts()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<Port> ports;
+
+	/**
+	 * The cached value of the '{@link #getProcessInstances() <em>Process Instances</em>}' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getProcessInstances()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<ProcessInstance> processInstances;
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected ChannelImpl() {
+		super();
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	protected EClass eStaticClass() {
+		return PooslPackage.Literals.CHANNEL;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public String getName() {
+		return name;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public void setName(String newName) {
+		String oldName = name;
+		name = newName;
+		if (eNotificationRequired())
+			eNotify(new ENotificationImpl(this, Notification.SET, PooslPackage.CHANNEL__NAME, oldName, name));
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EList<Port> getPorts() {
+		if (ports == null) {
+			ports = new EObjectResolvingEList<Port>(Port.class, this, PooslPackage.CHANNEL__PORTS);
+		}
+		return ports;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	public EList<ProcessInstance> getProcessInstances() {
+		if (processInstances == null) {
+			processInstances = new EObjectResolvingEList<ProcessInstance>(ProcessInstance.class, this, PooslPackage.CHANNEL__PROCESS_INSTANCES);
+		}
+		return processInstances;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public Object eGet(int featureID, boolean resolve, boolean coreType) {
+		switch (featureID) {
+			case PooslPackage.CHANNEL__NAME:
+				return getName();
+			case PooslPackage.CHANNEL__PORTS:
+				return getPorts();
+			case PooslPackage.CHANNEL__PROCESS_INSTANCES:
+				return getProcessInstances();
+		}
+		return super.eGet(featureID, resolve, coreType);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void eSet(int featureID, Object newValue) {
+		switch (featureID) {
+			case PooslPackage.CHANNEL__NAME:
+				setName((String)newValue);
+				return;
+			case PooslPackage.CHANNEL__PORTS:
+				getPorts().clear();
+				getPorts().addAll((Collection<? extends Port>)newValue);
+				return;
+			case PooslPackage.CHANNEL__PROCESS_INSTANCES:
+				getProcessInstances().clear();
+				getProcessInstances().addAll((Collection<? extends ProcessInstance>)newValue);
+				return;
+		}
+		super.eSet(featureID, newValue);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public void eUnset(int featureID) {
+		switch (featureID) {
+			case PooslPackage.CHANNEL__NAME:
+				setName(NAME_EDEFAULT);
+				return;
+			case PooslPackage.CHANNEL__PORTS:
+				getPorts().clear();
+				return;
+			case PooslPackage.CHANNEL__PROCESS_INSTANCES:
+				getProcessInstances().clear();
+				return;
+		}
+		super.eUnset(featureID);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public boolean eIsSet(int featureID) {
+		switch (featureID) {
+			case PooslPackage.CHANNEL__NAME:
+				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
+			case PooslPackage.CHANNEL__PORTS:
+				return ports != null && !ports.isEmpty();
+			case PooslPackage.CHANNEL__PROCESS_INSTANCES:
+				return processInstances != null && !processInstances.isEmpty();
+		}
+		return super.eIsSet(featureID);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public String toString() {
+		if (eIsProxy()) return super.toString();
+
+		StringBuffer result = new StringBuffer(super.toString());
+		result.append(" (name: ");
+		result.append(name);
+		result.append(')');
+		return result.toString();
+	}
+
+} //ChannelImpl

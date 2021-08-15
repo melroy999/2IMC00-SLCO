@@ -1,0 +1,53 @@
+model dve_adding_3 {
+classes
+	GlobalClass {
+		variables
+			Integer c := 1
+			Integer x1
+			Integer x2
+		state machines
+			a1 {
+				variables
+					
+				initial Q
+				states  R S
+				transitions
+					from Q to R {
+						[c<300; x1 := c]
+					}
+
+					from R to S {
+						[x1 := x1 + c]
+					}
+
+					from S to Q {
+						[c := x1]
+					}
+
+				}
+	
+			a2 {
+				variables
+					
+				initial Q
+				states  R S
+				transitions
+					from Q to R {
+						[c<300; x2 := c]
+					}
+
+					from R to S {
+						[x2 := x2 + c]
+					}
+
+					from S to Q {
+						[c := x2]
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

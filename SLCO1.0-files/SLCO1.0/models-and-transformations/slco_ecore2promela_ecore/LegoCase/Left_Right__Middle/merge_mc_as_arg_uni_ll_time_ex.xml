@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="slco2promela" default="runTransformation" basedir=".">
+
+  <property name='inputname' value='LegoCase_merge_mc_as_arg_uni_ll_time_ex' />
+  <property name='slcosourcedir' value='../../../models/LegoCase/Left_Right__Middle/nqc_slco_ecore'/>
+
+  <property name='slcoinputfile' value='${inputname}.slco' />
+  <property name='targetdir' value='../../../models/LegoCase/Left_Right__Middle/promela_ecore'/>
+
+  <!-- Executing a single transformation -->
+  <target name="runTransformation">
+    <!-- Load the source and target metamodel, and the source model -->
+    <atl.loadModel metamodel="%EMF" name="slco" path="../../slco.ecore"/>
+    <atl.loadModel metamodel="%EMF" name="promela" path="../../promela.ecore"/>
+    <atl.loadModel metamodel="slco" name="in" path="${slcosourcedir}/${slcoinputfile}" />
+
+    <!-- Perform the transformation -->
+    <atl.launch path="../../slco2promela.asm" refining="false">
+      <inModel name="IN" model="in"/>
+      <outModel name="OUT" model="out" metamodel="promela"/>
+    </atl.launch>
+
+    <!-- Serialize the result of the transformation -->
+    <atl.saveModel model="out" path="${targetdir}/${inputname}.promela" />
+  </target>
+
+</project>

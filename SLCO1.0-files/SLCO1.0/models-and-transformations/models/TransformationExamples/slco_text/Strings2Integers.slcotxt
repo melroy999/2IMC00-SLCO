@@ -1,0 +1,38 @@
+model Strings2Integers {
+  classes
+    A {
+      variables
+        String v1 = ""
+        String v2 = ""
+
+      state machines
+        A {
+          initial
+            Initial
+
+          state
+            State
+
+          final
+            Final
+
+          transitions
+            InitialToState from Initial to State {
+              v1 := "String1";
+              v2 := "String1"
+            }
+            
+            StateToState from State to State {
+              v1 == v2;
+              v1 := "String2"
+            }
+
+            StateToFinal from State to Final {
+              v1 != v2
+            }
+        }
+    }
+
+  objects
+    a: A
+}

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="ASCII"?>
+<slco:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:slco="slco" name="Simple_merge">
+  <classes name="P_C">
+    <stateMachines name="P_Producer">
+      <vertices xsi:type="slco:Initial" name="State" incoming="//@classes.0/@stateMachines.0/@transitions.1" outgoing="//@classes.0/@stateMachines.0/@transitions.0"/>
+      <vertices xsi:type="slco:State" name="State_s_Bericht_abl_StateToState" incoming="//@classes.0/@stateMachines.0/@transitions.0" outgoing="//@classes.0/@stateMachines.0/@transitions.1"/>
+      <transitions name="StateToState" source="//@classes.0/@stateMachines.0/@vertices.0" target="//@classes.0/@stateMachines.0/@vertices.1">
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.1">
+          <expression xsi:type="slco:StringConstantExpression" value="Bericht"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="1"/>
+        </statements>
+      </transitions>
+      <transitions name="State_s_Bericht_abl_StateToState_to_State" source="//@classes.0/@stateMachines.0/@vertices.1" target="//@classes.0/@stateMachines.0/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <stateMachines name="C_Consumer">
+      <vertices xsi:type="slco:Initial" name="State" incoming="//@classes.0/@stateMachines.1/@transitions.1 //@classes.0/@stateMachines.1/@transitions.2" outgoing="//@classes.0/@stateMachines.1/@transitions.0"/>
+      <vertices xsi:type="slco:State" name="State_r_Bericht_rbl_StateToState" incoming="//@classes.0/@stateMachines.1/@transitions.0" outgoing="//@classes.0/@stateMachines.1/@transitions.1 //@classes.0/@stateMachines.1/@transitions.2"/>
+      <transitions name="State_to_State_r_Bericht_rbl_StateToState" source="//@classes.0/@stateMachines.1/@vertices.0" target="//@classes.0/@stateMachines.1/@vertices.1">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="and">
+          <operand1 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+            <operand2 xsi:type="slco:IntegerConstantExpression" value="1"/>
+          </operand1>
+          <operand2 xsi:type="slco:BinaryOperatorExpression" operator="equals">
+            <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.1"/>
+            <operand2 xsi:type="slco:StringConstantExpression" value="Bericht"/>
+          </operand2>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression" value="2"/>
+        </statements>
+      </transitions>
+      <transitions name="State_r_Bericht_rbl_StateToState_to_State" source="//@classes.0/@stateMachines.1/@vertices.1" target="//@classes.0/@stateMachines.1/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression" value="3"/>
+        </statements>
+        <statements xsi:type="slco:Assignment" variable="//@classes.0/@variables.0">
+          <expression xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+      <transitions name="State_r_Bericht_rbl_StateToState_to_State" source="//@classes.0/@stateMachines.1/@vertices.1" target="//@classes.0/@stateMachines.1/@vertices.0">
+        <statements xsi:type="slco:BinaryOperatorExpression" operator="equals">
+          <operand1 xsi:type="slco:VariableExpression" variable="//@classes.0/@variables.0"/>
+          <operand2 xsi:type="slco:IntegerConstantExpression"/>
+        </statements>
+      </transitions>
+    </stateMachines>
+    <variables name="Producer_To_Consumer_abl">
+      <initialValue xsi:type="slco:IntegerConstantExpression"/>
+    </variables>
+    <variables name="Producer_To_Consumer_name" type="String"/>
+  </classes>
+  <objects name="P_C" class="//@classes.0"/>
+</slco:Model>

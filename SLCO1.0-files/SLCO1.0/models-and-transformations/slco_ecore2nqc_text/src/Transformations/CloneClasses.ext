@@ -1,0 +1,38 @@
+import slco;
+import channels;
+
+extension org::eclipse::xtend::util::stdlib::io;
+extension Libraries::Equality;
+extension Libraries::ModifyModel;
+
+// ****************************************************************************
+// ############################################################################
+// ----------------------------------------------------------------------------
+// Clones the classes that are related to the channels.
+// ----------------------------------------------------------------------------
+// ############################################################################
+// ****************************************************************************
+
+// ############################################################################
+// ----------------------------------------------------------------------------
+// Copy the classes that need to be modified and update all references to these
+// classes.
+// ----------------------------------------------------------------------------
+// ############################################################################
+
+slco::Model cloneClasses(
+   slco::Model model, channels::ChannelList channels
+) :
+   let cl = model.channels.select(
+      c1
+   |
+      channels.channels.exists(
+         c2 
+      |
+         c1.channelEqualsChannel(c2)
+      )
+   ) :
+      model.modifyModel(cl, "_c")
+   -> model.setName(model.name + "_c")
+   -> model
+;

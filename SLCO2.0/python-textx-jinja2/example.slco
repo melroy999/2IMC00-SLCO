@@ -1,0 +1,43 @@
+actions a b
+
+model Test {
+	classes
+	P {
+	  variables Boolean[2] x
+	  ports In1 In2 InOut
+	  state machines
+		SMC {
+		  variables Integer i
+			initial SMC0 states SMC1
+			transitions
+				from SMC0 to SMC1 {
+					receive P(i|i=0) from In1;
+					[not x[i]; i := i+1; x[i]:=i*2; i:=x[1]; x[0]:=5]
+				}
+		}
+	}
+	Q {
+		variables Integer y
+		ports Out1 Out2 InOut
+		state machines
+			Com {
+				variables Integer x := 0
+				initial Com0 states Com1 Com2
+				transitions
+					from Com0 to Com1 {
+						send P(y) to Out1; x = 0;
+					}
+					from Com0 to Com2 {
+						x := 1; a
+					}
+					from Com1 to Com1 {
+						b; a; b
+					}
+			}
+	}
+	objects p: P(x:=[False,True]), q : Q(y:=1)
+	channels
+		c1(Integer) async[5] lossless from q.Out1 to p.In1
+		c2(Integer,Boolean) async[2] lossy from q.Out2 to p.In2
+		c3(Integer) sync between p.InOut and q.InOut
+}

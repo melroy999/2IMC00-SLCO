@@ -1,0 +1,51 @@
+model gen_sm_2_4_s_5_15_t_8_30_model_0 {
+classes
+	GlobalClass {
+		variables
+			Boolean var_1
+			Boolean var_2
+			Boolean var_3
+			Boolean var_4
+			Boolean var_5
+			Boolean var_6
+			Boolean var_7
+			Boolean var_8
+			Boolean var_9
+			Boolean var_10
+			Boolean var_11
+			Boolean var_12
+			Boolean var_13
+			Boolean var_14
+
+		state machines
+			StateMachine_0 {
+				variables
+					Boolean var_local
+				initial S0
+				states  S1 S2 S3 S4 S5 S6 S7 S8 S9 S10 S11 S12 S13
+				transitions	
+					from S0 to S2 { [var_8 := var_12; var_13 := var_13] }
+				}
+
+			StateMachine_1 {
+				variables
+					Boolean var_local
+				initial S0
+				states  S1 S2 S3 S4 S5 S6 S7 S8 S9 S10 S11 S12 S13
+				transitions	
+					from S0 to S1 { [var_local := var_12; var_13 := var_local] }
+				}
+
+			StateMachine_2 {
+				variables
+					Boolean var_local
+				initial S0
+				states  S1 S2 S3 S4 S5 S6 S7 S8 S9 S10 S11 S12 S13
+				transitions	
+					from S0 to S1 { [var_8 := var_8 ; var_14 := var_8 ; var_11 := var_2]}
+				}
+	}
+
+objects
+	globalObject : GlobalClass(var_1 := true)
+}

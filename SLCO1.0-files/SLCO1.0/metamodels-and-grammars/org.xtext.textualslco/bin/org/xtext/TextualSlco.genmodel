@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<genmodel:GenModel xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore"
+    xmlns:genmodel="http://www.eclipse.org/emf/2002/GenModel" modelDirectory="/org.xtext.textualslco/src-gen" editDirectory="/org.xtext.textualslco.edit/src"
+    editorDirectory="/org.xtext.textualslco.editor/src" modelPluginID="org.xtext.textualslco"
+    forceOverwrite="true" modelName="TextualSlco" updateClasspath="false" rootExtendsClass="org.eclipse.emf.ecore.impl.MinimalEObjectImpl$Container"
+    complianceLevel="5.0" copyrightFields="false" editPluginID="org.xtext.textualslco.edit"
+    editorPluginID="org.xtext.textualslco.editor" runtimeVersion="2.9">
+  <genPackages prefix="TextualSlco" basePackage="org.xtext" disposableProviderFactory="true"
+      ecorePackage="TextualSlco.ecore#/">
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="TextualSlco.ecore#//PrimitiveType">
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//PrimitiveType/Integer"/>
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//PrimitiveType/String"/>
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//PrimitiveType/Boolean"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="TextualSlco.ecore#//ChannelType">
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//ChannelType/Synchronous"/>
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//ChannelType/AsynchronousLossless"/>
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//ChannelType/AsynchronousLossy"/>
+    </genEnums>
+    <genEnums typeSafeEnumCompatible="false" ecoreEnum="TextualSlco.ecore#//Operator">
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//Operator/atLeast"/>
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//Operator/atMost"/>
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//Operator/add"/>
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//Operator/and"/>
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//Operator/or"/>
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//Operator/equals"/>
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//Operator/differs"/>
+      <genEnumLiterals ecoreEnumLiteral="TextualSlco.ecore#//Operator/subtract"/>
+    </genEnums>
+    <genClasses ecoreClass="TextualSlco.ecore#//Model">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//Model/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Model/classes"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Model/objects"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Model/channels"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//Class">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//Class/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Class/variables"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Class/ports"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Class/stateMachines"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//StateMachine">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//StateMachine/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//StateMachine/variables"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//StateMachine/vertices"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//StateMachine/transitions"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//Vertex">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//Vertex/name"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//Initial"/>
+    <genClasses ecoreClass="TextualSlco.ecore#//State"/>
+    <genClasses ecoreClass="TextualSlco.ecore#//Final"/>
+    <genClasses ecoreClass="TextualSlco.ecore#//VertexReference">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//VertexReference/name"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//Transition">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//Transition/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Transition/source"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Transition/target"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Transition/statements"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//Statement"/>
+    <genClasses ecoreClass="TextualSlco.ecore#//Delay">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//Delay/value"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//PortReference">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//PortReference/name"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//SignalReception">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//SignalReception/signalName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//SignalReception/arguments"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//SignalReception/condition"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//SignalReception/port"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//SignalArgument"/>
+    <genClasses ecoreClass="TextualSlco.ecore#//SignalArgumentVariable">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//SignalArgumentVariable/variable"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//SignalArgumentExpression">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//SignalArgumentExpression/expression"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//Assignment">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Assignment/variable"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Assignment/expression"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//SendSignal">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//SendSignal/signalName"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//SendSignal/arguments"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//SendSignal/port"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//Object">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//Object/name"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Object/class"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//Port">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//Port/name"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//Channel">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//Channel/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Channel/argumentTypes"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//Channel/channelType"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//UnidirectionalChannel">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//UnidirectionalChannel/sourceObject"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//UnidirectionalChannel/sourcePort"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//UnidirectionalChannel/targetObject"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//UnidirectionalChannel/targetPort"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//BidirectionalChannel">
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//BidirectionalChannel/object1"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//BidirectionalChannel/port1"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//BidirectionalChannel/object2"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//BidirectionalChannel/port2"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//ArgumentType">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//ArgumentType/type"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//Variable">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//Variable/type"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//Variable/name"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//Variable/intialValue"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//Expression"/>
+    <genClasses ecoreClass="TextualSlco.ecore#//BooleanConstantExpression">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//BooleanConstantExpression/value"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//IntegerConstantExpression">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//IntegerConstantExpression/value"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//StringConstantExpression">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//StringConstantExpression/value"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//VariableReference">
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//VariableReference/name"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//VariableExpression">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//VariableExpression/variable"/>
+    </genClasses>
+    <genClasses ecoreClass="TextualSlco.ecore#//BinaryOperatorExpression">
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//BinaryOperatorExpression/operand1"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute TextualSlco.ecore#//BinaryOperatorExpression/operator"/>
+      <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference TextualSlco.ecore#//BinaryOperatorExpression/operand2"/>
+    </genClasses>
+  </genPackages>
+</genmodel:GenModel>

@@ -1,0 +1,41 @@
+<workflow>
+
+  <property name='inputname' value='AddDelays' />
+  <property name='slcoinputfile' value='${inputname}.slco' />
+  <property name='delaysinputfile' value='${inputname}_time.delays' />
+
+  <property name='outputfile' value='${inputname}_time.slco' />
+
+  <property name='sourcedir' value='../models/TransformationExamples/slco_ecore'/>
+  <property name='targetdir' value='../models/TransformationExamples/slco_ecore'/>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${sourcedir}/${slcoinputfile}"/>
+    <outputSlot value="InModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiReader">
+    <modelFile value="${sourcedir}/${delaysinputfile}"/>
+    <outputSlot value="Delays"/>
+  </component>
+
+  <component id="s2as" class="org.eclipse.xtend.XtendComponent">
+    <metaModel id="slco" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco.SlcoPackage"/>
+    </metaModel>
+    <metaModel id="slco2nqc" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="slco2nqc.Slco2nqcPackage"/>
+    </metaModel>
+    <metaModel id="channels" class="org.eclipse.xtend.typesystem.emf.EmfMetaModel">
+      <metaModelPackage value="delays.DelaysPackage"/>
+    </metaModel>
+    <invoke value="Transformations::AddDelays::modifyModelDelays(InModel, Delays)"/>
+    <outputSlot value="OutModel"/>
+  </component>
+
+  <component class="org.eclipse.xtend.typesystem.emf.XmiWriter">
+    <modelFile value="${targetdir}/${outputfile}"/>
+    <inputSlot value="OutModel"/>
+  </component>
+
+</workflow>

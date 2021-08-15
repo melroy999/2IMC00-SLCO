@@ -1,0 +1,76 @@
+model dve_anderson_1 {
+classes
+	GlobalClass {
+		variables
+			Byte[2] Slot := [1,0]
+			Byte next := 0
+		state machines
+			P_0 {
+				variables
+					Byte myplace
+				initial NCS
+				states  p1 p2 p3 CS
+				transitions
+					from NCS to p1 {
+						[myplace := next;next := next+1]
+					}
+
+					from p1 to p2 {
+						[myplace = 2-1; next := next-2]
+					}
+
+					from p1 to p2 {
+						[myplace <> 2-1; myplace := myplace%2]
+					}
+
+					from p2 to p3 {
+						Slot[myplace] = 1
+					}
+
+					from p3 to CS {
+						[Slot[(myplace+2-1)%2] := 0]
+					}
+
+					from CS to NCS {
+						[Slot[(myplace+1)%2] := 1]
+					}
+
+				}
+	
+			P_1 {
+				variables
+					Byte myplace
+				initial NCS
+				states  p1 p2 p3 CS
+				transitions
+					from NCS to p1 {
+						[myplace := next;next := next+1]
+					}
+
+					from p1 to p2 {
+						[myplace = 2-1; next := next-2]
+					}
+
+					from p1 to p2 {
+						[myplace <> 2-1; myplace := myplace%2]
+					}
+
+					from p2 to p3 {
+						Slot[myplace] = 1
+					}
+
+					from p3 to CS {
+						[Slot[(myplace+2-1)%2] := 0]
+					}
+
+					from CS to NCS {
+						[Slot[(myplace+1)%2] := 1]
+					}
+
+				}
+	
+	}
+
+objects
+	globalObject : GlobalClass()
+}

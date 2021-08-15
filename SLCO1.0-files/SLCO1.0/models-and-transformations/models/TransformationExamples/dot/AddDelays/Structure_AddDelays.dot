@@ -1,0 +1,12 @@
+
+digraph AddDelays {
+  node [shape=record]
+  edge [dir=back, arrowtail=diamond]
+
+A_1
+ [label="{A||}"]
+A_1_A [label="{A||}", style=filled, fillcolor=gray95]
+A_1 -> A_1_A
+
+
+}

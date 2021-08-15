@@ -1,0 +1,757 @@
+import poosl;
+import slco;
+
+extension org::eclipse::xtend::util::stdlib::io;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::Model createModel(slco::Model model) :
+   this.setName(model.name.replaceAll('-', '_'))
+-> this.classes.addAll(
+      model.classes.select(
+         c
+      |
+         c.stateMachines.size != 0
+      ).createProcessClass(this)
+   )
+-> this.setChannels(
+      model.channels.createChannel(this)
+   )
+-> this.setProcessInstances(
+      model.objects.createProcessInstance(this)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::PrimitiveType createPrimitiveType(
+   slco::PrimitiveTypeEnum type, poosl::Model model
+) :
+   switch (type) {
+      case slco::PrimitiveTypeEnum::Integer : (
+         model.primitiveTypes.add(this)
+      -> this.setPrimitiveTypeEnum(poosl::PrimitiveTypeEnum::integer)
+      )
+      case slco::PrimitiveTypeEnum::Boolean : (
+         model.primitiveTypes.add(this)
+      -> this.setPrimitiveTypeEnum(poosl::PrimitiveTypeEnum::boolean)
+      )
+      case slco::PrimitiveTypeEnum::String : (
+         model.primitiveTypes.add(this)
+      -> this.setPrimitiveTypeEnum(poosl::PrimitiveTypeEnum::string)
+      )
+      default :
+         syserr(
+            "Unknown PrimitiveType encountered ("
+            +
+            type.toString()
+            +
+            ")"
+         )
+   }
+;
+
+// ------------------------------------------------------------------------------------
+
+slco::Channel createChannel(slco::Channel channel, poosl::Model model) :
+   syserr(
+     "Unknown type of Channel encountered: "
+     +
+     channel.metaType.toString()
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::Channel createChannel(
+   slco::BidirectionalChannel channel, poosl::Model model
+) :
+   this.setName(channel.name)
+-> this.setPort1(channel.port1.createPort())
+-> this.setPort2(channel.port2.createPort())
+-> this.setProcessInstance1(
+      channel.object1.createProcessInstance(model)
+   )
+-> this.setProcessInstance2(
+      channel.object2.createProcessInstance(model)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::Channel createChannel(
+   slco::UnidirectionalChannel channel, poosl::Model model
+) :
+   this.setName(channel.name)
+-> this.setPort1(channel.sourcePort.createPort())
+-> this.setPort2(channel.targetPort.createPort())
+-> this.setProcessInstance1(
+      channel.sourceObject.createProcessInstance(model)
+   )
+-> this.setProcessInstance2(
+      channel.targetObject.createProcessInstance(model)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::Port createPort(slco::Port port) :
+   this.setName(port.name)
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::ProcessClass createProcessClass(slco::Class class, poosl::Model model) :
+   this.setName(class.name)
+-> this.setPorts(
+      class.ports.createPort()
+   )
+-> this.setVariables(
+      class.variables.createVariable(model)
+   )
+-> this.variables.addAll(
+      class.stateMachines.variables.createVariable(model)
+   )
+-> this.methods.addAll(
+      class.stateMachines.vertices.createProcessMethod(this, model)
+   )
+-> this.methods.add(
+      class.stateMachines.createInitialMethod(class, this, model)
+   )
+-> this.setInitialMethodCall(
+      createProcessMethodCall(
+         class.stateMachines.createInitialMethod(class, this, model)
+      )
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::ProcessMethodCall createProcessMethodCall(
+   poosl::ProcessMethod processMethod
+) :
+   this.setMethod(processMethod)
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::ProcessMethod createInitialMethod(
+   List[slco::StateMachine] stateMachines, slco::Class slcoClass,
+   poosl::ProcessClass pooslClass, poosl::Model model
+) :
+   this.setName(slcoClass.name + "_initial")
+-> this.addAssignments(slcoClass, model)
+-> if (stateMachines.size == 1) then (
+      this.body.add(
+         createProcessMethodCall(
+            stateMachines.vertices.selectFirst(
+               v
+            |
+               v.metaType == slco::Initial
+            ).createProcessMethod(pooslClass, model)
+         )
+      )
+   ) else if (stateMachines.size > 1) then (
+      this.body.add(
+         startAllStateMachines(stateMachines, pooslClass, model)
+      )
+   )
+;
+   
+// ------------------------------------------------------------------------------------
+
+create poosl::ParallelComposition startAllStateMachines(
+   List[slco::StateMachine] stateMachines, poosl::ProcessClass class,
+   poosl::Model model
+) :
+   this.statementLists.addAll(
+      stateMachines.vertices.select(
+         v
+      |
+         v.metaType == slco::Initial
+      ).createProcessMethod(
+         class, model
+      ).createProcessMethodCall().createStatementList()
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::StatementList createStatementList(poosl::Statement statement) :
+   this.statements.add(statement)
+;
+
+// ------------------------------------------------------------------------------------
+
+Void addAssignments(
+   poosl::ProcessMethod processMethod, slco::Class class, poosl::Model model
+) :
+   let sl1 = class.variables.select(
+               v
+            |
+               v.initialValue != null
+            ).createAssignmentForInitialization(model) :
+   let sl2 = class.stateMachines.variables.select(
+                v
+             |
+                v.initialValue != null
+             ).createAssignmentForInitialization(model) :
+      sl1.addAll(sl2)
+   -> sl1.addAll(
+         processMethod.body
+      )
+   -> processMethod.setBody(sl1)
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::Assignment createAssignmentForInitialization(
+   slco::Variable variable, poosl::Model model
+) :
+   this.setLeftHandSide(variable.createVariable(model))
+-> this.rightHandSide.add(
+      variable.initialValue.createExpression(model)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::StatementList createProcessMethodCallList(
+   slco::Vertex vertex, poosl::ProcessClass class, poosl::Model model
+) :
+   this.statements.add(
+      vertex.createProcessMethodCall(class, model)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::ProcessMethodCall createProcessMethodCall(
+   slco::Vertex vertex, poosl::ProcessClass class, poosl::Model model
+) :
+   this.setMethod(vertex.createProcessMethod(class, model))
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::ProcessMethod createProcessMethod(
+   slco::Vertex vertex, poosl::ProcessClass class, poosl::Model model
+) :
+   this.setName(
+      ((slco::StateMachine) vertex.eContainer).name + "_" + vertex.name
+   )
+-> this.variables.addAll(
+      vertex.outgoing.statements.typeSelect(
+         slco::SignalReception
+      ).arguments.typeSelect(
+         slco::SignalArgumentExpression
+      ).expression.createVariableFromExpression(model)
+   )
+-> if (((slco::State) vertex).outgoing.size == 0) then (
+      let skip = new poosl::Skip :
+         this.body.add(skip)
+   ) else if (((slco::State) vertex).outgoing.size == 1) then (
+      this.body.addAll(
+         (
+            (slco::State) vertex
+         ).outgoing.createStatementListFromTransition(class, model).statements
+      )
+   ) else (
+      let selection = new poosl::Selection :
+         this.body.add(selection)
+      -> selection.statementLists.addAll(
+            (
+               (slco::State) vertex
+            ).outgoing.createStatementListFromTransition(class, model)
+         )
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::StatementList createStatementListFromTransition(
+   slco::Transition transition, poosl::ProcessClass class, poosl::Model model
+) :
+   let processMethodCall = new poosl::ProcessMethodCall :
+      this.statements.addAll(
+        transition.statements.createStatement(model)
+      )
+   -> processMethodCall.setMethod(
+         transition.target.createProcessMethod(class, model)
+      )
+   -> this.statements.add(
+         processMethodCall
+      )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::GuardedExecution createGuardedSkip(
+   slco::Expression guard, poosl::Model model
+) :
+  let skip = new poosl::Skip :
+     this.setStatement(skip)
+  -> this.guard.add(
+        guard.createExpression(model)
+     )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::GuardedExecution createGuardedStatement(
+   slco::Expression guard, poosl::Statement statement, poosl::Model model
+) :
+   this.setStatement(statement)
+-> this.guard.add(
+      guard.createExpression(model)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::Expression createExpression(
+   slco::Expression expression, poosl::Model model
+) :
+   syserr(
+      "Unable to translate this Expression ("
+      +
+      expression.metaType.toString()
+      +
+      ")"
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::Statement createStatement(
+   slco::Statement statement, poosl::Model model
+) :
+   syserr(
+      "Unable to translate this Statement to a Statement ("
+      +
+      statement.metaType.toString()
+      +
+      ")"
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::Statement createStatement(
+   slco::Expression expression, poosl::Model model
+) :
+   expression.createGuardedSkip(model)
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::MessageSend createStatement(
+   slco::SendSignal statement, poosl::Model model
+) :
+   this.setMessage(statement.signalName.createOutgoingMessage())
+-> this.setPort(statement.port.createPort())
+-> this.expressionLists.addAll(
+      statement.arguments.createExpressionListFromExpression(model)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::OutgoingMessage createOutgoingMessage(String name) :
+   let om = new poosl::OutgoingMessage :
+      om.setName(name)
+   -> om
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::Assignment createStatement(
+   slco::Assignment statement, poosl::Model model
+) :
+   this.setLeftHandSide(
+      statement.variable.createVariable(model)
+   )
+-> this.rightHandSide.add(
+      statement.expression.createExpression(model)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::ExpressionList createExpressionListFromExpression(
+   slco::Expression expression, poosl::Model model
+) :
+   this.expressions.add(
+      expression.createExpression(model)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::ProcessInstance createProcessInstance(
+   slco::Object object, poosl::Model model
+) :
+   this.setName(object.name)
+-> this.setClass(object.class.createProcessClass(model))
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::Variable createVariable(slco::Variable variable, poosl::Model model) :
+   this.setType(variable.type.createPrimitiveType(model))
+-> if (variable.eContainer.metaType == slco::StateMachine) then (
+      this.setName(
+         ((slco::Class) variable.eContainer.eContainer).name +
+         ((slco::StateMachine) variable.eContainer).name +
+         variable.name
+      )
+   ) else if (variable.eContainer.metaType == slco::Class) then (
+      this.setName(variable.name)
+   ) else (
+      syserr("Variable contained by unknown type")
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::ConstantExpression createExpression(
+   slco::BooleanConstantExpression expression, poosl::Model model
+) :
+   let constantExpression = new poosl::ConstantExpression :
+      constantExpression.setConstant(expression.value.createBooleanConstant())
+   -> constantExpression
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::ConstantExpression createExpression(
+   slco::IntegerConstantExpression expression, poosl::Model model
+) :
+   let constantExpression = new poosl::ConstantExpression :
+      constantExpression.setConstant(expression.value.createIntegerConstant())
+   -> constantExpression
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::ConstantExpression createExpression(
+   slco::StringConstantExpression expression, poosl::Model model
+) :
+   let constantExpression = new poosl::ConstantExpression :
+      constantExpression.setConstant(expression.value.createStringConstant())
+   -> constantExpression
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::Constant createBooleanConstant(Boolean value) :
+   let constant = new poosl::Constant :
+      constant.setType(poosl::PrimitiveTypeEnum::boolean)
+   -> constant.setBoolean(value)
+   -> constant
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::Constant createIntegerConstant(Integer value) :
+   let constant = new poosl::Constant :
+      constant.setType(poosl::PrimitiveTypeEnum::integer)
+   -> constant.setInteger(value)
+   -> constant
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::Constant createStringConstant(String value) :
+   let constant = new poosl::Constant :
+      constant.setType(poosl::PrimitiveTypeEnum::string)
+   -> constant.setString(value)
+   -> constant
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::ConstantExpression createConstantExpression(poosl::Constant constant) :
+   let constantExpression = new poosl::ConstantExpression :
+      constantExpression.setConstant(constant)
+   -> constantExpression
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::PrimitiveDataMethodCall createExpression(
+   slco::BinaryOperatorExpression expression, poosl::Model model
+) :
+   switch (expression.operator) {
+      case slco::OperatorEnum::add :
+         this.setPrimitiveDataMethod(poosl::PrimitiveDataMethodEnum::add)
+      case slco::OperatorEnum::atLeast :
+         this.setPrimitiveDataMethod(poosl::PrimitiveDataMethodEnum::atLeast)
+      case slco::OperatorEnum::atMost :
+         this.setPrimitiveDataMethod(poosl::PrimitiveDataMethodEnum::atMost)
+      case slco::OperatorEnum::and :
+         this.setPrimitiveDataMethod(poosl::PrimitiveDataMethodEnum::and)
+      case slco::OperatorEnum::or :
+         this.setPrimitiveDataMethod(poosl::PrimitiveDataMethodEnum::or)
+      case slco::OperatorEnum::equals :
+         this.setPrimitiveDataMethod(poosl::PrimitiveDataMethodEnum::equals)
+      case slco::OperatorEnum::differs :
+         this.setPrimitiveDataMethod(poosl::PrimitiveDataMethodEnum::differs)
+      case slco::OperatorEnum::subtract :
+         this.setPrimitiveDataMethod(poosl::PrimitiveDataMethodEnum::subtract)
+      default :
+         syserr(
+            "Unknown operator encountered ("
+            +
+            expression.operator.toString()
+            +
+            ")" 
+         )
+   }
+-> this.objectExpressions.add(
+      expression.operand1.createExpression(model)
+   )
+-> this.parameterExpressionLists.add(
+      expression.operand2.createExpressionListFromExpression(model)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::VariableExpression createExpression(
+   slco::VariableExpression expression, poosl::Model model
+) :
+   let variableExpression = new poosl::VariableExpression :
+      variableExpression.setVariable(expression.variable.createVariable(model))
+   -> variableExpression
+;
+
+// ----------------------------------------------------------------------------
+
+create poosl::MessageReceive createStatement(
+   slco::SignalReception trigger, poosl::Model model
+) :
+   let el = (List[poosl::Expression]) {}:
+      this.setMessage(trigger.signalName.createIncomingMessage())
+   -> this.setPort(trigger.port.createPort())
+   -> this.setVariables(
+         trigger.arguments.createVariableFromArgument(model)
+      )
+   -> if (
+         trigger.arguments.typeSelect(slco::SignalArgumentExpression).size != 0
+      ) then (
+         el.addAll(
+            trigger.arguments.typeSelect(
+               slco::SignalArgumentExpression
+            ).expression.createEquationForCondition(model)
+         )
+      )
+   -> if (
+         trigger.condition != null
+      ) then (
+         el.add(
+            trigger.condition.createExpression(model)
+         )
+      )
+   -> if (
+         trigger.arguments.typeSelect(slco::SignalArgumentExpression).size != 0
+         ||
+         trigger.condition != null
+      ) then (
+         this.condition.add(
+            el.createConditionFromList(model)
+         )
+      )
+;
+
+
+
+// ------------------------------------------------------------------------------------
+
+poosl::Expression createConditionFromList(
+   List[poosl::Expression] expressions, poosl::Model model
+) :
+   if (expressions.size == 1) then (
+      expressions.first()
+   ) else (
+      createPrimitiveDataMethodCallExpression(
+         poosl::PrimitiveDataMethodEnum::and,
+         expressions.first(),
+         expressions.withoutFirst().createConditionFromList(model).createExpressionListFromExpression()
+      )
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::Expression createEquationForCondition(
+   slco::Expression expression, poosl::Model model
+) :
+   createPrimitiveDataMethodCallExpression(
+      poosl::PrimitiveDataMethodEnum::equals,
+      createVariableExpression(
+         expression.createVariableFromExpression(model)
+      ),
+      expression.createExpressionListFromExpression(model)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::ExpressionList createExpressionListFromExpression(
+   poosl::Expression expression
+) :
+   this.expressions.add(
+      expression
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::VariableExpression createVariableExpression(poosl::Variable variable) :
+   this.setVariable(variable)
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::PrimitiveDataMethodCall createPrimitiveDataMethodCallExpression(
+   poosl::PrimitiveDataMethodEnum operator, poosl::Expression expression,
+   poosl::ExpressionList expressionList
+) :
+   this.setPrimitiveDataMethod(operator)
+-> this.objectExpressions.add(expression)
+-> this.parameterExpressionLists.add(expressionList)
+;
+
+// ----------------------------------------------------------------------------
+
+poosl::Variable createVariableFromArgument(
+   slco::SignalArgument argument, poosl::Model model
+) :
+   if (argument.metaType == slco::SignalArgumentVariable) then (
+      ((slco::SignalArgumentVariable) argument).variable.createVariable(model)
+   ) else if (argument.metaType == slco::SignalArgumentExpression) then (
+      (
+         (slco::SignalArgumentExpression) argument
+      ).expression.createVariableFromExpression(model)
+   ) else (
+      syserr(
+         "SignalArgument specifies neither a variable nor an expression"
+      )
+   )
+;
+
+// ----------------------------------------------------------------------------
+
+create poosl::Variable createVariableFromExpression(
+   slco::Expression expression, poosl::Model model
+) :
+   this.setName(
+      "var_"
+      +
+      (
+         (slco::StateMachine)
+         expression.eContainer.eContainer.eContainer.eContainer
+      ).eAllContents.toList().indexOf(
+         expression
+      ).toString()
+   )
+-> this.setType(
+      expression.createTypeFromExpression(model)
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::IncomingMessage createIncomingMessage(String name) :
+   let im = new poosl::IncomingMessage :
+      im.setName(name)
+   -> im
+;
+
+// ------------------------------------------------------------------------------------
+
+create poosl::TimeSynchronisation createStatement(
+   slco::Delay delay, poosl::Model model
+) :
+   this.duration.add(
+      createConstantExpression(
+         createIntegerConstant(
+            delay.value
+         )
+      )
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::Type createTypeFromExpression(slco::Expression expression, poosl::Model model) :
+   syserr(
+      "Expression with an unknown type encountered ("
+      +
+      expression.metaType.toString()
+      +
+      ")"
+   )
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::Type createTypeFromExpression(
+   slco::BooleanConstantExpression expression, poosl::Model model
+) :
+   createPrimitiveType(slco::PrimitiveTypeEnum::Boolean, model)
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::Type createTypeFromExpression(
+   slco::IntegerConstantExpression expression, poosl::Model model
+) :
+   createPrimitiveType(slco::PrimitiveTypeEnum::Integer, model)
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::Type createTypeFromExpression(
+   slco::StringConstantExpression expression, poosl::Model model
+) :
+   createPrimitiveType(slco::PrimitiveTypeEnum::String, model)
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::Type createTypeFromExpression(
+   slco::VariableExpression expression, poosl::Model model
+) :
+   expression.variable.type.createPrimitiveType(model)
+;
+
+// ------------------------------------------------------------------------------------
+
+poosl::Type createTypeFromExpression(
+   slco::BinaryOperatorExpression expression, poosl::Model model
+) :
+   switch (expression.operator) {
+      case slco::OperatorEnum::atLeast:
+         createPrimitiveType(slco::PrimitiveTypeEnum::Boolean, model)
+      case slco::OperatorEnum::add:
+         createPrimitiveType(slco::PrimitiveTypeEnum::Integer, model)
+      case slco::OperatorEnum::and:
+         createPrimitiveType(slco::PrimitiveTypeEnum::Boolean, model)
+      case slco::OperatorEnum::equals:
+         createPrimitiveType(slco::PrimitiveTypeEnum::Boolean, model)
+      case slco::OperatorEnum::differs:
+         createPrimitiveType(slco::PrimitiveTypeEnum::Boolean, model)
+      case slco::OperatorEnum::subtract:
+         createPrimitiveType(slco::PrimitiveTypeEnum::Integer, model)
+      default:
+         syserr(
+            "Expression with an unknown operator encountered ("
+            +
+            expression.operator.toString()
+            +
+            ")"
+         )
+   }
+;

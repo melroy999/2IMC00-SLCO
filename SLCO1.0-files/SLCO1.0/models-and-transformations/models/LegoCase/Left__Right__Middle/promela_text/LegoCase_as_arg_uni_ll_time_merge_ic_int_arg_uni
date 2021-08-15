@@ -1,0 +1,949 @@
+mtype {Block, BlockPassed, On, Off, Signal, Left, Right, Message_1, Acknowledge_1, Message_0, Acknowledge_0}
+
+bool Environment_BlockLeft = false; 
+bool Environment_BlockRight = false; 
+int L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl = 0; 
+int L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_name; 
+int L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_arg_0; 
+int L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl = 0; 
+int L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_name; 
+int L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl = 0; 
+int L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_name; 
+int L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_arg_0; 
+int L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl = 0; 
+int L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_name; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl = 0; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_name; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_arg_0; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl = 0; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_name; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_arg_0; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl = 0; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_name; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_arg_0; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl = 0; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_name; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl = 0; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_name; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_arg_0; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl = 0; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_name; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl = 0; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_name; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl = 0; 
+int M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_name; 
+int R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl = 0; 
+int R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_name; 
+int R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_arg_0; 
+int R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl = 0; 
+int R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_name; 
+int R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl = 0; 
+int R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_name; 
+int R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_arg_0; 
+int R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl = 0; 
+int R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_name; 
+chan ELeftSensor_to_LSensor_as__Environment_2_L_L_L_L_L = [0] of { mtype  }; 
+chan LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment = [0] of { mtype  }; 
+chan ERightSensor_to_RSensor_as__Environment_2_R_R_R_R_R = [0] of { mtype  }; 
+chan RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment = [0] of { mtype  }; 
+chan EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M = [0] of { mtype  }; 
+chan MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment = [0] of { mtype  }; 
+chan Right_as_Middle_out_Sender_to_Receiver__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M = [1] of { mtype , mtype , int , int  }; 
+chan Right_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R = [1] of { mtype , mtype , int  }; 
+chan Left_as_Middle_out_Sender_to_Receiver__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M = [1] of { mtype , mtype , int , int  }; 
+chan Left_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L = [1] of { mtype , mtype , int  }; 
+chan Middle_as_Right_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R = [1] of { mtype , mtype , int , int  }; 
+chan Middle_as_Right_out_AS_to_AR__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M = [1] of { mtype , mtype , int  }; 
+chan Middle_as_Left_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L = [1] of { mtype , mtype , int , int  }; 
+chan Middle_as_Left_out_AS_to_AR__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M = [1] of { mtype , mtype , int  }
+
+active [1] proctype Environment_RightMotor() {
+
+Label_Start: {
+ if
+ ::{RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment?On;
+goto Label_Running;
+};
+ fi;
+};
+Label_Off: {
+ if
+ ::{RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment?On;
+Environment_BlockRight = true;
+goto Label_Running;
+};
+::{RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment?Off;
+goto Label_Off;
+};
+ fi;
+};
+Label_Running: {
+ if
+ ::{RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment?Off;
+goto Label_Off;
+};
+::{ERightSensor_to_RSensor_as__Environment_2_R_R_R_R_R!Block;
+ERightSensor_to_RSensor_as__Environment_2_R_R_R_R_R!BlockPassed;
+goto Label_Running;
+};
+::{RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment?On;
+goto Label_Running;
+};
+ fi;
+};
+}
+
+active [1] proctype Environment_MiddleMotor() {
+
+bool Environment_BlockFellOff = false;
+Label_Off: {
+ if
+ ::{MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment?Right;
+goto Label_Right;
+};
+::{MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment?Off;
+goto Label_Off;
+};
+::{MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment?Left;
+goto Label_Left;
+};
+ fi;
+};
+Label_Right: {
+ if
+ ::{MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment?Off;
+goto Label_Off;
+};
+::{Environment_BlockRight == true;
+Environment_BlockFellOff = true;
+Environment_BlockRight = false;
+goto Label_Right;
+};
+::{MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment?Right;
+goto Label_Right;
+};
+::{MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment?Left;
+goto Label_Left;
+};
+::{Environment_BlockLeft == true;
+EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M!Block;
+EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M!BlockPassed;
+Environment_BlockLeft = false;
+goto Label_Right;
+};
+ fi;
+};
+Label_Left: {
+ if
+ ::{MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment?Off;
+goto Label_Off;
+};
+::{Environment_BlockLeft == true;
+Environment_BlockFellOff = true;
+Environment_BlockLeft = false;
+goto Label_Left;
+};
+::{MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment?Left;
+goto Label_Left;
+};
+::{MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment?Right;
+goto Label_Right;
+};
+::{Environment_BlockRight == true;
+EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M!Block;
+EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M!BlockPassed;
+Environment_BlockRight = false;
+goto Label_Left;
+};
+ fi;
+};
+}
+
+active [1] proctype Environment_LeftMotor() {
+
+Label_Start: {
+ if
+ ::{LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment?On;
+goto Label_Running;
+};
+ fi;
+};
+Label_Off: {
+ if
+ ::{LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment?On;
+Environment_BlockLeft = true;
+goto Label_Running;
+};
+::{LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment?Off;
+goto Label_Off;
+};
+ fi;
+};
+Label_Running: {
+ if
+ ::{LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment?Off;
+goto Label_Off;
+};
+::{ELeftSensor_to_LSensor_as__Environment_2_L_L_L_L_L!Block;
+ELeftSensor_to_LSensor_as__Environment_2_L_L_L_L_L!BlockPassed;
+goto Label_Running;
+};
+::{LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment?On;
+goto Label_Running;
+};
+ fi;
+};
+}
+
+active [1] proctype L_L_L_L_L_Left_as_Single() {
+
+Label_Start: {
+ if
+ ::{LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment!On;
+goto Label_Running;
+};
+ fi;
+};
+Label_Running: {
+ if
+ ::{ELeftSensor_to_LSensor_as__Environment_2_L_L_L_L_L?Block;
+ELeftSensor_to_LSensor_as__Environment_2_L_L_L_L_L?BlockPassed;
+LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment!Off;
+L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_name = 2;
+L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_arg_0 = 3;
+L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl = 1;
+goto Label_Running_s_Signal_abl_RunningToBlock;
+};
+ fi;
+};
+Label_Running_s_Signal_abl_RunningToBlock: {
+ if
+ ::{L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl == 1 && L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_name == 2 && L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_arg_0 == 0;
+L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl = 2;
+goto Label_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running;
+};
+ fi;
+};
+Label_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running: {
+ if
+ ::{L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl == 3;
+L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl = 0;
+L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl == 2;
+L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl = 3;
+L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl == 0;
+LMotor_to_ELeftMotor_as__L_L_L_L_L_2_Environment!On;
+goto Label_Running;
+};
+::{L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl == 0;
+goto Label_Running_s_Signal_abl_RunningToBlock;
+};
+ fi;
+};
+}
+
+active [1] proctype L_L_L_L_L_Left_as_Middle_outABP_Sender_Sender() {
+
+int L_L_L_L_L_s = 0;
+int L_L_L_L_L_d;
+Label_Zero: {
+ if
+ ::{L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl == 1 && L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_name == 2;
+L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl = 2;
+goto Label_Zero_r_Signal_rbl_ZeroToOne;
+};
+ fi;
+};
+Label_One: {
+ if
+ ::{skip;
+Left_as_Middle_out_Sender_to_Receiver__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M!Signal,Message_0,L_L_L_L_L_d,L_L_L_L_L_s;
+goto Label_One;
+};
+::{L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl == 1 && L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_name == 1;
+L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl = 2;
+goto Label_One_r_Acknowledge_rbl_OneToZero;
+};
+ fi;
+};
+Label_Zero_r_Signal_rbl_ZeroToOne: {
+ if
+ ::{L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl == 3;
+L_L_L_L_L_d = L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_arg_0;
+L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl = 0;
+goto Label_One;
+};
+::{L_L_L_L_L_Left_as_Middle_out_Original_to_Sender_abl == 0;
+goto Label_Zero;
+};
+ fi;
+};
+Label_One_r_Acknowledge_rbl_OneToZero: {
+ if
+ ::{L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl == 3;
+L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl = 0;
+L_L_L_L_L_s = 1 - L_L_L_L_L_s;
+goto Label_Zero;
+};
+::{L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl == 0;
+goto Label_One;
+};
+ fi;
+};
+}
+
+active [1] proctype L_L_L_L_L_Left_as_Middle_outABP_AR_AR() {
+
+int L_L_L_L_L_b = 0;
+Label_Zero: {
+ if
+ ::{Left_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L?Signal,eval( Acknowledge_0 ),eval( L_L_L_L_L_b );
+L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_name = 1;
+L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl = 1;
+goto Label_Zero_s_Acknowledge_abl_ZeroToZeroAck;
+};
+::{Left_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L?Signal,eval( Acknowledge_0 ),eval( 1 - L_L_L_L_L_b );
+goto Label_Zero;
+};
+ fi;
+};
+Label_Zero_s_Acknowledge_abl_ZeroToZeroAck: {
+ if
+ ::{L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl == 2;
+L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl = 3;
+L_L_L_L_L_Left_as_Middle_out_AR_to_Sender_abl == 0;
+L_L_L_L_L_b = 1 - L_L_L_L_L_b;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype L_L_L_L_L_Left_as_Middle_inABP_Receiver_Receiver() {
+
+int L_L_L_L_L_r = 0;
+int L_L_L_L_L_d;
+Label_Zero: {
+ if
+ ::{Middle_as_Left_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L?Signal,eval( Message_0 ),L_L_L_L_L_d,eval( L_L_L_L_L_r );
+L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_name = 2;
+L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_arg_0 = L_L_L_L_L_d;
+L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl = 1;
+goto Label_Zero_s_Signal_abl_ZeroToZeroAck;
+};
+::{Middle_as_Left_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L?Signal,eval( Message_0 ),L_L_L_L_L_d,eval( 1 - L_L_L_L_L_r );
+goto Label_Zero;
+};
+ fi;
+};
+Label_Zero_s_Signal_abl_ZeroToZeroAck: {
+ if
+ ::{L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl == 2;
+L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl = 3;
+L_L_L_L_L_Left_as_Middle_in_Receiver_to_Original_abl == 0;
+L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_name = 1;
+L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl = 1;
+goto Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero;
+};
+ fi;
+};
+Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero: {
+ if
+ ::{L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl == 2;
+L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl = 3;
+L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl == 0;
+L_L_L_L_L_r = 1 - L_L_L_L_L_r;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype L_L_L_L_L_Left_as_Middle_inABP_AS_AS() {
+
+int L_L_L_L_L_b = 1;
+Label_Zero: {
+ if
+ ::{skip;
+Middle_as_Left_out_AS_to_AR__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M!Signal,Acknowledge_0,L_L_L_L_L_b;
+goto Label_Zero;
+};
+::{L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl == 1 && L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_name == 1;
+L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl = 2;
+goto Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck;
+};
+ fi;
+};
+Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck: {
+ if
+ ::{L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl == 3;
+L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl = 0;
+L_L_L_L_L_b = 1 - L_L_L_L_L_b;
+goto Label_Zero;
+};
+::{L_L_L_L_L_Left_as_Middle_in_Receiver_to_AS_abl == 0;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype M_M_M_M_M_M_M_M_M_Middle_as_Middle() {
+
+Label_Idle: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl == 1 && M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_name == 2 && M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_arg_0 == 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl = 2;
+goto Label_Idle_r_Signal_rbl_IdleToLeft;
+};
+::{M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl == 1 && M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_name == 2 && M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_arg_0 == 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl = 2;
+goto Label_Idle_r_Signal_rbl_IdleToRight;
+};
+ fi;
+};
+Label_Running: {
+ if
+ ::{EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M?Block;
+EMiddleSensor_to_MSensor_as__Environment_2_M_M_M_M_M_M_M_M_M?BlockPassed;
+MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment!Off;
+goto Label_Idle;
+};
+ fi;
+};
+Label_Idle_r_Signal_rbl_IdleToLeft: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl == 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl = 0;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_name = 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_arg_0 = 0;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl = 1;
+goto Label_Idle_r_Signal_rbl_IdleToLeft_s_Signal_abl_Idle_r_Signal_rbl_IdleToLeft_to_Running;
+};
+::{M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl == 0;
+goto Label_Idle;
+};
+ fi;
+};
+Label_Idle_r_Signal_rbl_IdleToRight: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl == 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl = 0;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_name = 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_arg_0 = 0;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl = 1;
+goto Label_Idle_r_Signal_rbl_IdleToRight_s_Signal_abl_Idle_r_Signal_rbl_IdleToRight_to_Running;
+};
+::{M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl == 0;
+goto Label_Idle;
+};
+ fi;
+};
+Label_Idle_r_Signal_rbl_IdleToLeft_s_Signal_abl_Idle_r_Signal_rbl_IdleToLeft_to_Running: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl == 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl = 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl == 0;
+MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment!Left;
+goto Label_Running;
+};
+ fi;
+};
+Label_Idle_r_Signal_rbl_IdleToRight_s_Signal_abl_Idle_r_Signal_rbl_IdleToRight_to_Running: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl == 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl = 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl == 0;
+MMotor_to_EMiddleMotor_as__M_M_M_M_M_M_M_M_M_2_Environment!Right;
+goto Label_Running;
+};
+ fi;
+};
+}
+
+active [1] proctype M_M_M_M_M_M_M_M_M_Middle_as_Right_inABP_Receiver_Receiver() {
+
+int M_M_M_M_M_M_M_M_M_r = 0;
+int M_M_M_M_M_M_M_M_M_d;
+Label_Zero: {
+ if
+ ::{Right_as_Middle_out_Sender_to_Receiver__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M?Signal,eval( Message_1 ),M_M_M_M_M_M_M_M_M_d,eval( M_M_M_M_M_M_M_M_M_r );
+M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_name = 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_arg_0 = M_M_M_M_M_M_M_M_M_d;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl = 1;
+goto Label_Zero_s_Signal_abl_ZeroToZeroAck;
+};
+::{Right_as_Middle_out_Sender_to_Receiver__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M?Signal,eval( Message_1 ),M_M_M_M_M_M_M_M_M_d,eval( 1 - M_M_M_M_M_M_M_M_M_r );
+goto Label_Zero;
+};
+ fi;
+};
+Label_Zero_s_Signal_abl_ZeroToZeroAck: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl == 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl = 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_Original_abl == 0;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_name = 1;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl = 1;
+goto Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero;
+};
+ fi;
+};
+Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl == 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl = 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl == 0;
+M_M_M_M_M_M_M_M_M_r = 1 - M_M_M_M_M_M_M_M_M_r;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype M_M_M_M_M_M_M_M_M_Middle_as_Right_inABP_AS_AS() {
+
+int M_M_M_M_M_M_M_M_M_b = 1;
+Label_Zero: {
+ if
+ ::{skip;
+Right_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R!Signal,Acknowledge_1,M_M_M_M_M_M_M_M_M_b;
+goto Label_Zero;
+};
+::{M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl == 1 && M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_name == 1;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl = 2;
+goto Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck;
+};
+ fi;
+};
+Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl == 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl = 0;
+M_M_M_M_M_M_M_M_M_b = 1 - M_M_M_M_M_M_M_M_M_b;
+goto Label_Zero;
+};
+::{M_M_M_M_M_M_M_M_M_Middle_as_Right_in_Receiver_to_AS_abl == 0;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype M_M_M_M_M_M_M_M_M_Middle_as_Left_inABP_Receiver_Receiver() {
+
+int M_M_M_M_M_M_M_M_M_r = 0;
+int M_M_M_M_M_M_M_M_M_d;
+Label_Zero: {
+ if
+ ::{Left_as_Middle_out_Sender_to_Receiver__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M?Signal,eval( Message_0 ),M_M_M_M_M_M_M_M_M_d,eval( M_M_M_M_M_M_M_M_M_r );
+M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_name = 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_arg_0 = M_M_M_M_M_M_M_M_M_d;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl = 1;
+goto Label_Zero_s_Signal_abl_ZeroToZeroAck;
+};
+::{Left_as_Middle_out_Sender_to_Receiver__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M?Signal,eval( Message_0 ),M_M_M_M_M_M_M_M_M_d,eval( 1 - M_M_M_M_M_M_M_M_M_r );
+goto Label_Zero;
+};
+ fi;
+};
+Label_Zero_s_Signal_abl_ZeroToZeroAck: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl == 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl = 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_Original_abl == 0;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_name = 1;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl = 1;
+goto Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero;
+};
+ fi;
+};
+Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl == 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl = 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl == 0;
+M_M_M_M_M_M_M_M_M_r = 1 - M_M_M_M_M_M_M_M_M_r;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype M_M_M_M_M_M_M_M_M_Middle_as_Left_inABP_AS_AS() {
+
+int M_M_M_M_M_M_M_M_M_b = 1;
+Label_Zero: {
+ if
+ ::{skip;
+Left_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L!Signal,Acknowledge_0,M_M_M_M_M_M_M_M_M_b;
+goto Label_Zero;
+};
+::{M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl == 1 && M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_name == 1;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl = 2;
+goto Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck;
+};
+ fi;
+};
+Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl == 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl = 0;
+M_M_M_M_M_M_M_M_M_b = 1 - M_M_M_M_M_M_M_M_M_b;
+goto Label_Zero;
+};
+::{M_M_M_M_M_M_M_M_M_Middle_as_Left_in_Receiver_to_AS_abl == 0;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype M_M_M_M_M_M_M_M_M_Middle_as_Right_outABP_Sender_Sender() {
+
+int M_M_M_M_M_M_M_M_M_s = 0;
+int M_M_M_M_M_M_M_M_M_d;
+Label_Zero: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl == 1 && M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_name == 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl = 2;
+goto Label_Zero_r_Signal_rbl_ZeroToOne;
+};
+ fi;
+};
+Label_One: {
+ if
+ ::{skip;
+Middle_as_Right_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R!Signal,Message_1,M_M_M_M_M_M_M_M_M_d,M_M_M_M_M_M_M_M_M_s;
+goto Label_One;
+};
+::{M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl == 1 && M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_name == 1;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl = 2;
+goto Label_One_r_Acknowledge_rbl_OneToZero;
+};
+ fi;
+};
+Label_Zero_r_Signal_rbl_ZeroToOne: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl == 3;
+M_M_M_M_M_M_M_M_M_d = M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_arg_0;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl = 0;
+goto Label_One;
+};
+::{M_M_M_M_M_M_M_M_M_Middle_as_Right_out_Original_to_Sender_abl == 0;
+goto Label_Zero;
+};
+ fi;
+};
+Label_One_r_Acknowledge_rbl_OneToZero: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl == 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl = 0;
+M_M_M_M_M_M_M_M_M_s = 1 - M_M_M_M_M_M_M_M_M_s;
+goto Label_Zero;
+};
+::{M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl == 0;
+goto Label_One;
+};
+ fi;
+};
+}
+
+active [1] proctype M_M_M_M_M_M_M_M_M_Middle_as_Right_outABP_AR_AR() {
+
+int M_M_M_M_M_M_M_M_M_b = 0;
+Label_Zero: {
+ if
+ ::{Middle_as_Right_out_AS_to_AR__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M?Signal,eval( Acknowledge_1 ),eval( M_M_M_M_M_M_M_M_M_b );
+M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_name = 1;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl = 1;
+goto Label_Zero_s_Acknowledge_abl_ZeroToZeroAck;
+};
+::{Middle_as_Right_out_AS_to_AR__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M?Signal,eval( Acknowledge_1 ),eval( 1 - M_M_M_M_M_M_M_M_M_b );
+goto Label_Zero;
+};
+ fi;
+};
+Label_Zero_s_Acknowledge_abl_ZeroToZeroAck: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl == 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl = 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Right_out_AR_to_Sender_abl == 0;
+M_M_M_M_M_M_M_M_M_b = 1 - M_M_M_M_M_M_M_M_M_b;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype M_M_M_M_M_M_M_M_M_Middle_as_Left_outABP_Sender_Sender() {
+
+int M_M_M_M_M_M_M_M_M_s = 0;
+int M_M_M_M_M_M_M_M_M_d;
+Label_Zero: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl == 1 && M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_name == 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl = 2;
+goto Label_Zero_r_Signal_rbl_ZeroToOne;
+};
+ fi;
+};
+Label_One: {
+ if
+ ::{skip;
+Middle_as_Left_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_L_L_L_L_L!Signal,Message_0,M_M_M_M_M_M_M_M_M_d,M_M_M_M_M_M_M_M_M_s;
+goto Label_One;
+};
+::{M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl == 1 && M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_name == 1;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl = 2;
+goto Label_One_r_Acknowledge_rbl_OneToZero;
+};
+ fi;
+};
+Label_Zero_r_Signal_rbl_ZeroToOne: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl == 3;
+M_M_M_M_M_M_M_M_M_d = M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_arg_0;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl = 0;
+goto Label_One;
+};
+::{M_M_M_M_M_M_M_M_M_Middle_as_Left_out_Original_to_Sender_abl == 0;
+goto Label_Zero;
+};
+ fi;
+};
+Label_One_r_Acknowledge_rbl_OneToZero: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl == 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl = 0;
+M_M_M_M_M_M_M_M_M_s = 1 - M_M_M_M_M_M_M_M_M_s;
+goto Label_Zero;
+};
+::{M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl == 0;
+goto Label_One;
+};
+ fi;
+};
+}
+
+active [1] proctype M_M_M_M_M_M_M_M_M_Middle_as_Left_outABP_AR_AR() {
+
+int M_M_M_M_M_M_M_M_M_b = 0;
+Label_Zero: {
+ if
+ ::{Middle_as_Left_out_AS_to_AR__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M?Signal,eval( Acknowledge_0 ),eval( M_M_M_M_M_M_M_M_M_b );
+M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_name = 1;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl = 1;
+goto Label_Zero_s_Acknowledge_abl_ZeroToZeroAck;
+};
+::{Middle_as_Left_out_AS_to_AR__L_L_L_L_L_2_M_M_M_M_M_M_M_M_M?Signal,eval( Acknowledge_0 ),eval( 1 - M_M_M_M_M_M_M_M_M_b );
+goto Label_Zero;
+};
+ fi;
+};
+Label_Zero_s_Acknowledge_abl_ZeroToZeroAck: {
+ if
+ ::{M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl == 2;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl = 3;
+M_M_M_M_M_M_M_M_M_Middle_as_Left_out_AR_to_Sender_abl == 0;
+M_M_M_M_M_M_M_M_M_b = 1 - M_M_M_M_M_M_M_M_M_b;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype R_R_R_R_R_Right_as_Single() {
+
+Label_Start: {
+ if
+ ::{RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment!On;
+goto Label_Running;
+};
+ fi;
+};
+Label_Running: {
+ if
+ ::{ERightSensor_to_RSensor_as__Environment_2_R_R_R_R_R?Block;
+ERightSensor_to_RSensor_as__Environment_2_R_R_R_R_R?BlockPassed;
+RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment!Off;
+R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_name = 2;
+R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_arg_0 = 3;
+R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl = 1;
+goto Label_Running_s_Signal_abl_RunningToBlock;
+};
+ fi;
+};
+Label_Running_s_Signal_abl_RunningToBlock: {
+ if
+ ::{R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl == 1 && R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_name == 2 && R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_arg_0 == 0;
+R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl = 2;
+goto Label_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running;
+};
+ fi;
+};
+Label_Running_s_Signal_abl_RunningToBlock_r_Signal_rbl_Running_s_Signal_abl_RunningToBlock_to_Running: {
+ if
+ ::{R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl == 3;
+R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl = 0;
+R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl == 2;
+R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl = 3;
+R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl == 0;
+RMotor_to_ERightMotor_as__R_R_R_R_R_2_Environment!On;
+goto Label_Running;
+};
+::{R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl == 0;
+goto Label_Running_s_Signal_abl_RunningToBlock;
+};
+ fi;
+};
+}
+
+active [1] proctype R_R_R_R_R_Right_as_Middle_outABP_Sender_Sender() {
+
+int R_R_R_R_R_s = 0;
+int R_R_R_R_R_d;
+Label_Zero: {
+ if
+ ::{R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl == 1 && R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_name == 2;
+R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl = 2;
+goto Label_Zero_r_Signal_rbl_ZeroToOne;
+};
+ fi;
+};
+Label_One: {
+ if
+ ::{skip;
+Right_as_Middle_out_Sender_to_Receiver__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M!Signal,Message_1,R_R_R_R_R_d,R_R_R_R_R_s;
+goto Label_One;
+};
+::{R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl == 1 && R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_name == 1;
+R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl = 2;
+goto Label_One_r_Acknowledge_rbl_OneToZero;
+};
+ fi;
+};
+Label_Zero_r_Signal_rbl_ZeroToOne: {
+ if
+ ::{R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl == 3;
+R_R_R_R_R_d = R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_arg_0;
+R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl = 0;
+goto Label_One;
+};
+::{R_R_R_R_R_Right_as_Middle_out_Original_to_Sender_abl == 0;
+goto Label_Zero;
+};
+ fi;
+};
+Label_One_r_Acknowledge_rbl_OneToZero: {
+ if
+ ::{R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl == 3;
+R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl = 0;
+R_R_R_R_R_s = 1 - R_R_R_R_R_s;
+goto Label_Zero;
+};
+::{R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl == 0;
+goto Label_One;
+};
+ fi;
+};
+}
+
+active [1] proctype R_R_R_R_R_Right_as_Middle_outABP_AR_AR() {
+
+int R_R_R_R_R_b = 0;
+Label_Zero: {
+ if
+ ::{Right_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R?Signal,eval( Acknowledge_1 ),eval( R_R_R_R_R_b );
+R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_name = 1;
+R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl = 1;
+goto Label_Zero_s_Acknowledge_abl_ZeroToZeroAck;
+};
+::{Right_as_Middle_out_AS_to_AR__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R?Signal,eval( Acknowledge_1 ),eval( 1 - R_R_R_R_R_b );
+goto Label_Zero;
+};
+ fi;
+};
+Label_Zero_s_Acknowledge_abl_ZeroToZeroAck: {
+ if
+ ::{R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl == 2;
+R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl = 3;
+R_R_R_R_R_Right_as_Middle_out_AR_to_Sender_abl == 0;
+R_R_R_R_R_b = 1 - R_R_R_R_R_b;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype R_R_R_R_R_Right_as_Middle_inABP_Receiver_Receiver() {
+
+int R_R_R_R_R_r = 0;
+int R_R_R_R_R_d;
+Label_Zero: {
+ if
+ ::{Middle_as_Right_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R?Signal,eval( Message_1 ),R_R_R_R_R_d,eval( R_R_R_R_R_r );
+R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_name = 2;
+R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_arg_0 = R_R_R_R_R_d;
+R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl = 1;
+goto Label_Zero_s_Signal_abl_ZeroToZeroAck;
+};
+::{Middle_as_Right_out_Sender_to_Receiver__M_M_M_M_M_M_M_M_M_2_R_R_R_R_R?Signal,eval( Message_1 ),R_R_R_R_R_d,eval( 1 - R_R_R_R_R_r );
+goto Label_Zero;
+};
+ fi;
+};
+Label_Zero_s_Signal_abl_ZeroToZeroAck: {
+ if
+ ::{R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl == 2;
+R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl = 3;
+R_R_R_R_R_Right_as_Middle_in_Receiver_to_Original_abl == 0;
+R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_name = 1;
+R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl = 1;
+goto Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero;
+};
+ fi;
+};
+Label_Zero_s_Signal_abl_ZeroToZeroAck_s_Acknowledge_abl_Zero_s_Signal_abl_ZeroToZeroAck_to_Zero: {
+ if
+ ::{R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl == 2;
+R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl = 3;
+R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl == 0;
+R_R_R_R_R_r = 1 - R_R_R_R_R_r;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+active [1] proctype R_R_R_R_R_Right_as_Middle_inABP_AS_AS() {
+
+int R_R_R_R_R_b = 1;
+Label_Zero: {
+ if
+ ::{skip;
+Middle_as_Right_out_AS_to_AR__R_R_R_R_R_2_M_M_M_M_M_M_M_M_M!Signal,Acknowledge_1,R_R_R_R_R_b;
+goto Label_Zero;
+};
+::{R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl == 1 && R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_name == 1;
+R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl = 2;
+goto Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck;
+};
+ fi;
+};
+Label_Zero_r_Acknowledge_rbl_ZeroToZeroAck: {
+ if
+ ::{R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl == 3;
+R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl = 0;
+R_R_R_R_R_b = 1 - R_R_R_R_R_b;
+goto Label_Zero;
+};
+::{R_R_R_R_R_Right_as_Middle_in_Receiver_to_AS_abl == 0;
+goto Label_Zero;
+};
+ fi;
+};
+}
+
+
+
+

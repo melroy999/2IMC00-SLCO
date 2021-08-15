@@ -1,0 +1,16 @@
+digraph Sender {
+  compound = true;
+  rank = LR;
+node [shape = "point", height = "0.2"] Zero_extra node [shape = "Mrecord", height = "0.8", width = "1.6"] Zero Zero_extra -> Zero
+
+node [shape = "Mrecord", height = "0.8", width = "1.6"] One
+
+
+
+Zero -> One [label = "receive Signal(d) from ASOriginal"];
+
+One -> Zero [label = "receive Acknowledge() from ASAR;\n s := 1 - s"];
+
+One -> One [label = "send Message(d, s) to ASReceiver"];
+
+}

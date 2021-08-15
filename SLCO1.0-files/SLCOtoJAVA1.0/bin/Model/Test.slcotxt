@@ -1,0 +1,95 @@
+model PaperExample1 {
+  classes
+    P {
+      variables
+        Integer m = 0
+      ports
+        In1
+        In2
+        InOut
+      state machines
+	    Rec1 {
+	      variables
+	        Boolean v = true
+		  initial
+		    Rec1
+		  transitions
+		  	Rec1toRec1 from Rec1 to Rec1 {
+		  	  receive P(v| v == false) from In1
+		  	}
+	    }
+		Rec2 {
+		  initial
+		    Rec2a
+		  state
+		    Rec2b
+		  transitions
+		  	Rec2a2Rec2b from Rec2a to Rec2b {
+		  	  receive Q(m|m>=0)from In2
+		  	}
+		  	Rec2b2Rec2a from Rec2b to Rec2a {
+		  	  m := m+1
+		  	}
+		}
+		SendRec {
+		  variables
+		    String s = ""
+		  initial
+            SendRec0
+          state
+            SendRec1 SendRec2 
+		  transitions
+		    SendRec02SendRec1 from SendRec0 to SendRec1 {
+		  	  m == 6
+		    }
+		    SendRec12SendRec2 from SendRec1 to SendRec2 {
+		  	  send S("a") to InOut
+		    }
+		    SendRec22SendRec0 from SendRec2 to SendRec0 {
+		  	  receive T(s|true) from InOut
+		    }
+        }
+    }
+    Q {
+      ports 
+		  Out1
+		  Out2
+		  InOut
+		state machines
+		  Com {
+		  	variables 
+			 String s = ""
+			initial
+			  Com0
+			state
+			  Com1
+			  Com3
+			  Com4
+			final
+			  Com2
+			transitions
+			  Com02Com1 from Com0 to Com1 {
+				  send P(true) to Out1
+			  }
+			  Com12Com3 from Com1 to Com3 {
+				  send Q(5) to Out2
+				  }
+			  Com32Com4 from Com3 to Com4 {
+				  receive S(s|true) from InOut
+				  }
+			  Com42Com2 from Com4 to Com2 {
+				  send T(s) to InOut
+				  }
+			  Com02Com2 from Com0 to Com2 {
+			  	after 5 ms
+			  }
+		  }	
+    }
+	objects
+	  p: P
+	  q: Q
+	channels
+	c1(Boolean) async lossless from q.Out1 to p.In1
+	c2(Integer) async lossless from q.Out2 to p.In2
+	c3(String) sync between q.InOut and p.InOut	 
+}
