@@ -1,0 +1,715 @@
+from __future__ import annotations
+
+import abc
+from abc import ABCMeta
+from collections import defaultdict
+from collections.abc import Iterable
+from typing import Union, List, Optional, Iterator, Dict
+
+from util.smt import z3_always_holds, z3_never_holds
+
+import libraries.slcolib as slco2
+import operator
+import z3
+
+
+# Operators that are n-ary.
+n_ary_operators = ["+", "-", "*", "or", "||", "and", "&&", "xor"]
+
+# Map every operator to its implementation to avoid calling eval.
+operator_mapping = {
+    ">": operator.gt,
+    "<": operator.lt,
+    ">=": operator.ge,
+    "<=": operator.le,
+    "=": operator.eq,
+    "!=": operator.ne,
+    "<>": operator.ne,
+    "+": operator.add,
+    "-": operator.sub,
+    "*": operator.mul,
+    "**": operator.pow,
+    "%": operator.mod,
+    "/": operator.truediv,
+    "or": z3.Or,
+    "||": z3.Or,
+    "and": z3.And,
+    "&&": z3.And,
+    "xor": z3.Xor,
+    "": lambda v: v,
+}
+
+
+# INTERFACES
+class Simplifiable(Iterable, metaclass=ABCMeta):
+    def _simplify(self) -> None:
+        """Simplify the structure of the AST by skipping superfluous AST nodes."""
+        for o in self:
+            if isinstance(o, Simplifiable):
+                o._simplify()
+
+
+class Restructurable(Simplifiable, metaclass=ABCMeta):
+    """
+    A simple extendable class providing helper functions for simplifiable AST nodes.
+    """
+    def _skip_empty_expression(self, s) -> Union[Expression, Composite, Assignment, ActionRef, Primary]:
+        """Skip the child expression if its operator is empty."""
+        if isinstance(s, Expression):
+            # The expression's operator is empty if it equals an empty string.
+            if s.op == "":
+                s.values[0].parent = self
+                return s.values[0]
+        return s
+
+    def _skip_superfluous_primary(self, s) -> Union[Expression, Composite, Assignment, ActionRef, Primary]:
+        """Skip primaries that add superfluous brackets for operations that are not ordered"""
+        if isinstance(s, Primary):
+            # Only target primary statements that solely add brackets.
+            if s.body is not None and s.sign == "":
+                if isinstance(s.body, Primary):
+                    s.body.parent = self
+                    return s.body
+                elif isinstance(s.body, Expression):
+                    # Only target pairs with the same operator.
+                    if isinstance(self, Expression) and self.op == s.body.op:
+                        if self.op in n_ary_operators:
+                            s.body.parent = self
+                            return s.body
+                    elif isinstance(self, (Composite, Assignment, Primary, VariableRef)):
+                        s.body.parent = self
+                        return s.body
+        return s
+
+    def _generate_true_expression(self: Union[Expression, Transition, Composite]):
+        """Generate an expression that evaluates to true."""
+        true_expression = slco2.Primary(None, "", True, None, None)
+        return Primary(true_expression, self, dict())
+
+    def _generate_false_expression(self: Union[Expression, Transition, Composite]):
+        """Generate an expression that evaluates to false."""
+        false_expression = slco2.Primary(None, "", False, None, None)
+        return Primary(false_expression, self, dict())
+
+
+class Evaluable(metaclass=ABCMeta):
+    """
+    A simple extendable class providing helper functions for evaluating SMT compatible types.
+    """
+    @abc.abstractmethod
+    def get_smt_statement(self):
+        """Convert the AST to an smt object."""
+        pass
+
+    def is_true(self) -> bool:
+        """Evaluate whether the statement always holds true. May throw an exception if not a boolean smt statement."""
+        return z3_always_holds(self.get_smt_statement())
+
+    def is_false(self) -> bool:
+        """Evaluate whether the statement never holds true. May throw an exception if not a boolean smt statement."""
+        return z3_never_holds(self.get_smt_statement())
+
+
+class DFS(Iterable, metaclass=ABCMeta):
+    """
+    A simple helper class that allows for a Depth-First-Search (DFS) through the AST, with the nodes being reported upon
+    the return path.
+    """
+    def __iter_dfs__(self):
+        """Iterate through all objects in the AST through a DFS, with nodes being reported upon the return path."""
+        if isinstance(self, Iterable):
+            for o in self:
+                if isinstance(o, DFS):
+                    yield from o.__iter_dfs__()
+                else:
+                    yield o
+        yield self
+
+
+#   SLCO TYPES
+class SLCOModel(Simplifiable, DFS):
+    """
+    An object representing the encompassing model in the SLCO framework.
+    """
+    channels: List[str]
+    name: str
+
+    # def __init__(self, model) -> None:
+    #     lookup_table = dict()
+    #     self.actions = [Action(a, self) for a in model.actions]
+    #     self.channels = [c for c in model.channels]
+    #     self.classes = [Class(c, self, lookup_table) for c in model.classes]
+    #     self.name = model.name
+    #     self.objects = [Object(o, self, lookup_table) for o in model.objects]
+#
+    #     # Simplify the model.
+    #     self._simplify()
+
+    def __init__(self, name: str) -> None:
+        self.actions: List[Action] = []
+        self.channels: List[str] = []
+        self.classes: List[Class] = []
+        self.name = name
+        self.objects: List[Object] = []
+
+    @classmethod
+    def from_model(cls, model) -> SLCOModel:
+        lookup_table = dict()
+
+        result = SLCOModel(model.name)
+        result.actions = [Action(a, result) for a in model.actions]
+        result.channels = [c for c in model.channels]
+        result.classes = [Class(c, result, lookup_table) for c in model.classes]
+        result.objects = [Object(o, result, lookup_table) for o in model.objects]
+        result._simplify()
+
+        return result
+
+    def __repr__(self) -> str:
+        return "SLCOModel:%s" % self.name
+
+    def __iter__(self) -> Iterator[Class]:
+        """Iterate through all objects part of the AST structure."""
+        for c in self.classes:
+            yield c
+
+
+class Action:
+    """
+    An object representing actions in the SLCO framework.
+    """
+    name: str
+
+    def __init__(self, model: slco2.Action, parent: SLCOModel) -> None:
+        self.name = model.name
+        self.parent = parent
+
+    def __repr__(self) -> str:
+        return self.name
+
+
+class Object:
+    """
+    An object representing class instantiations in the SLCO framework.
+    """
+    name: str
+    type: Type
+
+    def __init__(self, model, parent: SLCOModel, lookup_table) -> None:
+        self.assignments = [Initialisation(i, self, lookup_table) for i in model.assignments]
+        self.name = model.name
+        self.parent = parent
+        self.type = lookup_table[model.type]
+
+    def __repr__(self) -> str:
+        return "Object:%s" % self.name
+
+
+class Initialisation:
+    """
+    An object representing variable initialisations in the SLCO framework.
+    """
+    left: Variable
+    right: Union[int, bool]
+    rights: Union[List[int], List[bool]]
+
+    def __init__(self, model, parent: Object, lookup_table: dict) -> None:
+        self.left = lookup_table[model.left]
+        self.right = model.right
+        self.rights = model.rights
+        self.parent = parent
+
+    def __repr__(self) -> str:
+        return "%s := %s" % (self.left, self.rights if self.right is None else self.right)
+
+
+class Class(Simplifiable, DFS):
+    """
+    An object representing classes in the SLCO framework.
+    """
+    name: str
+    ports: List[str]
+
+    def __init__(self, model, parent: SLCOModel, lookup_table: dict) -> None:
+        lookup_table[model] = self
+        self.name = model.name
+        self.parent = parent
+        self.ports = [p for p in model.ports]
+        self.variables = [Variable(v, self, lookup_table) for v in model.variables]
+        self.state_machines = [StateMachine(sm, self, lookup_table) for sm in model.statemachines]
+
+    def __repr__(self) -> str:
+        return "Class:%s" % self.name
+
+    def __iter__(self) -> Iterator[StateMachine]:
+        """Iterate through all objects part of the AST structure."""
+        for sm in self.state_machines:
+            yield sm
+
+
+class StateMachine(Simplifiable, DFS):
+    """
+    An object representing state machines in the SLCO framework.
+    """
+    name: str
+
+    def __init__(self, model, parent: Class, lookup_table: dict) -> None:
+        self.initial_state = State(model.initialstate, self, lookup_table)
+        self.name = model.name
+        self.parent = parent
+        self.states = [State(s, self, lookup_table) for s in model.states]
+        self.variables = [Variable(v, self, lookup_table) for v in model.variables]
+
+        for v in self.variables + self.parent.variables:
+            lookup_table[v.name] = v
+
+        self.transitions: Dict[State, List[Transition]] = defaultdict(list)
+        for t in [Transition(t, self, lookup_table) for t in model.transitions]:
+            self.transitions[t.source].append(t)
+
+        for v in self.variables + self.parent.variables:
+            del lookup_table[v.name]
+
+    def __repr__(self) -> str:
+        return "StateMachine:%s" % self.name
+
+    def __iter__(self) -> Iterator[Transition]:
+        """Iterate through all objects part of the AST structure."""
+        for g in self.transitions.values():
+            for t in g:
+                yield t
+
+
+class State:
+    """
+    An object representing states in the SLCO framework.
+    """
+    name: str
+
+    def __init__(self, model, parent: StateMachine, lookup_table: dict) -> None:
+        lookup_table[model] = self
+        self.name = model.name
+        self.parent = parent
+
+    def __repr__(self) -> str:
+        return self.name
+
+
+class Variable(Evaluable):
+    """
+    An object representing variables in the SLCO framework.
+    """
+    def_value: Optional[Union[int, bool]]
+    def_values: Union[List[int], List[bool]]
+    name: str
+
+    def __init__(self, model: slco2.Variable, parent: Union[Class, StateMachine], lookup_table: dict) -> None:
+        lookup_table[model] = self
+        self.def_value = model.defvalue
+        self.def_values = [v for v in model.defvalues]
+        self.is_class_variable = isinstance(parent, Class)
+        self.name = model.name
+        self.parent = parent
+        self.type = Type(model.type, self)
+        self.is_array = self.type.size > 0
+        self.is_boolean = self.type.base == "Boolean"
+
+    def get_smt_statement(self):
+        if self.is_boolean:
+            if self.is_array:
+                return z3.Array(self.name, z3.IntSort(), z3.BoolSort())
+            else:
+                return z3.Bool(self.name)
+        else:
+            if self.is_array:
+                return z3.Array(self.name, z3.IntSort(), z3.IntSort())
+            else:
+                return z3.Int(self.name)
+
+    def __repr__(self) -> str:
+        return ("%s*: %s" if self.is_class_variable else "%s: %s") % (self.name, self.type.__repr__())
+
+
+class Type:
+    """
+    An object representing variable types in the SLCO framework.
+    """
+    def __init__(self, model: slco2.Type, parent: Variable) -> None:
+        self.base: str = model.base
+        self.parent = parent
+        self.size: int = model.size
+        self.is_array = self.size > 0
+
+    def __repr__(self) -> str:
+        if self.is_array:
+            return "%s[%s]" % (self.base, self.size)
+        else:
+            return self.base
+
+
+class Transition(Restructurable, DFS):
+    """
+    An object representing a guarded transition in the SLCO framework.
+
+    Notes for after simplification:
+        - Transitions always start with an expression or composite. If missing, a true expression will be prepended.
+        - If the first statement is a composite with no guard, a true expression is prepended to the statement list.
+        - All statements are of the types Composite, Assignment, Expression, ActionRef or Primary.
+        - Superfluous Expression and Primary statements are removed.
+        - Composites that only contain a guard are automatically converted to an Expression instead.
+    """
+    priority: int
+    source: State
+    target: State
+    statements: List[Union[Expression, Composite, Assignment, Primary]]
+
+    def __init__(self, model, parent: StateMachine, lookup_table: dict) -> None:
+        self.parent = parent
+        self.priority = model.priority
+        self.source = lookup_table[model.source]
+        self.target = lookup_table[model.target]
+        self.statements = [_class_conversion_table[type(s)](s, self, lookup_table) for s in model.statements]
+
+    def get_guard_expression(self) -> Union[Expression, Primary, Composite]:
+        """Get the expression that acts as the guard expression of the transition."""
+        return self.statements[0]
+
+    def _simplify(self) -> None:
+        """Simplify the structure of the AST by skipping superfluous AST nodes."""
+        super(Transition, self)._simplify()
+
+        # Restructure the child nodes.
+        self._false_expression_termination()
+        self._replace_composites_without_assignments()
+        self._remove_true_expressions()
+        for i, s in enumerate(self.statements):
+            self.statements[i] = self._skip_empty_expression(self.statements[i])
+            self.statements[i] = self._skip_superfluous_primary(self.statements[i])
+        self._ensure_presence_of_guard_expression()
+
+    def _false_expression_termination(self) -> None:
+        """Replace all expressions that never hold with a false primary, and remove all succeeding statements."""
+        for i, s in enumerate(self.statements):
+            if isinstance(s, (Expression, Primary, Composite)):
+                if s.is_false():
+                    self.statements[:] = self.statements[:i]
+                    self.statements.append(self._generate_false_expression())
+                    break
+
+    def _replace_composites_without_assignments(self) -> None:
+        """Replace Composite objects that only have a guard expression with the guard object."""
+        for i, s in enumerate(self.statements):
+            if isinstance(s, Composite) and len(s.assignments) == 0:
+                self.statements[i] = s.guard
+                s.guard.parent = self
+
+    def _remove_true_expressions(self):
+        """Filter out all expressions and primaries that always evaluate to true."""
+        self.statements[:] = [s for s in self.statements if not (isinstance(s, (Expression, Primary)) and s.is_true())]
+
+    def _ensure_presence_of_guard_expression(self) -> None:
+        """Ensure for uniformity that the transition is always guarded."""
+        # If the first statement isn't a guard, then add a true expression.
+        if len(self.statements) == 0 or isinstance(self.statements[0], Assignment):
+            self.statements.insert(0, self._generate_true_expression())
+        elif isinstance(self.statements[0], Composite):
+            # A composite with a guard that is always true should never be part of the decision structure.
+            if self.statements[0].is_true():
+                self.statements.insert(0, self._generate_true_expression())
+
+    def __repr__(self) -> str:
+        transition_repr = "%s: %s -> %s {" % (self.priority, self.source, self.target)
+        for s in self.statements:
+            transition_repr += "\n\t%s;" % s
+        transition_repr += "\n}"
+        return transition_repr
+
+    def __iter__(self) -> Iterator[Union[Expression, Composite, Assignment, Primary]]:
+        """Iterate through all objects part of the AST structure."""
+        for s in self.statements:
+            yield s
+
+
+class Composite(Restructurable, Evaluable, DFS):
+    """
+    An object representing composite statements in the SLCO framework.
+
+    Notes for after simplification:
+        - Composites always have a guard. If none is present previously, a true expression is set as the guard instead.
+        - Superfluous guard statements are simplified to a true expression when appropriate.
+    """
+
+    guard: Optional[Union[Expression, Primary]]
+
+    def __init__(self, model: slco2.Composite, parent: Transition, lookup_table: dict) -> None:
+        self.parent = parent
+        self.guard = None
+        if model.guard is not None:
+            self.guard = Expression(model.guard, self, lookup_table)
+        self.assignments = [Assignment(a, self, lookup_table) for a in model.assignments]
+
+    def get_smt_statement(self):
+        """Convert the AST to an smt object"""
+        return self.guard.get_smt_statement()
+
+    def _simplify(self) -> None:
+        """Simplify the structure of the AST by skipping superfluous AST nodes."""
+        super(Composite, self)._simplify()
+
+        # Ensure that a composite always has a guard statement and simplify where possible.
+        if self.guard is not None:
+            if self.guard.is_true():
+                self.guard = self._generate_true_expression()
+            else:
+                self.guard = self._skip_empty_expression(self.guard)
+                self.guard = self._skip_superfluous_primary(self.guard)
+        else:
+            self.guard = self._generate_true_expression()
+
+    def __repr__(self) -> str:
+        statements = [self.guard] if self.guard is not None else []
+        statements += [s for s in self.assignments]
+        return "[%s]" % "; ".join(str(s) for s in statements)
+
+    def __iter__(self) -> Iterator[Union[Expression, Primary, Assignment]]:
+        """Iterate through all objects part of the AST structure."""
+        if self.guard is not None:
+            yield self.guard
+        for s in self.assignments:
+            yield s
+
+
+class Assignment(Restructurable, DFS):
+    """
+    An object representing assignment statements in the SLCO framework.
+    """
+    left: VariableRef
+    right: Union[Expression, Primary]
+
+    def __init__(self, model: slco2.Assignment, parent: Union[Transition, Composite], lookup_table: dict) -> None:
+        self.left = _class_conversion_table[type(model.left)](model.left, self, lookup_table)
+        self.parent = parent
+        self.right = _class_conversion_table[type(model.right)](model.right, self, lookup_table)
+
+    def _simplify(self) -> None:
+        """Simplify the structure of the AST by skipping superfluous AST nodes."""
+        super(Assignment, self)._simplify()
+
+        # Simplify the structure.
+        if self.left.var.is_boolean and self.right.is_true():
+            self.right = self._generate_true_expression()
+        elif self.right is not None:
+            self.right = self._skip_empty_expression(self.right)
+            self.right = self._skip_superfluous_primary(self.right)
+
+    def __repr__(self) -> str:
+        return "%s := %s" % (self.left, self.right)
+
+    def __iter__(self) -> Iterator[Union[VariableRef, Expression, Primary]]:
+        """Iterate through all objects part of the AST structure."""
+        yield self.left
+        yield self.right
+
+
+class Expression(Restructurable, Evaluable, DFS):
+    """
+    An object representing expression statements in the SLCO framework.
+    """
+    op: str
+    values: List[Union[Expression, Primary]]
+
+    def __init__(
+            self,
+            model: Union[slco2.Expression, slco2.ExprPrec1, slco2.ExprPrec2, slco2.ExprPrec3, slco2.ExprPrec4],
+            parent: Union[Transition, Composite, Assignment, Expression, Primary, VariableRef],
+            lookup_table: dict
+    ) -> None:
+        self.op = model.op
+        self.parent = parent
+
+        # Note: Instead of left and right, the expression is depicted as an operation over an array of values.
+        self.values = [_class_conversion_table[type(model.left)](model.left, self, lookup_table)]
+        if model.right is not None:
+            self.values.append(_class_conversion_table[type(model.right)](model.right, self, lookup_table))
+
+    def get_smt_statement(self):
+        """Convert the AST to an smt object"""
+        value_smt_statements: list = [v.get_smt_statement() for v in self.values]
+        return self.__n_ary_to_binary_smt_operations(value_smt_statements)
+
+    def _simplify(self) -> None:
+        """Simplify the structure of the AST by skipping superfluous AST nodes."""
+        super(Expression, self)._simplify()
+        for i, v in enumerate(self.values):
+            self.values[i] = self._skip_empty_expression(self.values[i])
+            self.values[i] = self._skip_superfluous_primary(self.values[i])
+        self._merge_expressions()
+
+    def _merge_expressions(self) -> None:
+        """Attempt to merge child expressions with this expression if possible."""
+        if self.op in n_ary_operators:
+            processed_values = []
+            for o in self.values:
+                if isinstance(o, Expression) and self.op == o.op:
+                    processed_values.extend(o.values)
+                    for o2 in o.values:
+                        o2.parent = self
+                else:
+                    processed_values.append(o)
+            self.values[:] = processed_values
+
+    def __n_ary_to_binary_smt_operations(self, values: List[Union[Expression, Primary]]):
+        """Convert an n-ary operation to a chain of binary smt operations."""
+        if len(values) > 2:
+            return operator_mapping[self.op](values[0], self.__n_ary_to_binary_smt_operations(values[1:]))
+        else:
+            return operator_mapping[self.op](*values[0:2])
+
+    def __repr__(self) -> str:
+        return (" %s " % self.op).join(str(v) for v in self.values)
+
+    def __iter__(self) -> Iterator[Union[Expression, Primary]]:
+        """Iterate through all objects part of the AST structure."""
+        for v in self.values:
+            yield v
+
+
+class Primary(Restructurable, Evaluable, DFS):
+    """
+    An object representing primary values in the SLCO framework.
+    """
+    body: Optional[Union[Expression, Primary]]
+    ref: Optional[VariableRef]
+    sign: str
+    value: Optional[Union[int, bool]]
+
+    def __init__(self, model, parent: Union[Expression, Transition, Composite], lookup_table: dict) -> None:
+        self.body = None
+        if model.body is not None:
+            self.body = Expression(model.body, self, lookup_table)
+        self.parent = parent
+        self.ref = None
+        if model.ref is not None:
+            self.ref = VariableRef(model.ref, self, lookup_table)
+        self.sign = model.sign
+        self.value = model.value
+
+    def get_smt_statement(self):
+        """Convert the AST to an smt object."""
+        if self.value is not None:
+            if isinstance(self.value, bool):
+                target_value = z3.BoolSort().cast(self.value)
+            elif isinstance(self.value, int):
+                target_value = z3.IntSort().cast(self.value)
+            else:
+                target_value = self.value
+        elif self.ref is not None:
+            target_value = self.ref.get_smt_statement()
+        else:
+            target_value = self.body.get_smt_statement()
+
+        if self.sign == "-":
+            return operator.neg(target_value)
+        elif self.sign == "not":
+            return z3.Not(target_value)
+        else:
+            return target_value
+
+    def _simplify(self) -> None:
+        """Simplify the structure of the AST by skipping superfluous AST nodes."""
+        super(Primary, self)._simplify()
+        if self.body is not None:
+            self.body = self._skip_empty_expression(self.body)
+            self.body = self._skip_superfluous_primary(self.body)
+
+    def __repr__(self) -> str:
+        if self.value is not None:
+            exp_str = str(self.value).lower()
+        elif self.ref is not None:
+            exp_str = "%s" % self.ref
+        else:
+            exp_str = "(%s)" % self.body
+        return ("!(%s)" if self.sign == "not" else self.sign + "%s") % exp_str
+
+    def __iter__(self) -> Iterator[Union[VariableRef, Expression, Primary]]:
+        """Iterate through all objects part of the AST structure."""
+        if self.ref is not None:
+            yield self.ref
+        if self.body is not None:
+            yield self.body
+
+
+class VariableRef(Restructurable, Evaluable, DFS):
+    """
+    An object representing references to variables in the SLCO framework.
+    """
+    index: Optional[Union[Expression, Primary]]
+    var: Variable
+
+    def __init__(
+            self,
+            model: Union[slco2.VariableRef, slco2.ExpressionRef],
+            parent: Union[Assignment, Primary], lookup_table: dict
+    ) -> None:
+        self.index = None
+        if model.index is not None:
+            self.index = Expression(model.index, self, lookup_table)
+        self.parent = parent
+        self.var = lookup_table[model.var if isinstance(model, slco2.VariableRef) else model.ref]
+
+    def get_smt_statement(self):
+        """Convert the AST to an smt object"""
+        if self.index is None:
+            return self.var.get_smt_statement()
+        else:
+            return operator.itemgetter(self.index.get_smt_statement())(self.var.get_smt_statement())
+
+    def _simplify(self) -> None:
+        """Simplify the structure of the AST by skipping superfluous AST nodes."""
+        super(VariableRef, self)._simplify()
+        if self.index is not None:
+            self.index = self._skip_empty_expression(self.index)
+            self.index = self._skip_superfluous_primary(self.index)
+
+    def __repr__(self) -> str:
+        var_str = self.var.name
+        if self.var.is_class_variable:
+            var_str += "'"
+        if self.index is not None:
+            var_str += "[%s]" % self.index
+        return var_str
+
+    def __iter__(self) -> Iterator[Union[Expression, Primary]]:
+        """Iterate through all objects part of the AST structure."""
+        if self.index is not None:
+            yield self.index
+
+
+class ActionRef:
+    """
+    An object representing references to model actions in the SLCO framework.
+    """
+    act: str
+
+    def __init__(self, model: slco2.ActionRef, parent: Transition) -> None:
+        self.act = model.act
+        self.parent = parent
+
+    def __repr__(self) -> str:
+        return "%s" % self.act
+
+
+# A lookup dictionary that allows for the dynamic conversion of slcolib types to extended types.
+_class_conversion_table = {
+    slco2.Composite: Composite,
+    slco2.Assignment: Assignment,
+    slco2.Expression: Expression,
+    slco2.ExprPrec1: Expression,
+    slco2.ExprPrec2: Expression,
+    slco2.ExprPrec3: Expression,
+    slco2.ExprPrec4: Expression,
+    slco2.Primary: Primary,
+    slco2.VariableRef: VariableRef,
+    slco2.ExpressionRef: VariableRef,
+    slco2.ActionRef: ActionRef,
+}

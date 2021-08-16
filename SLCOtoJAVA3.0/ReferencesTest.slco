@@ -1,0 +1,24 @@
+model Test {
+    actions a b
+
+	classes
+	P {
+        variables Integer[2] x Integer[2] y Integer[2] z Integer i
+        state machines
+        SM1 {
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 {
+                x[0] := i;
+                x[i] := 1;
+                x[i + 1] := 0;
+                [i := 0; x[y[i]] := 1];
+                y[z[i] + 1] := 0;
+                z[x[i] + 1] := 0;
+                x[x[i]] := 0;
+                y[i] := 0;
+            }
+        }
+	}
+	objects p: P()
+}
