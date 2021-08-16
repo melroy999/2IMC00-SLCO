@@ -1,10 +1,10 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 
-from objects.ast.models import SLCOModel
+from objects.ast.models import SlcoModel
 
 
-def draw(model: SLCOModel):
+def draw(model: SlcoModel):
     # https://networkx.org/documentation/stable/reference/algorithms/index.html
     for c in model.classes:
         composition = c.get_weighted_class_variable_dependency_graph()

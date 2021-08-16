@@ -1,48 +1,21 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Union, List, Optional, Iterator, Dict, Set
-from networkx import DiGraph
-from objects.ast.interfaces import Preprocessable, DFS, Evaluable, Lockable, Copyable
-from preprocessing.statement_beautification import beautify
-from preprocessing.statement_preprocessing import preprocess
-from preprocessing.statement_simplification import simplify
-from util.smt import operator_mapping
-
-import libraries.slcolib as slco2
-import networkx as nx
-import operator
-
-
-# TODO: redo the entire pre-processing procedure.
+from typing import Union, List, Optional, Iterator, Dict
+from objects.ast.interfaces import SlcoNode, SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode
 
 
 # SLCO TYPES
-class SLCOModel(Preprocessable, DFS):
+class SlcoModel(SlcoStructuralNode):
     """
     An object representing the encompassing model in the SLCO framework.
     """
     def __init__(self, name: str) -> None:
+        self.name = name
         self._actions: List[Action] = []
         self.channels: List[str] = []
         self._classes: List[Class] = []
-        self.name = name
         self._objects: List[Object] = []
-
-    # noinspection DuplicatedCode
-    @classmethod
-    def from_model(cls, model) -> SLCOModel:
-        """Convert the given model instance to the revised instance."""
-        lookup_table = dict()
-
-        result = cls(model.name)
-        result.actions = [Action.from_model(a, lookup_table) for a in model.actions]
-        result.channels = [c for c in model.channels]
-        result.classes = [Class.from_model(c, lookup_table) for c in model.classes]
-        result.objects = [Object.from_model(o, lookup_table) for o in model.objects]
-        result.preprocess()
-
-        return result
 
     def __repr__(self) -> str:
         return "SLCOModel:%s" % self.name
@@ -83,18 +56,12 @@ class SLCOModel(Preprocessable, DFS):
             v.parent = self
 
 
-class Action:
+class Action(SlcoNode):
     """
     An object representing actions in the SLCO framework.
     """
     def __init__(self, name: str) -> None:
-        self.parent = None
         self.name = name
-
-    @classmethod
-    def from_model(cls, model, lookup_table: dict) -> Action:
-        result = lookup_table[model.name] = cls(model.name)
-        return result
 
     def __repr__(self) -> str:
         return self.name
@@ -108,24 +75,14 @@ class Action:
         return hash(self.name)
 
 
-class Object:
+class Object(SlcoNode):
     """
     An object representing class instantiations in the SLCO framework.
     """
-    type: Class
-
-    def __init__(self, name: str) -> None:
-        self.parent = None
-        self._assignments: List[Initialisation] = []
+    def __init__(self, name: str, _type: Class) -> None:
         self.name = name
-
-    @classmethod
-    def from_model(cls, model, lookup_table: dict) -> Object:
-        """Convert the given model instance to the revised instance."""
-        result = cls(model.name)
-        result.assignments = [Initialisation.from_model(i, lookup_table) for i in model.assignments]
-        result.type = lookup_table[model.type]
-        return result
+        self.type = _type
+        self._assignments: List[Initialisation] = []
 
     def __repr__(self) -> str:
         return "Object:%s" % self.name
@@ -141,81 +98,28 @@ class Object:
             v.parent = self
 
 
-class Initialisation:
+class Initialisation(SlcoNode):
     """
     An object representing variable initialisations in the SLCO framework.
     """
-    left: Variable
-    right: Union[int, bool]
-    rights: Union[List[int], List[bool]]
-
-    def __init__(self) -> None:
-        self.parent = None
-
-    @classmethod
-    def from_model(cls, model, lookup_table: dict) -> Initialisation:
-        """Convert the given model instance to the revised instance."""
-        result = cls()
-        result.left = lookup_table[model.left]
-        result.right = model.right
-        result.rights = model.rights
-        return result
+    def __init__(self, left: Variable, right: Union[int, bool], rights: Union[List[int], List[bool]]) -> None:
+        self.left = left
+        self.right = right
+        self.rights = rights
 
     def __repr__(self) -> str:
         return "%s := %s" % (self.left, self.rights if self.right is None else self.right)
 
 
-class Class(Preprocessable, DFS):
+class Class(SlcoStructuralNode):
     """
     An object representing classes in the SLCO framework.
     """
     def __init__(self, name: str) -> None:
-        self.parent = None
         self.name = name
         self.ports: List[str] = []
         self._state_machines: List[StateMachine] = []
         self._variables: List[Variable] = []
-
-    # noinspection DuplicatedCode
-    @classmethod
-    def from_model(cls, model, lookup_table: dict) -> Class:
-        """Convert the given model instance to the revised instance."""
-        result = lookup_table[model] = cls(model.name)
-        result.ports = [p for p in model.ports]
-        result.variables = [Variable.from_model(v, lookup_table) for v in model.variables]
-        result.state_machines = [StateMachine.from_model(sm, result, lookup_table) for sm in model.statemachines]
-        return result
-
-    def get_weighted_class_variable_dependency_graph(self) -> DiGraph:
-        """Get a weighted (nodes + edges) class variable dependency graph for all statements within the class."""
-        graph = nx.DiGraph()
-        for sm in self.state_machines:
-            for g in sm.state_to_transitions.values():
-                for t in g:
-                    for s in t.statements:
-                        # The weight increase should only be applied once per object, since locking is only done once.
-                        references = set(s.get_class_variable_references())
-                        used_variables = set(r.var for r in references)
-                        for v in used_variables:
-                            if graph.has_node(v):
-                                graph.nodes[v]["weight"] += 1
-                            else:
-                                graph.add_node(v, weight=1)
-
-                        inserted_variable_pairs = set()
-                        while len(references) > 0:
-                            source = references.pop()
-                            if source.index:
-                                target_references = source.index.get_class_variable_references()
-                                for target in target_references:
-                                    if (source.var, target.var) not in inserted_variable_pairs:
-                                        inserted_variable_pairs.add((source.var, target.var))
-                                        if graph.has_edge(source.var, target.var):
-                                            graph[source.var][target.var]["weight"] += 1
-                                        else:
-                                            graph.add_edge(source.var, target.var, weight=1)
-                                        references.update(target_references)
-        return graph
 
     def __repr__(self) -> str:
         return "Class:%s" % self.name
@@ -246,35 +150,18 @@ class Class(Preprocessable, DFS):
             v.parent = self
 
 
-class StateMachine(Preprocessable, DFS):
+class StateMachine(SlcoStructuralNode):
     """
     An object representing state machines in the SLCO framework.
     """
-    _initial_state: State
 
-    def __init__(self, name: str) -> None:
-        self.parent = None
+    def __init__(self, name: str, initial_state: State) -> None:
         self.name = name
+        self._initial_state = initial_state
         self._states: List[State] = []
         self._variables: List[Variable] = []
         self._transitions: List[Transition] = []
         self.state_to_transitions: Dict[State, List[Transition]] = defaultdict(list)
-
-    @classmethod
-    def from_model(cls, model, parent, lookup_table: dict) -> StateMachine:
-        """Convert the given model instance to the revised instance."""
-        result = cls(model.name)
-        result._initial_state = State.from_model(model.initialstate, lookup_table)
-        result.states = [State.from_model(s, lookup_table) for s in model.states]
-        result.variables = [Variable.from_model(v, lookup_table) for v in model.variables]
-
-        for v in result.variables + parent.variables:
-            lookup_table[v.name] = v
-        result.transitions = [Transition.from_model(t, lookup_table) for t in model.transitions]
-        for v in result.variables + parent.variables:
-            del lookup_table[v.name]
-
-        return result
 
     def __repr__(self) -> str:
         return "StateMachine:%s" % self.name
@@ -284,28 +171,13 @@ class StateMachine(Preprocessable, DFS):
         for t in self.transitions:
             yield t
 
-    def preprocess(self) -> None:
-        """Preprocess the structure of the AST to simplify and generalize."""
-        super(StateMachine, self).preprocess()
-        self.transitions = [preprocess(s) for s in self.transitions]
-        self.transitions = [simplify(s) for s in self.transitions]
-        self.transitions = [beautify(s) for s in self.transitions]
-
-        for t in self.transitions:
-            self.state_to_transitions[t.source].append(t)
-
     @property
     def initial_state(self) -> State:
         return self._initial_state
 
     @property
     def states(self) -> List[State]:
-        """Get the list of states excluding the initial state."""
-        return self._states
-
-    @property
-    def i_states(self) -> List[State]:
-        """Get the list of states including the initial state."""
+        """Get the list of states excluding the initial state, including the initial state as the first element."""
         return [self._initial_state] + self._states
 
     @states.setter
@@ -335,19 +207,12 @@ class StateMachine(Preprocessable, DFS):
             v.parent = self
 
 
-class State:
+class State(SlcoNode):
     """
     An object representing states in the SLCO framework.
     """
     def __init__(self, name: str) -> None:
-        self.parent = None
         self.name = name
-
-    @classmethod
-    def from_model(cls, model, lookup_table: dict) -> State:
-        """Convert the given model instance to the revised instance."""
-        result = lookup_table[model] = cls(model.name)
-        return result
 
     def __repr__(self) -> str:
         return self.name
@@ -361,30 +226,16 @@ class State:
         return hash(self.name)
 
 
-class Variable(Evaluable):
+class Variable(SlcoEvaluableNode):
     """
     An object representing variables in the SLCO framework.
     """
-    type: Type
-    lock_id: int
-
     def __init__(self, name: str, _type: Optional[Type] = None) -> None:
-        self.parent = None
         self.name = name
         self.lock_id = -1
+        self.type = _type
         self.def_value: Optional[Union[int, bool]] = None
         self.def_values: Union[List[int], List[bool]] = []
-        if _type is not None:
-            self.type = _type
-
-    @classmethod
-    def from_model(cls, model: slco2.Variable, lookup_table) -> Variable:
-        """Convert the given model instance to the revised instance."""
-        result = lookup_table[model] = cls(model.name)
-        result.def_value = model.defvalue
-        result.def_values[:] = [v for v in model.defvalues]
-        result.type = Type.from_model(model.type)
-        return result
 
     def __repr__(self) -> str:
         if self.is_class_variable:
@@ -418,19 +269,13 @@ class Variable(Evaluable):
         return isinstance(self.parent, Class)
 
 
-class Type:
+class Type(SlcoNode):
     """
     An object representing variable types in the SLCO framework.
     """
     def __init__(self, base: str, size: int) -> None:
-        self.parent = None
         self.base = base
         self.size = size
-
-    @classmethod
-    def from_model(cls, model: slco2.Type) -> Type:
-        """Convert the given model instance to the revised instance."""
-        return cls(model.base, model.size)
 
     def __repr__(self) -> str:
         base_abbreviation = "bool" if self.is_boolean else "byte" if self.is_byte else "int"
@@ -463,7 +308,7 @@ class Type:
         return self.base == "Byte"
 
 
-class Transition(DFS):
+class Transition(SlcoStructuralNode):
     """
     An object representing a guarded transition in the SLCO framework.
 
@@ -474,23 +319,11 @@ class Transition(DFS):
         - Superfluous Expression and Primary statements are removed.
         - Composites that only contain a guard are automatically converted to an Expression instead.
     """
-    source: State
-    target: State
-
-    def __init__(self, priority: int = 0) -> None:
-        self.parent = None
+    def __init__(self, source: State, target: State, priority: int = 0) -> None:
+        self.source = source
+        self.target = target
         self.priority = priority
         self._statements = []
-
-    # noinspection PyArgumentList
-    @classmethod
-    def from_model(cls, model, lookup_table: dict) -> Transition:
-        """Convert the given model instance to the revised instance."""
-        result = cls(model.priority)
-        result.source = lookup_table[model.source]
-        result.target = lookup_table[model.target]
-        result.statements = [_class_conversion_table[type(s)](s, lookup_table) for s in model.statements]
-        return result
 
     def __repr__(self) -> str:
         transition_repr = "%s: %s -> %s {" % (self.priority, self.source, self.target)
@@ -520,7 +353,7 @@ class Transition(DFS):
             v.parent = self
 
 
-class Composite(Evaluable, Lockable):
+class Composite(SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode):
     """
     An object representing composite statements in the SLCO framework.
 
@@ -529,7 +362,6 @@ class Composite(Evaluable, Lockable):
         - Superfluous guard statements are simplified to a true expression when appropriate.
     """
     def __init__(self, guard=None, assignments=None) -> None:
-        self.parent = None
         self._guard = None
         self._assignments: List[Assignment] = []
 
@@ -541,33 +373,6 @@ class Composite(Evaluable, Lockable):
 
         if assignments is not None:
             self.assignments = assignments
-
-    @classmethod
-    def from_model(cls, model: slco2.Composite, lookup_table: dict) -> Composite:
-        """Convert the given model instance to the revised instance."""
-        result = cls()
-        if model.guard is not None:
-            result.guard = Expression.from_model(model.guard, lookup_table)
-        result.assignments = [Assignment.from_model(a, lookup_table) for a in model.assignments]
-        return result
-
-    def get_variable_references(self) -> Set[VariableRef]:
-        """Get a list of all the variables that have been referenced to by the statement."""
-        variable_references = self.guard.get_variable_references()
-
-        # The assignment statements may alter the values of the variables, and hence, a rewrite table is needed.
-        rewrite_rules = dict()
-        for a in self.assignments:
-            # Start by rewriting the assignment.
-            rewritten_assignment = a.create_copy(rewrite_rules)
-
-            # Get the variable references for the statement and apply the rewrite rules.
-            variable_references.update(rewritten_assignment.get_variable_references())
-
-            # Add a rewrite rule for the current assignment.
-            rewrite_rules[rewritten_assignment.left] = rewritten_assignment.right
-
-        return variable_references
 
     def __repr__(self) -> str:
         statements = [self.guard] if self.guard is not None else []
@@ -612,38 +417,13 @@ class Composite(Evaluable, Lockable):
             v.parent = self
 
 
-class Assignment(Lockable, Copyable):
+class Assignment(SlcoStructuralNode, SlcoStatementNode):
     """
     An object representing assignment statements in the SLCO framework.
     """
-    def __init__(self, left=None, right=None) -> None:
-        self.parent = None
-        self._right = None
+    def __init__(self) -> None:
         self._left = None
-
-        if left is not None:
-            self.left = left
-        if right is not None:
-            self.right = right
-
-    # noinspection PyArgumentList
-    @classmethod
-    def from_model(cls, model: slco2.Assignment, lookup_table: dict) -> Assignment:
-        """Convert the given model instance to the revised instance."""
-        result = cls()
-        result.left = _class_conversion_table[type(model.left)](model.left, lookup_table)
-        result.right = _class_conversion_table[type(model.right)](model.right, lookup_table)
-        return result
-
-    def create_copy(self, rewrite_rules: dict, is_first: bool = True) -> Assignment:
-        """Create a copy of the expression with the given rewrite rules applied."""
-        result = Assignment()
-        result.left = self.left.create_copy(rewrite_rules, False)
-        result.right = self.right.create_copy(rewrite_rules, False)
-        if is_first:
-            result = simplify(result)
-            result = beautify(result)
-        return result
+        self._right = None
 
     def __repr__(self) -> str:
         return "%s := %s" % (self.left, self.right)
@@ -679,13 +459,6 @@ class Assignment(Lockable, Copyable):
             val.parent = self
 
 
-# Several operators differ when using smt. Overwrite those.
-resolution_operator_mapping = operator_mapping.copy()
-resolution_operator_mapping["xor"] = operator.xor
-resolution_operator_mapping["or"] = operator.or_
-resolution_operator_mapping["and"] = operator.and_
-
-
 # Several operators have different presentations. Normalize them.
 operator_normalizations = {
     "&&": "and",
@@ -694,48 +467,20 @@ operator_normalizations = {
 }
 
 
-class Expression(Evaluable, Lockable, Copyable):
+class Expression(SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode):
     """
     An object representing expression statements in the SLCO framework.
 
     Notes:
-        - The ordering of variables in the expressions are not changed.
-
-    TODO:
-        - Expressions may contain bounds on variables used in array accesses. Map these in a graph.
+        - The ordering of variables within the expressions are not changed.
     """
     def __init__(self, op: str, values=None) -> None:
-        self.parent = None
         self.op = operator_normalizations.get(op, op)
 
         # Note: Instead of left and right, the expression is depicted as an operation over an array of values.
         self._values = []
-
         if values is not None:
             self.values = values
-
-    # noinspection PyArgumentList
-    @classmethod
-    def from_model(
-            cls,
-            model: Union[slco2.Expression, slco2.ExprPrec1, slco2.ExprPrec2, slco2.ExprPrec3, slco2.ExprPrec4],
-            lookup_table: dict
-    ) -> Expression:
-        """Convert the given model instance to the revised instance."""
-        result = cls(model.op)
-        left = [_class_conversion_table[type(model.left)](model.left, lookup_table)]
-        right = [] if model.right is None else [_class_conversion_table[type(model.right)](model.right, lookup_table)]
-        result.values = left + right
-        return result
-
-    def create_copy(self, rewrite_rules: dict, is_first: bool = True) -> Expression:
-        """Create a copy of the expression with the given rewrite rules applied."""
-        result = Expression(self.op)
-        result.values = [v.create_copy(rewrite_rules, False) for v in self.values]
-        if is_first:
-            result = simplify(result)
-            result = beautify(result)
-        return result
 
     def __repr__(self) -> str:
         return (" %s " % self.op).join(str(v) for v in self.values)
@@ -765,7 +510,7 @@ class Expression(Evaluable, Lockable, Copyable):
             v.parent = self
 
 
-class Primary(Evaluable, Lockable, Copyable):
+class Primary(SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode):
     """
     An object representing primary values in the SLCO framework.
     """
@@ -775,7 +520,6 @@ class Primary(Evaluable, Lockable, Copyable):
             value: Optional[Union[int, bool]] = None,
             target=None,
     ) -> None:
-        self.parent = None
         self._body: Optional[Expression, Primary] = None
         self._ref: Optional[VariableRef] = None
         self.sign = sign
@@ -802,31 +546,6 @@ class Primary(Evaluable, Lockable, Copyable):
                 self.sign = "-"
             else:
                 self.value = target
-
-    @classmethod
-    def from_model(cls, model: slco2.Primary, lookup_table: dict) -> Primary:
-        """Convert the given model instance to the revised instance."""
-        result = cls(model.sign, model.value)
-        if model.ref is not None:
-            result.ref = VariableRef.from_model(model.ref, lookup_table)
-        if model.body is not None:
-            result.body = Expression.from_model(model.body, lookup_table)
-        return result
-
-    def create_copy(self, rewrite_rules: dict, is_first: bool = True) -> Primary:
-        """Create a copy of the expression with the given rewrite rules applied."""
-        result = Primary(sign=self.sign, value=self.value)
-        if self.body:
-            result.body = self.body.create_copy(rewrite_rules, False)
-        if self.ref:
-            if self.ref in rewrite_rules:
-                result.body = rewrite_rules[self.ref].create_copy(result, dict(), False)
-            else:
-                result.ref = self.ref.create_copy(rewrite_rules, False)
-        if is_first:
-            result = simplify(result)
-            result = beautify(result)
-        return result
 
     def __repr__(self) -> str:
         if self.value is not None:
@@ -889,41 +608,18 @@ class Primary(Evaluable, Lockable, Copyable):
         return self.value
 
 
-class VariableRef(Evaluable, DFS, Copyable):
+class VariableRef(SlcoStructuralNode, SlcoEvaluableNode):
     """
     An object representing references to variables in the SLCO framework.
 
     Notes:
         - VariableRef objects do not necessarily need a parent. Hence, the parent can be ``None``.
     """
-    def __init__(self, var=None, index=None) -> None:
-        self.parent = None
+    def __init__(self, var, index=None) -> None:
         self.var = var
         self._index = None
         if index is not None:
             self.index = index
-
-    @classmethod
-    def from_model(
-            cls, model: Union[slco2.VariableRef, slco2.ExpressionRef], lookup_table: dict
-    ) -> VariableRef:
-        """Convert the given model instance to the revised instance."""
-        result = cls()
-        if model.index is not None:
-            result.index = Expression.from_model(model.index, lookup_table)
-        result.var = lookup_table[model.var if isinstance(model, slco2.VariableRef) else model.ref]
-        return result
-
-    def create_copy(self, rewrite_rules: dict, is_first: bool = True) -> VariableRef:
-        """Create a copy of the expression with the given rewrite rules applied."""
-        result = VariableRef()
-        result.var = self.var
-        if self.index:
-            result.index = self.index.create_copy(result, rewrite_rules, False)
-        if is_first:
-            result = simplify(result)
-            result = beautify(result)
-        return result
 
     def __repr__(self) -> str:
         var_str = self.var.name
@@ -958,21 +654,12 @@ class VariableRef(Evaluable, DFS, Copyable):
             val.parent = self
 
 
-class ActionRef:
+class ActionRef(SlcoStatementNode):
     """
     An object representing references to model actions in the SLCO framework.
     """
-    act: Action
-
-    def __init__(self) -> None:
-        self.parent = None
-
-    @classmethod
-    def from_model(cls, model: slco2.ActionRef, lookup_table: dict) -> ActionRef:
-        """Convert the given model instance to the revised instance."""
-        result = cls()
-        result.act = lookup_table[model.act]
-        return result
+    def __init__(self, act: Action) -> None:
+        self.act: Action = act
 
     def __repr__(self) -> str:
         return "%s" % self.act
@@ -984,19 +671,3 @@ class ActionRef:
 
     def __hash__(self) -> int:
         return hash(self.act)
-
-
-# A lookup dictionary that allows for the dynamic conversion of slcolib types to extended types.
-_class_conversion_table = {
-    slco2.Composite: Composite.from_model,
-    slco2.Assignment: Assignment.from_model,
-    slco2.Expression: Expression.from_model,
-    slco2.ExprPrec1: Expression.from_model,
-    slco2.ExprPrec2: Expression.from_model,
-    slco2.ExprPrec3: Expression.from_model,
-    slco2.ExprPrec4: Expression.from_model,
-    slco2.Primary: Primary.from_model,
-    slco2.VariableRef: VariableRef.from_model,
-    slco2.ExpressionRef: VariableRef.from_model,
-    slco2.ActionRef: ActionRef.from_model,
-}

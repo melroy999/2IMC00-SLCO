@@ -4,7 +4,8 @@ import os
 
 import settings
 from libraries.slcolib import *
-from objects.ast.models import SLCOModel
+from objects.ast.models import SlcoModel, Transition, StateMachine, Class
+from objects.ast.util import copy_node, ast_to_model, __dfs__
 
 
 # TODO Notes:
@@ -29,10 +30,18 @@ from objects.ast.models import SLCOModel
 
 def preprocess(model):
     """"Gather additional data about the model"""
-    model = SLCOModel.from_model(model)
+    model = ast_to_model(model, dict())
+    model2 = copy_node(model, dict())
+
+    target_objects = __dfs__(
+        model2, self_first=True, _filter=lambda x: type(x) in [Transition, SlcoModel, Class, StateMachine]
+    )
+
+    for o in target_objects:
+        print(o)
 
 
-def get_parser():
+def get_argument_parser():
     """Get a parser for the input arguments"""
     parser = argparse.ArgumentParser(description="Transform an SLCO 2.0 model to a Java program")
     parser.add_argument("model", help="The SLCO 2.0 model to be converted to a Java program.")
@@ -42,7 +51,7 @@ def get_parser():
 def main(_args):
     """The main function"""
     # Define the arguments that the program supports and parse accordingly.
-    parser = get_parser()
+    parser = get_argument_parser()
     parsed_arguments = parser.parse_args(_args)
 
     # Parse the parameters and save the settings.

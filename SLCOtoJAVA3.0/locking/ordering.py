@@ -4,7 +4,7 @@ from typing import Iterable
 import objects.ast.models
 
 # Type abbreviations
-SLCOModel = objects.ast.models.SLCOModel
+SLCOModel = objects.ast.models.SlcoModel
 Primary = objects.ast.models.Primary
 Expression = objects.ast.models.Expression
 

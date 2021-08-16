@@ -6,7 +6,7 @@ import objects.ast.interfaces as interfaces
 from objects.util.graph import convert_to_directed_acyclic_graph, render_graph
 
 # Type abbreviations
-SLCOModel = models.SLCOModel
+SLCOModel = models.SlcoModel
 VariableRef = models.VariableRef
 Variable = models.Variable
 Primary = models.Primary
