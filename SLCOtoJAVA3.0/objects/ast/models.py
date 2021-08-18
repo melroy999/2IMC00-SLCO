@@ -323,12 +323,15 @@ class Transition(SlcoStructuralNode):
         self.source = source
         self.target = target
         self.priority = priority
-        self._statements = []
+        self._statements: List[SlcoStatementNode] = []
 
     def __repr__(self) -> str:
         transition_repr = "%s: %s -> %s {" % (self.priority, self.source, self.target)
         for s in self.statements:
-            transition_repr += "\n\t%s;" % s
+            if s.exclude_statement:
+                transition_repr += "\n\t(x) %s;" % s
+            else:
+                transition_repr += "\n\t%s;" % s
         transition_repr += "\n}"
         return transition_repr
 
@@ -340,6 +343,7 @@ class Transition(SlcoStructuralNode):
     @property
     def guard(self) -> Union[Expression, Primary, Composite]:
         """Get the expression that acts as the guard expression of the transition."""
+        # noinspection PyTypeChecker
         return self.statements[0]
 
     @property
@@ -365,12 +369,8 @@ class Composite(SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode):
         self._guard = None
         self._assignments: List[Assignment] = []
 
-        # A composite will always have a guard. If none is given, set it to a true primary.
         if guard is not None:
             self.guard = guard
-        else:
-            self.guard = Primary(target=True)
-
         if assignments is not None:
             self.assignments = assignments
 
