@@ -4,6 +4,8 @@ from abc import ABCMeta
 from collections.abc import Iterable
 from typing import Optional
 
+import networkx as nx
+
 from rendering.util.to_smt import to_smt, is_true, is_false, is_equivalent, is_negation_equivalent
 
 
@@ -47,13 +49,14 @@ class SlcoEvaluableNode(SlcoNode, metaclass=ABCMeta):
         return to_smt(self)
 
 
-class SlcoStatementNode(SlcoNode, metaclass=ABCMeta):
+class SlcoStatementNode(SlcoStructuralNode, metaclass=ABCMeta):
     """
     A metaclass that provides helper functions and variables for statement-level objects in the SLCO framework.
     """
     exclude_statement: bool = False
     produced_statement: bool = False
     original_statement: Optional[SlcoStatementNode] = None
+    variable_dependency_graph: nx.DiGraph = None
 
     def get_original_statement(self):
         """Get the original version of the statement."""
@@ -61,3 +64,8 @@ class SlcoStatementNode(SlcoNode, metaclass=ABCMeta):
             return self
         else:
             return self.original_statement.get_original_statement()
+
+    def visualize(self):
+        """Visualize the given statement as an AST plot."""
+        from objects.ast.visualization import visualize_expression
+        visualize_expression(self)

@@ -1,5 +1,8 @@
-from typing import Iterable
+from typing import Iterable, Set
 
+import networkx as nx
+
+from objects.ast.interfaces import SlcoStatementNode
 from objects.ast.models import SlcoModel, Action, Object, Initialisation, Class, StateMachine, State, Variable, Type, \
     Transition, Composite, Assignment, Expression, Primary, VariableRef, ActionRef
 
@@ -213,3 +216,58 @@ def copy_node(model, lookup_table: dict, rewrite_rules: dict, parent=None):
         if model is not None:
             print("Object", model, "could not be copied.")
         return None
+
+
+def get_referenced_variables(model: SlcoStatementNode) -> Set[VariableRef]:
+    """
+    Get a list of all the variables that have been referenced to by the statement. Note that variables used in
+    composites need to be adjusted through rewrite rules to compensate for assignments.
+    """
+    if isinstance(model, Composite):
+        # The assignment statements may alter the values of the variables, and hence, a rewrite table is needed.
+        rewrite_rules = dict()
+        referenced_variables: Set[VariableRef] = get_referenced_variables(model.guard)
+        for a in model.assignments:
+            # Start by rewriting the assignment.
+            rewritten_assignment = copy_node(a, dict(), rewrite_rules)
+
+            # Get the variable references for the statement and apply the rewrite rules.
+            referenced_variables.update(get_referenced_variables(rewritten_assignment))
+
+            # Add a rewrite rule for the current assignment.
+            rewrite_rules[rewritten_assignment.left] = rewritten_assignment.right
+    else:
+        referenced_variables: Set[VariableRef] = set()
+        for t in __dfs__(model, _filter=lambda x: isinstance(x, VariableRef)):
+            referenced_variables.add(t)
+    return referenced_variables
+
+
+def get_class_variable_references(model: SlcoStatementNode) -> Set[VariableRef]:
+    """
+    Get a list of all the class variables that have been referenced to by the statement. Note that variables used in
+    composites have been adjusted through rewrite rules to compensate for assignments.
+    """
+    return set(v for v in get_referenced_variables(model) if v.var.is_class_variable)
+
+
+def get_variable_dependency_graph(model: SlcoStatementNode) -> nx.DiGraph:
+    """Get a variable dependency graph for the variables within the statement."""
+    graph = nx.DiGraph()
+    references: Set[VariableRef] = get_referenced_variables(model)
+    while len(references) > 0:
+        target = references.pop()
+        graph.add_node(target.var)
+        if target.index is not None:
+            sub_references: Set[VariableRef] = get_referenced_variables(target.index)
+            for r in sub_references:
+                graph.add_edge(target.var, r.var)
+    return graph
+
+
+def get_class_variable_dependency_graph(model: SlcoStatementNode) -> nx.DiGraph:
+    """Get a variable dependency graph for the class variables within the statement."""
+    graph = get_variable_dependency_graph(model)
+    sm_variables = [n for n in graph.nodes if not n.is_class_variable]
+    graph.remove_nodes_from(sm_variables)
+    return graph

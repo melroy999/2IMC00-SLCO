@@ -4,7 +4,7 @@ import os
 import sys
 
 import settings
-from libraries.slcolib import read_SLCO_model
+from overrides.slcolibrev import read_SLCO_model
 from objects.ast.models import SlcoModel, Transition, StateMachine, Class
 from objects.ast.util import ast_to_model, __dfs__
 from objects.ast.visualization import visualize_expression
@@ -50,7 +50,7 @@ def preprocess(model):
 
         if isinstance(o, Transition):
             for v in o.statements:
-                visualize_expression(v)
+                v.visualize()
 
 
 def get_argument_parser():

@@ -357,7 +357,7 @@ class Transition(SlcoStructuralNode):
             v.parent = self
 
 
-class Composite(SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode):
+class Composite(SlcoStatementNode, SlcoEvaluableNode):
     """
     An object representing composite statements in the SLCO framework.
 
@@ -417,7 +417,7 @@ class Composite(SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode):
             v.parent = self
 
 
-class Assignment(SlcoStructuralNode, SlcoStatementNode):
+class Assignment(SlcoStatementNode):
     """
     An object representing assignment statements in the SLCO framework.
     """
@@ -467,7 +467,7 @@ operator_normalizations = {
 }
 
 
-class Expression(SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode):
+class Expression(SlcoStatementNode, SlcoEvaluableNode):
     """
     An object representing expression statements in the SLCO framework.
 
@@ -510,7 +510,7 @@ class Expression(SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode):
             v.parent = self
 
 
-class Primary(SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode):
+class Primary(SlcoStatementNode, SlcoEvaluableNode):
     """
     An object representing primary values in the SLCO framework.
     """
@@ -658,11 +658,15 @@ class ActionRef(SlcoStatementNode):
     """
     An object representing references to model actions in the SLCO framework.
     """
+
     def __init__(self, act: Action) -> None:
         self.act: Action = act
 
     def __repr__(self) -> str:
         return "%s" % self.act
+
+    def __iter__(self):
+        yield self
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, ActionRef):
