@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from collections import defaultdict
 from typing import Union, List, Optional, Iterator, Dict
+
+import networkx as nx
+
 from objects.ast.interfaces import SlcoNode, SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode
 
 
@@ -115,6 +118,9 @@ class Class(SlcoStructuralNode):
     """
     An object representing classes in the SLCO framework.
     """
+    weighted_variable_dependency_graph: nx.DiGraph = None
+    weighted_class_variable_dependency_graph: nx.DiGraph = None
+
     def __init__(self, name: str) -> None:
         self.name = name
         self.ports: List[str] = []

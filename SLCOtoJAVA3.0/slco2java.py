@@ -7,7 +7,9 @@ import settings
 from overrides.slcolibrev import read_SLCO_model
 from objects.ast.models import SlcoModel, Transition, StateMachine, Class
 from objects.ast.util import ast_to_model, __dfs__
-from objects.ast.visualization import visualize_expression
+from objects.ast.visualization import visualize_dependency_graph, visualize_weighted_variable_dependency_graph, \
+    visualize_expression
+from preprocessing.ast.finalization import finalize_class
 from preprocessing.ast.restructuring import restructure
 from preprocessing.ast.simplification import simplify
 
@@ -41,6 +43,9 @@ def preprocess(model):
         restructure(t)
         simplify(t)
 
+    for c in __dfs__(model, _filter=lambda x: isinstance(x, Class)):
+        finalize_class(c)
+
     target_objects = __dfs__(
         model, self_first=True, _filter=lambda x: type(x) in [Transition, SlcoModel, Class, StateMachine]
     )
@@ -48,9 +53,13 @@ def preprocess(model):
     for o in target_objects:
         print(o)
 
-        if isinstance(o, Transition):
+        if isinstance(o, Transition) and False:
             for v in o.statements:
-                v.visualize()
+                visualize_expression(v)
+                visualize_dependency_graph(v)
+
+        if isinstance(o, Class):
+            visualize_weighted_variable_dependency_graph(o)
 
 
 def get_argument_parser():

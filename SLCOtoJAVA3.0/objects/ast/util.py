@@ -1,4 +1,4 @@
-from typing import Iterable, Set
+from typing import Iterable, Set, Union
 
 import networkx as nx
 
@@ -218,21 +218,24 @@ def copy_node(model, lookup_table: dict, rewrite_rules: dict, parent=None):
         return None
 
 
-def get_referenced_variables(model: SlcoStatementNode) -> Set[VariableRef]:
+def get_variable_references(model: SlcoStatementNode) -> Set[VariableRef]:
     """
     Get a list of all the variables that have been referenced to by the statement. Note that variables used in
     composites need to be adjusted through rewrite rules to compensate for assignments.
     """
+    if model.variable_references is not None:
+        return model.variable_references.copy()
+
     if isinstance(model, Composite):
         # The assignment statements may alter the values of the variables, and hence, a rewrite table is needed.
         rewrite_rules = dict()
-        referenced_variables: Set[VariableRef] = get_referenced_variables(model.guard)
+        referenced_variables: Set[VariableRef] = get_variable_references(model.guard)
         for a in model.assignments:
             # Start by rewriting the assignment.
             rewritten_assignment = copy_node(a, dict(), rewrite_rules)
 
             # Get the variable references for the statement and apply the rewrite rules.
-            referenced_variables.update(get_referenced_variables(rewritten_assignment))
+            referenced_variables.update(get_variable_references(rewritten_assignment))
 
             # Add a rewrite rule for the current assignment.
             rewrite_rules[rewritten_assignment.left] = rewritten_assignment.right
@@ -240,7 +243,9 @@ def get_referenced_variables(model: SlcoStatementNode) -> Set[VariableRef]:
         referenced_variables: Set[VariableRef] = set()
         for t in __dfs__(model, _filter=lambda x: isinstance(x, VariableRef)):
             referenced_variables.add(t)
-    return referenced_variables
+
+    model.variable_references = referenced_variables
+    return referenced_variables.copy()
 
 
 def get_class_variable_references(model: SlcoStatementNode) -> Set[VariableRef]:
@@ -248,26 +253,94 @@ def get_class_variable_references(model: SlcoStatementNode) -> Set[VariableRef]:
     Get a list of all the class variables that have been referenced to by the statement. Note that variables used in
     composites have been adjusted through rewrite rules to compensate for assignments.
     """
-    return set(v for v in get_referenced_variables(model) if v.var.is_class_variable)
+    if model.class_variable_references is not None:
+        return model.class_variable_references.copy()
+
+    if model.variable_references is not None:
+        variable_references = model.variable_references
+    else:
+        variable_references = get_variable_references(model)
+
+    model.class_variable_references = set(v for v in variable_references if v.var.is_class_variable)
+    return model.class_variable_references.copy()
 
 
 def get_variable_dependency_graph(model: SlcoStatementNode) -> nx.DiGraph:
     """Get a variable dependency graph for the variables within the statement."""
+    if model.variable_dependency_graph is not None:
+        return model.variable_dependency_graph.copy()
+
     graph = nx.DiGraph()
-    references: Set[VariableRef] = get_referenced_variables(model)
+    references: Set[VariableRef] = get_variable_references(model)
     while len(references) > 0:
         target = references.pop()
         graph.add_node(target.var)
         if target.index is not None:
-            sub_references: Set[VariableRef] = get_referenced_variables(target.index)
+            sub_references: Set[VariableRef] = get_variable_references(target.index)
             for r in sub_references:
                 graph.add_edge(target.var, r.var)
-    return graph
+
+    model.variable_dependency_graph = graph
+    return graph.copy()
 
 
 def get_class_variable_dependency_graph(model: SlcoStatementNode) -> nx.DiGraph:
     """Get a variable dependency graph for the class variables within the statement."""
+    if model.class_variable_dependency_graph is not None:
+        return model.class_variable_dependency_graph.copy()
+
     graph = get_variable_dependency_graph(model)
     sm_variables = [n for n in graph.nodes if not n.is_class_variable]
     graph.remove_nodes_from(sm_variables)
-    return graph
+
+    model.class_variable_dependency_graph = graph
+    return graph.copy()
+
+
+def get_weighted_variable_dependency_graph(model: Class) -> nx.DiGraph:
+    """Get a weighted (nodes + edges) variable dependency graph for all statements within the class."""
+    if model.weighted_variable_dependency_graph is not None:
+        return model.weighted_variable_dependency_graph.copy()
+
+    graph = nx.DiGraph()
+    for sm in model.state_machines:
+        for t in sm.transitions:
+            for s in t.statements:
+                # The weight increase should only be applied once per object, since locking is only done once.
+                references = set(get_variable_references(s))
+                used_variables = set(r.var for r in references)
+                for v in used_variables:
+                    if graph.has_node(v):
+                        graph.nodes[v]["weight"] += 1
+                    else:
+                        graph.add_node(v, weight=1)
+
+                inserted_variable_pairs = set()
+                while len(references) > 0:
+                    source = references.pop()
+                    if source.index:
+                        target_references = get_variable_references(source.index)
+                        for target in target_references:
+                            if (source.var, target.var) not in inserted_variable_pairs:
+                                inserted_variable_pairs.add((source.var, target.var))
+                                if graph.has_edge(source.var, target.var):
+                                    graph[source.var][target.var]["weight"] += 1
+                                else:
+                                    graph.add_edge(source.var, target.var, weight=1)
+                                references.update(target_references)
+
+    model.weighted_variable_dependency_graph = graph
+    return graph.copy()
+
+
+def get_weighted_class_variable_dependency_graph(model: Class) -> nx.DiGraph:
+    """Get a weighted (nodes + edges) class variable dependency graph for all statements within the class."""
+    if model.weighted_class_variable_dependency_graph is not None:
+        return model.weighted_class_variable_dependency_graph.copy()
+
+    graph = get_weighted_variable_dependency_graph(model)
+    sm_variables = [n for n in graph.nodes if not n.is_class_variable]
+    graph.remove_nodes_from(sm_variables)
+
+    model.weighted_class_variable_dependency_graph = graph
+    return graph.copy()
