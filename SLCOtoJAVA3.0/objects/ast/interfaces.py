@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABCMeta
 from collections.abc import Iterable
-from typing import Optional, Set
+from typing import Optional, Set, Dict
 
 import networkx as nx
 
@@ -50,21 +50,22 @@ class SlcoEvaluableNode(SlcoNode, metaclass=ABCMeta):
         return to_smt(self)
 
 
-class SlcoStatementNode(SlcoStructuralNode, metaclass=ABCMeta):
+class SlcoVerifiableNode:
     """
-    A metaclass that provides helper functions and variables for statement-level objects in the SLCO framework.
+    A metaclass that provides helper functions for formal verification purposes.
+    """
+    # The vercors statements associated to the node.
+    vercors_statements: Set[str] = None
+
+
+class SlcoVersioningNode(metaclass=ABCMeta):
+    """
+    A metaclass that helps tracking changes made to objects for verification purposes.
     """
     # Version control.
     exclude_statement: bool = False
     produced_statement: bool = False
-    original_statement: Optional[SlcoStatementNode] = None
-
-    # Avoid recalculating structural data.
-    variable_references: Set[VariableRef] = None
-    class_variable_references: Set[VariableRef] = None
-    variable_dependency_graph: nx.DiGraph = None
-    class_variable_dependency_graph: nx.DiGraph = None
-    lock_id_requests: Set[VariableRef] = None
+    original_statement: Optional[SlcoVersioningNode] = None
 
     def get_original_statement(self):
         """Get the original version of the statement."""
@@ -72,3 +73,16 @@ class SlcoStatementNode(SlcoStructuralNode, metaclass=ABCMeta):
             return self
         else:
             return self.original_statement.get_original_statement()
+
+
+class SlcoStatementNode(SlcoStructuralNode, SlcoVersioningNode, metaclass=ABCMeta):
+    """
+    A metaclass that provides helper functions and variables for statement-level objects in the SLCO framework.
+    """
+    # Avoid recalculating structural data.
+    variable_references: Set[VariableRef] = None
+    class_variable_references: Set[VariableRef] = None
+    variable_dependency_graph: nx.DiGraph = None
+    class_variable_dependency_graph: nx.DiGraph = None
+    lock_requests: Set[VariableRef] = None
+    lock_request_conflict_resolutions: Dict[VariableRef, Set[VariableRef]] = None

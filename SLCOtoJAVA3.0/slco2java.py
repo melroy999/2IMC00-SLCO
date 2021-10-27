@@ -8,7 +8,7 @@ from overrides.slcolibrev import read_SLCO_model
 from objects.ast.models import SlcoModel, Transition, StateMachine, Class
 from objects.ast.util import ast_to_model, __dfs__
 from objects.ast.visualization import visualize_dependency_graph, visualize_weighted_variable_dependency_graph, \
-    visualize_expression
+    visualize_expression, visualize_variable_ordering_graph
 from preprocessing.ast.finalization import finalize_class
 from preprocessing.ast.restructuring import restructure
 from preprocessing.ast.simplification import simplify
@@ -33,6 +33,26 @@ from preprocessing.ast.simplification import simplify
 #   - Hence, it needs to be reset between state machines.
 #   - Or, alternatively, every generated variable needs to be made unique.
 
+# TODO:
+#   - Unused locks due to unpacking can be released rather elegantly:
+#   - Suppose that we have X[0..3] and Y[0..2], locking X[Y[i]] with X.id < Y.id
+#   - Variables to lock: [X[Y[i]], X[3], Y[i]]
+#   - Lock with unpacking: [X[0], X[1], X[2], X[3], Y[i]]
+#   - Lock unpack targets: [X[Y[i]]]
+#   - Unlock unused variables added by the unpacking: [X[0], X[1], X[2]]
+#   - Resulting locks: [X[3], X[Y[i]], Y[i]]
+
+# TODO:
+#   - Ensure that i >= 0 and i < 10 and X[i] doesn't turn into an out of bound exception.
+#   - Break the conjunction into multiple parts, such that the bound check will fail before requesting X[i].
+#   - Split if a proceeding part of the conjunction contains a variable that is used within an array index of one or
+#   more variables within the current block.
+#   - How to handle nested array indices...? Take the whole array or with the index...?
+#   - The latter might result in errors when overly creative...?
+#   - Note that this has to work in nested parts of the expression too: (i >= 0 and i < 10 and X[i]) or X[0].
+#   - Simplification: top level disjunctions should be handled as separate options instead.
+#   - How to avoid xor and equality...?
+
 
 def preprocess(model):
     """"Gather additional data about the model"""
@@ -53,10 +73,11 @@ def preprocess(model):
     for o in target_objects:
         print(o)
 
-        if isinstance(o, Transition) and False:
+        if isinstance(o, Transition):
             for v in o.statements:
                 visualize_expression(v)
                 visualize_dependency_graph(v)
+                visualize_variable_ordering_graph(v)
 
         if isinstance(o, Class):
             visualize_weighted_variable_dependency_graph(o)

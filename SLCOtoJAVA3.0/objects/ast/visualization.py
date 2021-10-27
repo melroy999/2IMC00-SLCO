@@ -2,6 +2,7 @@ from typing import Dict
 
 from networkx.drawing.nx_pydot import graphviz_layout
 
+from locking.ordering import get_variable_ordering_graph
 from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, Class
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -98,7 +99,14 @@ def visualize_weighted_variable_dependency_graph(e: Class):
     """Visualize the dependency graph of the given class."""
     graph = get_weighted_variable_dependency_graph(e)
     labels = {k: k.name + "'" if k.is_class_variable else k.name for k in graph.nodes}
-    render_graph(graph, str(e) + " (VDG)", labels, layout="neato")
+    render_graph(graph, str(e) + " (WVDG)", labels, layout="neato")
+
+
+def visualize_variable_ordering_graph(e):
+    """Visualize the dependency graph of the given expression."""
+    graph = get_variable_ordering_graph(e)
+    labels = {k: k.name for k in graph.nodes}
+    render_graph(graph, str(e) + " (VOG)", labels)
 
 
 def render_graph(graph: nx.DiGraph, title: str = "", labels: Dict = None, layout="dot"):
@@ -111,11 +119,12 @@ def render_graph(graph: nx.DiGraph, title: str = "", labels: Dict = None, layout
     ax = plt.gca()
     ax.set_title(title)
 
-    # Give self-loops a different color.
+    # Give self-loops a different color and remove self-loop edges.
     node_color = []
     for v in graph.nodes():
         if graph.has_edge(v, v):
             node_color.append("#FFCCCB")
+            graph.remove_edge(v, v)
         else:
             node_color.append("#D0F0C0")
 
@@ -145,7 +154,9 @@ def render_graph(graph: nx.DiGraph, title: str = "", labels: Dict = None, layout
         nx.draw_networkx_edge_labels(graph, pos, edge_labels=custom_edge_attrs)
 
     ax.collections[0].set_edgecolor("#000000")
-    ax.set_xlim([1.2 * x for x in ax.get_xlim()])
-    ax.set_ylim([1.2 * y for y in ax.get_ylim()])
+
+    if layout == "neato":
+        ax.set_xlim([1.2 * x for x in ax.get_xlim()])
+        ax.set_ylim([1.2 * y for y in ax.get_ylim()])
 
     plt.show()

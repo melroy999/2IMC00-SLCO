@@ -502,7 +502,6 @@ class Expression(SlcoStatementNode, SlcoEvaluableNode):
         return False
 
     def __hash__(self) -> int:
-        # return super(Expression, self).__hash__()
         return 0
 
     @property
