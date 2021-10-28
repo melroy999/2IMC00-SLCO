@@ -1,4 +1,5 @@
-from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, Transition
+from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, Transition, StateMachine, \
+    SlcoModel, Class
 from objects.ast.util import copy_node
 
 
@@ -64,7 +65,24 @@ def restructure_transition(e: Transition):
             true_primary = Primary(target=True)
             true_primary.produced_statement = True
             e.statements = [true_primary] + e.statements
+    return e
 
+
+def restructure_state_machine(e: StateMachine):
+    for t in e.transitions:
+        restructure(t)
+    return e
+
+
+def restructure_class(e: Class):
+    for sm in e.state_machines:
+        restructure(sm)
+    return e
+
+
+def restructure_model(e: SlcoModel):
+    for c in e.classes:
+        restructure(c)
     return e
 
 
@@ -82,4 +100,10 @@ def restructure(e):
         e = restructure_assignment(e)
     elif isinstance(e, Transition):
         e = restructure_transition(e)
+    elif isinstance(e, StateMachine):
+        e = restructure_state_machine(e)
+    elif isinstance(e, Class):
+        e = restructure_class(e)
+    elif isinstance(e, SlcoModel):
+        e = restructure_model(e)
     return e

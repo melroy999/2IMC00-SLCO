@@ -1,5 +1,5 @@
 from locking.identities import assign_lock_identities, get_lock_id_requests
-from objects.ast.models import Transition, StateMachine, Class
+from objects.ast.models import Transition, StateMachine, Class, SlcoModel, Object
 
 
 def finalize_transition(e: Transition):
@@ -21,3 +21,12 @@ def finalize_class(e: Class):
     # Finalize the transitions and state machines once the lock identities have been assigned.
     for sm in e.state_machines:
         finalize_state_machine(sm)
+
+
+def finalize_model(e: SlcoModel):
+    for c in e.classes:
+        finalize_class(c)
+
+
+def finalize(e: SlcoModel):
+    finalize_model(e)

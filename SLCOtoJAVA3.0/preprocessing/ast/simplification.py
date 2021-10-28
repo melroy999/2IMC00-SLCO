@@ -1,5 +1,6 @@
 from objects.ast.interfaces import SlcoEvaluableNode
-from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, Transition
+from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, Transition, StateMachine, Class, \
+    SlcoModel, Object
 from objects.ast.util import copy_node
 
 
@@ -121,6 +122,49 @@ def simplify_transition(e: Transition):
     return e
 
 
+def simplify_state_machine(e: StateMachine):
+    for t in e.transitions:
+        simplify(t)
+    return e
+
+
+def simplify_class(e: Class):
+    for sm in e.state_machines:
+        simplify(sm)
+
+    # Ensure that all of the class variables have an initial value.
+    for v in e.variables:
+        if v.is_array:
+            if len(v.def_values) == 0:
+                v.def_values = [False if v.is_boolean else 0] * v.type.size
+        elif v.def_value is None:
+            v.def_value = False if v.is_boolean else 0
+
+    return e
+
+
+def simplify_object(e: Object):
+    # Ensure that all of variables of the objects have initial values.
+    value_assignments = {e.left: e.rights if e.right is None else e.right for e in e.assignments}
+    e.initial_values = []
+    for v in e.type.variables:
+        if v in value_assignments:
+            e.initial_values.append(value_assignments[v])
+        elif v.is_array:
+            e.initial_values.append(v.def_values)
+        else:
+            e.initial_values.append(v.def_value)
+    return e
+
+
+def simplify_model(e: SlcoModel):
+    for c in e.classes:
+        simplify(c)
+    for c in e.objects:
+        simplify(c)
+    return e
+
+
 def simplify(e):
     """Simplify the given expression."""
     if isinstance(e, Expression):
@@ -135,4 +179,12 @@ def simplify(e):
         e = simplify_assignment(e)
     elif isinstance(e, Transition):
         e = simplify_transition(e)
+    elif isinstance(e, StateMachine):
+        e = simplify_state_machine(e)
+    elif isinstance(e, Class):
+        e = simplify_class(e)
+    elif isinstance(e, Object):
+        e = simplify_object(e)
+    elif isinstance(e, SlcoModel):
+        e = simplify_model(e)
     return e

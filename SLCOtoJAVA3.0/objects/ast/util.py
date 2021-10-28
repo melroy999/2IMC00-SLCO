@@ -1,10 +1,10 @@
-from typing import Iterable, Set, Union
+from typing import Iterable, Set
 
 import networkx as nx
 
-from objects.ast.interfaces import SlcoStatementNode
 from objects.ast.models import SlcoModel, Action, Object, Initialisation, Class, StateMachine, State, Variable, Type, \
     Transition, Composite, Assignment, Expression, Primary, VariableRef, ActionRef
+from objects.ast.interfaces import SlcoStatementNode
 
 
 def __dfs__(model, self_first=False, _filter=lambda x: True) -> Iterable:

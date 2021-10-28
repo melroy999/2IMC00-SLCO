@@ -3,7 +3,7 @@ model Test {
 
 	classes
 	P {
-        variables Integer[2] x Integer[2] y Integer[2] z Integer i
+        variables Integer[2] x Integer[2] y Integer[2] z Integer i := 1
         state machines
         SM1 {
             initial SMC0 states SMC1
@@ -20,5 +20,5 @@ model Test {
             }
         }
 	}
-	objects p: P()
+	objects p: P(i:=2)
 }

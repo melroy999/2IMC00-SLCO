@@ -1,0 +1,38 @@
+// Lock class to handle locks of global variables
+private static class LockManager {
+    // The locks
+    private final ReentrantLock[] locks;
+
+    LockManager(int noVariables) {
+        locks = new ReentrantLock[noVariables];
+        for(int i = 0; i < locks.length; i++) {
+            locks[i] = new ReentrantLock();
+        }
+    }
+
+    // Lock method
+    void lock(int[] lock_ids, int start, int end) {
+        int i = start;
+        Arrays.sort(lock_ids, start, end);
+        for (; i < end; i++) {
+            locks[lock_ids[i]].lock();
+        }
+    }
+
+    // Unlock method
+    void unlock(int[] lock_ids, int end) {
+        for (int i = 0; i < end; i++) {
+            locks[lock_ids[i]].unlock();
+        }
+    }
+
+    // Unlock method during exceptions
+    void exception_unlock() {
+        System.err.println("Exception encountered. Releasing all locks currently owned by " + Thread.currentThread().getName() + ".");
+        for(ReentrantLock lock: locks) {
+            while(lock.isHeldByCurrentThread()) {
+                lock.unlock();
+            }
+        }
+    }
+}

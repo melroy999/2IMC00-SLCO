@@ -30,13 +30,13 @@ def is_false(e) -> bool:
     return z3_never_holds(e.smt, tuple(byte_values))
 
 
-def is_equivalent(e, target: interfaces.Evaluable) -> bool:
+def is_equivalent(e, target: interfaces.SlcoEvaluableNode) -> bool:
     """Evaluate whether the given statements have the same solution space."""
     byte_values = get_byte_variables(e)
     return z3_is_equivalent(e.smt, target.smt, tuple(byte_values))
 
 
-def is_negation_equivalent(e, target: interfaces.Evaluable) -> bool:
+def is_negation_equivalent(e, target: interfaces.SlcoEvaluableNode) -> bool:
     """Evaluate whether this statement and the negation of the given statement have the same solution space."""
     byte_values = get_byte_variables(e)
     return z3_is_negation_equivalent(e.smt, target.smt, tuple(byte_values))

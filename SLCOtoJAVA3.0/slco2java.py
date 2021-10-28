@@ -5,13 +5,10 @@ import sys
 
 import settings
 from overrides.slcolibrev import read_SLCO_model
-from objects.ast.models import SlcoModel, Transition, StateMachine, Class
-from objects.ast.util import ast_to_model, __dfs__
-from objects.ast.visualization import visualize_dependency_graph, visualize_weighted_variable_dependency_graph, \
-    visualize_expression, visualize_variable_ordering_graph
-from preprocessing.ast.finalization import finalize_class
+from objects.ast.util import ast_to_model
 from preprocessing.ast.restructuring import restructure
 from preprocessing.ast.simplification import simplify
+from preprocessing.ast.finalization import finalize
 
 
 # TODO Notes:
@@ -59,28 +56,25 @@ def preprocess(model):
     model = ast_to_model(model, dict())
 
     # Restructure the model.
-    for t in __dfs__(model, _filter=lambda x: isinstance(x, Transition)):
-        restructure(t)
-        simplify(t)
+    restructure(model)
+    simplify(model)
+    finalize(model)
 
-    for c in __dfs__(model, _filter=lambda x: isinstance(x, Class)):
-        finalize_class(c)
-
-    target_objects = __dfs__(
-        model, self_first=True, _filter=lambda x: type(x) in [Transition, SlcoModel, Class, StateMachine]
-    )
-
-    for o in target_objects:
-        print(o)
-
-        if isinstance(o, Transition):
-            for v in o.statements:
-                visualize_expression(v)
-                visualize_dependency_graph(v)
-                visualize_variable_ordering_graph(v)
-
-        if isinstance(o, Class):
-            visualize_weighted_variable_dependency_graph(o)
+    # target_objects = __dfs__(
+    #     model, self_first=True, _filter=lambda x: type(x) in [Transition, SlcoModel, Class, StateMachine]
+    # )
+    #
+    # for o in target_objects:
+    #     print(o)
+    #
+    #     if isinstance(o, Transition):
+    #         for v in o.statements:
+    #             visualize_expression(v)
+    #             visualize_dependency_graph(v)
+    #             visualize_variable_ordering_graph(v)
+    #
+    #     if isinstance(o, Class):
+    #         visualize_weighted_variable_dependency_graph(o)
 
 
 def get_argument_parser():

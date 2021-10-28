@@ -86,6 +86,7 @@ class Object(SlcoNode):
         self.name = name
         self.type = _type
         self._assignments: List[Initialisation] = []
+        self.initial_values = []
 
     def __repr__(self) -> str:
         return "Object:%s" % self.name
