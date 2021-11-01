@@ -1,0 +1,4 @@
+// SLCO statement: {{ model.get_original_statement() }} -> {{ model }}
+if (!({{ model | render_java_instruction }})) {
+    return false;
+}

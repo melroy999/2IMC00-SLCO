@@ -1,40 +1,38 @@
-// Representation of the SLCO class {{model.name}}
-private static class {{model.name}} implements SLCO_Class {
-    {% if model.state_machine_declarations | length > 0 %}
+// Representation of the SLCO class {{ model.name }}
+private static class {{ model.name }} implements SLCO_Class {
+    {% if model.state_machines | length > 0 %}
     // The threads
-    {% for s in model.state_machine_declarations %}
-    {{s}}
+    {% for sm in model.state_machines %}
+    private final Thread T_{{ sm.name }};
     {% endfor %}
 
     {% endif %}
-    {% if model.variable_declarations | length > 0 %}
+    {% if model.variables | length > 0 %}
     // Global variables
-    {% for s in model.variable_declarations %}
-    {{s}}
+    {% for v in model.variables %}
+    private volatile {{ v | render_type }} {{ v.name }};
     {% endfor %}
 
     {% endif %}
     {% for sm in model.state_machines %}
-    {{sm | render_state_machine | indent(4, False)}}
+    {{ sm | render_state_machine | indent(4, False) }}
 
     {% endfor %}
-    {{model.name}}({{model.constructor_variable_list}}) {
-        {% if model.has_class_variables %}
+    {{ model.name }}({% for v in model.variables %}{{ v | render_type }} {{ v.name }}{{ ", " if not loop.last }}{% endfor %}) {
+        {% if model.variables | length > 0 %}
         // Create a lock manager.
-        LockManager lockManager = new LockManager({{model.number_of_locks}});
+        LockManager lockManager = new LockManager({ model.number_of_locks });
 
-        {% endif %}
-        {% if model.variable_instantiations | length > 0 %}
         // Instantiate global variables
-        {% for s in model.variable_instantiations %}
-        {{s}}
+        {% for v in model.variables %}
+        this.{{ v.name }} = {{ v.name }};
         {% endfor %}
 
         {% endif %}
-        {% if model.state_machine_instantiations | length > 0 %}
+        {% if model.state_machines | length > 0 %}
         // Instantiate state machines
-        {% for s in model.state_machine_instantiations %}
-        {{s}}
+        {% for sm in model.state_machines %}
+        Thread T_{{ sm.name }} = new {{ sm.name }}(lockManager);
         {% endfor %}
         {% endif %}
     }
@@ -42,7 +40,7 @@ private static class {{model.name}} implements SLCO_Class {
     // Start all threads
     public void startThreads() {
         {% for sm in model.state_machines %}
-        T_{{sm.name}}.start();
+        T_{{ sm.name }}.start();
         {% endfor %}
     }
 
@@ -51,7 +49,7 @@ private static class {{model.name}} implements SLCO_Class {
         while (true) {
             try {
                 {% for sm in model.state_machines %}
-                T_{{sm.name}}.join();
+                T_{{ sm.name }}.join();
                 {% endfor %}
                 break;
             } catch (InterruptedException e) {

@@ -1,0 +1,8 @@
+// SLCO statement: {{ model.get_original_statement() }} -> {{ model }}
+if (!({{ model.guard | render_java_instruction }})) {
+    return false;
+}
+{% for a in model.assignments %}
+{{ a.left | render_java_instruction }} = {{ a.right | render_java_instruction }};{{ "
+" if not loop.last }}
+{%- endfor %}

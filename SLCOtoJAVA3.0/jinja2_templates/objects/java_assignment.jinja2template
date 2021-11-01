@@ -1,0 +1,2 @@
+// SLCO statement: {{ model.get_original_statement() }} -> {{ model }}
+{{ model.left | render_java_instruction }} = {{ model.right | render_java_instruction }};

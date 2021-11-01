@@ -185,7 +185,7 @@ class StateMachine(SlcoStructuralNode):
     @property
     def states(self) -> List[State]:
         """Get the list of states excluding the initial state, including the initial state as the first element."""
-        return [self._initial_state] + self._states
+        return self._states
 
     @states.setter
     def states(self, val) -> None:

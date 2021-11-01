@@ -1,23 +1,82 @@
 # Initialize the template engine.
+import uuid
+from typing import Union
+
 import jinja2 as jinja2
+import random
+
+from objects.ast.interfaces import SlcoStatementNode
+from objects.ast.models import SlcoModel, Object, Class, StateMachine, Transition, Variable, Expression, Assignment, \
+    Composite, Primary, VariableRef
+
+# SUPPORT VARIABLES
+r = random.Random()
+r.seed(0)
+reproducible_seed = uuid.UUID(int=r.getrandbits(128), version=4)
 
 
 # UTIL FUNCTIONS
-from objects.ast.models import SlcoModel, Object, Class
+def render_type(model: Variable):
+    """Render the type of the given variable object."""
+    if model.is_array:
+        return "%s[]" % ("boolean" if model.is_boolean else "int")
+    else:
+        return "%s" % ("boolean" if model.is_boolean else "int")
 
 
-def comma_separated_list(model):
-    """Construct a comma separated list of the given iterable"""
-    return ", ".join(model)
+# Conversion from SLCO to Java operators.
+java_operator_mappings = {
+    "<>": "!=",
+    "=": "==",
+    "and": "&&",
+    "or": "||",
+    "not": "!"
+}
+
+
+def render_java_instruction(model: Union[Expression, Primary, VariableRef], rewrite_table=None):
+    """Render the given object as a Java instruction."""
+    if rewrite_table is None:
+        rewrite_table = {}
+
+    if isinstance(model, Expression):
+        if model.op == "**":
+            left_str = render_java_instruction(model.values[0], rewrite_table)
+            right_str = render_java_instruction(model.values[1], rewrite_table)
+            return "(int) Math.pow(%s, %s)" % (left_str, right_str)
+        elif model.op == "%":
+            # The % operator in Java is the remainder operator, which is not the modulo operator.
+            left_str = render_java_instruction(model.values[0], rewrite_table)
+            right_str = render_java_instruction(model.values[1], rewrite_table)
+            return "Math.floorMod(%s, %s)" % (left_str, right_str)
+        else:
+            values_str = [render_java_instruction(v, rewrite_table) for v in model.values]
+            return (" %s " % java_operator_mappings.get(model.op, model.op)).join(values_str)
+    elif isinstance(model, Primary):
+        if model.value is not None:
+            exp_str = str(model.value).lower()
+        elif model.ref is not None:
+            exp_str = render_java_instruction(model.ref, rewrite_table)
+        else:
+            exp_str = "(%s)" % render_java_instruction(model.body, rewrite_table)
+        return ("!(%s)" if model.sign == "not" else model.sign + "%s") % exp_str
+    elif isinstance(model, VariableRef):
+        var_str = model.var.name
+        if model.index is not None:
+            var_str += "[%s]" % render_java_instruction(model.index, rewrite_table)
+        return rewrite_table.get(var_str, var_str)
+    else:
+        raise Exception("This functionality has not yet been implemented.")
 
 
 # MODEL RENDERING FUNCTIONS
+# MODEL
 def render_model(model: SlcoModel):
     """Render the SLCO model as Java code"""
     return java_model_template.render(model=model)
 
 
-def render_lock_manager():
+def render_lock_manager(_):
     """Render the lock manager of the model."""
     return java_lock_manager.render()
 
@@ -28,24 +87,50 @@ def render_object_instantiation(model: Object):
     for i, a in enumerate(model.initial_values):
         v = model.type.variables[i]
         if v.is_array:
-            arguments.append("new %s[]{%s}" % ("boolean" if v.is_boolean else "int", ", ".join(a)))
+            arguments.append("new %s[]{%s}" % ("boolean" if v.is_boolean else "int", ", ".join(map(str, a))))
         else:
             arguments.append(a)
 
     return java_object_instantiation.render(
-        name=model.name,
+        name=model.type.name,
         arguments=arguments
     )
 
 
+# CLASS
 def render_class(model: Class):
     """Render the SLCO class as Java code"""
     return java_class_template.render(model=model)
 
 
-def render_state_machine(model):
+# STATE MACHINE
+def render_state_machine(model: StateMachine):
     """Render the SLCO state machine as Java code"""
     return java_state_machine_template.render(model=model)
+
+
+# TRANSITION
+def render_transition(model: Transition, index: int):
+    """Render the SLCO state machine as Java code"""
+    return java_transition_template.render(model=model, index=index)
+
+
+# STATEMENTS
+def render_statement(model: SlcoStatementNode):
+    """Render the SLCO statement as Java code"""
+    # if isinstance(model, Expression):
+    #     pass
+
+    if isinstance(model, Expression) or isinstance(model, Primary):
+        return java_expression_template.render(model=model)
+    elif isinstance(model, Assignment):
+        return java_assignment_template.render(model=model)
+    elif isinstance(model, Composite):
+        return java_composite_template.render(model=model)
+    else:
+        raise Exception("This functionality has not yet been implemented.")
+
+    return ""
 
 
 env = jinja2.Environment(
@@ -59,9 +144,14 @@ env = jinja2.Environment(
 env.filters['render_class'] = render_class
 env.filters['render_lock_manager'] = render_lock_manager
 env.filters['render_state_machine'] = render_state_machine
+env.filters['render_transition'] = render_transition
+env.filters['render_statement'] = render_statement
 
 # Register the utility filters
-env.filters['comma_separated_list'] = comma_separated_list
+env.filters['render_type'] = render_type
+env.filters['render_object_instantiation'] = render_object_instantiation
+env.filters['render_java_instruction'] = render_java_instruction
+
 # env.filters['get_instruction'] = get_instruction
 # env.filters['get_guard_statement'] = get_guard_statement
 # env.filters['get_decision_structure'] = get_decision_structure

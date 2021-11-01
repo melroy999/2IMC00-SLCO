@@ -1,134 +1,59 @@
-{% if model.states | length > 1 %}
-// Define the states fot the state machine {{model.name}}
-interface {{model.class_name}}_{{model.name}}Thread_States {
+// Define the states fot the state machine {{ model.name }}
+interface {{ model.parent.name }}_{{ model.name }}Thread_States {
     enum States {
-        {{model.states | comma_separated_list}}
+        {% for s in model.states %}
+        {{ s }}{{ ", " if not loop.last }}
+        {% endfor %}
     }
 }
 
-{% endif %}
-// Representation of the SLCO state machine {{model.name}}
-class {{model.name}}Thread extends Thread{% if model.states | length > 1 %} implements {{model.class_name}}_{{model.name}}Thread_States{% endif %} {
-    {% if model.render_current_state_variable %}
+// Representation of the SLCO state machine {{ model.name }}
+class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{{ model.name }}Thread_States {
     // Current state
-    private {{model.name}}Thread.States currentState;
+    private {{ model.name }}Thread.States currentState;
 
-    {% endif %}
-    {% if model.has_non_determinism %}
     // Random number generator to handle non-determinism
     private final Random random;
 
-    {% endif %}
-    {% if model.add_transition_limit or model.add_performance_counters %}
-    // Counter of main while-loop iterations
-    long transitionCounter;
-    {% if model.add_performance_counters %}
-    long successfulTransitionCounter;
-    {% for state in model.states %}
-    long transitionCounter{{ state }};
-    long successfulTransitionCounter{{ state }};
-    {% endfor %}
-    {% endif %}
-
-    {% endif %}
-    {% if model.variable_instantiations | length > 0 %}
+    {% if model.variables | length > 0 %}
     // Thread local variables
-    {% for s in model.variable_instantiations %}
-    {{s}}
+    {% for v in model.variables %}
+    private {{ v | render_type }} {{ v.name }};
     {% endfor %}
 
     {% endif %}
-    {% if model.uses_class_variables %}
     // The lock manager
     private final LockManager lockManager;
 
     // A list of lock ids that can be reused
     private final LockRequest[] lock_ids;
 
-    {% endif %}
-    {{model.name}}Thread ({% if model.uses_class_variables %}LockManager lockManagerInstance{% endif %}) {
-        {% if model.has_non_determinism %}
+    {{ model.name }}Thread (LockManager lockManagerInstance) {
         random = new Random();
-        {% endif %}
-        {% if model.uses_class_variables %}
         lockManager = lockManagerInstance;
-        lock_ids = new LockRequest[{{model.total_nr_of_unique_locks}}];
-        for (int i = 0; i < lock_ids.length; i++) {
-            lock_ids[i] = new LockRequest();
-        }
-        {% endif %}
-        {% if model.add_transition_limit %}
-        transitionCounter = 0;
-        {% endif %}
-        {% if model.render_current_state_variable %}
-        currentState = {{model.name}}Thread.States.{{model.initial_state}};
-        {% endif %}
+        lock_ids = new LockRequest[{ model.total_nr_of_unique_locks }];
+        currentState = {{ model.name }}Thread.States.{{ model.initial_state }};
     }
 
+    {% for t in model.transitions %}
+    {{ t | render_transition(loop.index) | indent(4, False) }}
+
+    {% endfor %}
     {% for s in model.states %}
-    private void exec_{{s}}() {
-        {% if model.groupings[s] %}
-        {% if model.add_performance_counters %}
-        transitionCounter{{s}}++;
-        {% endif %}
-        {{ model.groupings[s] | get_decision_structure(model) | indent(8, False) | trim }}
-        {% if model.add_performance_counters %}
-        successfulTransitionCounter{{s}}++;
-        successfulTransitionCounter++;
-        {% endif %}
-        {% else %}
-        // There are no transitions to be made.
-        {% endif %}
+    private void exec_{{ s }}() {
+
     }
 
     {% endfor %}
     // Execute method
     private void exec() {
-        {% if model.add_performance_counters %}
-        long startTime = System.nanoTime();
-        {% endif %}
-        {% if model.add_transition_limit %}
-        while(transitionCounter < {{ model.max_nr_of_iterations }}L) {
-        {% elif model.add_time_limit %}
-        long stopTime = System.currentTimeMillis() + 1000L * {{ model.max_running_time }};
-        while(stopTime > System.currentTimeMillis()) {
-        {% else %}
         while(true) {
-        {% endif %}
-            {% if model.states | length > 1 %}
             switch(currentState) {
                 {% for s in model.states %}
-                case {{s}} -> exec_{{s}}();
+                case {{ s }} -> exec_{{ s }}();
                 {% endfor %}
             }
-            {% else %}
-            exec_{{model.states[0]}}();
-            {% endif %}
-            {% if model.add_transition_limit or model.add_performance_counters %}
-
-            // Increment counter
-            transitionCounter++;
-            {% endif %}
         }
-        {% if model.add_performance_counters %}
-        long running_time = System.nanoTime() - startTime;
-        System.out.println(
-            "{{model.class_name}}.{{model.name}};" +
-            successfulTransitionCounter + ";" +
-            transitionCounter + ";" +
-            (double)successfulTransitionCounter/transitionCounter + ";" +
-            running_time + ";"
-        );
-        {% for state in model.states %}
-        System.out.println(
-            "{{model.class_name}}.{{model.name}}.{{state}};" +
-            successfulTransitionCounter{{ state }} + ";" +
-            transitionCounter{{ state }} + ";" +
-            (double)successfulTransitionCounter{{ state }}/transitionCounter{{ state }} + ";" +
-            running_time + ";"
-        );
-        {% endfor %}
-        {% endif %}
     }
 
     // Run method

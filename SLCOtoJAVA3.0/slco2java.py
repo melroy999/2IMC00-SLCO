@@ -49,16 +49,19 @@ from preprocessing.ast.finalization import finalize
 #   - Note that this has to work in nested parts of the expression too: (i >= 0 and i < 10 and X[i]) or X[0].
 #   - Simplification: top level disjunctions should be handled as separate options instead.
 #   - How to avoid xor and equality...?
+from rendering.renderer import render_model
 
 
 def preprocess(model):
-    """"Gather additional data about the model"""
+    """Gather additional data about the model"""
     model = ast_to_model(model, dict())
 
     # Restructure the model.
     restructure(model)
     simplify(model)
     finalize(model)
+
+    return model
 
     # target_objects = __dfs__(
     #     model, self_first=True, _filter=lambda x: type(x) in [Transition, SlcoModel, Class, StateMachine]
@@ -75,6 +78,13 @@ def preprocess(model):
     #
     #     if isinstance(o, Class):
     #         visualize_weighted_variable_dependency_graph(o)
+
+
+def render(model, model_folder):
+    """The translation function"""
+    # Write the program to the desired output file.
+    with open(os.path.join(model_folder, model.name + ".java"), 'w') as out_file:
+        out_file.write(render_model(model))
 
 
 def get_argument_parser():
@@ -98,7 +108,10 @@ def main(_args):
     model = read_SLCO_model(model_path)
 
     # Preprocess the model.
-    preprocess(model)
+    model = preprocess(model)
+
+    # Render the model.
+    render(model, settings.model_folder)
 
 
 if __name__ == '__main__':

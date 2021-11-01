@@ -1,0 +1,8 @@
+// Representation of SLCO transition #{{ index }} ({{ model.source }} -> {{ model.target }})
+private boolean execute_transition_{{ index }}() {
+    {% for s in model.statements %}
+    {{ s | render_statement | indent(4, False) }}
+
+    {% endfor %}
+    return true;
+}

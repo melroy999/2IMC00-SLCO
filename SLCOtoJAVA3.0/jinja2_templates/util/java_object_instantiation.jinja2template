@@ -5,5 +5,4 @@ new {{ name }}(
     {% for v in arguments %}
     {{ v }}{{ "," if not loop.last }}
     {% endfor %}
-)
-{% endif %}
+){% endif %}
