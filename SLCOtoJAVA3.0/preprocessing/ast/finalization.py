@@ -1,3 +1,4 @@
+from grouping.resolver import set_groupings
 from locking.identities import assign_lock_identities, get_lock_id_requests
 from objects.ast.models import Transition, StateMachine, Class, SlcoModel, Object
 
@@ -11,7 +12,7 @@ def finalize_transition(e: Transition):
 def finalize_state_machine(e: StateMachine):
     for t in e.transitions:
         finalize_transition(t)
-        e.state_to_transitions[t.source].append(t)
+    set_groupings(e)
 
 
 def finalize_class(e: Class):

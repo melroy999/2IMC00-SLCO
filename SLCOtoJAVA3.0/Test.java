@@ -83,17 +83,55 @@ public class Test {
             private final LockManager lockManager;
 
             // A list of lock ids that can be reused
-            private final LockRequest[] lock_ids;
+            private final int[] lock_ids;
 
             SM1Thread (LockManager lockManagerInstance) {
                 random = new Random();
                 lockManager = lockManagerInstance;
-                lock_ids = new LockRequest[{ model.total_nr_of_unique_locks }];
+                lock_ids = new int[1];
                 currentState = SM1Thread.States.SMC0;
             }
 
-            // Representation of SLCO transition #1 (SMC0 -> SMC0)
-            private boolean execute_transition_1() {
+            // Representation of SLCO transition SMC0_0 (SMC0 -> SMC0)
+            private boolean execute_transition_SMC0_0() {
+                // SLCO statement: true -> true
+                if (!(true)) {
+                    return false;
+                }
+
+                // SLCO statement: x'[0] := i' -> x'[0] := i'
+                x[0] = i;
+
+                // SLCO statement: x'[i'] := 1 -> x'[i'] := 1
+                x[i] = 1;
+
+                // SLCO statement: x'[i' + 1] := 0 -> x'[i' + 1] := 0
+                x[i + 1] = 0;
+
+                // SLCO statement: [i' := 0; x'[y'[i']] := 1] -> [true; i' := 0; x'[y'[i']] := 1]
+                if (!(true)) {
+                    return false;
+                }
+                i = 0;
+                x[y[i]] = 1;
+
+                // SLCO statement: y'[z'[i'] + 1] := 0 -> y'[z'[i'] + 1] := 0
+                y[z[i] + 1] = 0;
+
+                // SLCO statement: z'[x'[i'] + 1] := 0 -> z'[x'[i'] + 1] := 0
+                z[x[i] + 1] = 0;
+
+                // SLCO statement: x'[x'[i']] := 0 -> x'[x'[i']] := 0
+                x[x[i]] = 0;
+
+                // SLCO statement: y'[i'] := 0 -> y'[i'] := 0
+                y[i] = 0;
+
+                return true;
+            }
+
+            // Representation of SLCO transition SMC0_1 (SMC0 -> SMC0)
+            private boolean execute_transition_SMC0_1() {
                 // SLCO statement: true -> true
                 if (!(true)) {
                     return false;
@@ -131,11 +169,22 @@ public class Test {
             }
 
             private void exec_SMC0() {
-
+                switch(random.nextInt(2)) {
+                    case 0 -> {
+                        if (execute_transition_SMC0_0()) {
+                            currentState = SM1Thread.States.SMC0;
+                        }
+                    }
+                    case 1 -> {
+                        if (execute_transition_SMC0_1()) {
+                            currentState = SM1Thread.States.SMC0;
+                        }
+                    }
+                }
             }
 
             private void exec_SMC1() {
-
+                // There are no transitions starting in state SMC1.
             }
 
             // Execute method
@@ -156,7 +205,7 @@ public class Test {
 
         P(int[] x, int[] y, int[] z, int i) {
             // Create a lock manager.
-            LockManager lockManager = new LockManager({ model.number_of_locks });
+            LockManager lockManager = new LockManager(1);
 
             // Instantiate global variables
             this.x = x;
@@ -165,7 +214,7 @@ public class Test {
             this.i = i;
 
             // Instantiate state machines
-            Thread T_SM1 = new SM1(lockManager);
+            T_SM1 = new SM1Thread(lockManager);
         }
 
         // Start all threads

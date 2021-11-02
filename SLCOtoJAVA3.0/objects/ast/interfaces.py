@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABCMeta
 from collections.abc import Iterable
-from typing import Optional, Set, Dict
+from typing import Optional, Set, Dict, List
 
 import networkx as nx
 
@@ -75,7 +75,27 @@ class SlcoVersioningNode(metaclass=ABCMeta):
             return self.original_statement.get_original_statement()
 
 
-class SlcoStatementNode(SlcoStructuralNode, SlcoVersioningNode, metaclass=ABCMeta):
+class SlcoLockableNode(metaclass=ABCMeta):
+    """
+    A metaclass that provides helper functions for locking objects.
+    """
+    # Before statement:
+    # Phase 1: Initial locks to request (Possibly multiple phases), including conflict resolutions, minus the violators.
+    locks_to_acquire: Set[VariableRef] = None
+    locks_to_acquire_phases: List[Set[VariableRef]] = None
+
+    # Phase 2: Acquire locks that were unpacked due to conflicts but will be acquired successfully in the previous step.
+    unpacked_lock_requests: Set[VariableRef] = None
+
+    # Phase 3: Release the locks added by the conflict resolution that are not part of the original lock requests.
+    conflict_resolution_lock_requests: Set[VariableRef] = None
+
+    # After statement:
+    # Phase 1: Release the locks that are no longer required after the execution of the statement.
+    locks_to_release: Set[VariableRef] = None
+
+
+class SlcoStatementNode(SlcoStructuralNode, SlcoVersioningNode, SlcoLockableNode, metaclass=ABCMeta):
     """
     A metaclass that provides helper functions and variables for statement-level objects in the SLCO framework.
     """
@@ -84,5 +104,9 @@ class SlcoStatementNode(SlcoStructuralNode, SlcoVersioningNode, metaclass=ABCMet
     class_variable_references: Set[VariableRef] = None
     variable_dependency_graph: nx.DiGraph = None
     class_variable_dependency_graph: nx.DiGraph = None
+
+    # Variables to lock.
     lock_requests: Set[VariableRef] = None
+
+    # Conflict resolutions for variables that violate the strict ordering.
     lock_request_conflict_resolutions: Dict[VariableRef, Set[VariableRef]] = None

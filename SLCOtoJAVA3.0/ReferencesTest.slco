@@ -18,6 +18,16 @@ model Test {
                 x[x[i]] := 0;
                 y[i] := 0;
             }
+            from SMC0 to SMC0 {
+                x[0] := i;
+                x[i] := 1;
+                x[i + 1] := 0;
+                [i := 0; x[y[i]] := 1];
+                y[z[i] + 1] := 0;
+                z[x[i] + 1] := 0;
+                x[x[i]] := 0;
+                y[i] := 0;
+            }
         }
 	}
 	objects p: P(i:=2)

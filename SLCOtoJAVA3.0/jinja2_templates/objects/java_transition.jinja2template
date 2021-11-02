@@ -1,5 +1,5 @@
-// Representation of SLCO transition #{{ index }} ({{ model.source }} -> {{ model.target }})
-private boolean execute_transition_{{ index }}() {
+// Representation of SLCO transition {{ model.source }}_{{ model.id }} ({{ model.source }} -> {{ model.target }})
+private boolean execute_transition_{{ model.source }}_{{ model.id }}() {
     {% for s in model.statements %}
     {{ s | render_statement | indent(4, False) }}
 

@@ -5,7 +5,7 @@ from typing import Union, List, Optional, Iterator, Dict
 
 import networkx as nx
 
-from objects.ast.interfaces import SlcoNode, SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode
+from objects.ast.interfaces import SlcoNode, SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode, SlcoLockableNode
 
 
 # SLCO TYPES
@@ -169,6 +169,7 @@ class StateMachine(SlcoStructuralNode):
         self._variables: List[Variable] = []
         self._transitions: List[Transition] = []
         self.state_to_transitions: Dict[State, List[Transition]] = defaultdict(list)
+        self.state_to_decision_node: Dict[State, DecisionNode] = dict()
 
     def __repr__(self) -> str:
         return "StateMachine:%s" % self.name
@@ -331,6 +332,7 @@ class Transition(SlcoStructuralNode):
         self.target = target
         self.priority = priority
         self._statements: List[SlcoStatementNode] = []
+        self.id = None
 
     def __repr__(self) -> str:
         transition_repr = "%s: %s -> %s {" % (self.priority, self.source, self.target)
@@ -681,3 +683,16 @@ class ActionRef(SlcoStatementNode):
 
     def __hash__(self) -> int:
         return hash(self.act)
+
+
+# ADDED CLASSES
+class DecisionNode(SlcoLockableNode):
+    """
+    An object representing (non-)deterministic decision nodes in the code generator.
+    """
+    is_deterministic: bool = False
+    decisions: List[Union[Expression, Transition, DecisionNode]] = []
+
+    def __init__(self, decisions: List[Union[Expression, Transition, DecisionNode]], is_deterministic: bool):
+        self.decisions = decisions
+        self.is_deterministic = is_deterministic

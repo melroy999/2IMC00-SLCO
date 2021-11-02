@@ -21,7 +21,7 @@ private static class {{ model.name }} implements SLCO_Class {
     {{ model.name }}({% for v in model.variables %}{{ v | render_type }} {{ v.name }}{{ ", " if not loop.last }}{% endfor %}) {
         {% if model.variables | length > 0 %}
         // Create a lock manager.
-        LockManager lockManager = new LockManager({ model.number_of_locks });
+        LockManager lockManager = new LockManager(1);
 
         // Instantiate global variables
         {% for v in model.variables %}
@@ -32,7 +32,7 @@ private static class {{ model.name }} implements SLCO_Class {
         {% if model.state_machines | length > 0 %}
         // Instantiate state machines
         {% for sm in model.state_machines %}
-        Thread T_{{ sm.name }} = new {{ sm.name }}(lockManager);
+        T_{{ sm.name }} = new {{ sm.name }}Thread(lockManager);
         {% endfor %}
         {% endif %}
     }

@@ -26,22 +26,26 @@ class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{
     private final LockManager lockManager;
 
     // A list of lock ids that can be reused
-    private final LockRequest[] lock_ids;
+    private final int[] lock_ids;
 
     {{ model.name }}Thread (LockManager lockManagerInstance) {
         random = new Random();
         lockManager = lockManagerInstance;
-        lock_ids = new LockRequest[{ model.total_nr_of_unique_locks }];
+        lock_ids = new int[1];
         currentState = {{ model.name }}Thread.States.{{ model.initial_state }};
     }
 
     {% for t in model.transitions %}
-    {{ t | render_transition(loop.index) | indent(4, False) }}
+    {{ t | render_transition | indent(4, False) }}
 
     {% endfor %}
     {% for s in model.states %}
     private void exec_{{ s }}() {
-
+        {% if s in model.state_to_decision_node %}
+        {{ model.state_to_decision_node[s] | render_decision_node | indent(8, False) | trim }}
+        {% else %}
+        // There are no transitions starting in state {{ s }}.
+        {% endif %}
     }
 
     {% endfor %}
