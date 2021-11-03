@@ -1,9 +1,9 @@
-from typing import List, Set, Dict, Tuple
+from typing import List, Set, Dict, Tuple, Union
 
 import networkx as nx
 
-from objects.ast.models import Class, Variable, VariableRef, Primary
-from objects.ast.interfaces import SlcoStatementNode
+from objects.ast.models import Class, Variable, VariableRef, Primary, Composite, DecisionNode, Transition, GuardNode
+from objects.ast.interfaces import SlcoStatementNode, SlcoLockableNode
 from objects.ast.util import get_class_variable_references, get_class_variable_dependency_graph, \
     get_weighted_class_variable_dependency_graph
 from util.graph import convert_to_directed_acyclic_graph
@@ -25,6 +25,34 @@ def assign_lock_identities(model: Class) -> None:
         v.lock_id = i
         i += max(1, v.type.size)
         print(v, v.lock_id)
+
+
+def generate_lock_data(model: SlcoLockableNode):
+    """Recursive method that marks all of the lockable objects with the appropriate lock data."""
+    if isinstance(model, DecisionNode):
+        # Generate the data for all decisions in the node.
+        for decision in model.decisions:
+            if isinstance(decision, Transition):
+                for s in decision.statements:
+                    generate_lock_data(s)
+            else:
+                generate_lock_data(decision)
+    elif isinstance(model, GuardNode):
+        generate_lock_data(model.conditional)
+        if model.body is not None:
+            generate_lock_data(model.body)
+    elif isinstance(model, Transition):
+        for s in model.statements:
+            generate_lock_data(s)
+    elif isinstance(model, Composite):
+        # Generate the data for each individual statement in the composite.
+        generate_lock_data(model.guard)
+        for a in model.assignments:
+            generate_lock_data(a)
+    else:
+        # Generate the data for the target object.
+        pass
+    pass
 
 
 def get_lock_id_requests(model: SlcoStatementNode) -> Tuple[List[VariableRef], Dict[VariableRef, Set[VariableRef]]]:

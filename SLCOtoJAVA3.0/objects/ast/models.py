@@ -690,9 +690,21 @@ class DecisionNode(SlcoLockableNode):
     """
     An object representing (non-)deterministic decision nodes in the code generator.
     """
-    is_deterministic: bool = False
-    decisions: List[Union[Expression, Transition, DecisionNode]] = []
 
-    def __init__(self, decisions: List[Union[Expression, Transition, DecisionNode]], is_deterministic: bool):
+    def __init__(self, decisions: List[Union[DecisionNode, GuardNode]], is_deterministic: bool):
         self.decisions = decisions
         self.is_deterministic = is_deterministic
+
+
+class GuardNode(SlcoLockableNode):
+    """
+    An object representing a guard wrapper for a given object.
+    """
+    # TODO: How to handle the situation where the guard statement is the execution of the transition itself?
+    def __init__(
+            self,
+            conditional: Union[Transition, Expression, Primary],
+            body: Optional[Union[DecisionNode, GuardNode]] = None
+    ):
+        self.conditional = conditional
+        self.body = body

@@ -7,7 +7,7 @@ import random
 
 from objects.ast.interfaces import SlcoStatementNode
 from objects.ast.models import SlcoModel, Object, Class, StateMachine, Transition, Variable, Expression, Assignment, \
-    Composite, Primary, VariableRef, DecisionNode
+    Composite, Primary, VariableRef, DecisionNode, GuardNode
 
 # SUPPORT VARIABLES
 r = random.Random()
@@ -27,6 +27,11 @@ def render_type(model: Variable):
 def is_decision_node(model):
     """Return true when the given model is a decision node, false otherwise."""
     return isinstance(model, DecisionNode)
+
+
+def is_transition(model):
+    """Return true when the given model is a transition, false otherwise."""
+    return isinstance(model, Transition)
 
 
 # Conversion from SLCO to Java operators.
@@ -123,12 +128,15 @@ def render_transition(model: Transition):
 
 
 # DECISION NODES
-def render_decision_node(model: DecisionNode):
+def render_control_flow_node(model: Union[DecisionNode, GuardNode]):
     """Render a decision node fitting the desired parameters."""
-    if model.is_deterministic:
-        return java_deterministic_decision_template.render(model=model)
+    if isinstance(model, GuardNode):
+        return java_guard_template.render(model=model)
     else:
-        return java_non_deterministic_decision_template.render(model=model)
+        if model.is_deterministic:
+            return java_deterministic_decision_template.render(model=model)
+        else:
+            return java_non_deterministic_decision_template.render(model=model)
 
 
 # STATEMENTS
@@ -156,7 +164,7 @@ env.filters["render_class"] = render_class
 env.filters["render_lock_manager"] = render_lock_manager
 env.filters["render_state_machine"] = render_state_machine
 env.filters["render_transition"] = render_transition
-env.filters["render_decision_node"] = render_decision_node
+env.filters["render_control_flow_node"] = render_control_flow_node
 env.filters["render_statement"] = render_statement
 
 # Register the utility filters
@@ -164,7 +172,7 @@ env.filters["render_type"] = render_type
 env.filters["render_object_instantiation"] = render_object_instantiation
 env.filters["render_java_instruction"] = render_java_instruction
 env.filters["is_decision_node"] = is_decision_node
-
+env.filters["is_transition"] = is_transition
 
 # env.filters["get_instruction"] = get_instruction
 # env.filters["get_guard_statement"] = get_guard_statement
@@ -186,6 +194,9 @@ java_deterministic_decision_template = env.get_template(
 )
 java_non_deterministic_decision_template = env.get_template(
     "objects/decision_node/java_non_deterministic_decision.jinja2template"
+)
+java_guard_template = env.get_template(
+    "objects/java_guard.jinja2template"
 )
 
 java_lock_manager = env.get_template("locking/java_lock_manager.jinja2template")

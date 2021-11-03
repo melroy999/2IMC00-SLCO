@@ -1,10 +1,4 @@
 {% for node in model.decisions %}
-{{ "else" if not loop.first }}if ({{ node | render_java_instruction }}) {
-    {% if node | is_decision_node %}
-    {{ node | render_decision_node | indent(4, False) | trim }}
-    {% else %}
-    currentState = {{ node.parent.name }}Thread.States.{{ node.target }};
-    {% endif %}
-}{{ "
+{{ " else " if not loop.first }}{{ node | render_control_flow_node | trim }}{{ "
 " if loop.last }}
 {%- endfor %}

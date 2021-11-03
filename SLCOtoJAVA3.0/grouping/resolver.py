@@ -1,4 +1,4 @@
-from objects.ast.models import StateMachine, DecisionNode
+from objects.ast.models import StateMachine, DecisionNode, GuardNode
 
 
 def set_groupings(model: StateMachine):
@@ -17,5 +17,5 @@ def set_groupings(model: StateMachine):
     # Create a decision structure.
     for state, transitions in model.state_to_transitions.items():
         # TEMP: Wrap all transitions in a deterministic decision block.
-        decisions = [DecisionNode([t], True) for t in transitions]
-        model.state_to_decision_node[state] = DecisionNode(decisions, False)
+        decisions = [GuardNode(t) for t in transitions]
+        model.state_to_decision_node[state] = DecisionNode(decisions, True)

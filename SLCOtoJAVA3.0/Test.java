@@ -169,17 +169,10 @@ public class Test {
             }
 
             private void exec_SMC0() {
-                switch(random.nextInt(2)) {
-                    case 0 -> {
-                        if (execute_transition_SMC0_0()) {
-                            currentState = SM1Thread.States.SMC0;
-                        }
-                    }
-                    case 1 -> {
-                        if (execute_transition_SMC0_1()) {
-                            currentState = SM1Thread.States.SMC0;
-                        }
-                    }
+                if (execute_transition_SMC0_0()) {
+                    currentState = SM1Thread.States.SMC0;
+                } else if (execute_transition_SMC0_1()) {
+                    currentState = SM1Thread.States.SMC0;
                 }
             }
 

@@ -1,0 +1,7 @@
+if ({{ model.conditional | render_java_instruction }}) {
+    {% if model.conditional | is_transition %}
+    currentState = {{ model.conditional.parent.name }}Thread.States.{{ model.conditional.target }};
+    {% else %}
+    {{ model.body | render_control_flow_node | indent(4, False) | trim }}
+    {% endif %}
+}

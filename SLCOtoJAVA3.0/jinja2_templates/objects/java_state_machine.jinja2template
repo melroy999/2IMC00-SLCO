@@ -42,7 +42,7 @@ class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{
     {% for s in model.states %}
     private void exec_{{ s }}() {
         {% if s in model.state_to_decision_node %}
-        {{ model.state_to_decision_node[s] | render_decision_node | indent(8, False) | trim }}
+        {{ model.state_to_decision_node[s] | render_control_flow_node | indent(8, False) | trim }}
         {% else %}
         // There are no transitions starting in state {{ s }}.
         {% endif %}

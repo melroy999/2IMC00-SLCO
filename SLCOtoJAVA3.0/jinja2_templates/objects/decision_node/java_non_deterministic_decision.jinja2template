@@ -3,10 +3,10 @@ switch(random.nextInt({{ model.decisions | length }})) {
 {% for i in range(0, model.decisions | length) %}
 {% set decision = model.decisions[i] %}
     case {{ i }} -> {
-        {{ decision | render_decision_node | indent(8, False) | trim }}
+        {{ decision | render_control_flow_node | indent(8, False) | trim }}
     }
 {% endfor %}
 }
 {% else %}
-{{ model.decisions[0] | render_decision_node | trim }}
+{{ model.decisions[0] | render_control_flow_node | trim }}
 {%- endif %}

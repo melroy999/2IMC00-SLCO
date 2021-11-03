@@ -90,6 +90,9 @@ class SlcoLockableNode(metaclass=ABCMeta):
     # Phase 3: Release the locks added by the conflict resolution that are not part of the original lock requests.
     conflict_resolution_lock_requests: Set[VariableRef] = None
 
+    # TODO: How do we know that x[0] was originally in the locks to acquire list if it is also a conflict resolution?
+    #   - A lock request should not be part of the conflict resolution if it already occurs in the original.
+
     # After statement:
     # Phase 1: Release the locks that are no longer required after the execution of the statement.
     locks_to_release: Set[VariableRef] = None
