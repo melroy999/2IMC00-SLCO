@@ -5,6 +5,7 @@ from typing import Union
 import jinja2 as jinja2
 import random
 
+import settings
 from objects.ast.interfaces import SlcoStatementNode
 from objects.ast.models import SlcoModel, Object, Class, StateMachine, Transition, Variable, Expression, Assignment, \
     Composite, Primary, VariableRef, DecisionNode, GuardNode
@@ -90,7 +91,9 @@ def render_model(model: SlcoModel):
 
 def render_lock_manager(_):
     """Render the lock manager of the model."""
-    return java_lock_manager.render()
+    return java_lock_manager.render(
+        settings=settings
+    )
 
 
 def render_object_instantiation(model: Object):
@@ -118,7 +121,10 @@ def render_class(model: Class):
 # STATE MACHINE
 def render_state_machine(model: StateMachine):
     """Render the SLCO state machine as Java code."""
-    return java_state_machine_template.render(model=model)
+    return java_state_machine_template.render(
+        model=model,
+        settings=settings
+    )
 
 
 # TRANSITION
@@ -189,14 +195,12 @@ java_assignment_template = env.get_template("objects/java_assignment.jinja2templ
 java_expression_template = env.get_template("objects/java_expression.jinja2template")
 java_composite_template = env.get_template("objects/java_composite.jinja2template")
 
+java_guard_template = env.get_template("objects/control_flow_node/java_guard.jinja2template")
 java_deterministic_decision_template = env.get_template(
-    "objects/decision_node/java_deterministic_decision.jinja2template"
+    "objects/control_flow_node/java_deterministic_decision.jinja2template"
 )
 java_non_deterministic_decision_template = env.get_template(
-    "objects/decision_node/java_non_deterministic_decision.jinja2template"
-)
-java_guard_template = env.get_template(
-    "objects/java_guard.jinja2template"
+    "objects/control_flow_node/java_non_deterministic_decision.jinja2template"
 )
 
 java_lock_manager = env.get_template("locking/java_lock_manager.jinja2template")

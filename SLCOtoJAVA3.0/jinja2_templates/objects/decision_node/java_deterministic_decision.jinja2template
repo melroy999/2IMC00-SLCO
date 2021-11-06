@@ -1,4 +1,0 @@
-{% for node in model.decisions %}
-{{ " else " if not loop.first }}{{ node | render_control_flow_node | trim }}{{ "
-" if loop.last }}
-{%- endfor %}

@@ -1,0 +1,6 @@
+{% for lock_request in locking_phase %}
+lock_ids[{{ lock_request.id }}] = {{ lock_request.target.var.lock_id }}; // {{ lock_request.target | render_java_instruction }}
+{% endfor %}
+{% if settings.priority_queue_locking %}
+{% else %}
+{% endif %}

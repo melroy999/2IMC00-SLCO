@@ -20,18 +20,16 @@ public class Test {
         }
 
         // Lock method
-        void lock(int[] lock_ids, int start, int end) {
-            int i = start;
-            Arrays.sort(lock_ids, start, end);
-            for (; i < end; i++) {
+        void lock(PriorityQueue<Integer> queue) {
+            for (int i = 0; i < end; i++) {
                 locks[lock_ids[i]].lock();
             }
         }
 
         // Unlock method
-        void unlock(int[] lock_ids, int end) {
-            for (int i = 0; i < end; i++) {
-                locks[lock_ids[i]].unlock();
+        void unlock(Queue<Integer> queue) {
+            while(!queue.isEmpty()) {
+                locks[queue.poll()].unlock();
             }
         }
 
@@ -86,10 +84,12 @@ public class Test {
             private final int[] lock_ids;
 
             SM1Thread (LockManager lockManagerInstance) {
-                random = new Random();
+                currentState = SM1Thread.States.SMC0;
                 lockManager = lockManagerInstance;
                 lock_ids = new int[1];
-                currentState = SM1Thread.States.SMC0;
+                PriorityQueue<Integer> acquire_queue = new PriorityQueue<>();
+                Queue<Integer> release_queue = new ArrayDeque<>();
+                random = new Random();
             }
 
             // Representation of SLCO transition SMC0_0 (SMC0 -> SMC0)
@@ -100,13 +100,25 @@ public class Test {
                 }
 
                 // SLCO statement: x'[0] := i' -> x'[0] := i'
+                // P1: Request i
+                // P1: Request x[0]
                 x[0] = i;
+                // P4: Release i
+                // P4: Release x[0]
 
                 // SLCO statement: x'[i'] := 1 -> x'[i'] := 1
+                // P1: Request i
+                // P1: Request x[i]
                 x[i] = 1;
+                // P4: Release i
+                // P4: Release x[i]
 
                 // SLCO statement: x'[i' + 1] := 0 -> x'[i' + 1] := 0
+                // P1: Request i
+                // P1: Request x[i + 1]
                 x[i + 1] = 0;
+                // P4: Release i
+                // P4: Release x[i + 1]
 
                 // SLCO statement: [i' := 0; x'[y'[i']] := 1] -> [true; i' := 0; x'[y'[i']] := 1]
                 if (!(true)) {
@@ -116,16 +128,64 @@ public class Test {
                 x[y[i]] = 1;
 
                 // SLCO statement: y'[z'[i'] + 1] := 0 -> y'[z'[i'] + 1] := 0
+                // P1: Request i
+                // P1: Request y[1]
+                // P1: Request y[0]
+                // P1: Request z[i]
+                // P2: Request y[z[i] + 1]
+                // P3: Release y[0]
+                // P3: Release y[1]
                 y[z[i] + 1] = 0;
+                // P4: Release i
+                // P4: Release z[i]
+                // P4: Release y[z[i] + 1]
 
                 // SLCO statement: z'[x'[i'] + 1] := 0 -> z'[x'[i'] + 1] := 0
+                // P1: Request i
+                // P1: Request x[i]
+                // P1: Request z[x[i] + 1]
                 z[x[i] + 1] = 0;
+                // P4: Release i
+                // P4: Release z[x[i] + 1]
+                // P4: Release x[i]
 
                 // SLCO statement: x'[x'[i']] := 0 -> x'[x'[i']] := 0
+                // P1: Request i
+                // P1: Request x[0]
+                // P1: Request x[1]
+                // P2: Request x[x[i]]
+                // P2: Request x[i]
+                // P3: Release x[1]
+                // P3: Release x[0]
                 x[x[i]] = 0;
+                // P4: Release i
+                // P4: Release x[i]
+                // P4: Release x[x[i]]
+
+                // SLCO statement: x'[x'[i']] = 1 -> x'[x'[i']] = 1
+                // P1: Request i
+                // P1: Request x[0]
+                // P1: Request x[1]
+                // P2: Request x[x[i]]
+                // P2: Request x[i]
+                // P3: Release x[1]
+                // P3: Release x[0]
+                try {
+                    if (!(x[x[i]] == 1)) {
+                        return false;
+                    }
+                } finally {
+                    // P4: Release i
+                    // P4: Release x[i]
+                    // P4: Release x[x[i]]
+                }
 
                 // SLCO statement: y'[i'] := 0 -> y'[i'] := 0
+                // P1: Request i
+                // P1: Request y[i]
                 y[i] = 0;
+                // P4: Release i
+                // P4: Release y[i]
 
                 return true;
             }
@@ -138,13 +198,25 @@ public class Test {
                 }
 
                 // SLCO statement: x'[0] := i' -> x'[0] := i'
+                // P1: Request i
+                // P1: Request x[0]
                 x[0] = i;
+                // P4: Release i
+                // P4: Release x[0]
 
                 // SLCO statement: x'[i'] := 1 -> x'[i'] := 1
+                // P1: Request i
+                // P1: Request x[i]
                 x[i] = 1;
+                // P4: Release i
+                // P4: Release x[i]
 
                 // SLCO statement: x'[i' + 1] := 0 -> x'[i' + 1] := 0
+                // P1: Request i
+                // P1: Request x[i + 1]
                 x[i + 1] = 0;
+                // P4: Release i
+                // P4: Release x[i + 1]
 
                 // SLCO statement: [i' := 0; x'[y'[i']] := 1] -> [true; i' := 0; x'[y'[i']] := 1]
                 if (!(true)) {
@@ -154,16 +226,46 @@ public class Test {
                 x[y[i]] = 1;
 
                 // SLCO statement: y'[z'[i'] + 1] := 0 -> y'[z'[i'] + 1] := 0
+                // P1: Request i
+                // P1: Request y[1]
+                // P1: Request y[0]
+                // P1: Request z[i]
+                // P2: Request y[z[i] + 1]
+                // P3: Release y[0]
+                // P3: Release y[1]
                 y[z[i] + 1] = 0;
+                // P4: Release i
+                // P4: Release z[i]
+                // P4: Release y[z[i] + 1]
 
                 // SLCO statement: z'[x'[i'] + 1] := 0 -> z'[x'[i'] + 1] := 0
+                // P1: Request i
+                // P1: Request x[i]
+                // P1: Request z[x[i] + 1]
                 z[x[i] + 1] = 0;
+                // P4: Release i
+                // P4: Release z[x[i] + 1]
+                // P4: Release x[i]
 
                 // SLCO statement: x'[x'[i']] := 0 -> x'[x'[i']] := 0
+                // P1: Request i
+                // P1: Request x[0]
+                // P1: Request x[1]
+                // P2: Request x[x[i]]
+                // P2: Request x[i]
+                // P3: Release x[1]
+                // P3: Release x[0]
                 x[x[i]] = 0;
+                // P4: Release i
+                // P4: Release x[i]
+                // P4: Release x[x[i]]
 
                 // SLCO statement: y'[i'] := 0 -> y'[i'] := 0
+                // P1: Request i
+                // P1: Request y[i]
                 y[i] = 0;
+                // P4: Release i
+                // P4: Release y[i]
 
                 return true;
             }

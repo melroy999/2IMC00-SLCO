@@ -1,4 +1,27 @@
 // SLCO statement: {{ model.get_original_statement() }} -> {{ model }}
+{% for locking_phase in model.locks_to_acquire_phases %}
+{% for lock_request in locking_phase %}
+// P1: Request {{ lock_request | render_java_instruction }}
+{% endfor %}
+{% endfor %}
+{% for lock_request in model.unpacked_lock_requests %}
+// P2: Request {{ lock_request | render_java_instruction }}
+{% endfor %}
+{% for lock_request in model.conflict_resolution_lock_requests %}
+// P3: Release {{ lock_request | render_java_instruction }}
+{% endfor %}
+{% if model.locks_to_release | length > 0 %}
+try {
+    if (!({{ model | render_java_instruction }})) {
+        return false;
+    }
+} finally {
+    {% for lock_request in model.locks_to_release %}
+    // P4: Release {{ lock_request | render_java_instruction }}
+    {% endfor %}
+}
+{% else %}
 if (!({{ model | render_java_instruction }})) {
     return false;
 }
+{% endif %}

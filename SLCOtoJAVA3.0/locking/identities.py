@@ -49,13 +49,21 @@ def generate_lock_data(model: SlcoLockableNode):
         generate_lock_data(model.guard)
         for a in model.assignments:
             generate_lock_data(a)
-    else:
+    elif isinstance(model, SlcoStatementNode):
         # Generate the data for the target object.
-        pass
-    pass
+        lock_requests, conflicting_lock_requests, conflict_resolutions = get_lock_id_requests(model)
+
+        # Set the appropriate data for each of the locking phases.
+        model.locks_to_acquire = lock_requests.union(conflict_resolutions)
+        model.locks_to_acquire_phases = [sorted(model.locks_to_acquire, key=lambda r: r.var.lock_id)]
+        model.unpacked_lock_requests = conflicting_lock_requests
+        model.conflict_resolution_lock_requests = conflict_resolutions
+        model.locks_to_release = lock_requests.union(conflicting_lock_requests)
+    else:
+        raise Exception("This behavior has not been implemented yet.")
 
 
-def get_lock_id_requests(model: SlcoStatementNode) -> Tuple[List[VariableRef], Dict[VariableRef, Set[VariableRef]]]:
+def get_lock_id_requests(model: SlcoStatementNode) -> Tuple[Set[VariableRef], Set[VariableRef], Set[VariableRef]]:
     """Get the lock identities requested by the target object, including a mapping with conflict resolutions."""
     # Gather the variables that are referenced in the statement, including the associated dependency graph.
     class_variable_references = get_class_variable_references(model)
@@ -64,10 +72,21 @@ def get_lock_id_requests(model: SlcoStatementNode) -> Tuple[List[VariableRef], D
     # Remove superfluous lock requests.
     optimize_lock_requests(class_variable_references, class_variable_dependency_graph)
 
-    # Create a mapping containing resolutions for lock ordering violations.
-    conflict_resolutions = resolve_violating_lock_requests(class_variable_references, class_variable_dependency_graph)
-    print(model, "->", sorted(class_variable_references, key=lambda r: r.var.lock_id), conflict_resolutions)
-    return sorted(class_variable_references, key=lambda r: r.var.lock_id), conflict_resolutions
+    # Find which variables violate the lock ordering and find the additional locks are required to resolve the conflict.
+    conflicting_lock_requests, conflict_resolutions = resolve_violating_lock_requests(
+        class_variable_references,
+        class_variable_dependency_graph
+    )
+
+    print(
+        model,
+        "->",
+        sorted(class_variable_references, key=lambda r: r.var.lock_id),
+        conflicting_lock_requests,
+        conflict_resolutions
+    )
+
+    return class_variable_references, conflicting_lock_requests, conflict_resolutions
 
 
 def optimize_lock_requests(lock_requests: Set[VariableRef], dependency_graph: nx.DiGraph) -> None:
@@ -83,22 +102,28 @@ def optimize_lock_requests(lock_requests: Set[VariableRef], dependency_graph: nx
             dependency_graph.remove_edges_from(list(dependency_graph.in_edges(v)))
 
 
-def resolve_violating_lock_requests(lock_requests: Set[VariableRef], dependency_graph: nx.DiGraph) -> Dict[VariableRef, Set[VariableRef]]:
-    """Unpack lock requests that violate the strict ordering of locking and edit the graph to reflect these changes."""
-    variables: List[Variable] = [v for v in dependency_graph.nodes if v.is_array]
-    conflict_resolutions: Dict[VariableRef, Set[VariableRef]] = {}
-    for v in variables:
+def resolve_violating_lock_requests(
+        lock_requests: Set[VariableRef], dependency_graph: nx.DiGraph
+) -> Tuple[Set[VariableRef], Set[VariableRef]]:
+    """
+    Unpack lock requests that violate the strict ordering of locks and edit the graph and list to reflect these changes.
+    """
+    conflicting_lock_requests = set()
+    conflict_resolutions = set()
+
+    for v in [v for v in dependency_graph.nodes if v.is_array]:
         if any(v.lock_id <= n.lock_id for n in dependency_graph[v]):
             # Create the unpacked references, and register the conflict resolution.
-            unpacked_references: Set[VariableRef] = set()
             for i in range(0, v.type.size):
                 ref = VariableRef(var=v, index=Primary(target=i))
-                unpacked_references.add(ref)
+                conflict_resolutions.add(ref)
 
+            # Note down the conflicting lock requests and remove them from the list.
             for r in lock_requests:
                 if r.var == v:
-                    conflict_resolutions[r] = unpacked_references
+                    conflicting_lock_requests.add(r)
+            lock_requests.difference_update(conflicting_lock_requests)
 
             # All indices are covered, and hence, v doesn't depend on other variables anymore. Remove v's dependencies.
             dependency_graph.remove_edges_from(list(dependency_graph.edges(v)))
-    return conflict_resolutions
+    return conflicting_lock_requests, conflict_resolutions

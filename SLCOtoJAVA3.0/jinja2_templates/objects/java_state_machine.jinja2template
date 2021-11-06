@@ -29,10 +29,14 @@ class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{
     private final int[] lock_ids;
 
     {{ model.name }}Thread (LockManager lockManagerInstance) {
-        random = new Random();
+        currentState = {{ model.name }}Thread.States.{{ model.initial_state }};
         lockManager = lockManagerInstance;
         lock_ids = new int[1];
-        currentState = {{ model.name }}Thread.States.{{ model.initial_state }};
+        {% if settings.priority_queue_locking %}
+        PriorityQueue{{ "<Integer>" }} acquire_queue = new PriorityQueue<>();
+        Queue{{ "<Integer>" }} release_queue = new ArrayDeque<>();
+        {% endif %}
+        random = new Random();
     }
 
     {% for t in model.transitions %}

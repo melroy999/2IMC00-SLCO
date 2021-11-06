@@ -11,20 +11,35 @@ private static class LockManager {
     }
 
     // Lock method
-    void lock(int[] lock_ids, int start, int end) {
-        int i = start;
-        Arrays.sort(lock_ids, start, end);
-        for (; i < end; i++) {
+    {% if settings.priority_queue_locking %}
+    void lock(PriorityQueue{{ "<Integer>" }} queue) {
+        for (int i = 0; i < end; i++) {
             locks[lock_ids[i]].lock();
         }
     }
+    {% else %}
+    void lock(int[] lock_ids, int start, int end) {
+        Arrays.sort(lock_ids, start, end);
+        for (int i = start; i < end; i++) {
+            locks[lock_ids[i]].lock();
+        }
+    }
+    {% endif %}
 
     // Unlock method
+    {% if settings.priority_queue_locking %}
+    void unlock(Queue{{ "<Integer>" }} queue) {
+        while(!queue.isEmpty()) {
+            locks[queue.poll()].unlock();
+        }
+    }
+    {% else %}
     void unlock(int[] lock_ids, int end) {
         for (int i = 0; i < end; i++) {
             locks[lock_ids[i]].unlock();
         }
     }
+    {% endif %}
 
     // Unlock method during exceptions
     void exception_unlock() {

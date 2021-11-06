@@ -1,4 +1,3 @@
-// SLCO statement: {{ model.get_original_statement() }} -> {{ model }}
 {% for locking_phase in model.locks_to_acquire_phases %}
 {% for lock_request in locking_phase %}
 // P1: Request {{ lock_request | render_java_instruction }}
@@ -10,7 +9,10 @@
 {% for lock_request in model.conflict_resolution_lock_requests %}
 // P3: Release {{ lock_request | render_java_instruction }}
 {% endfor %}
-{{ model.left | render_java_instruction }} = {{ model.right | render_java_instruction }};
+{% for node in model.decisions %}
+{{ " else " if not loop.first }}{{ node | render_control_flow_node | trim }}{{ "
+" if loop.last }}
+{%- endfor %}
 {% for lock_request in model.locks_to_release %}
 // P4: Release {{ lock_request | render_java_instruction }}
 {% endfor %}
