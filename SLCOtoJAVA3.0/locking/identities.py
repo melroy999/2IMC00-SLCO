@@ -2,7 +2,8 @@ from typing import List, Set, Dict, Tuple, Union
 
 import networkx as nx
 
-from objects.ast.models import Class, Variable, VariableRef, Primary, Composite, DecisionNode, Transition, GuardNode
+from objects.ast.models import Class, Variable, VariableRef, Primary, Composite, DecisionNode, Transition, GuardNode, \
+    LockRequest
 from objects.ast.interfaces import SlcoStatementNode, SlcoLockableNode
 from objects.ast.util import get_class_variable_references, get_class_variable_dependency_graph, \
     get_weighted_class_variable_dependency_graph
@@ -27,7 +28,7 @@ def assign_lock_identities(model: Class) -> None:
         print(v, v.lock_id)
 
 
-def generate_lock_data(model: SlcoLockableNode):
+def generate_lock_data(model: Union[SlcoLockableNode, Transition]):
     """Recursive method that marks all of the lockable objects with the appropriate lock data."""
     if isinstance(model, DecisionNode):
         # Generate the data for all decisions in the node.
@@ -52,15 +53,54 @@ def generate_lock_data(model: SlcoLockableNode):
     elif isinstance(model, SlcoStatementNode):
         # Generate the data for the target object.
         lock_requests, conflicting_lock_requests, conflict_resolutions = get_lock_id_requests(model)
+        lock_requests = {LockRequest(r) for r in lock_requests}
+        conflicting_lock_requests = {LockRequest(r) for r in conflicting_lock_requests}
+        conflict_resolutions = {LockRequest(r) for r in conflict_resolutions}
 
         # Set the appropriate data for each of the locking phases.
         model.locks_to_acquire = lock_requests.union(conflict_resolutions)
-        model.locks_to_acquire_phases = [sorted(model.locks_to_acquire, key=lambda r: r.var.lock_id)]
+        model.locks_to_acquire_phases = [sorted(model.locks_to_acquire, key=lambda r: r.target.var.lock_id)]
         model.unpacked_lock_requests = conflicting_lock_requests
         model.conflict_resolution_lock_requests = conflict_resolutions
         model.locks_to_release = lock_requests.union(conflicting_lock_requests)
     else:
         raise Exception("This behavior has not been implemented yet.")
+
+
+def propagate_lock_data(model: SlcoLockableNode):
+    """Propagate the lock data to the appropriate level in the control flow structure."""
+    pass
+
+
+def assign_lock_request_ids(model: Union[SlcoLockableNode, Transition], current_id) -> int:
+    """
+    Assign incremental lock request identities to all of the requested locks, based on the phase ordering.
+    The function returns the highest value of current_id encountered.
+    """
+    # Assign a unique id to each of the lock requests, respecting the order of the locking phases.
+    if isinstance(model, SlcoLockableNode):
+        for locking_phase in model.locks_to_acquire_phases:
+            for lock_request in locking_phase:
+                lock_request.id = current_id
+                current_id = current_id + 1
+
+        # Assign lock ids to the conflicting locks as well.
+        for lock_request in model.unpacked_lock_requests:
+            lock_request.id = current_id
+            current_id = current_id + 1
+
+    if isinstance(model, DecisionNode):
+        # Generate the data for all decisions in the node.
+        return max(assign_lock_request_ids(decision, current_id) for decision in model.decisions)
+    elif isinstance(model, GuardNode):
+        result = assign_lock_request_ids(model.conditional, current_id)
+        return max(result, assign_lock_request_ids(model.body, current_id) if model.body is not None else 0)
+    elif isinstance(model, Transition):
+        return max(assign_lock_request_ids(s, current_id) for s in model.statements)
+    elif isinstance(model, Composite):
+        return max(assign_lock_request_ids(s, current_id) for s in [model.guard] + model.assignments)
+    elif isinstance(model, SlcoStatementNode):
+        return current_id
 
 
 def get_lock_id_requests(model: SlcoStatementNode) -> Tuple[Set[VariableRef], Set[VariableRef], Set[VariableRef]]:

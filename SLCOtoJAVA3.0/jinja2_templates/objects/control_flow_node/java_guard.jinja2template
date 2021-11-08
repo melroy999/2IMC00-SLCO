@@ -1,14 +1,6 @@
-{% for locking_phase in model.locks_to_acquire_phases %}
-{% for lock_request in locking_phase %}
-// P1: Request {{ lock_request | render_java_instruction }}
-{% endfor %}
-{% endfor %}
-{% for lock_request in model.unpacked_lock_requests %}
-// P2: Request {{ lock_request | render_java_instruction }}
-{% endfor %}
-{% for lock_request in model.conflict_resolution_lock_requests %}
-// P3: Release {{ lock_request | render_java_instruction }}
-{% endfor %}
+{% if model.locks_to_release | length > 0 %}
+{{ model | render_lock_acquisition_block | trim }}
+{% endif %}
 if ({{ model.conditional | render_java_instruction }}) {
     {% if model.conditional | is_transition %}
     currentState = {{ model.conditional.parent.name }}Thread.States.{{ model.conditional.target }};
@@ -16,6 +8,6 @@ if ({{ model.conditional | render_java_instruction }}) {
     {{ model.body | render_control_flow_node | indent(4, False) | trim }}
     {% endif %}
 }
-{% for lock_request in model.locks_to_release %}
-// P4: Release {{ lock_request | render_java_instruction }}
-{% endfor %}
+{% if model.locks_to_release | length > 0 %}
+{{ model | render_lock_release_block | trim }}
+{% endif %}

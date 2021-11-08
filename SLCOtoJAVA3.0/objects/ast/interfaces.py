@@ -6,7 +6,7 @@ from typing import Optional, Set, Dict, List
 
 import networkx as nx
 
-from libraries.slcolib import VariableRef
+import objects.ast.models as models
 from rendering.util.to_smt import to_smt, is_true, is_false, is_equivalent, is_negation_equivalent
 
 
@@ -81,18 +81,18 @@ class SlcoLockableNode(metaclass=ABCMeta):
     """
     # Before statement:
     # Phase 1: Initial locks to request (Possibly multiple phases), including conflict resolutions, minus the violators.
-    locks_to_acquire: Set[VariableRef] = set()
-    locks_to_acquire_phases: List[Set[VariableRef]] = []
+    locks_to_acquire: Set[models.LockRequest] = set()
+    locks_to_acquire_phases: List[Set[models.LockRequest]] = []
 
     # Phase 2: Acquire locks that were unpacked due to conflicts but will be acquired successfully in the previous step.
-    unpacked_lock_requests: Set[VariableRef] = set()
+    unpacked_lock_requests: Set[models.LockRequest] = set()
 
     # Phase 3: Release the locks added by the conflict resolution that are not part of the original lock requests.
-    conflict_resolution_lock_requests: Set[VariableRef] = set()
+    conflict_resolution_lock_requests: Set[models.LockRequest] = set()
 
     # After statement:
     # Phase 4: Release the locks that are no longer required after the execution of the statement.
-    locks_to_release: Set[VariableRef] = set()
+    locks_to_release: Set[models.LockRequest] = set()
 
 
 class SlcoStatementNode(SlcoStructuralNode, SlcoVersioningNode, SlcoLockableNode, metaclass=ABCMeta):
@@ -100,7 +100,7 @@ class SlcoStatementNode(SlcoStructuralNode, SlcoVersioningNode, SlcoLockableNode
     A metaclass that provides helper functions and variables for statement-level objects in the SLCO framework.
     """
     # Avoid recalculating structural data.
-    variable_references: Set[VariableRef] = None
-    class_variable_references: Set[VariableRef] = None
+    variable_references: Set[models.VariableRef] = None
+    class_variable_references: Set[models.VariableRef] = None
     variable_dependency_graph: nx.DiGraph = None
     class_variable_dependency_graph: nx.DiGraph = None

@@ -1,0 +1,15 @@
+{% for lock_request in lock_requests %}
+lock_ids[{{ lock_request.id }}] = {{ lock_request.target.var.lock_id }}{% if lock_request.target.index %} + {{ lock_request.target.index | render_java_instruction }}{% endif %}; // Acquire {{ lock_request.target }}
+{% if settings.priority_queue_locking %}
+acquisition_queue.add(lock_ids[{{ lock_request.id }}]);
+{% endif %}
+{% endfor %}
+{% if settings.priority_queue_locking %}
+lockManager.lock(acquisition_queue);
+{% else %}
+{% if settings.preserve_lock_list_ordering %}
+lockManager.lock(lock_ids, lock_ordering_mapping, {{ lock_requests[0].id }}, {{ lock_requests[-1].id }});
+{% else %}
+lockManager.lock(lock_ids, {{ lock_requests[0].id }}, {{ lock_requests[-1].id }});
+{% endif %}
+{% endif %}

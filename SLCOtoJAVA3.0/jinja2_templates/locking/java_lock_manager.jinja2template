@@ -13,8 +13,16 @@ private static class LockManager {
     // Lock method
     {% if settings.priority_queue_locking %}
     void lock(PriorityQueue{{ "<Integer>" }} queue) {
-        for (int i = 0; i < end; i++) {
-            locks[lock_ids[i]].lock();
+        while(!queue.isEmpty()) {
+            locks[queue.poll()].lock();
+        }
+    }
+    {% else %}
+    {% if settings.preserve_lock_list_ordering %}
+    void lock(int[] lock_ids, Integer[] indices, int start, int end) {
+        Arrays.sort(indices, start, end, Comparator.comparingInt(i -> lock_ids[i]));
+        for (int i = start; i < end; i++) {
+            locks[lock_ids[indices[i]]].lock();
         }
     }
     {% else %}
@@ -25,6 +33,7 @@ private static class LockManager {
         }
     }
     {% endif %}
+    {% endif %}
 
     // Unlock method
     {% if settings.priority_queue_locking %}
@@ -34,8 +43,8 @@ private static class LockManager {
         }
     }
     {% else %}
-    void unlock(int[] lock_ids, int end) {
-        for (int i = 0; i < end; i++) {
+    void unlock(int[] lock_ids, int start, int end) {
+        for (int i = start; i < end; i++) {
             locks[lock_ids[i]].unlock();
         }
     }

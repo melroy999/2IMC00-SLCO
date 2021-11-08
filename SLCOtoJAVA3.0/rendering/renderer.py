@@ -1,19 +1,13 @@
 # Initialize the template engine.
 import uuid
-from typing import Union
+from typing import Union, List, Set
 
 import jinja2 as jinja2
-import random
 
 import settings
-from objects.ast.interfaces import SlcoStatementNode
+from objects.ast.interfaces import SlcoStatementNode, SlcoLockableNode
 from objects.ast.models import SlcoModel, Object, Class, StateMachine, Transition, Variable, Expression, Assignment, \
-    Composite, Primary, VariableRef, DecisionNode, GuardNode
-
-# SUPPORT VARIABLES
-r = random.Random()
-r.seed(0)
-reproducible_seed = uuid.UUID(int=r.getrandbits(128), version=4)
+    Composite, Primary, VariableRef, DecisionNode, GuardNode, LockRequest
 
 
 # UTIL FUNCTIONS
@@ -91,7 +85,7 @@ def render_model(model: SlcoModel):
 
 def render_lock_manager(_):
     """Render the lock manager of the model."""
-    return java_lock_manager.render(
+    return java_lock_manager_template.render(
         settings=settings
     )
 
@@ -158,6 +152,57 @@ def render_statement(model: SlcoStatementNode):
         raise Exception("This functionality has not yet been implemented.")
 
 
+# LOCKING
+def render_lock_acquisition_block(model: SlcoLockableNode):
+    """Render code that acquires the given lock requests."""
+    return java_lock_acquisition_block_template.render(
+        model=model
+    )
+
+
+def render_lock_acquisition(model: List[LockRequest]):
+    """Render code that acquires the given lock requests."""
+    return java_lock_acquisition_template.render(
+        lock_requests=list(model),
+        settings=settings
+    )
+
+
+def render_lock_release_block(model: SlcoLockableNode):
+    """Render code that acquires the given lock requests."""
+    return java_lock_release_block_template.render(
+        model=model
+    )
+
+
+def render_lock_release(model: Set[LockRequest]):
+    """Render code that releases the given lock requests."""
+    sorted_model = sorted(model, key=lambda r: r.id)
+
+    # Create phases for the unlocking to compensate for possible id gaps.
+    lock_release_phases = []
+    if not settings.priority_queue_locking:
+        current_phase = [sorted_model[0]]
+        for lock_request in sorted_model[1:]:
+            if lock_request.id - current_phase[-1].id > 1:
+                # Flush the current phase and create a new one.
+                lock_release_phases.append(current_phase)
+                current_phase = [lock_request]
+            else:
+                current_phase.append(lock_request)
+        if len(current_phase) > 0:
+            lock_release_phases.append(current_phase)
+    else:
+        # Phases aren't necessary for priority queue locking, since all of the target locks will be in the queue.
+        lock_release_phases.append(sorted_model)
+
+    return java_lock_release_template.render(
+        lock_release_phases=lock_release_phases,
+        settings=settings
+    )
+
+
+# ENVIRONMENT AND FILTER CREATION
 env = jinja2.Environment(
     loader=jinja2.FileSystemLoader("jinja2_templates"),
     trim_blocks=True,
@@ -168,15 +213,19 @@ env = jinja2.Environment(
 # Register the rendering filters
 env.filters["render_class"] = render_class
 env.filters["render_lock_manager"] = render_lock_manager
+env.filters["render_lock_acquisition_block"] = render_lock_acquisition_block
+env.filters["render_lock_acquisition"] = render_lock_acquisition
+env.filters["render_lock_release_block"] = render_lock_release_block
+env.filters["render_lock_release"] = render_lock_release
 env.filters["render_state_machine"] = render_state_machine
 env.filters["render_transition"] = render_transition
 env.filters["render_control_flow_node"] = render_control_flow_node
 env.filters["render_statement"] = render_statement
-
-# Register the utility filters
 env.filters["render_type"] = render_type
 env.filters["render_object_instantiation"] = render_object_instantiation
 env.filters["render_java_instruction"] = render_java_instruction
+
+# Register the utility filters
 env.filters["is_decision_node"] = is_decision_node
 env.filters["is_transition"] = is_transition
 
@@ -203,5 +252,10 @@ java_non_deterministic_decision_template = env.get_template(
     "objects/control_flow_node/java_non_deterministic_decision.jinja2template"
 )
 
-java_lock_manager = env.get_template("locking/java_lock_manager.jinja2template")
+java_lock_manager_template = env.get_template("locking/java_lock_manager.jinja2template")
+java_lock_acquisition_block_template = env.get_template("locking/java_lock_acquisition_block.jinja2template")
+java_lock_acquisition_template = env.get_template("locking/java_lock_acquisition.jinja2template")
+java_lock_release_block_template = env.get_template("locking/java_lock_release_block.jinja2template")
+java_lock_release_template = env.get_template("locking/java_lock_release.jinja2template")
+
 java_object_instantiation = env.get_template("util/java_object_instantiation.jinja2template")

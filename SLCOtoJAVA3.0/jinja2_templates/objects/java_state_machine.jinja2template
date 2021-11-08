@@ -24,17 +24,27 @@ class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{
     {% endif %}
     // The lock manager
     private final LockManager lockManager;
+    {% if settings.priority_queue_locking %}
+    private final PriorityQueue{{ "<Integer>" }} acquisition_queue;
+    private final Queue{{ "<Integer>" }} release_queue;
+    {% endif %}
 
     // A list of lock ids that can be reused
     private final int[] lock_ids;
+    {% if settings.preserve_lock_list_ordering %}
+    private final Integer[] lock_ordering_mapping;
+    {% endif %}
 
     {{ model.name }}Thread (LockManager lockManagerInstance) {
         currentState = {{ model.name }}Thread.States.{{ model.initial_state }};
         lockManager = lockManagerInstance;
-        lock_ids = new int[1];
+        lock_ids = new int[{{ model.max_number_of_lock_requests }}];
+        {% if settings.preserve_lock_list_ordering %}
+        lock_ordering_mapping = new Integer[{{ model.max_number_of_lock_requests }}];
+        {% endif %}
         {% if settings.priority_queue_locking %}
-        PriorityQueue{{ "<Integer>" }} acquire_queue = new PriorityQueue<>();
-        Queue{{ "<Integer>" }} release_queue = new ArrayDeque<>();
+        acquisition_queue = new PriorityQueue<>();
+        release_queue = new ArrayDeque<>();
         {% endif %}
         random = new Random();
     }
@@ -56,6 +66,12 @@ class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{
     // Execute method
     private void exec() {
         while(true) {
+            {% if settings.preserve_lock_list_ordering %}
+            // Reset the lock ordering mapping.
+            for (int i = 0; i < {{ model.max_number_of_lock_requests }}; i++) {
+                lock_ordering_mapping[i] = i;
+            }
+            {% endif %}
             switch(currentState) {
                 {% for s in model.states %}
                 case {{ s }} -> exec_{{ s }}();

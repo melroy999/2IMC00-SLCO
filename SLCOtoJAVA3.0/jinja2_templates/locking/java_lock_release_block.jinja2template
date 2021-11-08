@@ -1,0 +1,2 @@
+// P4
+{{ model.locks_to_release | render_lock_release | trim }}
