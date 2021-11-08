@@ -247,10 +247,7 @@ class Variable(SlcoEvaluableNode):
         self.def_values: Union[List[int], List[bool]] = []
 
     def __repr__(self) -> str:
-        if self.is_class_variable:
-            return "%s': %s" % (self.name, self.type)
-        else:
-            return "%s: %s" % (self.name, self.type)
+        return "%s: %s" % (self.name, self.type)
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, Variable):
@@ -632,8 +629,6 @@ class VariableRef(SlcoStructuralNode, SlcoEvaluableNode):
 
     def __repr__(self) -> str:
         var_str = self.var.name
-        if self.var.is_class_variable:
-            var_str += "'"
         if self.index is not None:
             var_str += "[%s]" % self.index
         return var_str

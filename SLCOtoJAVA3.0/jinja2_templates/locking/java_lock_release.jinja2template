@@ -6,9 +6,11 @@ release_queue.add(lock_ids[{{ lock_request.id }}]);
 {% endfor %}
 {% endif %}
 {% if settings.priority_queue_locking %}
-lockManager.unlock(release_queue);
+lockManager.unlock(release_queue); // Release {% for lock_request in lock_requests %}{{ lock_request.target }}{{ ", " if not loop.last }}{% endfor %}
+
 {% else %}
-lockManager.unlock(lock_ids, {{ lock_requests[0].id }}, {{ lock_requests[-1].id }});
+lockManager.unlock(lock_ids, {{ lock_requests[0].id }}, {{ lock_requests[-1].id }}); // Release {% for lock_request in lock_requests %}{{ lock_request.target }}{{ ", " if not loop.last }}{% endfor %}
+
 {% endif %}
 {% endfor %}
 {% endif %}

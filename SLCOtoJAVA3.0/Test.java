@@ -19,10 +19,10 @@ public class Test {
         }
 
         // Lock method
-        void lock(int[] lock_ids, Integer[] indices, int start, int end) {
-            Arrays.sort(indices, start, end, Comparator.comparingInt(i -> lock_ids[i]));
+        void lock(int[] lock_ids, int start, int end) {
+            Arrays.sort(lock_ids, start, end);
             for (int i = start; i < end; i++) {
-                locks[lock_ids[indices[i]]].lock();
+                locks[lock_ids[i]].lock();
             }
         }
 
@@ -82,13 +82,11 @@ public class Test {
 
             // A list of lock ids that can be reused
             private final int[] lock_ids;
-            private final Integer[] lock_ordering_mapping;
 
             SM1Thread (LockManager lockManagerInstance) {
                 currentState = SM1Thread.States.SMC0;
                 lockManager = lockManagerInstance;
                 lock_ids = new int[5];
-                lock_ordering_mapping = new Integer[5];
                 random = new Random();
             }
 
@@ -99,114 +97,114 @@ public class Test {
                     return false;
                 }
 
-                // SLCO statement: x'[0] := i' -> x'[0] := i'
+                // SLCO statement: x[0] := i -> x[0] := i
                 // P1
-                lock_ids[0] = 0; // Acquire i'
-                lock_ids[1] = 3 + 0; // Acquire x'[0]
-                lockManager.lock(lock_ids, lock_ordering_mapping, 0, 1);
+                lock_ids[0] = 0; // Acquire i
+                lock_ids[1] = 3 + 0; // Acquire x[0]
+                lockManager.lock(lock_ids, 0, 1);
                 x[0] = i;
                 // P4
-                lockManager.unlock(lock_ids, 0, 1);
+                lockManager.unlock(lock_ids, 0, 1); // Release i, x[0]
 
-                // SLCO statement: x'[i'] := 1 -> x'[i'] := 1
+                // SLCO statement: x[i] := 1 -> x[i] := 1
                 // P1
-                lock_ids[0] = 0; // Acquire i'
-                lock_ids[1] = 3 + i; // Acquire x'[i']
-                lockManager.lock(lock_ids, lock_ordering_mapping, 0, 1);
+                lock_ids[0] = 0; // Acquire i
+                lock_ids[1] = 3 + i; // Acquire x[i]
+                lockManager.lock(lock_ids, 0, 1);
                 x[i] = 1;
                 // P4
-                lockManager.unlock(lock_ids, 0, 1);
+                lockManager.unlock(lock_ids, 0, 1); // Release i, x[i]
 
-                // SLCO statement: x'[i' + 1] := 0 -> x'[i' + 1] := 0
+                // SLCO statement: x[i + 1] := 0 -> x[i + 1] := 0
                 // P1
-                lock_ids[0] = 0; // Acquire i'
-                lock_ids[1] = 3 + i + 1; // Acquire x'[i' + 1]
-                lockManager.lock(lock_ids, lock_ordering_mapping, 0, 1);
+                lock_ids[0] = 0; // Acquire i
+                lock_ids[1] = 3 + i + 1; // Acquire x[i + 1]
+                lockManager.lock(lock_ids, 0, 1);
                 x[i + 1] = 0;
                 // P4
-                lockManager.unlock(lock_ids, 0, 1);
+                lockManager.unlock(lock_ids, 0, 1); // Release i, x[i + 1]
 
-                // SLCO statement: [i' := 0; x'[y'[i']] := 1] -> [true; i' := 0; x'[y'[i']] := 1]
+                // SLCO statement: [i := 0; x[y[i]] := 1] -> [true; i := 0; x[y[i]] := 1]
                 if (!(true)) {
                     return false;
                 }
                 i = 0;
                 x[y[i]] = 1;
 
-                // SLCO statement: y'[z'[i'] + 1] := 0 -> y'[z'[i'] + 1] := 0
+                // SLCO statement: y[z[i] + 1] := 0 -> y[z[i] + 1] := 0
                 // P1
-                lock_ids[0] = 0; // Acquire i'
-                lock_ids[1] = 1 + 1; // Acquire y'[1]
-                lock_ids[2] = 1 + 0; // Acquire y'[0]
-                lock_ids[3] = 5 + i; // Acquire z'[i']
-                lockManager.lock(lock_ids, lock_ordering_mapping, 0, 3);
+                lock_ids[0] = 0; // Acquire i
+                lock_ids[1] = 1 + 1; // Acquire y[1]
+                lock_ids[2] = 1 + 0; // Acquire y[0]
+                lock_ids[3] = 5 + i; // Acquire z[i]
+                lockManager.lock(lock_ids, 0, 3);
                 // P2
-                lock_ids[4] = 1 + z[i] + 1; // Acquire y'[z'[i'] + 1]
-                lockManager.lock(lock_ids, lock_ordering_mapping, 4, 4);
+                lock_ids[4] = 1 + z[i] + 1; // Acquire y[z[i] + 1]
+                lockManager.lock(lock_ids, 4, 4);
                 // P3
-                lockManager.unlock(lock_ids, 1, 2);
+                lockManager.unlock(lock_ids, 1, 2); // Release y[1], y[0]
                 y[z[i] + 1] = 0;
                 // P4
-                lockManager.unlock(lock_ids, 0, 0);
-                lockManager.unlock(lock_ids, 3, 4);
+                lockManager.unlock(lock_ids, 0, 0); // Release i
+                lockManager.unlock(lock_ids, 3, 4); // Release z[i], y[z[i] + 1]
 
-                // SLCO statement: z'[x'[i'] + 1] := 0 -> z'[x'[i'] + 1] := 0
+                // SLCO statement: z[x[i] + 1] := 0 -> z[x[i] + 1] := 0
                 // P1
-                lock_ids[0] = 0; // Acquire i'
-                lock_ids[1] = 3 + i; // Acquire x'[i']
-                lock_ids[2] = 5 + x[i] + 1; // Acquire z'[x'[i'] + 1]
-                lockManager.lock(lock_ids, lock_ordering_mapping, 0, 2);
+                lock_ids[0] = 0; // Acquire i
+                lock_ids[1] = 3 + i; // Acquire x[i]
+                lock_ids[2] = 5 + x[i] + 1; // Acquire z[x[i] + 1]
+                lockManager.lock(lock_ids, 0, 2);
                 z[x[i] + 1] = 0;
                 // P4
-                lockManager.unlock(lock_ids, 0, 2);
+                lockManager.unlock(lock_ids, 0, 2); // Release i, x[i], z[x[i] + 1]
 
-                // SLCO statement: x'[x'[i']] := 0 -> x'[x'[i']] := 0
+                // SLCO statement: x[x[i]] := 0 -> x[x[i]] := 0
                 // P1
-                lock_ids[0] = 0; // Acquire i'
-                lock_ids[1] = 3 + 1; // Acquire x'[1]
-                lock_ids[2] = 3 + 0; // Acquire x'[0]
-                lockManager.lock(lock_ids, lock_ordering_mapping, 0, 2);
+                lock_ids[0] = 0; // Acquire i
+                lock_ids[1] = 3 + 0; // Acquire x[0]
+                lock_ids[2] = 3 + 1; // Acquire x[1]
+                lockManager.lock(lock_ids, 0, 2);
                 // P2
-                lock_ids[3] = 3 + i; // Acquire x'[i']
-                lock_ids[4] = 3 + x[i]; // Acquire x'[x'[i']]
-                lockManager.lock(lock_ids, lock_ordering_mapping, 3, 4);
+                lock_ids[3] = 3 + i; // Acquire x[i]
+                lock_ids[4] = 3 + x[i]; // Acquire x[x[i]]
+                lockManager.lock(lock_ids, 3, 4);
                 // P3
-                lockManager.unlock(lock_ids, 1, 2);
+                lockManager.unlock(lock_ids, 1, 2); // Release x[0], x[1]
                 x[x[i]] = 0;
                 // P4
-                lockManager.unlock(lock_ids, 0, 0);
-                lockManager.unlock(lock_ids, 3, 4);
+                lockManager.unlock(lock_ids, 0, 0); // Release i
+                lockManager.unlock(lock_ids, 3, 4); // Release x[i], x[x[i]]
 
-                // SLCO statement: x'[x'[i']] = 1 -> x'[x'[i']] = 1
+                // SLCO statement: x[x[i]] = 1 -> x[x[i]] = 1
                 // P1
-                lock_ids[0] = 0; // Acquire i'
-                lock_ids[1] = 3 + 1; // Acquire x'[1]
-                lock_ids[2] = 3 + 0; // Acquire x'[0]
-                lockManager.lock(lock_ids, lock_ordering_mapping, 0, 2);
+                lock_ids[0] = 0; // Acquire i
+                lock_ids[1] = 3 + 0; // Acquire x[0]
+                lock_ids[2] = 3 + 1; // Acquire x[1]
+                lockManager.lock(lock_ids, 0, 2);
                 // P2
-                lock_ids[3] = 3 + i; // Acquire x'[i']
-                lock_ids[4] = 3 + x[i]; // Acquire x'[x'[i']]
-                lockManager.lock(lock_ids, lock_ordering_mapping, 3, 4);
+                lock_ids[3] = 3 + i; // Acquire x[i]
+                lock_ids[4] = 3 + x[i]; // Acquire x[x[i]]
+                lockManager.lock(lock_ids, 3, 4);
                 // P3
-                lockManager.unlock(lock_ids, 1, 2);
+                lockManager.unlock(lock_ids, 1, 2); // Release x[0], x[1]
                 try {
                     if (!(x[x[i]] == 1)) {
                         return false;
                     }
                 } finally {
                     // P4
-                    lockManager.unlock(lock_ids, 0, 0);
-                    lockManager.unlock(lock_ids, 3, 4);
+                    lockManager.unlock(lock_ids, 0, 0); // Release i
+                    lockManager.unlock(lock_ids, 3, 4); // Release x[i], x[x[i]]
                 }
 
-                // SLCO statement: y'[i'] := 0 -> y'[i'] := 0
+                // SLCO statement: y[i] := 0 -> y[i] := 0
                 // P1
-                lock_ids[0] = 0; // Acquire i'
-                lock_ids[1] = 1 + i; // Acquire y'[i']
-                lockManager.lock(lock_ids, lock_ordering_mapping, 0, 1);
+                lock_ids[0] = 0; // Acquire i
+                lock_ids[1] = 1 + i; // Acquire y[i]
+                lockManager.lock(lock_ids, 0, 1);
                 y[i] = 0;
                 // P4
-                lockManager.unlock(lock_ids, 0, 1);
+                lockManager.unlock(lock_ids, 0, 1); // Release i, y[i]
 
                 return true;
             }
@@ -224,10 +222,6 @@ public class Test {
             // Execute method
             private void exec() {
                 while(true) {
-                    // Reset the lock ordering mapping.
-                    for (int i = 0; i < 5; i++) {
-                        lock_ordering_mapping[i] = i;
-                    }
                     switch(currentState) {
                         case SMC0 -> exec_SMC0();
                         case SMC1 -> exec_SMC1();

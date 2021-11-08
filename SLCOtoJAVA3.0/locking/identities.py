@@ -59,7 +59,6 @@ def generate_lock_data(model: Union[SlcoLockableNode, Transition]):
 
         # Set the appropriate data for each of the locking phases.
         model.locks_to_acquire = lock_requests.union(conflict_resolutions)
-        model.locks_to_acquire_phases = [sorted(model.locks_to_acquire, key=lambda r: r.target.var.lock_id)]
         model.unpacked_lock_requests = conflicting_lock_requests
         model.conflict_resolution_lock_requests = conflict_resolutions
         model.locks_to_release = lock_requests.union(conflicting_lock_requests)
@@ -69,7 +68,58 @@ def generate_lock_data(model: Union[SlcoLockableNode, Transition]):
 
 def propagate_lock_data(model: SlcoLockableNode):
     """Propagate the lock data to the appropriate level in the control flow structure."""
-    pass
+    if isinstance(model, DecisionNode):
+        # Generate the data for all decisions in the node.
+        for decision in model.decisions:
+            if isinstance(decision, Transition):
+                for s in decision.statements:
+                    propagate_lock_data(s)
+            else:
+                propagate_lock_data(decision)
+    elif isinstance(model, GuardNode):
+        propagate_lock_data(model.conditional)
+        if model.body is not None:
+            propagate_lock_data(model.body)
+    elif isinstance(model, Transition):
+        for s in model.statements:
+            propagate_lock_data(s)
+    elif isinstance(model, Composite):
+        # Generate the data for each individual statement in the composite.
+        propagate_lock_data(model.guard)
+        for a in model.assignments:
+            propagate_lock_data(a)
+    elif isinstance(model, SlcoStatementNode):
+        pass
+    else:
+        raise Exception("This behavior has not been implemented yet.")
+
+
+def generate_locking_phases(model: SlcoLockableNode):
+    """Split the locks to be requested into the appropriate locking phases."""
+    if isinstance(model, SlcoLockableNode):
+        # TODO: Properly generate phases.
+        model.locks_to_acquire_phases = [sorted(model.locks_to_acquire, key=lambda r: r.target.var.lock_id)]
+
+    if isinstance(model, DecisionNode):
+        # Generate the data for all decisions in the node.
+        for decision in model.decisions:
+            if isinstance(decision, Transition):
+                for s in decision.statements:
+                    generate_locking_phases(s)
+            else:
+                generate_locking_phases(decision)
+    elif isinstance(model, GuardNode):
+        generate_locking_phases(model.conditional)
+        if model.body is not None:
+            generate_locking_phases(model.body)
+    elif isinstance(model, Transition):
+        for s in model.statements:
+            generate_locking_phases(s)
+    elif isinstance(model, Composite):
+        # Generate the data for each individual statement in the composite.
+        generate_locking_phases(model.guard)
+        for a in model.assignments:
+            generate_locking_phases(a)
 
 
 def assign_lock_request_ids(model: Union[SlcoLockableNode, Transition], current_id) -> int:
@@ -101,6 +151,8 @@ def assign_lock_request_ids(model: Union[SlcoLockableNode, Transition], current_
         return max(assign_lock_request_ids(s, current_id) for s in [model.guard] + model.assignments)
     elif isinstance(model, SlcoStatementNode):
         return current_id
+    else:
+        raise Exception("This behavior has not been implemented yet.")
 
 
 def get_lock_id_requests(model: SlcoStatementNode) -> Tuple[Set[VariableRef], Set[VariableRef], Set[VariableRef]]:

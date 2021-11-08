@@ -25,4 +25,4 @@ def init(parameters):
     priority_queue_locking = parameters.release_locks_asap or parameters.priority_queue_locking
     preserve_lock_list_ordering = not priority_queue_locking and (
             parameters.release_conflict_resolution_locks or parameters.release_locks_asap
-    ) or True
+    )
