@@ -1,4 +1,4 @@
-{% if model.locks_to_release | length > 0 %}
+{% if model.locks_to_acquire_phases | length > 0 or model.unpacked_lock_requests | length > 0 or model.conflict_resolution_lock_requests | length > 0 %}
 {{ model | render_lock_acquisition_block | trim }}
 {% endif %}
 {% if model.decisions | length > 1 %}

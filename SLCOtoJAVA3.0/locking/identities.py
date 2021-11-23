@@ -28,16 +28,16 @@ def assign_lock_identities(model: Class) -> None:
         print(v, v.lock_id)
 
 
+# TODO: REDO ALL OF THIS. THIS ISN"T GOING TO WORK--START SIMPLE AND ONLY LOOK AT LOCKS TO BE ACQUIRED AND RELEASED
+#  BEFORE CONSIDERING UNPACKING AND CONFLICT RESOLUTIONS.
+
+
 def generate_lock_data(model: Union[SlcoLockableNode, Transition]):
     """Recursive method that marks all of the lockable objects with the appropriate lock data."""
     if isinstance(model, DecisionNode):
         # Generate the data for all decisions in the node.
         for decision in model.decisions:
-            if isinstance(decision, Transition):
-                for s in decision.statements:
-                    generate_lock_data(s)
-            else:
-                generate_lock_data(decision)
+            generate_lock_data(decision)
     elif isinstance(model, GuardNode):
         generate_lock_data(model.conditional)
         if model.body is not None:
@@ -66,37 +66,123 @@ def generate_lock_data(model: Union[SlcoLockableNode, Transition]):
         raise Exception("This behavior has not been implemented yet.")
 
 
-def propagate_lock_data(model: SlcoLockableNode):
-    """Propagate the lock data to the appropriate level in the control flow structure."""
+def extract_wrongly_positioned_locks(lock_requests: Set[LockRequest], highest_identity: int) -> Set[LockRequest]:
+    """Extract all the lock requests from the list that are lower then or equal to the given identity value."""
+    wrongly_positioned_locks = set(r for r in lock_requests if r.target.var.lock_id <= highest_identity)
+    lock_requests.difference_update(wrongly_positioned_locks)
+    return wrongly_positioned_locks
+
+
+def get_max_identity_value(model: SlcoLockableNode) -> int:
+    """Find the highest lock identity value in the given lockable node."""
+    return max(
+        max([r.target.var.lock_id for r in model.locks_to_acquire], default=-1),
+        max([r.target.var.lock_id for r in model.unpacked_lock_requests], default=-1),
+        max([r.target.var.lock_id for r in model.conflict_resolution_lock_requests], default=-1),
+    )
+
+
+def move_lock_acquisition_data(
+        model: SlcoLockableNode, highest_identity: int = -1
+) -> Tuple[Set[LockRequest], Set[LockRequest], Set[LockRequest]]:
+    """Move the lock acquisition data to the appropriate level in the control flow structure."""
+    # TODO: corrections might be needed after merging to remove superfluous locks.
+    # TODO: moreover, the locks to be removed need to be moved to the appropriate locking tree level as well.
+    # TODO: some situations might not have been thought of. Think this through more.
+    # Find the highest lock id that is used by this lockable node.
+    # Note that some of the variables have been renamed to the phase name for readability.
+
+    if isinstance(model, SlcoLockableNode):
+        new_highest_identity = max(highest_identity, get_max_identity_value(model))
+    else:
+        new_highest_identity = highest_identity
+
     if isinstance(model, DecisionNode):
         # Generate the data for all decisions in the node.
         for decision in model.decisions:
-            if isinstance(decision, Transition):
-                for s in decision.statements:
-                    propagate_lock_data(s)
-            else:
-                propagate_lock_data(decision)
+            p1, p2, p3 = move_lock_acquisition_data(decision, new_highest_identity)
+            model.locks_to_acquire.update(p1)
+            model.unpacked_lock_requests.update(p2)
+            model.conflict_resolution_lock_requests.update(p3)
     elif isinstance(model, GuardNode):
-        propagate_lock_data(model.conditional)
+        p1, p2, p3 = move_lock_acquisition_data(model.conditional, new_highest_identity)
+        model.locks_to_acquire.update(p1)
+        model.unpacked_lock_requests.update(p2)
+        model.conflict_resolution_lock_requests.update(p3)
         if model.body is not None:
-            propagate_lock_data(model.body)
+            p1, p2, p3 = move_lock_acquisition_data(model.body, new_highest_identity)
+            model.locks_to_acquire.update(p1)
+            model.unpacked_lock_requests.update(p2)
+            model.conflict_resolution_lock_requests.update(p3)
     elif isinstance(model, Transition):
-        for s in model.statements:
-            propagate_lock_data(s)
+        for s in model.statements[1:]:
+            # Only the transition's guard statement needs to have locks in the control flow structure.
+            move_lock_acquisition_data(s, -1)
+        return move_lock_acquisition_data(model.guard, new_highest_identity)
+    elif isinstance(model, Composite):
+        # Map the highest identity values of each statement.
+        target_statements = [model.guard] + model.assignments
+        max_identity_values: list = [max(get_max_identity_value(model.guard), highest_identity)]
+        for i, s in enumerate(model.assignments):
+            max_identity_values.append(max(max_identity_values[i], get_max_identity_value(s)))
+
+        for i, statement in reversed(list(enumerate(target_statements[1:]))):
+            # Note that i relative to the guard is i - 1.
+            predecessor = target_statements[i]
+            p1, p2, p3 = move_lock_acquisition_data(statement, max_identity_values[i])
+            predecessor.locks_to_acquire.update(p1)
+            predecessor.unpacked_lock_requests.update(p2)
+            predecessor.conflict_resolution_lock_requests.update(p3)
+        return move_lock_acquisition_data(model.guard, new_highest_identity)
+
+    # Make corrections based on the given highest identity.
+    p1_displaced = extract_wrongly_positioned_locks(model.locks_to_acquire, highest_identity)
+    p2_displaced = extract_wrongly_positioned_locks(model.unpacked_lock_requests, highest_identity)
+    p3_displaced = extract_wrongly_positioned_locks(model.conflict_resolution_lock_requests, highest_identity)
+    return p1_displaced, p2_displaced, p3_displaced
+
+
+def move_lock_release_data(model: SlcoLockableNode) -> Set[LockRequest]:
+    """Propagate the lock release data to the appropriate level in the control flow structure."""
+    # TODO: Make sure that locks that are still used lower in the structure are not unlocked.
+    # TODO: This will not work properly: what if a lock is used in one branch, but not in the other?
+    #   - The lock can end up in a higher node due to conflicts in the ordering
+    #   - This needs more thought. Maybe track the individual lock lists and use differences to find which ones are
+    #   uncovered with respect to the current node?
+    if isinstance(model, Transition):
+        for s in model.statements[1:]:
+            # The statements are not part of the decision/control flow structure and should not be added to the result.
+            move_lock_release_data(s)
+        return move_lock_release_data(model.guard)
+
+    # Find the locks that are covered by the child nodes.
+    result = set()
+    if isinstance(model, DecisionNode):
+        # Generate the data for all decisions in the node.
+        for decision in model.decisions:
+            result.update(move_lock_release_data(decision))
+        model.locks_to_release.difference_update(result)
+        return result.union(model.locks_to_release)
+    elif isinstance(model, GuardNode):
+        result.update(move_lock_release_data(model.conditional))
+        if model.body is not None:
+            result.update(move_lock_release_data(model.body))
     elif isinstance(model, Composite):
         # Generate the data for each individual statement in the composite.
-        propagate_lock_data(model.guard)
+        move_lock_release_data(model.guard)
         for a in model.assignments:
-            propagate_lock_data(a)
-    elif isinstance(model, SlcoStatementNode):
-        pass
-    else:
-        raise Exception("This behavior has not been implemented yet.")
+            move_lock_release_data(a)
+
+    # TODO: make sure that the statements above return the correct collection of values.
+
+    # Remove locks that are released lower in the structure and add the remaining lock request to the processed list.
+    model.locks_to_release.difference_update(result)
+    return result.union(model.locks_to_release)
 
 
 def generate_locking_phases(model: SlcoLockableNode):
     """Split the locks to be requested into the appropriate locking phases."""
-    if isinstance(model, SlcoLockableNode):
+    if isinstance(model, SlcoLockableNode) and len(model.locks_to_acquire) > 0:
         # TODO: Properly generate phases.
         model.locks_to_acquire_phases = [sorted(model.locks_to_acquire, key=lambda r: r.target.var.lock_id)]
 

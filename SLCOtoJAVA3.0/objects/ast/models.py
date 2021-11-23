@@ -621,7 +621,7 @@ class VariableRef(SlcoStructuralNode, SlcoEvaluableNode):
     Notes:
         - VariableRef objects do not necessarily need a parent. Hence, the parent can be ``None``.
     """
-    def __init__(self, var, index=None) -> None:
+    def __init__(self, var: Variable, index=None) -> None:
         self.var = var
         self._index = None
         if index is not None:
@@ -691,6 +691,11 @@ class DecisionNode(SlcoLockableNode):
         self.decisions = decisions
         self.is_deterministic = is_deterministic
 
+    def __iter__(self) -> Iterator[Union[Expression, Primary, Assignment]]:
+        """Iterate through all objects part of the AST structure."""
+        for d in self.decisions:
+            yield d
+
 
 class GuardNode(SlcoLockableNode):
     """
@@ -704,6 +709,12 @@ class GuardNode(SlcoLockableNode):
     ):
         self.conditional = conditional
         self.body = body
+
+    def __iter__(self) -> Iterator[Union[Expression, Primary, Assignment]]:
+        """Iterate through all objects part of the AST structure."""
+        yield self.conditional
+        if self.body is not None:
+            yield self.body
 
 
 class LockRequest:
