@@ -12,7 +12,7 @@ def render_graph(
     if len(graph.nodes) == 0:
         return
 
-    plt.figure(1, figsize=(20, 20))
+    plt.figure(1, figsize=(28, 20))
 
     # Determine the location and create an axis to put the title on.
     pos = graphviz_layout(graph, prog=layout)
@@ -30,6 +30,8 @@ def render_graph(
 
     # Draw the labels if appropriate.
     if labels is not None:
+        for i in pos:  # raise text positions
+            pos[i] = (pos[i][0], pos[i][1] + 35)  # probably small value enough
         nx.draw_networkx_labels(graph, pos, labels)
 
     ax.collections[0].set_edgecolor("#000000")

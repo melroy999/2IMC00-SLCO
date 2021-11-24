@@ -18,8 +18,9 @@ class LockingNodeType(Enum):
     # Success and failure nodes can perform unlock actions.
     SUCCESS = 2
     FAILURE = 3
+    INDIFFERENT = 4
     # Passive nodes cannot perform lock or unlock actions.
-    PASSIVE = 4
+    PASSIVE = 5
 
 
 class LockingNode:
@@ -29,12 +30,8 @@ class LockingNode:
     The purpose of the class is to detach the locking system from the decision structure and control flow.
     """
     def __init__(self, partner, node_type: LockingNodeType):
-        # The locks that need to be active to attain atomicity of itself and the successor nodes.
-        self.required_locks = set()
-
-        # The locks to be acquired and released in this node.
-        self.locks_to_acquire = set()
-        self.locks_to_release = set()
+        # The lock requests targeted by this locking node.
+        self.target_locks = set()
 
         # The object that the locking node is partnered with.
         self.partner = partner
@@ -75,18 +72,6 @@ class AtomicNode:
         # Potential child atomic nodes of the atomic node.
         self.child_atomic_nodes: List[AtomicNode] = []
 
-    def make_indifferent(self):
-        """
-        Merge the success and failure exits such that only one exit remains.
-        """
-        # Add all the edges from the failure exit to the success exit and remove the original.
-        for n in self.graph.predecessors(self.failure_exit):
-            self.graph.add_edge(n, self.success_exit)
-        for n in self.graph.successors(self.failure_exit):
-            self.graph.add_edge(self.success_exit, n)
-        self.graph.remove_node(self.failure_exit)
-        self.failure_exit = self.success_exit
-
     def include_atomic_node(self, node: AtomicNode):
         """
         Add the given atomic node to the graph of this atomic node.
@@ -95,13 +80,19 @@ class AtomicNode:
         self.graph.update(node.graph)
         self.child_atomic_nodes.append(node)
 
-    def mark_as_passive_recursively(self):
-        """Mark all of the locking nodes within the atomic block as passive nodes."""
-        for n in self.graph:
-            n.node_type = LockingNodeType.PASSIVE
+    def mark_indifferent(self):
+        """
+        Turn the atomic node into a node that is indifferent to the evaluation of the partnered statement.
 
-    def mark_as_passive(self):
-        """Mark all of the entry and exit points within the atomic block as passive nodes."""
-        for n in [self.entry_node, self.success_exit, self.failure_exit]:
-            n.node_type = LockingNodeType.PASSIVE
+        To achieve this, it is assumed that the statement will always be successful.
+        """
+        if self.success_exit == self.failure_exit:
+            raise Exception("The exits are already indifferent!")
 
+        # Copy all of the failure exit's connections into the success exit.
+        for n in self.graph.predecessors(self.failure_exit):
+            self.graph.add_edge(n, self.success_exit)
+        for n in self.graph.successors(self.failure_exit):
+            self.graph.add_edge(self.success_exit, n)
+        self.graph.remove_node(self.failure_exit)
+        self.failure_exit = self.success_exit

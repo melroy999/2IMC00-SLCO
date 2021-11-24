@@ -614,7 +614,7 @@ class Primary(SlcoStatementNode, SlcoEvaluableNode):
         return self.value
 
 
-class VariableRef(SlcoStructuralNode, SlcoEvaluableNode):
+class VariableRef(SlcoStatementNode, SlcoEvaluableNode):
     """
     An object representing references to variables in the SLCO framework.
 

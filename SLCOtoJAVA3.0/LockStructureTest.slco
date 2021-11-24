@@ -1,0 +1,21 @@
+model Test {
+	classes
+	P {
+        variables Integer[2] x Integer[2] y Boolean[2] b Integer i := 0
+        state machines
+        SM1 {
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 {
+                [i := 0; x[y[i]] := 1];
+                [i > 5; i := y[i]; x[y[i]] := 1];
+                [not(i > 5 or i < 0); i := y[i]; x[y[i]] := 1];
+                [i >= 0 and i < 2 and b[i]; x[i] := x[i] + 1; i := 0];
+                [i >= 0 and i < 2 and b[i]; x[i] := x[i] + 1; b[i] := b[i] xor x[i] > 5];
+                [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; i := 0];
+                [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; b[i] := not b[i] or x[i] > 5];
+            }
+        }
+	}
+	objects p: P()
+}
