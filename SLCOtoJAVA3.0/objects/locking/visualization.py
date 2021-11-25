@@ -26,13 +26,12 @@ def render_locking_structure(model: AtomicNode):
     """
     Render the graph within the given atomic node.
     """
-    # node_labels = {n: str(n.partner) for n in model.graph.nodes}
-    node_labels = {
-        n: "%s: %s%s" % (
+    node_labels = dict()
+    n: LockingNode
+    for n in model.graph.nodes:
+        node_labels[n] = ("%s %s %s" % (
             n.partner,
-            "+" if n.node_type.value == 1 else "-",
-            n.target_locks if len(n.target_locks) > 0 else "{}"
-        ) for n in model.graph.nodes
-    }
-
+            "+%s" % n.locks_to_acquire if len(n.locks_to_acquire) > 0 else "",
+            "-%s" % n.locks_to_release if len(n.locks_to_release) > 0 else ""
+        )).strip()
     render_graph(model.graph, title=str(model.partner), node_color_func=get_node_color, labels=node_labels)

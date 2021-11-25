@@ -18,9 +18,6 @@ class LockingNodeType(Enum):
     # Success and failure nodes can perform unlock actions.
     SUCCESS = 2
     FAILURE = 3
-    INDIFFERENT = 4
-    # Passive nodes cannot perform lock or unlock actions.
-    PASSIVE = 5
 
 
 class LockingNode:
@@ -30,8 +27,9 @@ class LockingNode:
     The purpose of the class is to detach the locking system from the decision structure and control flow.
     """
     def __init__(self, partner, node_type: LockingNodeType):
-        # The lock requests targeted by this locking node.
-        self.target_locks = set()
+        # The locks that are requested and released by this locking node.
+        self.locks_to_acquire = set()
+        self.locks_to_release = set()
 
         # The object that the locking node is partnered with.
         self.partner = partner

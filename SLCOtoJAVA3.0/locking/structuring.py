@@ -1,8 +1,10 @@
+from typing import Dict, Set
+
 import networkx as nx
 
-from objects.ast.models import VariableRef, Primary, Composite, Transition, Assignment, Expression
+from objects.ast.models import VariableRef, Primary, Composite, Transition, Assignment, Expression, LockRequest
 from objects.ast.util import get_class_variable_references
-from objects.locking.models import AtomicNode, LockingNodeType
+from objects.locking.models import AtomicNode, LockingNodeType, LockingNode
 from objects.locking.visualization import render_locking_structure
 
 
@@ -14,8 +16,8 @@ def create_locking_structure(model: Transition) -> AtomicNode:
     # Add information on what locks to lock at the base level.
     for s in model.statements:
         insert_base_level_lock_requests(s.locking_atomic_node)
-        remove_repeating_lock_requests(s.locking_atomic_node)
-        remove_repeating_lock_releases(s.locking_atomic_node)
+        correct_lock_acquisitions(s.locking_atomic_node)
+        correct_lock_releases(s.locking_atomic_node)
         render_locking_structure(s.locking_atomic_node)
 
     return result
@@ -163,56 +165,88 @@ def insert_base_level_lock_requests(model: AtomicNode):
     """
     Add lock request data to the appropriate locking nodes for all non-aggregate base-level nodes.
     """
+    n: LockingNode
     for n in model.graph.nodes:
         # Find the target object and determine what class variables should be locked/unlocked at the base level.
         target = n.partner
+        target_variables = None
         if isinstance(target, VariableRef):
-            n.target_locks.update(get_class_variable_references(target))
+            target_variables = get_class_variable_references(target)
         elif isinstance(target, Primary) and target.ref is not None:
-            n.target_locks.update(get_class_variable_references(target))
+            target_variables = get_class_variable_references(target)
         elif isinstance(target, Expression) and target.op not in ["and", "or", "xor"]:
-            n.target_locks.update(get_class_variable_references(target))
+            target_variables = get_class_variable_references(target)
+
+        if target_variables is not None:
+            if n.node_type == LockingNodeType.ENTRY:
+                n.locks_to_acquire.update(target_variables)
+            else:
+                n.locks_to_release.update(target_variables)
 
 
-def remove_repeating_lock_requests(model: AtomicNode):
+def correct_lock_acquisitions(model: AtomicNode):
     """
-    Remove lock requests in the locking structure that have been acquired by an earlier statement already.
+    Move lock request acquisitions to the appropriate level in the locking graph to ensure atomicity of the statement.
     """
-    # Track which locks have been activated by a specific node and its parents.
-    activated_lock_requests = dict()
-
-    # Iterate through the graph in topological ordering to ensure that predecessors have all the required data.
+    # Keep a mapping of locks that have already been opened by the target statement's predecessors and itself.
+    accumulated_lock_request: Dict[LockingNode, Set[LockRequest]] = dict()
+    target: LockingNode
     for target in nx.topological_sort(model.graph):
-        active_lock_requests = set()
+        active_lock_requests: Set[LockRequest] = set(target.locks_to_acquire)
         for n in model.graph.predecessors(target):
-            active_lock_requests.update(activated_lock_requests[n])
-
-        if target.node_type == LockingNodeType.ENTRY:
-            # Remove the locks that are already active.
-            target.target_locks.difference_update(active_lock_requests)
-            active_lock_requests.update(target.target_locks)
+            # Add all of the previously seen locks by the targeted predecessor.
+            active_lock_requests.update(accumulated_lock_request[n])
 
         # Add an entry for the current node.
-        activated_lock_requests[target] = active_lock_requests
+        accumulated_lock_request[target] = active_lock_requests
 
-
-def remove_repeating_lock_releases(model: AtomicNode):
-    """
-    Remove lock releases in the locking structure that are released prematurely with respect to its children's targets.
-    """
-    # Track which locks have been activated by a specific node and its parents.
-    closed_lock_requests = dict()
-
-    # Iterate through the graph in reversed topological ordering to ensure that successors have all the required data.
+    # Next, iterate over the structure with a reverse topological ordering.
+    # Move locks that have already been requested by predecessor nodes to all of the node's predecessors.
     for target in reversed(list(nx.topological_sort(model.graph))):
-        released_lock_requests = set()
-        for n in model.graph.successors(target):
-            released_lock_requests.update(closed_lock_requests[n])
+        # Find lock requests that intersect with any of the accumulated lock requests of the predecessors.
+        violating_lock_requests = set()
+        for n in model.graph.predecessors(target):
+            violating_lock_requests.update(target.locks_to_acquire.intersection(accumulated_lock_request[n]))
 
-        if target.node_type in [LockingNodeType.SUCCESS, LockingNodeType.FAILURE]:
-            # Remove the locks that are to be released later on.
-            target.target_locks.difference_update(released_lock_requests)
-            released_lock_requests.update(target.target_locks)
+        # Move all violating locks upwards one level.
+        if len(violating_lock_requests) > 0:
+            # Remove the violating lock requests from the current node.
+            target.locks_to_acquire.difference_update(violating_lock_requests)
+
+            # Move the requests.
+            for n in model.graph.predecessors(target):
+                n.locks_to_acquire.update(violating_lock_requests)
+
+
+def correct_lock_releases(model: AtomicNode):
+    """
+    Move lock request releases to the appropriate level in the locking graph to ensure atomicity of the statement.
+    """
+    # Keep a mapping of locks that have already been released by the target statement's successors and itself.
+    accumulated_lock_request: Dict[LockingNode, Set[LockRequest]] = dict()
+    target: LockingNode
+    for target in reversed(list(nx.topological_sort(model.graph))):
+        released_lock_requests: Set[LockRequest] = set(target.locks_to_release)
+        for n in model.graph.successors(target):
+            # Add all of the previously seen locks by the targeted predecessor.
+            released_lock_requests.update(accumulated_lock_request[n])
 
         # Add an entry for the current node.
-        closed_lock_requests[target] = released_lock_requests
+        accumulated_lock_request[target] = released_lock_requests
+
+    # Next, iterate over the structure with a topological ordering.
+    # Move locks that have already been released by successor nodes to all of the node's successors.
+    for target in nx.topological_sort(model.graph):
+        # Find lock requests that intersect with any of the accumulated lock requests of the successors.
+        violating_lock_requests = set()
+        for n in model.graph.successors(target):
+            violating_lock_requests.update(target.locks_to_release.intersection(accumulated_lock_request[n]))
+
+        # Move all violating locks upwards one level.
+        if len(violating_lock_requests) > 0:
+            # Remove the violating lock requests from the current node.
+            target.locks_to_release.difference_update(violating_lock_requests)
+
+            # Move the requests.
+            for n in model.graph.successors(target):
+                n.locks_to_release.update(violating_lock_requests)
