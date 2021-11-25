@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+import logging
 from enum import Enum
 from typing import TYPE_CHECKING, List
 
@@ -84,6 +86,7 @@ class AtomicNode:
 
         To achieve this, it is assumed that the statement will always be successful.
         """
+        logging.debug(f" - Marking the atomic node \"{self.partner}\" as indifferent")
         if self.success_exit == self.failure_exit:
             raise Exception("The exits are already indifferent!")
 

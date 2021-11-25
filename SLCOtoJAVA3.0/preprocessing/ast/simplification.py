@@ -1,3 +1,5 @@
+import logging
+
 from objects.ast.interfaces import SlcoEvaluableNode
 from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, Transition, StateMachine, Class, \
     SlcoModel, Object
@@ -167,6 +169,7 @@ def simplify_model(e: SlcoModel):
 
 def simplify(e):
     """Simplify the given expression."""
+    original_e = e
     if isinstance(e, Expression):
         e = simplify_expression(e)
     elif isinstance(e, Primary):
@@ -187,4 +190,8 @@ def simplify(e):
         e = simplify_object(e)
     elif isinstance(e, SlcoModel):
         e = simplify_model(e)
+
+    if str(original_e) != str(e):
+        logging.info(f"Simplified {original_e} to {e}")
+
     return e

@@ -86,7 +86,7 @@ public class Test {
             SM1Thread (LockManager lockManagerInstance) {
                 currentState = SM1Thread.States.SMC0;
                 lockManager = lockManagerInstance;
-                lock_ids = new int[3];
+                lock_ids = new int[0];
                 random = new Random();
             }
 
@@ -103,208 +103,81 @@ public class Test {
                     return false;
                 }
                 // SLCO statement: i := 0 -> i := 0
-                // P1
-                lock_ids[0] = 0; // Acquire i
-                lockManager.lock(lock_ids, 0, 0);
                 i = 0;
-                // P4
-                lockManager.unlock(lock_ids, 0, 0); // Release i
                 // SLCO statement: x[y[i]] := 1 -> x[y[i]] := 1
-                // P1
-                lock_ids[0] = 4 + i; // Acquire y[i]
-                lock_ids[1] = 6 + y[i]; // Acquire x[y[i]]
-                lockManager.lock(lock_ids, 0, 1);
                 x[y[i]] = 1;
-                // P4
-                lockManager.unlock(lock_ids, -1, 1); // Release i, y[i], x[y[i]]
 
                 // SLCO statement: [i > 5; i := y[i]; x[y[i]] := 1] -> [i > 5; i := y[i]; x[y[i]] := 1]
                 // SLCO statement: i > 5 -> i > 5
-                // P1
-                lock_ids[0] = 0; // Acquire i
-                lockManager.lock(lock_ids, 0, 0);
-                try {
-                    if (!(i > 5)) {
-                        return false;
-                    }
-                } finally {
-                    // P4
-                    lockManager.unlock(lock_ids, 0, 0); // Release i
+                if (!(i > 5)) {
+                    return false;
                 }
                 // SLCO statement: i := y[i] -> i := y[i]
-                // P1
-                lock_ids[0] = 4 + i; // Acquire y[i]
-                lockManager.lock(lock_ids, 0, 0);
                 i = y[i];
-                // P4
-                lockManager.unlock(lock_ids, -1, 0); // Release i, y[i]
                 // SLCO statement: x[y[i]] := 1 -> x[y[i]] := 1
-                // P1
-                lock_ids[0] = 6 + y[i]; // Acquire x[y[i]]
-                lockManager.lock(lock_ids, 0, 0);
                 x[y[i]] = 1;
-                // P4
-                lockManager.unlock(lock_ids, -1, 0); // Release y[i], i, x[y[i]]
 
                 // SLCO statement: [!(i > 5 or i < 0); i := y[i]; x[y[i]] := 1] -> [!(i > 5 or i < 0); i := y[i]; x[y[i]] := 1]
                 // SLCO statement: !(i > 5 or i < 0) -> !(i > 5 or i < 0)
-                // P1
-                lock_ids[0] = 0; // Acquire i
-                lockManager.lock(lock_ids, 0, 0);
-                try {
-                    if (!(!((i > 5 || i < 0)))) {
-                        return false;
-                    }
-                } finally {
-                    // P4
-                    lockManager.unlock(lock_ids, 0, 0); // Release i
+                if (!(!((i > 5 || i < 0)))) {
+                    return false;
                 }
                 // SLCO statement: i := y[i] -> i := y[i]
-                // P1
-                lock_ids[0] = 4 + i; // Acquire y[i]
-                lockManager.lock(lock_ids, 0, 0);
                 i = y[i];
-                // P4
-                lockManager.unlock(lock_ids, -1, 0); // Release i, y[i]
                 // SLCO statement: x[y[i]] := 1 -> x[y[i]] := 1
-                // P1
-                lock_ids[0] = 6 + y[i]; // Acquire x[y[i]]
-                lockManager.lock(lock_ids, 0, 0);
                 x[y[i]] = 1;
-                // P4
-                lockManager.unlock(lock_ids, -1, 0); // Release y[i], i, x[y[i]]
 
                 // SLCO statement: [i >= 0 and i < 2 and b[i]; x[i] := x[i] + 1; i := 0] -> [i >= 0 and i < 2 and b[i]; x[i] := x[i] + 1; i := 0]
                 // SLCO statement: i >= 0 and i < 2 and b[i] -> i >= 0 and i < 2 and b[i]
-                // P1
-                lock_ids[0] = 0; // Acquire i
-                lock_ids[1] = 1 + i; // Acquire b[i]
-                lockManager.lock(lock_ids, 0, 1);
-                try {
-                    if (!(i >= 0 && i < 2 && b[i])) {
-                        return false;
-                    }
-                } finally {
-                    // P4
-                    lockManager.unlock(lock_ids, 0, 1); // Release i, b[i]
+                if (!(i >= 0 && i < 2 && b[i])) {
+                    return false;
                 }
                 // SLCO statement: x[i] := x[i] + 1 -> x[i] := x[i] + 1
-                // P1
-                lock_ids[0] = 6 + i; // Acquire x[i]
-                lockManager.lock(lock_ids, 0, 0);
                 x[i] = x[i] + 1;
-                // P4
-                lockManager.unlock(lock_ids, -1, 0); // Release i, x[i]
                 // SLCO statement: i := 0 -> i := 0
                 i = 0;
-                // P4
-                lockManager.unlock(lock_ids, -1, -1); // Release i
 
                 // SLCO statement: [i >= 0 and i < 2 and b[i]; x[i] := x[i] + 1; b[i] := b[i] xor x[i] > 5] -> [i >= 0 and i < 2 and b[i]; x[i] := x[i] + 1; b[i] := b[i] xor x[i] > 5]
                 // SLCO statement: i >= 0 and i < 2 and b[i] -> i >= 0 and i < 2 and b[i]
-                // P1
-                lock_ids[0] = 0; // Acquire i
-                lock_ids[1] = 1 + i; // Acquire b[i]
-                lockManager.lock(lock_ids, 0, 1);
-                try {
-                    if (!(i >= 0 && i < 2 && b[i])) {
-                        return false;
-                    }
-                } finally {
-                    // P4
-                    lockManager.unlock(lock_ids, 0, 1); // Release i, b[i]
+                if (!(i >= 0 && i < 2 && b[i])) {
+                    return false;
                 }
                 // SLCO statement: x[i] := x[i] + 1 -> x[i] := x[i] + 1
-                // P1
-                lock_ids[0] = 6 + i; // Acquire x[i]
-                lockManager.lock(lock_ids, 0, 0);
                 x[i] = x[i] + 1;
-                // P4
-                lockManager.unlock(lock_ids, -1, 0); // Release i, x[i]
                 // SLCO statement: b[i] := b[i] xor x[i] > 5 -> b[i] := b[i] xor x[i] > 5
                 b[i] = b[i] xor x[i] > 5;
-                // P4
-                lockManager.unlock(lock_ids, -1, -1); // Release i, x[i], b[i]
 
                 // SLCO statement: [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; i := 0] -> [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; i := 0]
                 // SLCO statement: i < 0 or i >= 2 or b[i] -> i < 0 or i >= 2 or b[i]
-                // P1
-                lock_ids[0] = 0; // Acquire i
-                lock_ids[1] = 1 + i; // Acquire b[i]
-                lockManager.lock(lock_ids, 0, 1);
-                try {
-                    if (!(i < 0 || i >= 2 || b[i])) {
-                        return false;
-                    }
-                } finally {
-                    // P4
-                    lockManager.unlock(lock_ids, 0, 1); // Release i, b[i]
+                if (!(i < 0 || i >= 2 || b[i])) {
+                    return false;
                 }
                 // SLCO statement: x[i] := x[i] + 1 -> x[i] := x[i] + 1
-                // P1
-                lock_ids[0] = 6 + i; // Acquire x[i]
-                lockManager.lock(lock_ids, 0, 0);
                 x[i] = x[i] + 1;
-                // P4
-                lockManager.unlock(lock_ids, -1, 0); // Release i, x[i]
                 // SLCO statement: i := 0 -> i := 0
                 i = 0;
-                // P4
-                lockManager.unlock(lock_ids, -1, -1); // Release i
 
                 // SLCO statement: [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; b[i] := !b[i] or x[i] > 5] -> [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; b[i] := !b[i] or x[i] > 5]
                 // SLCO statement: i < 0 or i >= 2 or b[i] -> i < 0 or i >= 2 or b[i]
-                // P1
-                lock_ids[0] = 0; // Acquire i
-                lock_ids[1] = 1 + i; // Acquire b[i]
-                lockManager.lock(lock_ids, 0, 1);
-                try {
-                    if (!(i < 0 || i >= 2 || b[i])) {
-                        return false;
-                    }
-                } finally {
-                    // P4
-                    lockManager.unlock(lock_ids, 0, 1); // Release i, b[i]
+                if (!(i < 0 || i >= 2 || b[i])) {
+                    return false;
                 }
                 // SLCO statement: x[i] := x[i] + 1 -> x[i] := x[i] + 1
-                // P1
-                lock_ids[0] = 6 + i; // Acquire x[i]
-                lockManager.lock(lock_ids, 0, 0);
                 x[i] = x[i] + 1;
-                // P4
-                lockManager.unlock(lock_ids, -1, 0); // Release i, x[i]
                 // SLCO statement: b[i] := !b[i] or x[i] > 5 -> b[i] := !b[i] or x[i] > 5
                 b[i] = !(b[i]) || x[i] > 5;
-                // P4
-                lockManager.unlock(lock_ids, -1, -1); // Release i, x[i], b[i]
 
                 // SLCO statement: [b[0] or b[1] or b[2]; b[0] := true; b[1] := false; b[2] := b[0] or b[1] or b[2]] -> [b[0] or b[1] or b[2]; b[0] := true; b[1] := false; b[2] := b[0] or b[1] or b[2]]
                 // SLCO statement: b[0] or b[1] or b[2] -> b[0] or b[1] or b[2]
-                // P1
-                lock_ids[0] = 1 + 1; // Acquire b[1]
-                lock_ids[1] = 1 + 2; // Acquire b[2]
-                lock_ids[2] = 1 + 0; // Acquire b[0]
-                lockManager.lock(lock_ids, 0, 2);
-                try {
-                    if (!(b[0] || b[1] || b[2])) {
-                        return false;
-                    }
-                } finally {
-                    // P4
-                    lockManager.unlock(lock_ids, 0, 2); // Release b[1], b[2], b[0]
+                if (!(b[0] || b[1] || b[2])) {
+                    return false;
                 }
                 // SLCO statement: b[0] := true -> b[0] := true
                 b[0] = true;
-                // P4
-                lockManager.unlock(lock_ids, -1, -1); // Release b[0]
                 // SLCO statement: b[1] := false -> b[1] := false
                 b[1] = false;
-                // P4
-                lockManager.unlock(lock_ids, -1, -1); // Release b[1]
                 // SLCO statement: b[2] := b[0] or b[1] or b[2] -> b[2] := b[0] or b[1] or b[2]
                 b[2] = b[0] || b[1] || b[2];
-                // P4
-                lockManager.unlock(lock_ids, -1, -1); // Release b[2], b[0], b[1]
 
                 return true;
             }

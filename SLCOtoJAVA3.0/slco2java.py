@@ -1,5 +1,6 @@
 # Import the necessary libraries.
 import argparse
+import logging
 import os
 import sys
 
@@ -54,36 +55,27 @@ from rendering.renderer import render_model
 
 def preprocess(model):
     """Gather additional data about the model"""
+    logging.info(f">>> Preprocessing model \"{model}\"")
+    logging.info(f"> Converting \"{model}\" to the code generator model")
     model = ast_to_model(model, dict())
 
     # Restructure the model.
+    logging.info(f">> Restructuring model \"{model}\"")
     restructure(model)
+    logging.info(f">> Simplifying model \"{model}\"")
     simplify(model)
+    logging.info(f">> Finalizing model \"{model}\"")
     finalize(model)
 
     return model
-
-    # target_objects = __dfs__(
-    #     model, self_first=True, _filter=lambda x: type(x) in [Transition, SlcoModel, Class, StateMachine]
-    # )
-    #
-    # for o in target_objects:
-    #     print(o)
-    #
-    #     if isinstance(o, Transition):
-    #         for v in o.statements:
-    #             visualize_expression(v)
-    #             visualize_dependency_graph(v)
-    #             visualize_variable_ordering_graph(v)
-    #
-    #     if isinstance(o, Class):
-    #         visualize_weighted_variable_dependency_graph(o)
 
 
 def render(model, model_folder):
     """The translation function"""
     # Write the program to the desired output file.
-    with open(os.path.join(model_folder, model.name + ".java"), 'w') as out_file:
+    file_name = os.path.join(model_folder, model.name + ".java")
+    logging.info(f">>> Rendering model \"{model}\" to file \"{file_name}\"")
+    with open(file_name, 'w') as out_file:
         out_file.write(render_model(model))
 
 
@@ -104,9 +96,18 @@ def get_argument_parser():
 
 def main(_args):
     """The main function"""
+    # First, set up the logging format.
+    level = logging.DEBUG
+    fmt = "[%(levelname)s] %(asctime)s: %(message)s"
+    logging.basicConfig(level=level, format=fmt)
+    logging.info("#" * 120)
+    logging.info(f"Starting the Java code generation component with the arguments {_args}")
+
     # Define the arguments that the program supports and parse accordingly.
     parser = get_argument_parser()
     parsed_arguments = parser.parse_args(_args)
+    logging.info(f"Parsed arguments: {parsed_arguments}")
+    logging.info("#" * 120)
 
     # Parse the parameters and save the settings.
     settings.init(parsed_arguments)

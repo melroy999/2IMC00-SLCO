@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -26,6 +27,7 @@ def render_locking_structure(model: AtomicNode):
     """
     Render the graph within the given atomic node.
     """
+    logging.info(f"Visualizing the atomic node graph of object {model.partner}")
     node_labels = dict()
     n: LockingNode
     for n in model.graph.nodes:

@@ -1,3 +1,4 @@
+import logging
 from typing import Dict, Set
 
 import networkx as nx
@@ -5,11 +6,12 @@ import networkx as nx
 from objects.ast.models import VariableRef, Primary, Composite, Transition, Assignment, Expression, LockRequest
 from objects.ast.util import get_class_variable_references
 from objects.locking.models import AtomicNode, LockingNodeType, LockingNode
-from objects.locking.visualization import render_locking_structure
 
 
 # TODO: Transition is temporary.
 def create_locking_structure(model: Transition) -> AtomicNode:
+    logging.info(f"> Constructing the locking structure for object \"{model}\"")
+
     # Construct the locking structure for the object.
     result = construct_locking_structure(model)
 
@@ -18,7 +20,7 @@ def create_locking_structure(model: Transition) -> AtomicNode:
         insert_base_level_lock_requests(s.locking_atomic_node)
         correct_lock_acquisitions(s.locking_atomic_node)
         correct_lock_releases(s.locking_atomic_node)
-        render_locking_structure(s.locking_atomic_node)
+        # render_locking_structure(s.locking_atomic_node)
 
     return result
 
@@ -165,6 +167,7 @@ def insert_base_level_lock_requests(model: AtomicNode):
     """
     Add lock request data to the appropriate locking nodes for all non-aggregate base-level nodes.
     """
+    logging.debug(f"> Inserting base level locking requests into the atomic node of object \"{model.partner}\"")
     n: LockingNode
     for n in model.graph.nodes:
         # Find the target object and determine what class variables should be locked/unlocked at the base level.
@@ -180,15 +183,24 @@ def insert_base_level_lock_requests(model: AtomicNode):
         if target_variables is not None:
             if n.node_type == LockingNodeType.ENTRY:
                 n.locks_to_acquire.update(target_variables)
+                logging.debug(
+                    f" - \"{n.partner}.{n.node_type.name}\".locks_to_acquire = {n.locks_to_acquire}"
+                )
             else:
                 n.locks_to_release.update(target_variables)
+                logging.debug(
+                    f" - \"{n.partner}.{n.node_type.name}\".locks_to_release = {n.locks_to_release}"
+                )
 
 
 def correct_lock_acquisitions(model: AtomicNode):
     """
     Move lock request acquisitions to the appropriate level in the locking graph to ensure atomicity of the statement.
     """
+    logging.debug(f"> Correcting duplicate lock acquisitions in the atomic node of object \"{model.partner}\"")
+
     # Keep a mapping of locks that have already been opened by the target statement's predecessors and itself.
+    logging.debug(f" - Gathering accumulated lock requests:")
     accumulated_lock_request: Dict[LockingNode, Set[LockRequest]] = dict()
     target: LockingNode
     for target in nx.topological_sort(model.graph):
@@ -198,10 +210,12 @@ def correct_lock_acquisitions(model: AtomicNode):
             active_lock_requests.update(accumulated_lock_request[n])
 
         # Add an entry for the current node.
+        logging.debug(f"   - {target.partner}.{target.node_type.name}: {active_lock_requests}")
         accumulated_lock_request[target] = active_lock_requests
 
     # Next, iterate over the structure with a reverse topological ordering.
     # Move locks that have already been requested by predecessor nodes to all of the node's predecessors.
+    logging.debug(f" - Making ordering corrections:")
     for target in reversed(list(nx.topological_sort(model.graph))):
         # Find lock requests that intersect with any of the accumulated lock requests of the predecessors.
         violating_lock_requests = set()
@@ -211,10 +225,15 @@ def correct_lock_acquisitions(model: AtomicNode):
         # Move all violating locks upwards one level.
         if len(violating_lock_requests) > 0:
             # Remove the violating lock requests from the current node.
+            logging.debug(f"   - Node {target.partner}.{target.node_type.name} introduces duplicate lock acquisitions")
             target.locks_to_acquire.difference_update(violating_lock_requests)
 
             # Move the requests.
             for n in model.graph.predecessors(target):
+                logging.debug(
+                    f"     - Moving lock requests {violating_lock_requests} from node "
+                    f"\"{target.partner}.{target.node_type.name}\" to \"{n.partner}.{n.node_type.name}\""
+                )
                 n.locks_to_acquire.update(violating_lock_requests)
 
 
@@ -222,7 +241,10 @@ def correct_lock_releases(model: AtomicNode):
     """
     Move lock request releases to the appropriate level in the locking graph to ensure atomicity of the statement.
     """
+    logging.debug(f"> Correcting duplicate lock releases in the atomic node of object \"{model.partner}\"")
+
     # Keep a mapping of locks that have already been released by the target statement's successors and itself.
+    logging.debug(f" - Gathering accumulated lock requests:")
     accumulated_lock_request: Dict[LockingNode, Set[LockRequest]] = dict()
     target: LockingNode
     for target in reversed(list(nx.topological_sort(model.graph))):
@@ -232,10 +254,12 @@ def correct_lock_releases(model: AtomicNode):
             released_lock_requests.update(accumulated_lock_request[n])
 
         # Add an entry for the current node.
+        logging.debug(f"   - {target.partner}.{target.node_type.name}: {released_lock_requests}")
         accumulated_lock_request[target] = released_lock_requests
 
     # Next, iterate over the structure with a topological ordering.
     # Move locks that have already been released by successor nodes to all of the node's successors.
+    logging.debug(f" - Making ordering corrections:")
     for target in nx.topological_sort(model.graph):
         # Find lock requests that intersect with any of the accumulated lock requests of the successors.
         violating_lock_requests = set()
@@ -245,8 +269,13 @@ def correct_lock_releases(model: AtomicNode):
         # Move all violating locks upwards one level.
         if len(violating_lock_requests) > 0:
             # Remove the violating lock requests from the current node.
+            logging.debug(f"   - Node {target.partner}.{target.node_type.name} introduces duplicate lock releases")
             target.locks_to_release.difference_update(violating_lock_requests)
 
             # Move the requests.
             for n in model.graph.successors(target):
+                logging.debug(
+                    f"     - Moving lock requests {violating_lock_requests} from node "
+                    f"\"{target.partner}.{target.node_type.name}\" to \"{n.partner}.{n.node_type.name}\""
+                )
                 n.locks_to_release.update(violating_lock_requests)

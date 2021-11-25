@@ -14,7 +14,8 @@ preserve_lock_list_ordering = False
 
 def init(parameters):
     """Initialize the global variables, defining the settings of the program"""
-    global model_folder, model_name, release_locks_asap, release_conflict_resolution_locks, priority_queue_locking, preserve_lock_list_ordering
+    global model_folder, model_name, release_locks_asap, release_conflict_resolution_locks, priority_queue_locking, \
+        preserve_lock_list_ordering
 
     # Add the name of the model and the location.
     model_folder, model_name = os.path.split(parameters.model)
