@@ -6,6 +6,7 @@ from typing import Optional, Set, List, TYPE_CHECKING
 
 import networkx as nx
 
+from objects.locking.models import AtomicNode
 from rendering.util.to_smt import to_smt, is_true, is_false, is_equivalent, is_negation_equivalent
 
 
@@ -83,6 +84,9 @@ class SlcoLockableNode(metaclass=ABCMeta):
     """
     A metaclass that provides helper functions for locking objects.
     """
+    # The atomic node and locking graph associated with the object.
+    locking_atomic_node: Optional[AtomicNode] = None
+
     # Before statement:
     # Phase 1: Initial locks to request (Possibly multiple phases), including conflict resolutions, minus the violators.
     locks_to_acquire: Set[LockRequest] = set()

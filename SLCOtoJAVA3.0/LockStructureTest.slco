@@ -7,14 +7,16 @@ model Test {
             initial SMC0 states SMC1
             transitions
             from SMC0 to SMC0 {
-                [i := 0; x[y[i]] := 1];
+                [i := 0; x[y[i]] := 1; x[0] := 1];
                 [i > 5; i := y[i]; x[y[i]] := 1];
                 [not(i > 5 or i < 0); i := y[i]; x[y[i]] := 1];
                 [i >= 0 and i < 2 and b[i]; x[i] := x[i] + 1; i := 0];
                 [i >= 0 and i < 2 and b[i]; x[i] := x[i] + 1; b[i] := b[i] xor x[i] > 5];
                 [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; i := 0];
                 [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; b[i] := not b[i] or x[i] > 5];
+                [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; b[i] := not b[i] or x[i] > 5];
                 [b[0] or b[1] or b[2]; b[0] := true; b[1] := false; b[2] := b[0] or b[1] or b[2]];
+                [b[0] or i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; b[i] := not b[i] or x[i] > 5];
             }
         }
 	}

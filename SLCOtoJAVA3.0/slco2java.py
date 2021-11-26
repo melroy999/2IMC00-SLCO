@@ -56,7 +56,7 @@ from rendering.renderer import render_model
 def preprocess(model):
     """Gather additional data about the model"""
     logging.info(f">>> Preprocessing model \"{model}\"")
-    logging.info(f"> Converting \"{model}\" to the code generator model")
+    logging.info(f">> Converting \"{model}\" to the code generator model")
     model = ast_to_model(model, dict())
 
     # Restructure the model.
@@ -97,17 +97,17 @@ def get_argument_parser():
 def main(_args):
     """The main function"""
     # First, set up the logging format.
-    level = logging.DEBUG
-    fmt = "[%(levelname)s] %(asctime)s: %(message)s"
+    level = logging.INFO
+    fmt = "[%(levelname)s][%(asctime)s][%(module)s]: %(message)s"
     logging.basicConfig(level=level, format=fmt)
-    logging.info("#" * 120)
+    logging.info("#" * 180)
     logging.info(f"Starting the Java code generation component with the arguments {_args}")
 
     # Define the arguments that the program supports and parse accordingly.
     parser = get_argument_parser()
     parsed_arguments = parser.parse_args(_args)
     logging.info(f"Parsed arguments: {parsed_arguments}")
-    logging.info("#" * 120)
+    logging.info("#" * 180)
 
     # Parse the parameters and save the settings.
     settings.init(parsed_arguments)

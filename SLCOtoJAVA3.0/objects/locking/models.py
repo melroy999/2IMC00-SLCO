@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Set
 
 import networkx as nx
 
 # Avoid circular imports due to type checking.
+
 if TYPE_CHECKING:
     from objects.ast.interfaces import SlcoStatementNode
+    from objects.ast.models import VariableRef
 
 
 class LockingNodeType(Enum):
@@ -30,8 +32,8 @@ class LockingNode:
     """
     def __init__(self, partner, node_type: LockingNodeType):
         # The locks that are requested and released by this locking node.
-        self.locks_to_acquire = set()
-        self.locks_to_release = set()
+        self.locks_to_acquire: Set[VariableRef] = set()
+        self.locks_to_release: Set[VariableRef] = set()
 
         # The object that the locking node is partnered with.
         self.partner = partner
