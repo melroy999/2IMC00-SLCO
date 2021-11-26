@@ -13,8 +13,10 @@ def get_node_color(model: LockingNode):
     """
     Give each of the locking nodes a proper recognizable color.
     """
-    if model.node_type == model.node_type.ENTRY:
+    if model.is_base_level:
         return "#488AC7"
+    if model.node_type == model.node_type.ENTRY:
+        return "#BCD2E8"
     elif model.node_type == model.node_type.SUCCESS:
         return "#6AA121"
     elif model.node_type == model.node_type.FAILURE:

@@ -5,6 +5,7 @@ from typing import Dict, Set
 
 import networkx as nx
 
+from locking.validation import validate_path_integrity
 from objects.ast.interfaces import SlcoLockableNode
 from objects.ast.models import VariableRef, Primary, Composite, Transition, Assignment, Expression, Variable
 from objects.ast.util import get_class_variable_references
@@ -24,6 +25,8 @@ def create_locking_structure(model: Transition) -> AtomicNode:
         correct_lock_acquisitions(s.locking_atomic_node)
         correct_lock_acquisition_ordering(s.locking_atomic_node)
         correct_lock_releases(s.locking_atomic_node)
+
+        validate_path_integrity(s.locking_atomic_node)
         render_locking_structure(s.locking_atomic_node)
 
     return result
@@ -98,6 +101,9 @@ def construct_locking_structure(model) -> AtomicNode:
             # Simply create a connection to the success exit point--the statement will be locked in its entirety.
             result.graph.add_edge(result.entry_node, result.success_exit)
 
+        # The entry node needs to be base level.
+        result.entry_node.mark_base_level()
+
         # Assignments cannot fail, and hence, the atomic node should be indifferent to the partner's evaluation.
         result.mark_indifferent()
     elif isinstance(model, Expression):
@@ -143,9 +149,12 @@ def construct_locking_structure(model) -> AtomicNode:
             result.graph.add_edge(atomic_nodes[-1].success_exit, result.failure_exit)
         else:
             # Add success and failure exit connections.
-            # Note that math operators aren't treated differently--they are marked indifferent in the assignment.
+            # Note that math operators aren't treated differently--they cannot reach this point.
             result.graph.add_edge(result.entry_node, result.success_exit)
             result.graph.add_edge(result.entry_node, result.failure_exit)
+
+            # The operator needs to be base level.
+            result.entry_node.mark_base_level()
     elif isinstance(model, Primary):
         if model.body is not None:
             # Add a child relationship to the body.
@@ -166,6 +175,9 @@ def construct_locking_structure(model) -> AtomicNode:
             result.graph.add_edge(result.entry_node, result.success_exit)
             if model.ref.var.is_boolean:
                 result.graph.add_edge(result.entry_node, result.failure_exit)
+
+            # The reference needs to be base level.
+            result.entry_node.mark_base_level()
         else:
             # The primary contains a constant.
             if model.ref is False:
@@ -198,11 +210,12 @@ def insert_base_level_lock_requests(model: AtomicNode):
         # Find the target object and determine what class variables should be locked/unlocked at the base level.
         target = n.partner
         target_variables = None
+
         if isinstance(target, Assignment):
             # The variable that is being assigned to never has an atomic node.
             target_variables = get_class_variable_references(target.left)
 
-            if len(model.child_atomic_nodes) == 0:
+            if len(target.locking_atomic_node.child_atomic_nodes) == 0:
                 # The right hand side does not have an atomic node, and hence, all right-side locks need to be included.
                 target_variables.update(get_class_variable_references(target.right))
         elif isinstance(target, Primary) and target.ref is not None:

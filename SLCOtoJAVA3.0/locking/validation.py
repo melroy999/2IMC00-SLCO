@@ -1,29 +1,77 @@
-from typing import Union
+from __future__ import annotations
 
-from objects.ast.models import Primary, Expression
-from objects.ast.util import get_variable_references, get_class_variable_references
+from typing import Set, TYPE_CHECKING
+from objects.ast.models import Assignment
+
+import networkx as nx
+
+from objects.ast.util import get_class_variable_references
+
+if TYPE_CHECKING:
+    from objects.ast.models import VariableRef
+    from objects.locking.models import AtomicNode, LockingNode
 
 
-def get_order_violations():
-    pass
-
-
-def get_bound_check_violations(model: Union[Primary, Expression]):
+def validate_path_integrity(model: AtomicNode):
     """
-    Find possible bound checks in the model pertaining to class variable array accesses.
+    Verify the following:
+        - On each control flow path, all locks that are acquired are eventually released.
+        - All locks that are released have been acquired earlier on in the path.
+        - All locks that are acquired have not been requested previously.
+        - All locks that are required for the target operation have been acquired beforehand.
     """
-    # Bound check violations can only occur between clauses in logic gates (and, or, xor).
-    if isinstance(model, Primary):
-        if model.body is not None:
-            get_bound_check_violations(model.body)
-    elif isinstance(model, Expression) and model.op in ["and", "or", "xor"]:
-        # Find the variables used in each of the clauses.
-        variable_references = [get_variable_references(e) for e in model.values]
+    # Find all starting points in the graph.
+    starting_points = [n for n in model.graph.nodes if len(list(model.graph.predecessors(n))) == 0]
 
-        for i, e in enumerate(model.values[1:]):
-            # Find the variables used within the global array variables of the given expression.
-            class_array_variable_references = [
-                r for r in variable_references[i + 1] if r.var.is_array and r.var.is_class_variable
-            ]
+    # Raise an exception of any of the paths does not get through the validation.
+    if not all(check_path_integrity(n, model.graph, set()) for n in starting_points):
+        raise Exception(f"The atomic node of \"{model.partner}\" has a path that violates the validation.")
 
-            pass
+
+def check_path_integrity(n: LockingNode, graph: nx.DiGraph, acquired_locks: Set[VariableRef]) -> bool:
+    """
+    Verify the following:
+        1. If the node has no successors, the list of acquired locks needs to be equivalent to the locks to be released.
+        2. Any locks added in this node should not yet be present in the acquired locks list.
+        3. Locks used at the base level of the partner statement need to be present in the acquired locks list.
+        4. Locks that are released need to be present in the acquired locks list.
+        5. The locks to be released and locks to be acquired sets do not have lock requests in common.
+    """
+    # 2. Any locks added in this node should not yet be present in the acquired locks list.
+    if len(acquired_locks.intersection(n.locks_to_acquire)) > 0:
+        return False
+
+    # 5. The locks to be released and locks to be acquired sets do not have lock requests in common.
+    if len(n.locks_to_acquire.intersection(n.locks_to_release)) > 0:
+        return False
+
+    # Add the locks acquired by the current node to the list.
+    acquired_locks.update(n.locks_to_acquire)
+
+    # 3. Locks used by partner statement in base-level nodes need to be present in the acquired locks list.
+    if n.is_base_level:
+        # Note that the requirements differ based on the object the node is partnered with.
+        if isinstance(n.partner, Assignment) and len(n.partner.locking_atomic_node.child_atomic_nodes) > 0:
+            # Assignment with a nested atomic node.
+            target_variables = get_class_variable_references(n.partner.left)
+        else:
+            target_variables = get_class_variable_references(n.partner)
+
+        # Ensure that all variables used by the statement are locked.
+        if len(target_variables) > 0 and len(target_variables.difference(acquired_locks)) > 0:
+            return False
+
+    # 4. Locks that are released need to be present in the acquired locks list.
+    if len(n.locks_to_release.difference(acquired_locks)) != 0:
+        return False
+
+    # Release locks that are released by the current node.
+    acquired_locks.difference_update(n.locks_to_release)
+
+    if len(list(graph.successors(n))) == 0:
+        # 1. No locks are allowed to remain after the lock release is done.
+        if len(acquired_locks) > 0:
+            return False
+
+    # The model is valid. Check if successors are valid too.
+    return all(check_path_integrity(n, graph, set(acquired_locks)) for n in graph.successors(n))
