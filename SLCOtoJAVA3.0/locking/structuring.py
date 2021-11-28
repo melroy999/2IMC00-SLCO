@@ -22,8 +22,9 @@ def create_locking_structure(model: Transition) -> AtomicNode:
     # Add information on what locks to lock at the base level.
     for s in model.statements:
         insert_base_level_lock_requests(s.locking_atomic_node)
-        correct_lock_acquisitions(s.locking_atomic_node)
-        correct_lock_acquisition_ordering(s.locking_atomic_node)
+        correct_lock_acquisition_repetitions(s.locking_atomic_node)
+        correct_basic_lock_acquisition_ordering(s.locking_atomic_node)
+        correct_lock_id_based_lock_acquisition_ordering(s.locking_atomic_node)
         correct_lock_releases(s.locking_atomic_node)
 
         validate_path_integrity(s.locking_atomic_node)
@@ -101,9 +102,6 @@ def construct_locking_structure(model) -> AtomicNode:
             # Simply create a connection to the success exit point--the statement will be locked in its entirety.
             result.graph.add_edge(result.entry_node, result.success_exit)
 
-        # The entry node needs to be base level.
-        result.entry_node.mark_base_level()
-
         # Assignments cannot fail, and hence, the atomic node should be indifferent to the partner's evaluation.
         result.mark_indifferent()
     elif isinstance(model, Expression):
@@ -152,9 +150,6 @@ def construct_locking_structure(model) -> AtomicNode:
             # Note that math operators aren't treated differently--they cannot reach this point.
             result.graph.add_edge(result.entry_node, result.success_exit)
             result.graph.add_edge(result.entry_node, result.failure_exit)
-
-            # The operator needs to be base level.
-            result.entry_node.mark_base_level()
     elif isinstance(model, Primary):
         if model.body is not None:
             # Add a child relationship to the body.
@@ -175,9 +170,6 @@ def construct_locking_structure(model) -> AtomicNode:
             result.graph.add_edge(result.entry_node, result.success_exit)
             if model.ref.var.is_boolean:
                 result.graph.add_edge(result.entry_node, result.failure_exit)
-
-            # The reference needs to be base level.
-            result.entry_node.mark_base_level()
         else:
             # The primary contains a constant.
             if model.ref is False:
@@ -211,6 +203,10 @@ def insert_base_level_lock_requests(model: AtomicNode):
         target = n.partner
         target_variables = None
 
+        # TODO: The locks requested here do not consider the effect of rewriting in composites!
+        # TODO: [i >= 0 and i < 3 and x[i] > 3; i := i + 1; x[i] := 0] -> {i, x[i + 1]}, not {i, x[i]}!
+        #       - But what if the lock is requested later on...?
+        #       - Great care needs to be taken in this, since moving the lock could require a change in index.
         if isinstance(target, Assignment):
             # The variable that is being assigned to never has an atomic node.
             target_variables = get_class_variable_references(target.left)
@@ -236,7 +232,35 @@ def insert_base_level_lock_requests(model: AtomicNode):
                 )
 
 
-def correct_lock_acquisitions(model: AtomicNode):
+def move_requests_upwards(model: AtomicNode, target: LockingNode, violating_lock_requests: Set[VariableRef]):
+    """
+    Move the violating lock requests of the target node upwards one level.
+    """
+    if len(violating_lock_requests) > 0:
+        # Remove the violating lock requests from the current node.
+        target.locks_to_acquire.difference_update(violating_lock_requests)
+
+        # Move the requests.
+        for n in model.graph.predecessors(target):
+            logging.debug(
+                f"     - Moving lock requests {violating_lock_requests} from node "
+                f"\"{target.partner}.{target.node_type.name}\" to \"{n.partner}.{n.node_type.name}\""
+            )
+            n.locks_to_acquire.update(violating_lock_requests)
+
+            # Add lock releases if the target node has multiple successors to ensure that the locks are always
+            # released regardless of the path taken.
+            if len(list(model.graph.successors(n))) > 1:
+                logging.debug(
+                    f"       - Movement into a node with multiple children. Adding {violating_lock_requests} as the "
+                    f"additional locks to be released to the following nodes:"
+                )
+                for n2 in model.graph.successors(n):
+                    n2.locks_to_release.update(violating_lock_requests)
+                    logging.debug(f"         - {n2.partner}.{n2.node_type.name}")
+
+
+def correct_lock_acquisition_repetitions(model: AtomicNode):
     """
     Move lock request acquisitions to the appropriate level in the locking graph to ensure atomicity of the statement.
     """
@@ -266,21 +290,10 @@ def correct_lock_acquisitions(model: AtomicNode):
             violating_lock_requests.update(target.locks_to_acquire.intersection(accumulated_lock_request[n]))
 
         # Move all violating locks upwards one level.
-        if len(violating_lock_requests) > 0:
-            # Remove the violating lock requests from the current node.
-            logging.debug(f"   - Node {target.partner}.{target.node_type.name} introduces duplicate lock acquisitions")
-            target.locks_to_acquire.difference_update(violating_lock_requests)
-
-            # Move the requests.
-            for n in model.graph.predecessors(target):
-                logging.debug(
-                    f"     - Moving lock requests {violating_lock_requests} from node "
-                    f"\"{target.partner}.{target.node_type.name}\" to \"{n.partner}.{n.node_type.name}\""
-                )
-                n.locks_to_acquire.update(violating_lock_requests)
+        move_requests_upwards(model, target, violating_lock_requests)
 
 
-def correct_lock_acquisition_ordering(model: AtomicNode):
+def correct_basic_lock_acquisition_ordering(model: AtomicNode):
     """
     Prematurely move lock requests of which it is certain that they will result in lock ordering conflicts, regardless
     of the to be assigned locks identities.
@@ -293,7 +306,7 @@ def correct_lock_acquisition_ordering(model: AtomicNode):
     Notes:
         - This method will only affect the placement of array type variables.
     """
-    logging.info(
+    logging.debug(
         f"> Correcting lock id independent lock acquisitions ordering issues in the atomic node of \"{model.partner}\""
     )
     # Track whether array variables have a non-constant index.
@@ -309,15 +322,15 @@ def correct_lock_acquisition_ordering(model: AtomicNode):
                     variable_has_non_constant_indices[r.var] = True
 
     if any(variable_has_non_constant_indices.values()):
-        logging.info(" - The following variables have non-constant indices:")
+        logging.debug(" - The following variables have non-constant indices:")
         for key, value in variable_has_non_constant_indices.items():
             if value:
-                logging.info(f"   - {key}")
+                logging.debug(f"   - {key}")
     else:
-        logging.info(" - None of the values have non-constant indices")
+        logging.debug(" - None of the values have non-constant indices")
 
     # Track the highest index of each variable that has been acquired by the target statement's predecessors and itself.
-    logging.info(f" - Gathering accumulated lock requests:")
+    logging.debug(f" - Gathering accumulated lock requests:")
     accumulated_lock_request: Dict[LockingNode, Dict[Variable, float]] = dict()
     for target in nx.topological_sort(model.graph):
         active_lock_requests: Dict[Variable, float] = defaultdict(int)
@@ -339,11 +352,11 @@ def correct_lock_acquisition_ordering(model: AtomicNode):
                 active_lock_requests[target_variable] = max(target_index.value, active_lock_requests[target_variable])
 
         # Add an entry for the current node.
-        logging.info(f"   - {target.partner}.{target.node_type.name}: {active_lock_requests}")
+        logging.debug(f"   - {target.partner}.{target.node_type.name}: {active_lock_requests}")
         accumulated_lock_request[target] = dict(active_lock_requests)
 
     # Push the lock requests up to the correct level in the locking structure.
-    logging.info(f" - Making ordering corrections:")
+    logging.debug(f" - Making ordering corrections:")
     for target in reversed(list(nx.topological_sort(model.graph))):
         # Find lock requests that conflict order wise with the accumulated lock requests of the predecessors.
         violating_lock_requests: Set[VariableRef] = set()
@@ -368,29 +381,68 @@ def correct_lock_acquisition_ordering(model: AtomicNode):
         # Move all violating locks upwards one level.
         if len(violating_lock_requests) > 0:
             # Remove the violating lock requests from the current node.
-            logging.info(
+            logging.debug(
                 f"   - Node {target.partner}.{target.node_type.name} introduces order violating lock acquisitions"
             )
             target.locks_to_acquire.difference_update(violating_lock_requests)
 
             # Move the requests.
-            for n in model.graph.predecessors(target):
-                logging.info(
-                    f"     - Moving lock requests {violating_lock_requests} from node "
-                    f"\"{target.partner}.{target.node_type.name}\" to \"{n.partner}.{n.node_type.name}\""
-                )
-                n.locks_to_acquire.update(violating_lock_requests)
+            move_requests_upwards(model, target, violating_lock_requests)
 
-                # Add lock releases if the target node has multiple successors to ensure that the locks are always
-                # released regardless of the path taken.
-                if len(list(model.graph.successors(n))) > 1:
-                    logging.info(
-                        f"       - Movement into a node with multiple children. Adding additional locks to be"
-                        f" released to the following nodes:"
-                    )
-                    for n2 in model.graph.successors(n):
-                        n2.locks_to_release.update(violating_lock_requests)
-                        logging.debug(f"       - {n2.partner}.{n2.node_type.name}")
+
+def get_lock_identity(r: VariableRef) -> int:
+    """
+    Get the lock identity associated to the given variable reference.
+    """
+    if r.var.is_array:
+        if isinstance(r.index, Primary) and r.index.value is not None:
+            return r.var.lock_id + r.index.value
+        else:
+            # Assume the worst case scenario--the lock identity can be as high as the last element in the array.
+            return r.var.lock_id + r.var.type.size - 1
+    else:
+        return r.var.lock_id
+
+
+def correct_lock_id_based_lock_acquisition_ordering(model: AtomicNode):
+    """
+    Move lock requests to the right level in the locking graph based on the assigned lock identities.
+    """
+    logging.debug(f"> Correcting issues in lock ordering in the atomic node of \"{model.partner}\" "
+                  f"due to the given lock identities")
+
+    # Keep a mapping of the highest lock identity yet encountered within and before the given node.
+    logging.debug(f" - Gathering lock identity data for each node:")
+    accumulated_lock_request: Dict[LockingNode, int] = dict()
+    target: LockingNode
+    for target in nx.topological_sort(model.graph):
+        # Find the highest lock identity encountered by the predecessors.
+        parent_max_lock_identity = max(
+            (accumulated_lock_request[n] for n in model.graph.predecessors(target)),
+            default=-1
+        )
+
+        # Find the highest lock identity within the current node.
+        target_max_lock_identity = max(
+            (get_lock_identity(r) for r in target.locks_to_acquire),
+            default=-1
+        )
+
+        # Add an entry for the current node.
+        accumulated_lock_request[target] = max(parent_max_lock_identity, target_max_lock_identity)
+        logging.debug(f"   - {target.partner}.{target.node_type.name}: {accumulated_lock_request[target]}")
+
+    # Move all of the locks to the appropriate level.
+    logging.debug(f" - Making ordering corrections:")
+    for target in reversed(list(nx.topological_sort(model.graph))):
+        # Find lock requests that violate the lock ordering requirements.
+        max_lock_identity = max((accumulated_lock_request[n] for n in model.graph.predecessors(target)), default=-1)
+        violating_lock_requests: Set[VariableRef] = {
+            r for r in target.locks_to_acquire if get_lock_identity(r) <= max_lock_identity
+        }
+
+        # Move all violating locks upwards one level.
+        move_requests_upwards(model, target, violating_lock_requests)
 
 
 def correct_lock_releases(model: AtomicNode):

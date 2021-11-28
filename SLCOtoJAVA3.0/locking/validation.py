@@ -49,14 +49,15 @@ def check_path_integrity(n: LockingNode, graph: nx.DiGraph, acquired_locks: Set[
     acquired_locks.update(n.locks_to_acquire)
 
     # 3. Locks used by partner statement in base-level nodes need to be present in the acquired locks list.
-    if n.is_base_level:
-        # Note that the requirements differ based on the object the node is partnered with.
-        if isinstance(n.partner, Assignment) and len(n.partner.locking_atomic_node.child_atomic_nodes) > 0:
-            # Assignment with a nested atomic node.
-            target_variables = get_class_variable_references(n.partner.left)
-        else:
-            target_variables = get_class_variable_references(n.partner)
+    # TODO: isn't n.is_base_level kind of equivalent to len(n.partner.locking_atomic_node.child_atomic_nodes) == 0 for
+    #  all but assignments?
+    target_variables = None
+    if len(n.partner.locking_atomic_node.child_atomic_nodes) == 0:
+        target_variables = get_class_variable_references(n.partner)
+    elif isinstance(n.partner, Assignment) and len(n.partner.locking_atomic_node.child_atomic_nodes) == 1:
+        target_variables = get_class_variable_references(n.partner.left)
 
+    if target_variables is not None:
         # Ensure that all variables used by the statement are locked.
         if len(target_variables) > 0 and len(target_variables.difference(acquired_locks)) > 0:
             return False

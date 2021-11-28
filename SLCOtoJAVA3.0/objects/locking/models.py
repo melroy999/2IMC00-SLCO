@@ -41,17 +41,6 @@ class LockingNode:
         # The type of the node.
         self.node_type = node_type
 
-        # Whether the node is a base level node or not.
-        self.is_base_level = False
-
-    def mark_base_level(self):
-        """
-        Mark the locking node to be a base level node.
-
-        A node is base level if all of the locks required by the partner need to be active at this location.
-        """
-        self.is_base_level = True
-
     def __eq__(self, o: object) -> bool:
         return super().__eq__(o)
 

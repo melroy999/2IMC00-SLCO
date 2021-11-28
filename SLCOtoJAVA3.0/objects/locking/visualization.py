@@ -3,6 +3,8 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
+from objects.ast.models import Assignment
+
 if TYPE_CHECKING:
     from objects.locking.models import LockingNode, AtomicNode
 
@@ -13,10 +15,11 @@ def get_node_color(model: LockingNode):
     """
     Give each of the locking nodes a proper recognizable color.
     """
-    if model.is_base_level:
-        return "#488AC7"
     if model.node_type == model.node_type.ENTRY:
-        return "#BCD2E8"
+        if isinstance(model.partner, Assignment) or len(model.partner.locking_atomic_node.child_atomic_nodes) == 0:
+            return "#488AC7"
+        else:
+            return "#BCD2E8"
     elif model.node_type == model.node_type.SUCCESS:
         return "#6AA121"
     elif model.node_type == model.node_type.FAILURE:
