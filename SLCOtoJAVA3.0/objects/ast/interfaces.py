@@ -6,13 +6,13 @@ from typing import Optional, Set, List, TYPE_CHECKING
 
 import networkx as nx
 
-from objects.locking.models import AtomicNode
 from rendering.util.to_smt import to_smt, is_true, is_false, is_equivalent, is_negation_equivalent
 
 
 # Avoid circular imports due to type checking.
 if TYPE_CHECKING:
     from objects.ast.models import VariableRef, LockRequest
+    from objects.locking.models import AtomicNode
 
 
 # INTERFACES/META-CLASSES

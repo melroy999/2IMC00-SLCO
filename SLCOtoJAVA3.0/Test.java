@@ -92,114 +92,39 @@ public class Test {
 
             // Representation of SLCO transition SMC0_0 (SMC0 -> SMC0)
             private boolean execute_transition_SMC0_0() {
-                // SLCO statement: true -> true
-                if (!(true)) {
+                // SLCO statement: [x[0] > 0; i := i + 1; x[i] := 1] -> [x[0] > 0; i := i + 1; x[i] := 1]
+                // SLCO statement: x[0] > 0 -> x[0] > 0
+                if (!(x[0] > 0)) {
                     return false;
                 }
+                // SLCO statement: i := i + 1 -> i := i + 1
+                i = i + 1;
+                // SLCO statement: x[i] := 1 -> x[i] := 1
+                x[i] = 1;
 
-                // SLCO statement: [i := 0; x[y[i]] := 1; x[0] := 1] -> [true; i := 0; x[y[i]] := 1; x[0] := 1]
-                // SLCO statement: true -> true
-                if (!(true)) {
+                // SLCO statement: [x[0] > 0; i := 2; x[i] := 1; x[1] := 1] -> [x[0] > 0; i := 2; x[i] := 1; x[1] := 1]
+                // SLCO statement: x[0] > 0 -> x[0] > 0
+                if (!(x[0] > 0)) {
+                    return false;
+                }
+                // SLCO statement: i := 2 -> i := 2
+                i = 2;
+                // SLCO statement: x[i] := 1 -> x[i] := 1
+                x[i] = 1;
+                // SLCO statement: x[1] := 1 -> x[1] := 1
+                x[1] = 1;
+
+                // SLCO statement: [x[0] > 0; i := 0; x[i] := 1; x[1] := 1] -> [x[0] > 0; i := 0; x[i] := 1; x[1] := 1]
+                // SLCO statement: x[0] > 0 -> x[0] > 0
+                if (!(x[0] > 0)) {
                     return false;
                 }
                 // SLCO statement: i := 0 -> i := 0
                 i = 0;
-                // SLCO statement: x[y[i]] := 1 -> x[y[i]] := 1
-                x[y[i]] = 1;
-                // SLCO statement: x[0] := 1 -> x[0] := 1
-                x[0] = 1;
-
-                // SLCO statement: [i > 5; i := y[i]; x[y[i]] := 1] -> [i > 5; i := y[i]; x[y[i]] := 1]
-                // SLCO statement: i > 5 -> i > 5
-                if (!(i > 5)) {
-                    return false;
-                }
-                // SLCO statement: i := y[i] -> i := y[i]
-                i = y[i];
-                // SLCO statement: x[y[i]] := 1 -> x[y[i]] := 1
-                x[y[i]] = 1;
-
-                // SLCO statement: [!(i > 5 or i < 0); i := y[i]; x[y[i]] := 1] -> [!(i > 5 or i < 0); i := y[i]; x[y[i]] := 1]
-                // SLCO statement: !(i > 5 or i < 0) -> !(i > 5 or i < 0)
-                if (!(!((i > 5 || i < 0)))) {
-                    return false;
-                }
-                // SLCO statement: i := y[i] -> i := y[i]
-                i = y[i];
-                // SLCO statement: x[y[i]] := 1 -> x[y[i]] := 1
-                x[y[i]] = 1;
-
-                // SLCO statement: [i >= 0 and i < 2 and b[i]; x[i] := x[i] + 1; i := 0] -> [i >= 0 and i < 2 and b[i]; x[i] := x[i] + 1; i := 0]
-                // SLCO statement: i >= 0 and i < 2 and b[i] -> i >= 0 and i < 2 and b[i]
-                if (!(i >= 0 && i < 2 && b[i])) {
-                    return false;
-                }
-                // SLCO statement: x[i] := x[i] + 1 -> x[i] := x[i] + 1
-                x[i] = x[i] + 1;
-                // SLCO statement: i := 0 -> i := 0
-                i = 0;
-
-                // SLCO statement: [i >= 0 and i < 2 and b[i]; x[i] := x[i] + 1; b[i] := b[i] xor x[i] > 5] -> [i >= 0 and i < 2 and b[i]; x[i] := x[i] + 1; b[i] := b[i] xor x[i] > 5]
-                // SLCO statement: i >= 0 and i < 2 and b[i] -> i >= 0 and i < 2 and b[i]
-                if (!(i >= 0 && i < 2 && b[i])) {
-                    return false;
-                }
-                // SLCO statement: x[i] := x[i] + 1 -> x[i] := x[i] + 1
-                x[i] = x[i] + 1;
-                // SLCO statement: b[i] := b[i] xor x[i] > 5 -> b[i] := b[i] xor x[i] > 5
-                b[i] = b[i] xor x[i] > 5;
-
-                // SLCO statement: [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; i := 0] -> [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; i := 0]
-                // SLCO statement: i < 0 or i >= 2 or b[i] -> i < 0 or i >= 2 or b[i]
-                if (!(i < 0 || i >= 2 || b[i])) {
-                    return false;
-                }
-                // SLCO statement: x[i] := x[i] + 1 -> x[i] := x[i] + 1
-                x[i] = x[i] + 1;
-                // SLCO statement: i := 0 -> i := 0
-                i = 0;
-
-                // SLCO statement: [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; b[i] := !b[i] or x[i] > 5] -> [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; b[i] := !b[i] or x[i] > 5]
-                // SLCO statement: i < 0 or i >= 2 or b[i] -> i < 0 or i >= 2 or b[i]
-                if (!(i < 0 || i >= 2 || b[i])) {
-                    return false;
-                }
-                // SLCO statement: x[i] := x[i] + 1 -> x[i] := x[i] + 1
-                x[i] = x[i] + 1;
-                // SLCO statement: b[i] := !b[i] or x[i] > 5 -> b[i] := !b[i] or x[i] > 5
-                b[i] = !(b[i]) || x[i] > 5;
-
-                // SLCO statement: [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; b[i] := !b[i] or x[i] > 5] -> [i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; b[i] := !b[i] or x[i] > 5]
-                // SLCO statement: i < 0 or i >= 2 or b[i] -> i < 0 or i >= 2 or b[i]
-                if (!(i < 0 || i >= 2 || b[i])) {
-                    return false;
-                }
-                // SLCO statement: x[i] := x[i] + 1 -> x[i] := x[i] + 1
-                x[i] = x[i] + 1;
-                // SLCO statement: b[i] := !b[i] or x[i] > 5 -> b[i] := !b[i] or x[i] > 5
-                b[i] = !(b[i]) || x[i] > 5;
-
-                // SLCO statement: [b[0] or b[1] or b[2]; b[0] := true; b[1] := false; b[2] := b[0] or b[1] or b[2]] -> [b[0] or b[1] or b[2]; b[0] := true; b[1] := false; b[2] := b[0] or b[1] or b[2]]
-                // SLCO statement: b[0] or b[1] or b[2] -> b[0] or b[1] or b[2]
-                if (!(b[0] || b[1] || b[2])) {
-                    return false;
-                }
-                // SLCO statement: b[0] := true -> b[0] := true
-                b[0] = true;
-                // SLCO statement: b[1] := false -> b[1] := false
-                b[1] = false;
-                // SLCO statement: b[2] := b[0] or b[1] or b[2] -> b[2] := b[0] or b[1] or b[2]
-                b[2] = b[0] || b[1] || b[2];
-
-                // SLCO statement: [b[0] or i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; b[i] := !b[i] or x[i] > 5] -> [b[0] or i < 0 or i >= 2 or b[i]; x[i] := x[i] + 1; b[i] := !b[i] or x[i] > 5]
-                // SLCO statement: b[0] or i < 0 or i >= 2 or b[i] -> b[0] or i < 0 or i >= 2 or b[i]
-                if (!(b[0] || i < 0 || i >= 2 || b[i])) {
-                    return false;
-                }
-                // SLCO statement: x[i] := x[i] + 1 -> x[i] := x[i] + 1
-                x[i] = x[i] + 1;
-                // SLCO statement: b[i] := !b[i] or x[i] > 5 -> b[i] := !b[i] or x[i] > 5
-                b[i] = !(b[i]) || x[i] > 5;
+                // SLCO statement: x[i] := 1 -> x[i] := 1
+                x[i] = 1;
+                // SLCO statement: x[1] := 1 -> x[1] := 1
+                x[1] = 1;
 
                 return true;
             }

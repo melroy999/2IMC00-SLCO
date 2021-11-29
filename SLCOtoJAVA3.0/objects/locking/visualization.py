@@ -38,7 +38,7 @@ def render_locking_structure(model: AtomicNode):
     for n in model.graph.nodes:
         node_labels[n] = ("%s %s %s" % (
             n.partner,
-            "+%s" % n.locks_to_acquire if len(n.locks_to_acquire) > 0 else "",
-            "-%s" % n.locks_to_release if len(n.locks_to_release) > 0 else ""
+            ("+%s" % {str(r) for r in n.locks_to_acquire}).replace("'", "") if len(n.locks_to_acquire) > 0 else "",
+            ("-%s" % {str(r) for r in n.locks_to_release}).replace("'", "") if len(n.locks_to_release) > 0 else ""
         )).strip()
     render_graph(model.graph, title=str(model.partner), node_color_func=get_node_color, labels=node_labels)
