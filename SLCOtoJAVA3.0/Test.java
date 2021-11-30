@@ -126,6 +126,18 @@ public class Test {
                 // SLCO statement: x[1] := 1 -> x[1] := 1
                 x[1] = 1;
 
+                // SLCO statement: [i >= 0 and i < 3 and b[i]; i := 0; x[i] := 1; x[1] := 1] -> [i >= 0 and i < 3 and b[i]; i := 0; x[i] := 1; x[1] := 1]
+                // SLCO statement: i >= 0 and i < 3 and b[i] -> i >= 0 and i < 3 and b[i]
+                if (!(i >= 0 && i < 3 && b[i])) {
+                    return false;
+                }
+                // SLCO statement: i := 0 -> i := 0
+                i = 0;
+                // SLCO statement: x[i] := 1 -> x[i] := 1
+                x[i] = 1;
+                // SLCO statement: x[1] := 1 -> x[1] := 1
+                x[1] = 1;
+
                 return true;
             }
 

@@ -22,7 +22,7 @@ class Lock:
     """
     def __init__(self, ref: VariableRef, original_locking_node: LockingNode):
         # The variable reference that the lock request is associated with.
-        self.original_ref: VariableRef = ref
+        self._original_ref: VariableRef = ref
 
         # Rewrite rules that have been applied to the request during movement operations.
         self.rewrite_rules_list: List[Tuple[VariableRef, Union[Expression, Primary]]] = []
@@ -47,7 +47,7 @@ class Lock:
         Add the given rewrite rule to the start of the rewrite rule list and update the master dictionary.
         """
         # Rewriting is only used for array type variables.
-        if self.original_ref.var.is_array:
+        if self._original_ref.var.is_array:
             # Add the rule to the start of the list.
             self.rewrite_rules_list.insert(0, rule)
 
@@ -66,7 +66,7 @@ class Lock:
 
             # Apply the rewrite rules to the index and create a new object.
             # Simplify the index to remove superfluous brackets.
-            self.ref = util.copy_node(self.original_ref, dict(), dict())
+            self.ref = util.copy_node(self._original_ref, dict(), dict())
             self.ref.index = simplify(util.copy_node(self.ref.index, dict(), rewrite_rules))
 
     def __hash__(self):
@@ -84,9 +84,6 @@ class Lock:
         Compare lock requests with a shorter <= syntax. Returns true if the lock should be at the same level or above
         the lock that is being compared to.
         """
-        # TODO: This will not be sufficient to ensure proper locking.
-        #   - Suppose that we have x[0], x[2] and x[i] at different levels. x[i] will move to x[0], but x[2] stays where
-        #   it is. This could be solved through multiple passes of the algorithm.
         if isinstance(o, Lock):
             # The type of comparison made differs based on whether lock identities have been assigned or not.
             if self.ref.var.lock_id != -1 and self.ref.var.lock_id < o.ref.var.lock_id:
@@ -113,10 +110,10 @@ class Lock:
         return False
 
     def __repr__(self):
-        if self.ref == self.original_ref:
+        if self.ref == self._original_ref:
             return str(self.ref)
         else:
-            return "%s(%s)" % (self.ref, self.original_ref)
+            return "%s(%s)" % (self.ref, self._original_ref)
 
 
 class LockingNodeType(Enum):

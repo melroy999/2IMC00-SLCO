@@ -97,7 +97,7 @@ def get_argument_parser():
 def main(_args):
     """The main function"""
     # First, set up the logging format.
-    level = logging.DEBUG
+    level = logging.INFO
     fmt = "[%(levelname)s][%(asctime)s][%(module)s]: %(message)s"
     logging.basicConfig(level=level, format=fmt)
     logging.info("#" * 180)
