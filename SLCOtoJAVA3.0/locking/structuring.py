@@ -204,10 +204,10 @@ def create_locking_structure(model) -> AtomicNode:
                 result.graph.add_edge(result.entry_node, result.failure_exit)
         else:
             # The primary contains a constant.
-            if model.ref is False:
+            if model.value is False:
                 # Special case: don't connect the true branch, since the expression will always yield false.
                 result.graph.add_edge(result.entry_node, result.failure_exit)
-            elif model.ref is True:
+            elif model.value is True:
                 # Special case: don't connect the false branch, since the expression will always yield true.
                 result.graph.add_edge(result.entry_node, result.success_exit)
             else:
@@ -441,10 +441,15 @@ def mark_location_sensitivity_violations(model: AtomicNode):
     """
     # Iterate over all the locking nodes and search for locks in the acquisition list that are location sensitive and
     # are no longer part of their original locking node.
+    # TODO: a constant valued index cannot have location violations.
     n: LockingNode
     for n in model.graph.nodes:
         i: Lock
         for i in (j for j in n.locks_to_acquire if j.is_location_sensitive):
+            if isinstance(i.ref.index, Primary) and i.ref.index.value is not None:
+                # Locks with a constant index should not be marked dirty.
+                continue
+
             # Check if the current node n is equivalent to the node the lock object was created in.
             if n != i.original_locking_node:
                 # The lock has been moved. Mark as dirty.

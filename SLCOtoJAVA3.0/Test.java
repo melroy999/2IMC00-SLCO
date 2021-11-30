@@ -150,6 +150,28 @@ public class Test {
                 // SLCO statement: x[x[i]] := 0 -> x[x[i]] := 0
                 x[x[i]] = 0;
 
+                // SLCO statement: [i := 0; b[i] := i >= 0 and i < 2 and b[i]] -> [true; i := 0; b[i] := i >= 0 and i < 2 and b[i]]
+                // SLCO statement: true -> true
+                if (!(true)) {
+                    return false;
+                }
+                // SLCO statement: i := 0 -> i := 0
+                i = 0;
+                // SLCO statement: b[i] := i >= 0 and i < 2 and b[i] -> b[i] := i >= 0 and i < 2 and b[i]
+                b[i] = i >= 0 && i < 2 && b[i];
+
+                // SLCO statement: [b[0] := 0; i := 0; b[i] := i >= 0 and i < 2 and b[i]] -> [true; b[0] := 0; i := 0; b[i] := i >= 0 and i < 2 and b[i]]
+                // SLCO statement: true -> true
+                if (!(true)) {
+                    return false;
+                }
+                // SLCO statement: b[0] := 0 -> b[0] := 0
+                b[0] = 0;
+                // SLCO statement: i := 0 -> i := 0
+                i = 0;
+                // SLCO statement: b[i] := i >= 0 and i < 2 and b[i] -> b[i] := i >= 0 and i < 2 and b[i]
+                b[i] = i >= 0 && i < 2 && b[i];
+
                 return true;
             }
 
