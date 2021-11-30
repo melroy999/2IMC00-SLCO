@@ -1,4 +1,4 @@
-from typing import Iterable, Set, Union
+from typing import Iterable, Set
 
 import networkx as nx
 
@@ -223,6 +223,7 @@ def get_variable_references(model: SlcoStatementNode) -> Set[VariableRef]:
     Get a list of all the variables that have been referenced to by the statement. Note that variables used in
     composites need to be adjusted through rewrite rules to compensate for assignments.
     """
+    # TODO: add a way to exclude indices.
     if model.variable_references is not None:
         return model.variable_references.copy()
 

@@ -1,8 +1,9 @@
+import logging
 from typing import Dict, Set
 
 import networkx as nx
 
-from objects.ast.interfaces import SlcoLockableNode
+from objects.ast.interfaces import SlcoLockableNode, SlcoStatementNode
 from objects.ast.models import Primary, Composite, Transition, Assignment, Expression, StateMachine, Class, VariableRef
 from objects.ast.util import get_class_variable_references, get_variable_references
 from objects.locking.models import AtomicNode, LockingNode, Lock
@@ -33,10 +34,6 @@ def get_locking_structure(model: Transition):
     for s in model.statements:
         restructure_lock_acquisitions(s.locking_atomic_node)
 
-    # Render the locking structure.
-    for s in model.statements:
-        render_locking_structure(s.locking_atomic_node)
-
 
 def finalize_locking_structure(model: Transition):
     """
@@ -62,6 +59,10 @@ def finalize_locking_structure(model: Transition):
     # Render the locking structure.
     for s in model.statements:
         generate_dirty_lock_marks(s.locking_atomic_node)
+
+    # Render the locking structure.
+    for s in model.statements:
+        render_locking_structure(s.locking_atomic_node)
 
 
 def is_boolean_statement(model) -> bool:
@@ -257,6 +258,27 @@ def generate_base_level_locking_entries(model: AtomicNode):
         model.failure_exit.locks_to_release.update(locks)
 
 
+def get_bound_checked_variables(model: SlcoStatementNode) -> Set[VariableRef]:
+    """
+    Get the referenced variables that are potentially bound checked by the given statement.
+    """
+    # This function should only be called for base-level lockable components.
+    assert(model.locking_atomic_node is None or len(model.locking_atomic_node.child_atomic_nodes) == 0)
+
+    result: Set[VariableRef] = set()
+    if isinstance(model, VariableRef):
+        # Moreover, boolean types cannot be bound checked, since they cannot be used in the index of a variable.
+        if not model.var.is_boolean:
+            result.add(model)
+    else:
+        # By construction, all expressions/primaries should be comparison operations. Still, verify to be sure.
+        for v in model:
+            result.update(get_bound_checked_variables(v))
+
+    # Return all the used variables.
+    return result
+
+
 def generate_location_sensitive_marks(model: AtomicNode, aggregate_variable_references: Set[VariableRef] = None):
     """
     Add a flag to locks that depend upon the control flow for a successful/error prone evaluation.
@@ -292,7 +314,7 @@ def generate_location_sensitive_marks(model: AtomicNode, aggregate_variable_refe
                 i.is_location_sensitive = True
 
         # Add all the used variables to the aggregate variables list.
-        aggregate_variable_references.update(get_variable_references(model.partner))
+        aggregate_variable_references.update(get_bound_checked_variables(model.partner))
 
 
 def restructure_lock_acquisitions(model: AtomicNode, nr_of_passes=2):
@@ -427,6 +449,11 @@ def mark_location_sensitivity_violations(model: AtomicNode):
             if n != i.original_locking_node:
                 # The lock has been moved. Mark as dirty.
                 i.is_dirty = True
+                logging.info(
+                    f"Marking lock {i} in \"{model.partner}\" as dirty due to a location sensitivity violation. The "
+                    f"lock moved from node {i.original_locking_node.partner}.{i.original_locking_node.node_type.name} "
+                    f"to {n.partner}.{n.node_type.name}."
+                )
 
 
 def mark_lock_ordering_violations(model: AtomicNode):
@@ -442,3 +469,4 @@ def mark_lock_ordering_violations(model: AtomicNode):
             if any(r for r in class_variable_references if r.var.lock_id >= i.ref.var.lock_id):
                 # A violation is found. Mark the lock as dirty.
                 i.is_dirty = True
+                logging.info(f"Marking lock {i} in \"{model.partner}\" as dirty due to a lock ordering violation.")
