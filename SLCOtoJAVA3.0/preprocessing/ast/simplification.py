@@ -111,7 +111,7 @@ def simplify_transition(e: Transition):
                 e.statements[i].exclude_statement = True
             break
 
-    # Exclude all expressions that always hold true.
+    # Exclude expressions that always hold true.
     for s in e.statements:
         if isinstance(s, SlcoEvaluableNode) and not isinstance(s, Composite) and s.is_true():
             s.exclude_statement = True

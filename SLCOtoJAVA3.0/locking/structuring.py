@@ -271,7 +271,6 @@ def get_bound_checked_variables(model: SlcoStatementNode) -> Set[VariableRef]:
         if not model.var.is_boolean:
             result.add(model)
     else:
-        # By construction, all expressions/primaries should be comparison operations. Still, verify to be sure.
         for v in model:
             result.update(get_bound_checked_variables(v))
 
@@ -441,7 +440,6 @@ def mark_location_sensitivity_violations(model: AtomicNode):
     """
     # Iterate over all the locking nodes and search for locks in the acquisition list that are location sensitive and
     # are no longer part of their original locking node.
-    # TODO: a constant valued index cannot have location violations.
     n: LockingNode
     for n in model.graph.nodes:
         i: Lock

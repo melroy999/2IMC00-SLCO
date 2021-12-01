@@ -71,12 +71,12 @@ class Lock:
 
     def __hash__(self):
         # Use the hash function of the targeted variable reference.
-        return hash(self.ref)
+        return hash(self._original_ref)
 
     def __eq__(self, o: object) -> bool:
         # Besides the references variable, the parent needs to be equivalent too due to different graph localities.
         if isinstance(o, Lock):
-            return self.parent == o.parent and self.ref == o.ref
+            return self.parent == o.parent and self._original_ref == o._original_ref
         return False
 
     def __le__(self, o: object):
