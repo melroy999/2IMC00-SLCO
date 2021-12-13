@@ -47,7 +47,7 @@ def z3_always_holds(expression, byte_values: tuple) -> bool:
 
 
 @lru_cache(maxsize=None)
-def z3_never_holds(expression, byte_values: tuple):
+def z3_never_holds(expression, byte_values: tuple) -> bool:
     """Check whether the given expression has no solutions."""
     solver.push()
     solver.add(expression)
@@ -61,7 +61,7 @@ def z3_never_holds(expression, byte_values: tuple):
 
 
 @lru_cache(maxsize=None)
-def z3_is_equivalent(expression1, expression2, byte_values: tuple):
+def z3_is_equivalent(expression1, expression2, byte_values: tuple) -> bool:
     """Check whether the given expressions are equivalent."""
     solver.push()
     solver.add(expression1 != expression2)
@@ -70,12 +70,12 @@ def z3_is_equivalent(expression1, expression2, byte_values: tuple):
     result = solver.check()
     solver.pop()
 
-    # The expression has no solutions if the model is unsatisfiable.
+    # The expressions are equivalent if no instance can be found for which they are not equal.
     return result.r == z3.Z3_L_FALSE
 
 
 @lru_cache(maxsize=None)
-def z3_is_negation_equivalent(expression1, expression2, byte_values: tuple):
+def z3_is_negation_equivalent(expression1, expression2, byte_values: tuple) -> bool:
     """Check whether the negation of the second expression is equivalent to the first expression."""
     solver.push()
     try:
@@ -88,7 +88,7 @@ def z3_is_negation_equivalent(expression1, expression2, byte_values: tuple):
     result = solver.check()
     solver.pop()
 
-    # The expression has no solutions if the model is unsatisfiable.
+    # The expressions are equivalent if no instance can be found for which they are not equal.
     return result.r == z3.Z3_L_FALSE
 
 

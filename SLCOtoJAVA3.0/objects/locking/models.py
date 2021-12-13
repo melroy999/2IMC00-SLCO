@@ -116,6 +116,90 @@ class Lock:
             return "%s(%s)" % (self.ref, self._original_ref)
 
 
+class LockRequest:
+    """
+    An object that represents a lock request within the rendering component.
+
+    Each lock request targeting the exact same variable reference is assigned the exact same lock request such that the
+    lock in question can be uniquely identified.
+    """
+    # Static counter to generate unique identities with.
+    __counter: int = 0
+
+    # The lock requests that have been created previously already.
+    __variable_ref_to_lock_request: Dict[VariableRef, LockRequest] = dict()
+
+    def __init__(self, ref: VariableRef):
+        # Ensure that the get method is used.
+        if ref in LockRequest.__variable_ref_to_lock_request:
+            raise Exception("Use the get method to ensure that the unique identities are assigned appropriately.")
+
+        # The variable reference that the lock request is for.
+        self.ref = ref
+
+        # Each lock request is given an unique identity.
+        self.id = LockRequest.__counter
+        LockRequest.__counter += 1
+
+    @staticmethod
+    def get(ref: Union[VariableRef, Lock]):
+        """
+        Get or create an unique lock request object for the given variable reference.
+        """
+        # Convert a lock to a variable ref when appropriate.
+        if isinstance(ref, Lock):
+            ref = ref.ref
+
+        if ref not in LockRequest.__variable_ref_to_lock_request:
+            LockRequest.__variable_ref_to_lock_request[ref] = LockRequest(ref)
+        return LockRequest.__variable_ref_to_lock_request[ref]
+
+    def __repr__(self) -> str:
+        return str(self.ref)
+
+    def __eq__(self, o: object) -> bool:
+        if isinstance(o, LockRequest):
+            return self.ref == o.ref
+        return False
+
+    def __hash__(self) -> int:
+        return hash(self.ref)
+
+    @property
+    def index(self):
+        return self.ref.index
+
+    @property
+    def var(self):
+        return self.ref.var
+
+
+class LockingInstruction:
+    """
+    An object containing the finalized locking instructions for a target locking node.
+    """
+    def __init__(self, parent: LockingNode):
+        # Phase 1: Initial locks to request (Possibly multiple phases).
+        #   - This pass only contains locks that aren't marked as dirty.
+        #   - Dirty locks are represented by the lock requests of their respective weak or strict unpacking.
+        self.locks_to_acquire: Set[LockRequest] = set()
+        self.locks_to_acquire_phases: List[Set[LockRequest]] = []
+
+        # Phase 2: Acquire locks that are marked as dirty and aren't strictly unpacked.
+        #   - Note that the strict ordering will not be violated, since the state machine already owns the target locks.
+        self.unpacked_lock_requests: Set[LockRequest] = set()
+
+        # Phase 3: Release the lock requests that were created solely for a weak unpacking operation.
+        self.supplemental_lock_requests: Set[LockRequest] = set()
+
+        # After statement:
+        # Phase 4: Release the locks that are no longer required after the execution of the node.
+        self.locks_to_release: Set[LockRequest] = set()
+
+        # The parent locking node.
+        self.parent = parent
+
+
 class LockingNodeType(Enum):
     """
     The type of a given locking node.
@@ -135,6 +219,9 @@ class LockingNode:
         # The locks that are requested and released by this locking node.
         self.locks_to_acquire: Set[Lock] = set()
         self.locks_to_release: Set[Lock] = set()
+
+        # The finalized locking instructions.
+        self.locking_instructions: LockingInstruction = LockingInstruction(self)
 
         # The object that the locking node is partnered with.
         self.partner = partner

@@ -3,13 +3,16 @@ from __future__ import annotations
 import operator
 from collections import Iterable
 from functools import reduce
+from typing import TYPE_CHECKING
 
 import objects.ast.models as models
-import objects.ast.interfaces as interfaces
 
 from z3 import z3
 
 from util.smt import operator_mapping, z3_always_holds, z3_never_holds, z3_is_equivalent, z3_is_negation_equivalent
+
+if TYPE_CHECKING:
+    from objects.ast.interfaces import SlcoEvaluableNode
 
 # TODO: there are additional associative operators, like xor, that aren't handled as such.
 #   - Technically, all operators can be seen as n-ary, as long as the right process is used for resolution.
@@ -30,13 +33,13 @@ def is_false(e) -> bool:
     return z3_never_holds(e.smt, tuple(byte_values))
 
 
-def is_equivalent(e, target: interfaces.SlcoEvaluableNode) -> bool:
+def is_equivalent(e, target: SlcoEvaluableNode) -> bool:
     """Evaluate whether the given statements have the same solution space."""
     byte_values = get_byte_variables(e)
     return z3_is_equivalent(e.smt, target.smt, tuple(byte_values))
 
 
-def is_negation_equivalent(e, target: interfaces.SlcoEvaluableNode) -> bool:
+def is_negation_equivalent(e, target: SlcoEvaluableNode) -> bool:
     """Evaluate whether this statement and the negation of the given statement have the same solution space."""
     byte_values = get_byte_variables(e)
     return z3_is_negation_equivalent(e.smt, target.smt, tuple(byte_values))
