@@ -116,6 +116,18 @@ class Lock:
             return "%s(%s)" % (self.ref, self._original_ref)
 
 
+class LockRequestInstanceProvider:
+    """
+    An object that ensures that lock requests are defined uniquely for a given state machine.
+    """
+    def __init__(self):
+        # Static counter to generate unique identities with.
+        self.counter: int = 0
+
+        # The lock requests that have been created previously already.
+        self.variable_ref_to_lock_request: Dict[VariableRef, LockRequest] = dict()
+
+
 class LockRequest:
     """
     An object that represents a lock request within the rendering component.
@@ -123,26 +135,15 @@ class LockRequest:
     Each lock request targeting the exact same variable reference is assigned the exact same lock request such that the
     lock in question can be uniquely identified.
     """
-    # Static counter to generate unique identities with.
-    __counter: int = 0
-
-    # The lock requests that have been created previously already.
-    __variable_ref_to_lock_request: Dict[VariableRef, LockRequest] = dict()
-
-    def __init__(self, ref: VariableRef):
-        # Ensure that the get method is used.
-        if ref in LockRequest.__variable_ref_to_lock_request:
-            raise Exception("Use the get method to ensure that the unique identities are assigned appropriately.")
-
+    def __init__(self, ref: VariableRef, _id: int):
         # The variable reference that the lock request is for.
         self.ref = ref
 
         # Each lock request is given an unique identity.
-        self.id = LockRequest.__counter
-        LockRequest.__counter += 1
+        self.id = _id
 
     @staticmethod
-    def get(ref: Union[VariableRef, Lock]):
+    def get(ref: Union[VariableRef, Lock], provider: LockRequestInstanceProvider):
         """
         Get or create an unique lock request object for the given variable reference.
         """
@@ -150,9 +151,10 @@ class LockRequest:
         if isinstance(ref, Lock):
             ref = ref.ref
 
-        if ref not in LockRequest.__variable_ref_to_lock_request:
-            LockRequest.__variable_ref_to_lock_request[ref] = LockRequest(ref)
-        return LockRequest.__variable_ref_to_lock_request[ref]
+        if ref not in provider.variable_ref_to_lock_request:
+            provider.variable_ref_to_lock_request[ref] = LockRequest(ref, provider.counter)
+            provider.counter += 1
+        return provider.variable_ref_to_lock_request[ref]
 
     def __repr__(self) -> str:
         return str(self.ref)
@@ -189,11 +191,8 @@ class LockingInstruction:
         #   - Note that the strict ordering will not be violated, since the state machine already owns the target locks.
         self.unpacked_lock_requests: Set[LockRequest] = set()
 
-        # Phase 3: Release the lock requests that were created solely for a weak unpacking operation.
-        self.supplemental_lock_requests: Set[LockRequest] = set()
-
         # After statement:
-        # Phase 4: Release the locks that are no longer required after the execution of the node.
+        # Phase 3: Release the locks that are no longer required after the execution of the node.
         self.locks_to_release: Set[LockRequest] = set()
 
         # The parent locking node.

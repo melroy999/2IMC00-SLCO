@@ -44,9 +44,25 @@ def render_locking_structure(model: AtomicNode):
                 str(r) for r in n.locks_to_acquire if r.is_dirty
             }).replace("'", "") if len(list(r for r in n.locks_to_acquire if r.is_dirty)) > 0 else "",
         )).strip()
-        # node_labels[n] = ("%s %s %s" % (
-        #     n.partner,
-        #     ("+%s" % {r for r in n.locks_to_acquire}).replace("'", "") if len(n.locks_to_acquire) > 0 else "",
-        #     ("-%s" % {r for r in n.locks_to_release}).replace("'", "") if len(n.locks_to_release) > 0 else ""
-        # )).strip()
+    render_graph(model.graph, title=str(model.partner), node_color_func=get_node_color, labels=node_labels)
+
+
+def render_locking_structure_instructions(model: AtomicNode):
+    """
+    Render the graph within the given atomic node.
+    """
+    logging.info(f"Visualizing the atomic node graph of object {model.partner}")
+    node_labels = dict()
+    n: LockingNode
+    for n in model.graph.nodes:
+        instructions = n.locking_instructions
+        node_labels[n] = ("%s%s%s" % (
+            n.partner,
+            (" +%s" % [
+                str(r) for r in instructions.locks_to_acquire_phases
+            ]).replace("'", "") if len(instructions.locks_to_acquire_phases) > 0 else "",
+            (" -%s" % {
+                str(r) for r in instructions.locks_to_release
+            }).replace("'", "") if len(instructions.locks_to_release) > 0 else "",
+        )).strip()
     render_graph(model.graph, title=str(model.partner), node_color_func=get_node_color, labels=node_labels)

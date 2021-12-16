@@ -6,73 +6,98 @@ from objects.ast.models import Assignment
 import networkx as nx
 
 from objects.ast.util import get_class_variable_references
+from objects.locking.models import Lock
 
 if TYPE_CHECKING:
     from objects.ast.models import VariableRef
-    from objects.locking.models import AtomicNode, LockingNode
+    from objects.locking.models import AtomicNode, LockingNode, LockRequest
 
 
-def validate_path_integrity(model: AtomicNode):
+def validate_locking_structure_integrity(model: AtomicNode):
     """
-    Verify the following:
+    Verify that the locking structure does not violate the semantics.
+        - All locks used in base-level lockable components need to have been acquired before use.
         - On each control flow path, all locks that are acquired are eventually released.
         - All locks that are released have been acquired earlier on in the path.
-        - All locks that are acquired have not been requested previously.
-        - All locks that are required for the target operation have been acquired beforehand.
+        - All locks that are acquired have not already been acquired by a previous locking node.
     """
     # Find all starting points in the graph.
     starting_points = [n for n in model.graph.nodes if len(list(model.graph.predecessors(n))) == 0]
 
     # Raise an exception of any of the paths does not get through the validation.
-    if not all(check_path_integrity(n, model.graph, set()) for n in starting_points):
-        raise Exception(f"The atomic node of \"{model.partner}\" has a path that violates the validation.")
+    if not all(validate_locking_node_integrity(n, model.graph, set()) for n in starting_points):
+        raise Exception(f"The atomic node of \"{model.partner}\" has a path that violates the locking semantics.")
+    if not all(validate_locking_instruction_integrity(n, model.graph, set()) for n in starting_points):
+        raise Exception(f"The atomic node of \"{model.partner}\" has a path that violates the locking semantics.")
 
 
-def check_path_integrity(n: LockingNode, graph: nx.DiGraph, acquired_locks: Set[VariableRef]) -> bool:
+def validate_locking_node_integrity(
+        n: LockingNode, graph: nx.DiGraph, acquired_locks: Set[Lock]
+) -> bool:
     """
     Verify the following:
-        1. If the node has no successors, the list of acquired locks needs to be equivalent to the locks to be released.
-        2. Any locks added in this node should not yet be present in the acquired locks list.
-        3. Locks used at the base level of the partner statement need to be present in the acquired locks list.
-        4. Locks that are released need to be present in the acquired locks list.
-        5. The locks to be released and locks to be acquired sets do not have lock requests in common.
+        - All locks used in base-level lockable components need to have been acquired before use.
     """
-    # 2. Any locks added in this node should not yet be present in the acquired locks list.
-    if len(acquired_locks.intersection(n.locks_to_acquire)) > 0:
-        return False
+    # The entry node of the associated atomic node.
+    entry_node = n.parent.entry_node
 
-    # 5. The locks to be released and locks to be acquired sets do not have lock requests in common.
-    if len(n.locks_to_acquire.intersection(n.locks_to_release)) > 0:
-        return False
-
-    # Add the locks acquired by the current node to the list.
+    # Add the (original) variable references requested by the current locking node.
     acquired_locks.update(n.locks_to_acquire)
 
-    # 3. Locks used by partner statement in base-level nodes need to be present in the acquired locks list.
-    # TODO: isn't n.is_base_level kind of equivalent to len(n.partner.locking_atomic_node.child_atomic_nodes) == 0 for
-    #  all but assignments?
-    target_variables = None
+    # All locks used in base-level lockable components need to have been acquired before use.
+    target_variables: Set[VariableRef] = set()
     if len(n.partner.locking_atomic_node.child_atomic_nodes) == 0:
         target_variables = get_class_variable_references(n.partner)
     elif isinstance(n.partner, Assignment) and len(n.partner.locking_atomic_node.child_atomic_nodes) == 1:
         target_variables = get_class_variable_references(n.partner.left)
 
-    if target_variables is not None:
-        # Ensure that all variables used by the statement are locked.
-        if len(target_variables) > 0 and len(target_variables.difference(acquired_locks)) > 0:
-            return False
+    # Ensure that all variables used by the statement are locked.
+    target_locks: Set[Lock] = {Lock(r, entry_node) for r in target_variables}
+    if len(target_locks) > 0 and len(target_locks.difference(acquired_locks)) > 0:
+        return False
 
-    # 4. Locks that are released need to be present in the acquired locks list.
-    if len(n.locks_to_release.difference(acquired_locks)) != 0:
+    # The path so far is valid. Check if successors are valid too.
+    return all(
+        validate_locking_node_integrity(n, graph, set(acquired_locks)) for n in graph.successors(n)
+    )
+
+
+def validate_locking_instruction_integrity(
+        n: LockingNode, graph: nx.DiGraph, acquired_lock_requests: Set[LockRequest]
+) -> bool:
+    """
+    Verify the following:
+        1. Any locks added in this node should not yet be present in the acquired lock requests list.
+        2. The lock requests to be released and lock requests to be acquired sets do not have elements in common.
+        3. Lock requests that are released need to be present in the acquired lock requests list.
+        4. If the node has no successors, the list of acquired locks needs to be equivalent to the locks to be released.
+    """
+    instructions = n.locking_instructions
+
+    # 1. Any locks added in this node should not yet be present in the acquired lock requests list.
+    if len(acquired_lock_requests.intersection(instructions.locks_to_acquire)) > 0:
+        return False
+
+    # 2. The lock requests to be released and lock requests to be acquired sets do not have elements in common.
+    if len(instructions.locks_to_acquire.intersection(instructions.locks_to_release)) > 0:
+        return False
+
+    # Add the locks acquired by the current node to the list.
+    acquired_lock_requests.update(instructions.locks_to_acquire)
+
+    # 3. Lock requests that are released need to be present in the acquired lock requests list.
+    if len(instructions.locks_to_release.difference(acquired_lock_requests)) != 0:
         return False
 
     # Release locks that are released by the current node.
-    acquired_locks.difference_update(n.locks_to_release)
+    acquired_lock_requests.difference_update(instructions.locks_to_release)
 
     if len(list(graph.successors(n))) == 0:
-        # 1. No locks are allowed to remain after the lock release is done.
-        if len(acquired_locks) > 0:
+        # 4. No locks are allowed to remain after the lock release is done.
+        if len(acquired_lock_requests) > 0:
             return False
 
-    # The model is valid. Check if successors are valid too.
-    return all(check_path_integrity(n, graph, set(acquired_locks)) for n in graph.successors(n))
+    # The path so far is valid. Check if successors are valid too.
+    return all(
+        validate_locking_instruction_integrity(n, graph, set(acquired_lock_requests)) for n in graph.successors(n)
+    )
