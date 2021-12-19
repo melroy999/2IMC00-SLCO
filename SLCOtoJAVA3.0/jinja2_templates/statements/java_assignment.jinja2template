@@ -1,0 +1,8 @@
+{% if not exclude_comment %}// SLCO statement: {{ model.get_original_statement() }} -> {{ model }}{% endif %}
+{% if locking_control_node.entry_node.has_locks() %}
+{{ locking_control_node.entry_node.locking_instructions | render_locking_instruction | trim }}
+{% endif %}
+{{ in_line_lhs }} = {{ in_line_rhs }};
+{% if locking_control_node.success_exit.has_locks() %}
+{{ locking_control_node.success_exit.locking_instructions | render_locking_instruction | trim }}
+{% endif %}

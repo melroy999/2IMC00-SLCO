@@ -67,9 +67,9 @@ def finalize_locking_structure(model: Transition):
     for s in model.statements:
         validate_locking_structure_integrity(s.locking_atomic_node)
 
-    # Render the locking structure.
-    for s in model.statements:
-        render_locking_structure_instructions(s.locking_atomic_node)
+    # Render the locking structure as an image.
+    # for s in model.statements:
+    #     render_locking_structure_instructions(s.locking_atomic_node)
 
 
 def is_boolean_statement(model) -> bool:
@@ -470,7 +470,6 @@ def restructure_lock_releases(model: AtomicNode):
         # lock request will also have been made beforehand. This lock request is moved upwards, and hence, it is assumed
         # for simplicity that locks do not have to be acquired upon merging nodes. Nevertheless, the validator should be
         # able to detect such violations occur.
-        # TODO: write a validator.
         if len(violating_lock_requests) > 0:
             # Remove the violating locks from the current node.
             n.locking_instructions.locks_to_release.difference_update(violating_lock_requests)

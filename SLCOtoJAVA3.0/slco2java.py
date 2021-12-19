@@ -50,7 +50,7 @@ from preprocessing.ast.finalization import finalize
 #   - Note that this has to work in nested parts of the expression too: (i >= 0 and i < 10 and X[i]) or X[0].
 #   - Simplification: top level disjunctions should be handled as separate options instead.
 #   - How to avoid xor and equality...?
-from rendering.renderer import render_model
+from rendering.model_renderer import render_model
 
 
 def preprocess(model):

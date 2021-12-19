@@ -1,0 +1,96 @@
+// Define the states fot the state machine {{ model.name }}
+interface {{ model.parent.name }}_{{ model.name }}Thread_States {
+    enum States {
+        {% for s in model.states %}
+        {{ s }}{{ ", " if not loop.last }}
+        {% endfor %}
+    }
+}
+
+// Representation of the SLCO state machine {{ model.name }}
+class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{{ model.name }}Thread_States {
+    // Current state
+    private {{ model.name }}Thread.States currentState;
+
+    // Random number generator to handle non-determinism
+    private final Random random;
+
+    {% if model.variables | length > 0 %}
+    // Thread local variables
+    {% for v in model.variables %}
+    private {{ v | render_type }} {{ v.name }};
+    {% endfor %}
+
+    {% endif %}
+    // The lock manager
+    private final LockManager lockManager;
+    {% if settings.priority_queue_locking %}
+    private final PriorityQueue{{ "<Integer>" }} acquisition_queue;
+    private final Queue{{ "<Integer>" }} release_queue;
+    {% endif %}
+
+    // A list of lock ids that can be reused
+    private final int[] lock_ids;
+    {% if settings.preserve_lock_list_ordering %}
+    private final Integer[] lock_ordering_mapping;
+    {% endif %}
+
+    {{ model.name }}Thread (LockManager lockManagerInstance) {
+        currentState = {{ model.name }}Thread.States.{{ model.initial_state }};
+        lockManager = lockManagerInstance;
+        lock_ids = new int[{{ model.max_number_of_lock_requests }}];
+        {% if settings.preserve_lock_list_ordering %}
+        lock_ordering_mapping = new Integer[{{ model.max_number_of_lock_requests }}];
+        {% endif %}
+        {% if settings.priority_queue_locking %}
+        acquisition_queue = new PriorityQueue<>();
+        release_queue = new ArrayDeque<>();
+        {% endif %}
+        random = new Random();
+    }
+
+    {% for t in model.transitions %}
+    {{ t | render_transition | indent(4, False) }}
+
+    {% endfor %}
+    {% for s in model.states %}
+    private void exec_{{ s }}() {
+        {% if s in model.state_to_decision_node %}
+        {{ model.state_to_decision_node[s] | render_decision_structure_node | indent(8, False) | trim }}
+        {% else %}
+        // There are no transitions starting in state {{ s }}.
+        {% endif %}
+    }
+
+    {% endfor %}
+    // Execute method
+    private void exec() {
+        while(true) {
+            {% if settings.preserve_lock_list_ordering %}
+            // Reset the lock ordering mapping.
+            for (int i = 0; i < {{ model.max_number_of_lock_requests }}; i++) {
+                lock_ordering_mapping[i] = i;
+            }
+            {% endif %}
+            switch(currentState) {
+                {% for s in model.states %}
+                case {{ s }} -> exec_{{ s }}();
+                {% endfor %}
+            }
+        }
+    }
+
+    // Run method
+    public void run() {
+        {% if model.uses_class_variables %}
+        try {
+            exec();
+        } catch(Exception e) {
+            lockManager.exception_unlock();
+            throw e;
+        }
+        {% else %}
+        exec();
+        {% endif %}
+    }
+}

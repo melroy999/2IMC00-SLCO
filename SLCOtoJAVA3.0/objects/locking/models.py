@@ -198,6 +198,12 @@ class LockingInstruction:
         # The parent locking node.
         self.parent = parent
 
+    def has_locks(self) -> bool:
+        """
+        Returns true when the instruction contains locks to acquire or release, false otherwise.
+        """
+        return len(self.locks_to_acquire) + len(self.unpacked_lock_requests) + len(self.locks_to_release) > 0
+
 
 class LockingNodeType(Enum):
     """
@@ -236,6 +242,12 @@ class LockingNode:
 
     def __hash__(self) -> int:
         return super().__hash__()
+
+    def has_locks(self) -> bool:
+        """
+        Returns true when the node's locking instruction contains locks to acquire or release, false otherwise.
+        """
+        return self.locking_instructions.has_locks()
 
 
 class AtomicNode:
@@ -293,3 +305,9 @@ class AtomicNode:
             self.graph.add_edge(self.success_exit, n)
         self.graph.remove_node(self.failure_exit)
         self.failure_exit = self.success_exit
+
+    def has_locks(self) -> bool:
+        """
+        Returns true when the atomic nodes has locks to acquire or release, and false otherwise.
+        """
+        return self.entry_node.has_locks() or self.success_exit.has_locks() or self.failure_exit.has_locks()

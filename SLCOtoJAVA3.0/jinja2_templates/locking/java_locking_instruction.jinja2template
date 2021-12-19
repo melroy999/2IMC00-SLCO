@@ -1,0 +1,20 @@
+{% if model.locks_to_acquire | length > 0 %}
+{% for locking_phase in model.locks_to_acquire_phases %}
+{% for lock_request in locking_phase %}
+locks_to_acquire[{{ loop.index0 }}] = acquired_locks[{{ lock_request.id }}] = {{ lock_request.var.lock_id }}{% if lock_request.index %} + {{ lock_request.index | render_statement }}{% endif %}; // Acquire {{ lock_request.ref }}
+{% endfor %}
+lockManager.acquire_locks(locks_to_acquire, {{ locking_phase | length }});
+{% endfor %}
+{% endif %}
+{% if model.unpacked_lock_requests | length > 0 %}
+{% for lock_request in model.unpacked_lock_requests %}
+locks_to_acquire[{{ loop.index0 }}] = acquired_locks[{{ lock_request.id }}] = {{ lock_request.var.lock_id }}{% if lock_request.index %} + {{ lock_request.index | render_statement }}{% endif %}; // Acquire {{ lock_request.ref }}
+{% endfor %}
+lockManager.acquire_locks(locks_to_acquire, {{ model.unpacked_lock_requests | length }});
+{% endif %}
+{% if model.locks_to_release | length > 0 %}
+{% for lock_request in model.locks_to_release %}
+locks_to_release[{{ loop.index0 }}] = acquired_locks[{{ lock_request.id }}]; // Release {{ lock_request.ref }}
+{% endfor %}
+lockManager.release_locks(locks_to_release, {{ model.locks_to_release | length }});
+{% endif %}

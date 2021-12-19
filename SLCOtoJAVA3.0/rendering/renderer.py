@@ -11,6 +11,9 @@ from objects.ast.models import SlcoModel, Object, Class, StateMachine, Transitio
 
 
 # UTIL FUNCTIONS
+from rendering.environment_settings import env
+
+
 def render_type(model: Variable):
     """Render the type of the given variable object."""
     if model.is_array:
@@ -80,6 +83,8 @@ def render_java_instruction(model: Union[Expression, Primary, VariableRef], rewr
 # MODEL
 def render_model(model: SlcoModel):
     """Render the SLCO model as Java code."""
+    # TODO: temporarily disable the renderer.
+    return ""
     return java_model_template.render(model=model)
 
 
@@ -202,14 +207,6 @@ def render_lock_release(model: Set[LockRequest]):
     )
 
 
-# ENVIRONMENT AND FILTER CREATION
-env = jinja2.Environment(
-    loader=jinja2.FileSystemLoader("jinja2_templates"),
-    trim_blocks=True,
-    lstrip_blocks=True,
-    extensions=["jinja2.ext.loopcontrols", "jinja2.ext.do"]
-)
-
 # Register the rendering filters
 env.filters["render_class"] = render_class
 env.filters["render_lock_manager"] = render_lock_manager
@@ -228,11 +225,6 @@ env.filters["render_java_instruction"] = render_java_instruction
 # Register the utility filters
 env.filters["is_decision_node"] = is_decision_node
 env.filters["is_transition"] = is_transition
-
-# env.filters["get_instruction"] = get_instruction
-# env.filters["get_guard_statement"] = get_guard_statement
-# env.filters["get_decision_structure"] = get_decision_structure
-# env.filters["get_lock_id_list"] = get_lock_id_list
 
 # Load the Java templates.
 java_model_template = env.get_template("objects/java_model.jinja2template")

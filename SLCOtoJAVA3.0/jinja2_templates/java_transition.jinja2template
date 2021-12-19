@@ -1,0 +1,12 @@
+{% for support_methods in control_node_methods %}
+{{ support_methods }}
+
+{% endfor %}
+// Representation of SLCO transition {{ model.source }}_{{ model.id }} ({{ model.source }} -> {{ model.target }})
+private boolean execute_transition_{{ model.source }}_{{ model.id }}() {
+    {% for s in rendered_statements %}
+    {{ s | indent(4, False) | trim }}
+
+    {% endfor %}
+    return true;
+}
