@@ -186,13 +186,14 @@ def render_composite(
     Render the given composite object as Java code.
     """
     # Gather all the statements used in the composite.
-    rendered_statements = [
-        render_root_expression(model.guard, control_node_methods, transition_prefix, i, exclude_comment=True)
-    ]
+    rendered_statements = []
+    rendered_guard, i = render_root_expression(
+        model.guard, control_node_methods, transition_prefix, i, exclude_comment=True
+    )
+    rendered_statements.append(rendered_guard)
     for a in model.assignments:
-        rendered_statements.append(
-            render_assignment(a, control_node_methods, transition_prefix, i, exclude_comment=True)
-        )
+        rendered_assignment, i = render_assignment(a, control_node_methods, transition_prefix, i, exclude_comment=True)
+        rendered_statements.append(rendered_assignment)
 
     # Render the composite and all of its statements.
     result = java_composite_template.render(

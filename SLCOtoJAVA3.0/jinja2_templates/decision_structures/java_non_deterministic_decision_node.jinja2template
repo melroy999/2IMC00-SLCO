@@ -1,0 +1,8 @@
+switch(random.nextInt({{ rendered_decisions | length }})) {
+{% for i in range(0, rendered_decisions | length) %}
+{% set decision = rendered_decisions[i] %}
+    case {{ i }} -> {
+        {{ decision | indent(8, False) | trim }}
+    }
+{% endfor %}
+}

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABCMeta
 from collections.abc import Iterable
-from typing import Optional, Set, List, TYPE_CHECKING
+from typing import Optional, Set, TYPE_CHECKING
 
 import networkx as nx
 
@@ -10,7 +10,7 @@ from rendering.util.to_smt import to_smt, is_true, is_false, is_equivalent, is_n
 
 # Avoid circular imports due to type checking.
 if TYPE_CHECKING:
-    from objects.ast.models import VariableRef, LockRequest
+    from objects.ast.models import VariableRef
     from objects.locking.models import AtomicNode
 
 
@@ -85,21 +85,6 @@ class SlcoLockableNode(metaclass=ABCMeta):
     """
     # The atomic node and locking graph associated with the object.
     locking_atomic_node: Optional[AtomicNode] = None
-
-    # Before statement:
-    # Phase 1: Initial locks to request (Possibly multiple phases), including conflict resolutions, minus the violators.
-    locks_to_acquire: Set[LockRequest] = set()
-    locks_to_acquire_phases: List[Set[LockRequest]] = []
-
-    # Phase 2: Acquire locks that were unpacked due to conflicts but will be acquired successfully in the previous step.
-    unpacked_lock_requests: Set[LockRequest] = set()
-
-    # Phase 3: Release the locks added by the conflict resolution that are not part of the original lock requests.
-    conflict_resolution_lock_requests: Set[LockRequest] = set()
-
-    # After statement:
-    # Phase 4: Release the locks that are no longer required after the execution of the statement.
-    locks_to_release: Set[LockRequest] = set()
 
 
 class SlcoStatementNode(SlcoStructuralNode, SlcoVersioningNode, SlcoLockableNode, metaclass=ABCMeta):

@@ -1,0 +1,3 @@
+if({{ in_line_conditional }}) {
+    {{ rendered_body | indent(4, False) | trim }}
+}

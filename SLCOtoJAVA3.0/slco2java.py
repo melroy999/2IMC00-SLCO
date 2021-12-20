@@ -83,14 +83,6 @@ def get_argument_parser():
     """Get a parser for the input arguments"""
     parser = argparse.ArgumentParser(description="Transform an SLCO 2.0 model to a Java program")
     parser.add_argument("model", help="The SLCO 2.0 model to be converted to a Java program.")
-    parser.add_argument("-release_locks_asap", action='store_true',
-                        help="Release locks the moment they are no longer used by the target statement.")
-    parser.add_argument("-release_conflict_resolution_locks", action='store_true',
-                        help="Release locks that are used for conflict resolutions after replacing the aforementioned "
-                             "locks by the conflicting lock requests.")
-    parser.add_argument("-priority_queue_locking", action='store_true',
-                        help="Use a priority queue in the locking mechanism. Enabled automatically when the "
-                             "\"-release_locks_asap\" modifier is included.")
     return parser
 
 

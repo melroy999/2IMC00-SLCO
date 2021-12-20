@@ -687,50 +687,19 @@ class DecisionNode(SlcoLockableNode):
     An object representing (non-)deterministic decision nodes in the code generator.
     """
 
-    def __init__(self, decisions: List[Union[DecisionNode, GuardNode]], is_deterministic: bool):
+    def __init__(self, decisions: List[Union[DecisionNode, GuardNode, Transition]], is_deterministic: bool):
         self.decisions = decisions
         self.is_deterministic = is_deterministic
-
-    def __iter__(self) -> Iterator[Union[Expression, Primary, Assignment]]:
-        """Iterate through all objects part of the AST structure."""
-        for d in self.decisions:
-            yield d
 
 
 class GuardNode(SlcoLockableNode):
     """
     An object representing a guard wrapper for a given object.
     """
-    # TODO: How to handle the situation where the guard statement is the execution of the transition itself?
     def __init__(
             self,
-            conditional: Union[Transition, Expression, Primary],
-            body: Optional[Union[DecisionNode, GuardNode]] = None
+            conditional: Union[Expression, Primary],
+            body: Union[DecisionNode, GuardNode, Transition]
     ):
         self.conditional = conditional
         self.body = body
-
-    def __iter__(self) -> Iterator[Union[Expression, Primary, Assignment]]:
-        """Iterate through all objects part of the AST structure."""
-        yield self.conditional
-        if self.body is not None:
-            yield self.body
-
-
-class LockRequest:
-    """A lock request for a specific variable and/or index."""
-    def __init__(self, target: VariableRef):
-        self.target = target
-        self.id = -1
-
-    def __repr__(self) -> str:
-        return str(self.target)
-
-    def __eq__(self, o: object) -> bool:
-        if isinstance(o, LockRequest):
-            return self.target == o.target
-        return False
-
-    def __hash__(self) -> int:
-        # A weak hash only containing the target variable is required, since indices are too complex to hash reliably.
-        return hash(self.target)

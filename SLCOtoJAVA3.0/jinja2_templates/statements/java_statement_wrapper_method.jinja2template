@@ -1,15 +1,19 @@
 private boolean {{ method_name }}() {
     {% if locking_control_node.entry_node.has_locks() %}
-    {{ locking_control_node.entry_node.locking_instructions | render_locking_instruction | trim }}
+    {{ locking_control_node.entry_node.locking_instructions | render_locking_instruction | indent(4, False) | trim }}
     {% endif %}
+    {% if locking_control_node.success_exit.has_locks() or locking_control_node.failure_exit.has_locks() %}
     if({{ in_line_statement }}) {
         {% if locking_control_node.success_exit.has_locks() %}
-        {{ locking_control_node.success_exit.locking_instructions | render_locking_instruction | trim }}
+        {{ locking_control_node.success_exit.locking_instructions | render_locking_instruction | indent(8, False) | trim }}
         {% endif %}
         return True;
     }
     {% if locking_control_node.failure_exit.has_locks() %}
-    {{ locking_control_node.failure_exit.locking_instructions | render_locking_instruction | trim }}
+    {{ locking_control_node.failure_exit.locking_instructions | render_locking_instruction | indent(4, False) | trim }}
     {% endif %}
     return False;
+    {% else %}
+    return {{ in_line_statement }};
+    {% endif %}
 }

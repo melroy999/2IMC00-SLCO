@@ -55,9 +55,12 @@ def finalize_locking_structure(model: Transition):
         generate_dirty_lock_marks(s.locking_atomic_node)
 
     # Create the locking instructions. Create a lock request instance provider for the state specifically.
-    provider: LockRequestInstanceProvider = LockRequestInstanceProvider()
+    model.lock_request_instance_provider = LockRequestInstanceProvider()
     for s in model.statements:
-        generate_locking_instructions(s.locking_atomic_node, provider)
+        generate_locking_instructions(s.locking_atomic_node, model.lock_request_instance_provider)
+
+    # TODO: Update the maximum number of lock requests seen so far.
+    # TODO: Update the maximum number of locks acquired in one go.
 
     # Move the lock releases to the appropriate location.
     for s in model.statements:

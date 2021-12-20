@@ -1,4 +1,4 @@
 // SLCO statement: {{ model.get_original_statement() }} -> {{ model }}
 {% for s in rendered_statements %}
-{{ s }}
+{{ s | trim }}
 {% endfor %}

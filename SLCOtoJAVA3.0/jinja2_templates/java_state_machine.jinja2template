@@ -24,28 +24,16 @@ class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{
     {% endif %}
     // The lock manager
     private final LockManager lockManager;
-    {% if settings.priority_queue_locking %}
-    private final PriorityQueue{{ "<Integer>" }} acquisition_queue;
-    private final Queue{{ "<Integer>" }} release_queue;
-    {% endif %}
 
-    // A list of lock ids that can be reused
+    // A list of lock ids and target locks that can be reused
     private final int[] lock_ids;
-    {% if settings.preserve_lock_list_ordering %}
-    private final Integer[] lock_ordering_mapping;
-    {% endif %}
+    private final int[] target_locks;
 
     {{ model.name }}Thread (LockManager lockManagerInstance) {
         currentState = {{ model.name }}Thread.States.{{ model.initial_state }};
         lockManager = lockManagerInstance;
-        lock_ids = new int[{{ model.max_number_of_lock_requests }}];
-        {% if settings.preserve_lock_list_ordering %}
-        lock_ordering_mapping = new Integer[{{ model.max_number_of_lock_requests }}];
-        {% endif %}
-        {% if settings.priority_queue_locking %}
-        acquisition_queue = new PriorityQueue<>();
-        release_queue = new ArrayDeque<>();
-        {% endif %}
+        lock_ids = new int[0];
+        target_locks = new int[0];
         random = new Random();
     }
 
@@ -54,24 +42,12 @@ class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{
 
     {% endfor %}
     {% for s in model.states %}
-    private void exec_{{ s }}() {
-        {% if s in model.state_to_decision_node %}
-        {{ model.state_to_decision_node[s] | render_decision_structure_node | indent(8, False) | trim }}
-        {% else %}
-        // There are no transitions starting in state {{ s }}.
-        {% endif %}
-    }
+    {{ model | render_decision_structure(s) | indent(4, False) | trim }}
 
     {% endfor %}
     // Execute method
     private void exec() {
         while(true) {
-            {% if settings.preserve_lock_list_ordering %}
-            // Reset the lock ordering mapping.
-            for (int i = 0; i < {{ model.max_number_of_lock_requests }}; i++) {
-                lock_ordering_mapping[i] = i;
-            }
-            {% endif %}
             switch(currentState) {
                 {% for s in model.states %}
                 case {{ s }} -> exec_{{ s }}();
