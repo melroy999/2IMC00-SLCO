@@ -1,4 +1,8 @@
 {% if not exclude_comment %}// SLCO statement: {{ model.get_original_statement() }} -> {{ model }}{% endif %}
 if(!({{ in_line_expression }})) {
+    {% if is_guard %}
     return False;
+    {% else %}
+    return True;
+    {% endif %}
 }

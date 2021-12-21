@@ -128,6 +128,7 @@ def render_root_expression(
         control_node_methods: List[str],
         transition_prefix: str,
         i: int,
+        is_guard: bool,
         exclude_comment: bool = False
 ) -> Tuple[str, int]:
     """
@@ -143,7 +144,8 @@ def render_root_expression(
     result = java_expression_template.render(
         model=model,
         in_line_expression=in_line_expression,
-        exclude_comment=exclude_comment
+        exclude_comment=exclude_comment,
+        is_guard=is_guard
     )
     return result, i
 
@@ -180,7 +182,8 @@ def render_composite(
         model: Composite,
         control_node_methods: List[str],
         transition_prefix: str,
-        i: int
+        i: int,
+        is_guard: bool,
 ) -> Tuple[str, int]:
     """
     Render the given composite object as Java code.
@@ -188,7 +191,7 @@ def render_composite(
     # Gather all the statements used in the composite.
     rendered_statements = []
     rendered_guard, i = render_root_expression(
-        model.guard, control_node_methods, transition_prefix, i, exclude_comment=True
+        model.guard, control_node_methods, transition_prefix, i, is_guard, exclude_comment=True
     )
     rendered_statements.append(rendered_guard)
     for a in model.assignments:

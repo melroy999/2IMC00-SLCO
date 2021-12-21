@@ -15,16 +15,16 @@ def finalize_class(e: Class):
 
     # Assign a locking structure to all containing objects.
     for sm in e.state_machines:
-        for t in sm.transitions:
-            get_locking_structure(t)
+        for s in sm.states:
+            get_locking_structure(sm, s)
 
     # Assign lock identities to the model.
     assign_lock_identities(e)
 
     # Finalize the locking structure of all containing objects.
     for sm in e.state_machines:
-        for t in sm.transitions:
-            finalize_locking_structure(t)
+        for s in sm.states:
+            finalize_locking_structure(sm, s)
 
 
 def finalize_model(e: SlcoModel):

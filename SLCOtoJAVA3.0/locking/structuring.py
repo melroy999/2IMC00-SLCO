@@ -6,73 +6,91 @@ import networkx as nx
 from locking.validation import validate_locking_structure_integrity
 from objects.ast.interfaces import SlcoLockableNode, SlcoStatementNode
 from objects.ast.models import Primary, Composite, Transition, Assignment, Expression, StateMachine, Class, VariableRef, \
-    Variable
+    Variable, GuardNode, DecisionNode, State
 from objects.ast.util import get_class_variable_references, get_variable_references
 from objects.locking.models import AtomicNode, LockingNode, Lock, LockRequest, LockRequestInstanceProvider
 from objects.locking.visualization import render_locking_structure_instructions
 
 
-def get_locking_structure(model: Transition):
+def get_locking_structure(model: StateMachine, state: State):
     """
-    Construct a locking structure for the given decision structure.
+    Construct a locking structure for the targeted decision structure.
     """
     # Assert that no locking identities have been assigned yet.
-    state_machine: StateMachine = model.parent
-    _class: Class = state_machine.parent
+    _class: Class = model.parent
     assert(all(v.lock_id == -1 for v in _class.variables))
 
-    # Construct the locking structure for the object.
-    create_locking_structure(model)
+    # Find the root of the target decision structure.
+    if state not in model.state_to_decision_node:
+        return
+    decision_structure_root = model.state_to_decision_node[state]
+
+    # Construct the locking structure for the structure.
+    create_locking_structure(decision_structure_root)
+
+    # Not all atomic nodes are part of the main decision structure. Find the objects that need to be iterated over.
+    target_atomic_nodes = [decision_structure_root.locking_atomic_node]
+    for t in model.state_to_transitions[state]:
+        target_atomic_nodes.extend([s.locking_atomic_node for s in t.statements[1:]])
 
     # Generate the base-level locking data and add it to the locking structure.
-    for s in model.statements:
-        generate_base_level_locking_entries(s.locking_atomic_node)
-        generate_location_sensitive_marks(s.locking_atomic_node)
+    for n in target_atomic_nodes:
+        generate_base_level_locking_entries(n)
+        generate_location_sensitive_marks(n)
 
     # Perform a movement step prior to knowing the lock identities.
     # Two passes are required: one to get the non-constant array variables to the right position in the graph, and a
     # second to compensate for the effect that the movement of the aforementioned non-constant array indices may have
     # on the location of constant valued indices.
-    for s in model.statements:
-        restructure_lock_acquisitions(s.locking_atomic_node)
+    for n in target_atomic_nodes:
+        restructure_lock_acquisitions(n)
 
 
-def finalize_locking_structure(model: Transition):
+def finalize_locking_structure(model: StateMachine, state: State):
     """
     Finalize the locking structure for the given decision structure based on the given lock priorities.
     """
     # Assert that the locking identities have been assigned.
-    state_machine: StateMachine = model.parent
-    _class: Class = state_machine.parent
+    _class: Class = model.parent
     assert(any(v.lock_id != -1 for v in _class.variables))
 
+    # Find the root of the target decision structure.
+    if state not in model.state_to_decision_node:
+        return
+    decision_structure_root = model.state_to_decision_node[state]
+
+    # Not all atomic nodes are part of the main decision structure. Find the objects that need to be iterated over.
+    target_atomic_nodes = [decision_structure_root.locking_atomic_node]
+    for t in model.state_to_transitions[state]:
+        target_atomic_nodes.extend([s.locking_atomic_node for s in t.statements[1:]])
+
     # Perform another restructuring pass.
-    for s in model.statements:
-        restructure_lock_acquisitions(s.locking_atomic_node)
+    for n in target_atomic_nodes:
+        restructure_lock_acquisitions(n)
 
     # Find unresolvable violations and mark them as dirty.
-    for s in model.statements:
-        generate_dirty_lock_marks(s.locking_atomic_node)
+    for n in target_atomic_nodes:
+        generate_dirty_lock_marks(n)
 
     # Create the locking instructions. Create a lock request instance provider for the state specifically.
     model.lock_request_instance_provider = LockRequestInstanceProvider()
-    for s in model.statements:
-        generate_locking_instructions(s.locking_atomic_node, model.lock_request_instance_provider)
+    for n in target_atomic_nodes:
+        generate_locking_instructions(n, model.lock_request_instance_provider)
 
     # TODO: Update the maximum number of lock requests seen so far.
     # TODO: Update the maximum number of locks acquired in one go.
 
     # Move the lock releases to the appropriate location.
-    for s in model.statements:
-        restructure_lock_releases(s.locking_atomic_node)
+    for n in target_atomic_nodes:
+        restructure_lock_releases(n)
 
     # Validate the locking structure.
-    for s in model.statements:
-        validate_locking_structure_integrity(s.locking_atomic_node)
+    for n in target_atomic_nodes:
+        validate_locking_structure_integrity(n)
 
     # Render the locking structure as an image.
-    # for s in model.statements:
-    #     render_locking_structure_instructions(s.locking_atomic_node)
+    # for n in target_atomic_nodes:
+    #     render_locking_structure_instructions(n)
 
 
 def is_boolean_statement(model) -> bool:
@@ -112,7 +130,41 @@ def create_locking_structure(model) -> AtomicNode:
     # All objects from this point on will return an atomic node.
     result = AtomicNode(model)
 
-    if isinstance(model, Composite):
+    if isinstance(model, GuardNode):
+        # Get an atomic node for the conditional and body.
+        conditional_atomic_node = create_locking_structure(model.conditional)
+        body_atomic_node = create_locking_structure(model.body)
+
+        # Include the atomic nodes.
+        result.include_atomic_node(conditional_atomic_node)
+        result.include_atomic_node(body_atomic_node)
+
+        # Note that a guard node will only proceed to the body if its conditional is successful.
+        result.graph.add_edge(result.entry_node, conditional_atomic_node.entry_node)
+        result.graph.add_edge(conditional_atomic_node.success_exit, body_atomic_node.entry_node)
+        result.graph.add_edge(conditional_atomic_node.failure_exit, result.failure_exit)
+        result.graph.add_edge(body_atomic_node.failure_exit, result.failure_exit)
+    elif isinstance(model, DecisionNode):
+        # Get an atomic node for all of the options.
+        atomic_nodes = [create_locking_structure(v) for v in model.decisions]
+        for n in atomic_nodes:
+            result.include_atomic_node(n)
+
+        # The structure depends on the type of decision made.
+        if model.is_deterministic:
+            # When one branch fails, the control flow will proceed to the next one in line.
+            result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
+            for i in range(1, len(atomic_nodes)):
+                result.graph.add_edge(atomic_nodes[i - 1].failure_exit, atomic_nodes[i].entry_node)
+            result.graph.add_edge(atomic_nodes[-1].failure_exit, result.failure_exit)
+        else:
+            # Given that the decision is completely random, the entry is connected to the entry of all choices.
+            # Moreover, each failure exit is connected to the failure exit of the node.
+            for n in atomic_nodes:
+                result.graph.add_edge(result.entry_node, n.entry_node)
+                result.graph.add_edge(n.failure_exit, result.failure_exit)
+            # TODO: add sequence variant based on priority.
+    elif isinstance(model, Composite):
         # Create atomic nodes for each of the components, including the guard.
         atomic_nodes = [create_locking_structure(v) for v in [model.guard] + model.assignments]
         for n in atomic_nodes:

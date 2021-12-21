@@ -1,3 +1,3 @@
 if(execute_transition_{{ model.source }}_{{ model.id }}()) {
-    currentState = {{ model.parent.name }}Thread.States.{{ model.target }};
+    return;
 }

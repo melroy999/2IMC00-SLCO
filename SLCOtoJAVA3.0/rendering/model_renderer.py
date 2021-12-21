@@ -33,12 +33,14 @@ def render_transition(model: Transition) -> str:
     # Render each of the statements in sequence.
     rendered_statements = []
     for s in model.statements:
+        # The first statement is the guard statement.
+        is_guard: bool = len(rendered_statements) == 0
         if isinstance(s, Composite):
-            result, i = render_composite(s, control_node_methods, transition_prefix, i)
+            result, i = render_composite(s, control_node_methods, transition_prefix, i, is_guard)
         elif isinstance(s, Assignment):
             result, i = render_assignment(s, control_node_methods, transition_prefix, i)
         elif isinstance(s, Expression):
-            result, i = render_root_expression(s, control_node_methods, transition_prefix, i)
+            result, i = render_root_expression(s, control_node_methods, transition_prefix, i, is_guard)
         else:
             raise Exception(f"No function exists to turn objects of type {type(s)} into Java statements.")
         rendered_statements.append(result)
