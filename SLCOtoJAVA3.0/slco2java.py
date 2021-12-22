@@ -83,6 +83,8 @@ def get_argument_parser():
     """Get a parser for the input arguments"""
     parser = argparse.ArgumentParser(description="Transform an SLCO 2.0 model to a Java program")
     parser.add_argument("model", help="The SLCO 2.0 model to be converted to a Java program.")
+    parser.add_argument("-verify_locks", action='store_true', help="Add Java statements that verify whether locks have "
+                                                                   "been acquired before use.")
     return parser
 
 

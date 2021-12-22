@@ -1,13 +1,24 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Tuple
+from typing import TYPE_CHECKING, List, Tuple, Set
 
+import settings
+from objects.ast.util import get_class_variable_references
 from rendering.environment_settings import env
 from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment
 
 if TYPE_CHECKING:
     from objects.ast.interfaces import SlcoStatementNode
     from objects.locking.models import LockingInstruction
+
+
+def render_locking_check(class_variable_references: Set[VariableRef]) -> str:
+    """
+    Render code that checks if all of the locks used by the model have been acquired.
+    """
+    return java_locking_check_template.render(
+        class_variable_references=class_variable_references
+    )
 
 
 def render_locking_instruction(model: LockingInstruction) -> str:
@@ -98,16 +109,24 @@ def render_statement(
 
     # Statements with an atomic node that has locks needs to be rendered as a method.
     # Create the method and refer to it instead.
-    if model.locking_atomic_node is not None and model.locking_atomic_node.has_locks():
+    if model.locking_atomic_node is not None and (
+        model.locking_atomic_node.has_locks() or (
+            settings.verify_locks and len(model.locking_atomic_node.child_atomic_nodes) == 0
+        )
+    ):
         # Give the node a name, render it as a separate method, and return a call to the method.
         method_name = f"{control_node_method_prefix}_n_{len(control_node_methods)}"
+
+        # Get the class variables used in the object.
+        class_variable_references = get_class_variable_references(model) if settings.verify_locks else set()
 
         # Render the statement as a control node method and return the method name.
         control_node_methods.append(
             java_control_node_method_template.render(
                 locking_control_node=model.locking_atomic_node,
                 method_name=method_name,
-                in_line_statement=in_line_statement
+                in_line_statement=in_line_statement,
+                class_variable_references=class_variable_references
             )
         )
         return f"{method_name}()"
@@ -167,12 +186,17 @@ def render_assignment(
     in_line_lhs = render_statement(model.left, control_node_methods, statement_prefix)
     in_line_rhs = render_statement(model.right, control_node_methods, statement_prefix)
 
+    class_variable_references = get_class_variable_references(model.left) if settings.verify_locks else set()
+    if settings.verify_locks and len(model.locking_atomic_node.child_atomic_nodes) == 0:
+        class_variable_references.update(get_class_variable_references(model.right))
+
     # Render the assignment as Java code.
     result = java_assignment_template.render(
         model=model,
         locking_control_node=model.locking_atomic_node,
         in_line_lhs=in_line_lhs,
         in_line_rhs=in_line_rhs,
+        class_variable_references=class_variable_references,
         exclude_comment=exclude_comment
     )
     return result, i
@@ -209,10 +233,12 @@ def render_composite(
 # Add supportive filters.
 env.filters["render_statement"] = render_statement
 env.filters["render_locking_instruction"] = render_locking_instruction
+env.filters["render_locking_check"] = render_locking_check
 
 # Import the appropriate templates.
 java_control_node_method_template = env.get_template("statements/java_statement_wrapper_method.jinja2template")
 java_locking_instruction_template = env.get_template("locking/java_locking_instruction.jinja2template")
+java_locking_check_template = env.get_template("locking/java_locking_check.jinja2template")
 java_assignment_template = env.get_template("statements/java_assignment.jinja2template")
 java_expression_template = env.get_template("statements/java_expression.jinja2template")
 java_composite_template = env.get_template("statements/java_composite.jinja2template")

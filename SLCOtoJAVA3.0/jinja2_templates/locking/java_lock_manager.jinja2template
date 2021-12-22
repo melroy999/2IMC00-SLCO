@@ -11,44 +11,26 @@ private static class LockManager {
     }
 
     // Lock method
-    {% if settings.priority_queue_locking %}
-    void lock(PriorityQueue{{ "<Integer>" }} queue) {
-        while(!queue.isEmpty()) {
-            locks[queue.poll()].lock();
-        }
-    }
-    {% else %}
-    {% if settings.preserve_lock_list_ordering %}
-    void lock(int[] lock_ids, Integer[] indices, int start, int end) {
-        Arrays.sort(indices, start, end, Comparator.comparingInt(i -> lock_ids[i]));
-        for (int i = start; i < end; i++) {
-            locks[lock_ids[indices[i]]].lock();
-        }
-    }
-    {% else %}
-    void lock(int[] lock_ids, int start, int end) {
-        Arrays.sort(lock_ids, start, end);
-        for (int i = start; i < end; i++) {
+    void acquire_locks(int[] lock_ids, int end) {
+        Arrays.sort(lock_ids, 0, end);
+        for (int i = 0; i < end; i++) {
             locks[lock_ids[i]].lock();
         }
     }
-    {% endif %}
-    {% endif %}
 
-    // Unlock method
-    {% if settings.priority_queue_locking %}
-    void unlock(Queue{{ "<Integer>" }} queue) {
-        while(!queue.isEmpty()) {
-            locks[queue.poll()].unlock();
+    // Lock check
+    void check_lock(int lock_id) {
+        if(!locks[lock_id].isHeldByCurrentThread()) {
+            throw new RuntimeException("Atomicity is violated due to not having locked a class variable.");
         }
     }
-    {% else %}
-    void unlock(int[] lock_ids, int start, int end) {
-        for (int i = start; i < end; i++) {
+
+    // Unlock method
+    void release_locks(int[] lock_ids, int end) {
+        for (int i = 0; i < end; i++) {
             locks[lock_ids[i]].unlock();
         }
     }
-    {% endif %}
 
     // Unlock method during exceptions
     void exception_unlock() {

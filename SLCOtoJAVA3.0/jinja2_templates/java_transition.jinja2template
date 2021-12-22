@@ -9,5 +9,5 @@ private boolean execute_transition_{{ model.source }}_{{ model.id }}() {
 
     {% endfor %}
     currentState = {{ model.parent.name }}Thread.States.{{ model.target }};
-    return True;
+    return true;
 }

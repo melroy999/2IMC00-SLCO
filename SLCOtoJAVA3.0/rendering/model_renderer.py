@@ -175,7 +175,7 @@ def render_object_instantiation(model: Object) -> str:
     for i, a in enumerate(model.initial_values):
         v = model.type.variables[i]
         if v.is_array:
-            arguments.append("new %s[]{%s}" % ("boolean" if v.is_boolean else "int", ", ".join(map(str, a))))
+            arguments.append("new %s[]{ %s }" % ("boolean" if v.is_boolean else "int", ", ".join(map(str, a)).lower()))
         else:
             arguments.append(a)
 
@@ -187,9 +187,7 @@ def render_object_instantiation(model: Object) -> str:
 
 def render_lock_manager(_) -> str:
     """Render the lock manager of the model."""
-    return java_lock_manager_template.render(
-        settings=settings
-    )
+    return java_lock_manager_template.render()
 
 
 def render_model(model: SlcoModel) -> str:
