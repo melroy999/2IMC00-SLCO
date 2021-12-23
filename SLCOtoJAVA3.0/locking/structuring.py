@@ -46,6 +46,25 @@ def get_locking_structure(model: StateMachine, state: State):
         restructure_lock_acquisitions(n)
 
 
+def get_max_list_size(model: AtomicNode) -> int:
+    """
+    Get the maximum number of locks that will be targeted at any time by the acquire/release locks methods.
+    """
+    max_size: int = 0
+    n: LockingNode
+    for n in nx.topological_sort(model.graph):
+        instructions = n.locking_instructions
+        max_size = max(
+            max_size,
+            max((len(phase) for phase in instructions.locks_to_acquire_phases), default=0),
+            len(instructions.unpacked_lock_requests),
+            len(instructions.locks_to_release)
+        )
+        pass
+
+    return max_size
+
+
 def finalize_locking_structure(model: StateMachine, state: State):
     """
     Finalize the locking structure for the given decision structure based on the given lock priorities.
@@ -77,9 +96,6 @@ def finalize_locking_structure(model: StateMachine, state: State):
     for n in target_atomic_nodes:
         generate_locking_instructions(n, model.lock_request_instance_provider)
 
-    # TODO: Update the maximum number of lock requests seen so far.
-    # TODO: Update the maximum number of locks acquired in one go.
-
     # Move the lock releases to the appropriate location.
     for n in target_atomic_nodes:
         restructure_lock_releases(n)
@@ -87,6 +103,10 @@ def finalize_locking_structure(model: StateMachine, state: State):
     # Validate the locking structure.
     for n in target_atomic_nodes:
         validate_locking_structure_integrity(n)
+
+    # Save allocation data for the locking parameters.
+    model.lock_ids_list_size = max((get_max_list_size(n) for n in target_atomic_nodes), default=0)
+    model.target_locks_list_size = model.lock_request_instance_provider.counter
 
     # Render the locking structure as an image.
     # for n in target_atomic_nodes:

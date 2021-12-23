@@ -21,7 +21,7 @@ private static class {{ model.name }} implements SLCO_Class {
     {{ model.name }}({% for v in model.variables %}{{ v | render_type }} {{ v.name }}{{ ", " if not loop.last }}{% endfor %}) {
         {% if model.variables | length > 0 %}
         // Create a lock manager.
-        LockManager lockManager = new LockManager(1);
+        LockManager lockManager = new LockManager({{ max_lock_id }});
 
         // Instantiate global variables
         {% for v in model.variables %}

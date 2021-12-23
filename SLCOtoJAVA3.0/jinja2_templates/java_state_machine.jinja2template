@@ -32,8 +32,8 @@ class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{
     {{ model.name }}Thread (LockManager lockManagerInstance) {
         currentState = {{ model.name }}Thread.States.{{ model.initial_state }};
         lockManager = lockManagerInstance;
-        lock_ids = new int[0];
-        target_locks = new int[0];
+        lock_ids = new int[{{ model.lock_ids_list_size }}];
+        target_locks = new int[{{ model.target_locks_list_size }}];
         random = new Random();
     }
 
@@ -58,15 +58,11 @@ class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{
 
     // Run method
     public void run() {
-        {% if model.uses_class_variables %}
         try {
             exec();
         } catch(Exception e) {
             lockManager.exception_unlock();
             throw e;
         }
-        {% else %}
-        exec();
-        {% endif %}
     }
 }

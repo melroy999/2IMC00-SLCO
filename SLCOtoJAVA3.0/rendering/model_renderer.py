@@ -166,7 +166,12 @@ def render_state_machine(model: StateMachine) -> str:
 
 def render_class(model: Class) -> str:
     """Render the SLCO class as Java code."""
-    return java_class_template.render(model=model)
+    max_lock_id = max((v.lock_id + v.type.size for v in model.variables), default=0)
+
+    return java_class_template.render(
+        model=model,
+        max_lock_id=max_lock_id
+    )
 
 
 def render_object_instantiation(model: Object) -> str:
@@ -187,7 +192,9 @@ def render_object_instantiation(model: Object) -> str:
 
 def render_lock_manager(_) -> str:
     """Render the lock manager of the model."""
-    return java_lock_manager_template.render()
+    return java_lock_manager_template.render(
+        verify_locks=settings.verify_locks
+    )
 
 
 def render_model(model: SlcoModel) -> str:

@@ -18,6 +18,7 @@ private static class LockManager {
         }
     }
 
+    {% if verify_locks %}
     // Lock check
     void check_lock(int lock_id) {
         if(!locks[lock_id].isHeldByCurrentThread()) {
@@ -25,6 +26,7 @@ private static class LockManager {
         }
     }
 
+    {% endif %}
     // Unlock method
     void release_locks(int[] lock_ids, int end) {
         for (int i = 0; i < end; i++) {
