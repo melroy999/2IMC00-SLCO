@@ -48,6 +48,9 @@ class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{
     // Execute method
     private void exec() {
         while(true) {
+            {% if settings.verify_locks %}
+            lockManager.check_no_locks();
+            {% endif %}
             switch(currentState) {
                 {% for s in model.states %}
                 case {{ s }} -> exec_{{ s }}();

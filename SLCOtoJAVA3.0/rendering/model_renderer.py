@@ -193,7 +193,7 @@ def render_object_instantiation(model: Object) -> str:
 def render_lock_manager(_) -> str:
     """Render the lock manager of the model."""
     return java_lock_manager_template.render(
-        verify_locks=settings.verify_locks
+        settings=settings
     )
 
 
