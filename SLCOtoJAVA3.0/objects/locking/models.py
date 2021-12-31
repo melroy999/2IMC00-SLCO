@@ -113,7 +113,7 @@ class Lock:
         if self.ref == self._original_ref:
             return str(self.ref)
         else:
-            return "%s(%s)" % (self.ref, self._original_ref)
+            return f"{self.ref}({self._original_ref})"
 
 
 class LockRequestInstanceProvider:

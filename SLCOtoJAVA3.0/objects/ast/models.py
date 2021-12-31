@@ -21,7 +21,7 @@ class SlcoModel(SlcoStructuralNode):
         self._objects: List[Object] = []
 
     def __repr__(self) -> str:
-        return "SLCOModel:%s" % self.name
+        return f"SLCOModel:{self.name}"
 
     def __iter__(self) -> Iterator[Class]:
         """Iterate through all objects part of the AST structure."""
@@ -89,7 +89,7 @@ class Object(SlcoNode):
         self.initial_values = []
 
     def __repr__(self) -> str:
-        return "Object:%s" % self.name
+        return f"Object:{self.name}"
 
     @property
     def assignments(self) -> List[Initialisation]:
@@ -112,7 +112,7 @@ class Initialisation(SlcoNode):
         self.rights = rights
 
     def __repr__(self) -> str:
-        return "%s := %s" % (self.left, self.rights if self.right is None else self.right)
+        return f"{self.left} := {self.rights if self.right is None else self.right}"
 
 
 class Class(SlcoStructuralNode):
@@ -129,7 +129,7 @@ class Class(SlcoStructuralNode):
         self._variables: List[Variable] = []
 
     def __repr__(self) -> str:
-        return "Class:%s" % self.name
+        return f"Class:{self.name}"
 
     def __iter__(self) -> Iterator[StateMachine]:
         """Iterate through all objects part of the AST structure."""
@@ -169,11 +169,11 @@ class StateMachine(SlcoStructuralNode):
         self._variables: List[Variable] = []
         self._transitions: List[Transition] = []
         self.state_to_transitions: Dict[State, List[Transition]] = defaultdict(list)
-        self.state_to_decision_node: Dict[State, DecisionNode] = dict()
+        self.state_to_decision_node: Dict[State, Union[DecisionNode, Transition]] = dict()
         self.max_number_of_lock_requests: int = 0
 
     def __repr__(self) -> str:
-        return "StateMachine:%s" % self.name
+        return f"StateMachine:{self.name}"
 
     def __iter__(self) -> Iterator[Transition]:
         """Iterate through all objects part of the AST structure."""
@@ -247,7 +247,7 @@ class Variable(SlcoEvaluableNode):
         self.def_values: Union[List[int], List[bool]] = []
 
     def __repr__(self) -> str:
-        return "%s: %s" % (self.name, self.type)
+        return f"{self.name}: {self.type}"
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, Variable):
@@ -286,7 +286,7 @@ class Type(SlcoNode):
     def __repr__(self) -> str:
         base_abbreviation = "bool" if self.is_boolean else "byte" if self.is_byte else "int"
         if self.is_array:
-            return "%s[%s]" % (base_abbreviation, self.size)
+            return f"{base_abbreviation}[{self.size}]"
         else:
             return base_abbreviation
 
@@ -330,15 +330,15 @@ class Transition(SlcoStructuralNode):
         self.target = target
         self.priority = priority
         self._statements: List[SlcoStatementNode] = []
-        self.id = None
+        self.id: int = -1
 
     def __repr__(self) -> str:
-        transition_repr = "%s: %s -> %s {" % (self.priority, self.source, self.target)
+        transition_repr = f"{self.priority}: {self.source} -> {self.target} {{"
         for s in self.statements:
             if s.exclude_statement:
-                transition_repr += "\n\t(x) %s;" % s
+                transition_repr += f"\n\t(x) {s};"
             else:
-                transition_repr += "\n\t%s;" % s
+                transition_repr += f"\n\t{s};"
         transition_repr += "\n}"
         return transition_repr
 
@@ -384,7 +384,7 @@ class Composite(SlcoStatementNode, SlcoEvaluableNode):
     def __repr__(self) -> str:
         statements = [self.guard] if self.guard is not None else []
         statements += [s for s in self.assignments]
-        return "[%s]" % "; ".join(str(s) for s in statements)
+        return f"[{'; '.join(str(s) for s in statements)}]"
 
     def __iter__(self) -> Iterator[Union[Expression, Primary, Assignment]]:
         """Iterate through all objects part of the AST structure."""
@@ -433,7 +433,7 @@ class Assignment(SlcoStatementNode):
         self._right = None
 
     def __repr__(self) -> str:
-        return "%s := %s" % (self.left, self.right)
+        return f"{self.left} := {self.right}"
 
     def __iter__(self) -> Iterator[Union[VariableRef, Expression, Primary]]:
         """Iterate through all objects part of the AST structure."""
@@ -490,7 +490,7 @@ class Expression(SlcoStatementNode, SlcoEvaluableNode):
             self.values = values
 
     def __repr__(self) -> str:
-        return (" %s " % self.op).join(str(v) for v in self.values)
+        return f" {self.op} ".join(str(v) for v in self.values)
 
     def __iter__(self):
         """Iterate through all objects part of the AST structure."""
@@ -557,10 +557,10 @@ class Primary(SlcoStatementNode, SlcoEvaluableNode):
         if self.value is not None:
             exp_str = str(self.value).lower()
         elif self.ref is not None:
-            exp_str = "%s" % self.ref
+            exp_str = f"{self.ref}"
         else:
-            exp_str = "(%s)" % self.body
-        return ("!%s" if self.sign == "not" else self.sign + "%s") % exp_str
+            exp_str = f"({self.body})"
+        return f"!{exp_str}" if self.sign == "not" else self.sign + f"{exp_str}"
 
     def __iter__(self):
         """Iterate through all objects part of the AST structure."""
@@ -630,7 +630,7 @@ class VariableRef(SlcoStatementNode, SlcoEvaluableNode):
     def __repr__(self) -> str:
         var_str = self.var.name
         if self.index is not None:
-            var_str += "[%s]" % self.index
+            var_str += f"[{self.index}]"
         return var_str
 
     def __iter__(self):
@@ -667,7 +667,7 @@ class ActionRef(SlcoStatementNode):
         self.act: Action = act
 
     def __repr__(self) -> str:
-        return "%s" % self.act
+        return str(self.act)
 
     def __iter__(self):
         yield self

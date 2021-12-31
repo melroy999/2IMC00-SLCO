@@ -4,13 +4,12 @@ from typing import TYPE_CHECKING, List, Tuple
 
 import settings
 from rendering.environment_settings import env
-from objects.ast.models import Expression, Composite, Assignment, Transition
+from objects.ast.models import Expression, Composite, Assignment, Transition, GuardNode, DecisionNode, Primary
 from rendering.statement_renderer import render_composite, render_assignment, render_root_expression, \
     create_statement_prefix, render_statement
 
 if TYPE_CHECKING:
-    from objects.ast.models import StateMachine, Class, SlcoModel, Variable, Object, State, DecisionNode, \
-        GuardNode
+    from objects.ast.models import StateMachine, Class, SlcoModel, Variable, Object, State
 
 
 def render_type(model: Variable):
@@ -39,7 +38,7 @@ def render_transition(model: Transition) -> str:
             result, i = render_composite(s, control_node_methods, transition_prefix, i, is_guard)
         elif isinstance(s, Assignment):
             result, i = render_assignment(s, control_node_methods, transition_prefix, i)
-        elif isinstance(s, Expression):
+        elif isinstance(s, (Expression, Primary)):
             result, i = render_root_expression(s, control_node_methods, transition_prefix, i, is_guard)
         else:
             raise Exception(f"No function exists to turn objects of type {type(s)} into Java statements.")
@@ -90,7 +89,8 @@ def render_guard_node(
     # Render the guard node as Java code.
     result = java_guard_node_template.render(
         in_line_conditional=in_line_conditional,
-        rendered_body=rendered_body
+        rendered_body=rendered_body,
+        conditional=model.conditional
     )
     return result, i
 

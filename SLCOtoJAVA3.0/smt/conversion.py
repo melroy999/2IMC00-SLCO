@@ -1,68 +1,47 @@
 from __future__ import annotations
 
 import operator
-from collections import Iterable
 from functools import reduce
 from typing import TYPE_CHECKING
 
-import objects.ast.models as models
-
 from z3 import z3
 
-from util.smt import operator_mapping, z3_always_holds, z3_never_holds, z3_is_equivalent, z3_is_negation_equivalent
-
 if TYPE_CHECKING:
-    from objects.ast.interfaces import SlcoEvaluableNode
-
-# TODO: there are additional associative operators, like xor, that aren't handled as such.
-#   - Technically, all operators can be seen as n-ary, as long as the right process is used for resolution.
+    from objects.ast.models import Expression, Composite, Variable, Primary, VariableRef
 
 # Operators that are comparative functions.
 comparison_operators = ["!=", "=", "<=", ">=", "<", ">"]
 
-
-def is_true(e) -> bool:
-    """Evaluate whether the statement always holds true. May throw an exception if not a boolean smt statement."""
-    byte_values = get_byte_variables(e)
-    return z3_always_holds(e.smt, tuple(byte_values))
-
-
-def is_false(e) -> bool:
-    """Evaluate whether the statement never holds true. May throw an exception if not a boolean smt statement."""
-    byte_values = get_byte_variables(e)
-    return z3_never_holds(e.smt, tuple(byte_values))
-
-
-def is_equivalent(e, target: SlcoEvaluableNode) -> bool:
-    """Evaluate whether the given statements have the same solution space."""
-    byte_values = get_byte_variables(e)
-    return z3_is_equivalent(e.smt, target.smt, tuple(byte_values))
-
-
-def is_negation_equivalent(e, target: SlcoEvaluableNode) -> bool:
-    """Evaluate whether this statement and the negation of the given statement have the same solution space."""
-    byte_values = get_byte_variables(e)
-    return z3_is_negation_equivalent(e.smt, target.smt, tuple(byte_values))
-
-
-def get_byte_variables(e):
-    """Get all byte variables used within the statement such that proper byte bounds can be used."""
-    exploration_stack = [e]
-    byte_variables = set()
-    while len(exploration_stack) > 0:
-        v = exploration_stack.pop()
-        if isinstance(v, models.VariableRef) and v.var.is_byte:
-            byte_variables.add(v.var.smt)
-        if isinstance(e, Iterable):
-            exploration_stack.extend(list(v))
-    return byte_variables
+# Map every operator to its implementation to avoid calling eval.
+operator_mapping = {
+    ">": operator.__gt__,
+    "<": operator.__lt__,
+    ">=": operator.__ge__,
+    "<=": operator.__le__,
+    "=": operator.__eq__,
+    "!=": operator.__ne__,
+    "<>": operator.__ne__,
+    "+": operator.__add__,
+    "-": operator.__sub__,
+    "*": operator.__mul__,
+    "**": operator.__pow__,
+    "%": operator.__mod__,
+    # It is safe to use truediv for integer divisions in SMT, since it defaults to integer divisions.
+    "/": operator.__truediv__,
+    "or": z3.Or,
+    "||": z3.Or,
+    "and": z3.And,
+    "&&": z3.And,
+    "xor": z3.Xor,
+    "": lambda v: v,
+}
 
 
-def n_ary_to_binary_operations(e: models.Expression, values):
+def n_ary_to_binary_operations(e: Expression, values):
     """Convert an n-ary operation to a chain of binary operations."""
     if len(values) < 2:
         raise Exception("Need at least two values.")
-    
+
     if e.op in comparison_operators:
         # Operators that compare two values cannot be chained in a regular way.
         pairs = []
@@ -78,11 +57,13 @@ def n_ary_to_binary_operations(e: models.Expression, values):
         return reduce(operator_mapping[e.op], values)
 
 
-def composite_to_smt(e: models.Composite):
+def composite_to_smt(e: Composite):
+    """Convert the given composite to an smt object."""
     return to_smt(e.guard)
 
 
-def variable_to_smt(e: models.Variable):
+def variable_to_smt(e: Variable):
+    """Convert the given variable to an smt object."""
     if e.is_boolean:
         if e.is_array:
             return z3.Array(e.name, z3.IntSort(), z3.BoolSort())
@@ -95,12 +76,14 @@ def variable_to_smt(e: models.Variable):
             return z3.Int(e.name)
 
 
-def expression_to_smt(e: models.Expression):
+def expression_to_smt(e: Expression):
+    """Convert the given expression to an smt object."""
     value_smt_statements: list = [to_smt(v) for v in e.values]
     return n_ary_to_binary_operations(e, value_smt_statements)
 
 
-def primary_to_smt(e: models.Primary):
+def primary_to_smt(e: Primary):
+    """Convert the given primary to an smt object."""
     if e.value is not None:
         if isinstance(e.value, bool):
             target_value = z3.BoolSort().cast(e.value)
@@ -121,7 +104,8 @@ def primary_to_smt(e: models.Primary):
         return target_value
 
 
-def variable_ref_to_smt(e: models.VariableRef):
+def variable_ref_to_smt(e: VariableRef):
+    """Convert the given variable reference to an smt object."""
     var_smt = to_smt(e.var)
     if e.index is None:
         return var_smt

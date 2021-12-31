@@ -1,4 +1,4 @@
 {% for node in rendered_decisions %}
-{{ " else " if not loop.first }}{{ node | trim }}{{ "
-" if loop.last }}
-{%- endfor %}
+{{ node | trim }}
+{% endfor %}
+return;

@@ -6,7 +6,8 @@ from typing import Optional, Set, TYPE_CHECKING
 
 import networkx as nx
 
-from rendering.util.to_smt import to_smt, is_true, is_false, is_equivalent, is_negation_equivalent
+from smt.conversion import to_smt
+from smt.solving import is_true, is_false, is_equivalent, is_negation_equivalent
 
 # Avoid circular imports due to type checking.
 if TYPE_CHECKING:
