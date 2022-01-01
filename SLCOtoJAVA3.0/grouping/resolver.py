@@ -1,5 +1,5 @@
 from objects.ast.models import StateMachine, DecisionNode, GuardNode
-from smt.optimization import create_minimal_groupings_of_non_overlapping_active_regions
+from smt.optimization import create_minimal_groupings_of_non_overlapping_active_regions, create_decision_groupings
 
 
 def set_groupings(model: StateMachine):
@@ -12,6 +12,6 @@ def set_groupings(model: StateMachine):
 
     # Create a decision structure.
     for state, transitions in model.state_to_transitions.items():
-        model.state_to_decision_node[state] = create_minimal_groupings_of_non_overlapping_active_regions(
+        model.state_to_decision_node[state] = create_decision_groupings(
             transitions
         )
