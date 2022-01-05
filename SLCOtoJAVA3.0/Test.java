@@ -281,10 +281,10 @@ public class Test {
                     return false;
                 }
 
-                // SLCO statement: [y := 0] -> y := 0lock_ids[0] = target_locks[0] = 0; // Acquire y
+                // SLCO statement: [y := 1] -> y := 1lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 lockManager.check_lock(0); // Check y
-                y = 0;
+                y = 1;
                 lock_ids[0] = target_locks[0]; // Release y
                 lockManager.release_locks(lock_ids, 1);
 
@@ -303,10 +303,10 @@ public class Test {
                     return false;
                 }
 
-                // SLCO statement: [y := 0] -> y := 0lock_ids[0] = target_locks[0] = 0; // Acquire y
+                // SLCO statement: [y := 5] -> y := 5lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 lockManager.check_lock(0); // Check y
-                y = 0;
+                y = 5;
                 lock_ids[0] = target_locks[0]; // Release y
                 lockManager.release_locks(lock_ids, 1);
 
@@ -325,10 +325,10 @@ public class Test {
                     return false;
                 }
 
-                // SLCO statement: [y := 0] -> y := 0lock_ids[0] = target_locks[0] = 0; // Acquire y
+                // SLCO statement: [y := 3] -> y := 3lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 lockManager.check_lock(0); // Check y
-                y = 0;
+                y = 3;
                 lock_ids[0] = target_locks[0]; // Release y
                 lockManager.release_locks(lock_ids, 1);
 
@@ -347,10 +347,10 @@ public class Test {
                     return false;
                 }
 
-                // SLCO statement: [y := 0] -> y := 0lock_ids[0] = target_locks[0] = 0; // Acquire y
+                // SLCO statement: [y := 2] -> y := 2lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 lockManager.check_lock(0); // Check y
-                y = 0;
+                y = 2;
                 lock_ids[0] = target_locks[0]; // Release y
                 lockManager.release_locks(lock_ids, 1);
 
@@ -369,10 +369,10 @@ public class Test {
                     return false;
                 }
 
-                // SLCO statement: [y := 0] -> y := 0lock_ids[0] = target_locks[0] = 0; // Acquire y
+                // SLCO statement: [y := 4] -> y := 4lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 lockManager.check_lock(0); // Check y
-                y = 0;
+                y = 4;
                 lock_ids[0] = target_locks[0]; // Release y
                 lockManager.release_locks(lock_ids, 1);
 
@@ -393,42 +393,6 @@ public class Test {
             private void exec_SMC0() {
                 switch(random.nextInt(8)) {
                     case 0 -> {
-                        // SLCO guard statement: true -> true
-                        if(execute_transition_SMC0_6()) {
-                            return;
-                        }
-                    }
-                    case 1 -> {
-                        // SLCO guard statement: true -> true
-                        if(execute_transition_SMC0_7()) {
-                            return;
-                        }
-                    }
-                    case 2 -> {
-                        // SLCO guard statement: true -> true
-                        if(execute_transition_SMC0_8()) {
-                            return;
-                        }
-                    }
-                    case 3 -> {
-                        // SLCO guard statement: true -> true
-                        if(execute_transition_SMC0_9()) {
-                            return;
-                        }
-                    }
-                    case 4 -> {
-                        // SLCO guard statement: true -> true
-                        if(execute_transition_SMC0_10()) {
-                            return;
-                        }
-                    }
-                    case 5 -> {
-                        // SLCO guard statement: true -> true
-                        if(execute_transition_SMC0_11()) {
-                            return;
-                        }
-                    }
-                    case 6 -> {
                         // SLCO guard statement: y <= 0 -> y <= 0
                         if(execute_transition_SMC0_3()) {
                             return;
@@ -443,7 +407,7 @@ public class Test {
                         }
                         return;
                     }
-                    case 7 -> {
+                    case 1 -> {
                         // SLCO guard statement: x[0] > 0 -> x[0] > 0
                         if(ds_SMC0_s_0_n_0()) {
                             switch(random.nextInt(2)) {
@@ -466,6 +430,42 @@ public class Test {
                             return;
                         }
                         return;
+                    }
+                    case 2 -> {
+                        // SLCO guard statement: true -> true
+                        if(execute_transition_SMC0_6()) {
+                            return;
+                        }
+                    }
+                    case 3 -> {
+                        // SLCO guard statement: true -> true
+                        if(execute_transition_SMC0_7()) {
+                            return;
+                        }
+                    }
+                    case 4 -> {
+                        // SLCO guard statement: true -> true
+                        if(execute_transition_SMC0_10()) {
+                            return;
+                        }
+                    }
+                    case 5 -> {
+                        // SLCO guard statement: true -> true
+                        if(execute_transition_SMC0_9()) {
+                            return;
+                        }
+                    }
+                    case 6 -> {
+                        // SLCO guard statement: true -> true
+                        if(execute_transition_SMC0_11()) {
+                            return;
+                        }
+                    }
+                    case 7 -> {
+                        // SLCO guard statement: true -> true
+                        if(execute_transition_SMC0_8()) {
+                            return;
+                        }
                     }
                 }
             }

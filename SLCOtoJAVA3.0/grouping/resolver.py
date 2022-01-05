@@ -1,5 +1,5 @@
 from objects.ast.models import StateMachine, DecisionNode, GuardNode
-from smt.optimization import create_minimal_groupings_of_non_overlapping_active_regions, create_decision_groupings
+from smt.optimization import create_decision_groupings
 
 
 def set_groupings(model: StateMachine):

@@ -133,6 +133,50 @@ def is_boolean_statement(model) -> bool:
     return False
 
 
+def construct_non_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given non-deterministic decision node.
+    """
+    # Get an atomic node for all of the options.
+    atomic_nodes = [create_locking_structure(v) for v in model.decisions]
+    for n in atomic_nodes:
+        result.include_atomic_node(n)
+
+    # Given that the decision is completely random, the entry is connected to the entry of all choices.
+    # Moreover, each failure exit is connected to the failure exit of the node.
+    for n in atomic_nodes:
+        result.graph.add_edge(result.entry_node, n.entry_node)
+        result.graph.add_edge(n.failure_exit, result.failure_exit)
+
+
+def construct_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given deterministic decision node.
+    """
+    # Get an atomic node for all of the options.
+    atomic_nodes = [create_locking_structure(v) for v in model.decisions]
+    for n in atomic_nodes:
+        result.include_atomic_node(n)
+
+    # When one branch fails, the control flow will proceed to the next one in line.
+    result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
+    for i in range(1, len(atomic_nodes)):
+        result.graph.add_edge(atomic_nodes[i - 1].failure_exit, atomic_nodes[i].entry_node)
+    result.graph.add_edge(atomic_nodes[-1].failure_exit, result.failure_exit)
+
+
+def construct_sequential_decision_node(model: DecisionNode, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given sequential decision node.
+    """
+    # Get an atomic node for all of the options.
+    atomic_nodes = [create_locking_structure(v) for v in model.decisions]
+    for n in atomic_nodes:
+        result.include_atomic_node(n)
+
+    # TODO
+
+
 def create_locking_structure(model) -> AtomicNode:
     """
     Create a DAG of locking nodes that will dictate which locks will need to be requested/released at what position.
@@ -165,25 +209,11 @@ def create_locking_structure(model) -> AtomicNode:
         result.graph.add_edge(conditional_atomic_node.failure_exit, result.failure_exit)
         result.graph.add_edge(body_atomic_node.failure_exit, result.failure_exit)
     elif isinstance(model, DecisionNode):
-        # Get an atomic node for all of the options.
-        atomic_nodes = [create_locking_structure(v) for v in model.decisions]
-        for n in atomic_nodes:
-            result.include_atomic_node(n)
-
         # The structure depends on the type of decision made.
         if model.is_deterministic:
-            # When one branch fails, the control flow will proceed to the next one in line.
-            result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
-            for i in range(1, len(atomic_nodes)):
-                result.graph.add_edge(atomic_nodes[i - 1].failure_exit, atomic_nodes[i].entry_node)
-            result.graph.add_edge(atomic_nodes[-1].failure_exit, result.failure_exit)
+            construct_deterministic_decision_node(model, result)
         else:
-            # Given that the decision is completely random, the entry is connected to the entry of all choices.
-            # Moreover, each failure exit is connected to the failure exit of the node.
-            for n in atomic_nodes:
-                result.graph.add_edge(result.entry_node, n.entry_node)
-                result.graph.add_edge(n.failure_exit, result.failure_exit)
-            # TODO: add sequence variant based on priority.
+            construct_non_deterministic_decision_node(model, result)
     elif isinstance(model, Composite):
         # Create atomic nodes for each of the components, including the guard.
         atomic_nodes = [create_locking_structure(v) for v in [model.guard] + model.assignments]

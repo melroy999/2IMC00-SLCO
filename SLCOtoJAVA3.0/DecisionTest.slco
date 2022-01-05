@@ -30,20 +30,20 @@ model Test {
             from SMC0 to SMC0 {
                 [y := 0];
             }
-            from SMC0 to SMC0 {
-                [y := 0];
+            1: from SMC0 to SMC0 {
+                [y := 1];
             }
-            from SMC0 to SMC0 {
-                [y := 0];
+            5: from SMC0 to SMC0 {
+                [y := 5];
             }
-            from SMC0 to SMC0 {
-                [y := 0];
+            3: from SMC0 to SMC0 {
+                [y := 3];
             }
-            from SMC0 to SMC0 {
-                [y := 0];
+            2: from SMC0 to SMC0 {
+                [y := 2];
             }
-            from SMC0 to SMC0 {
-                [y := 0];
+            4: from SMC0 to SMC0 {
+                [y := 4];
             }
         }
 	}

@@ -691,6 +691,10 @@ class DecisionNode(SlcoLockableNode):
         self.decisions = decisions
         self.is_deterministic = is_deterministic
 
+    @property
+    def priority(self) -> int:
+        return min(d.priority for d in self.decisions)
+
 
 class GuardNode(SlcoLockableNode):
     """
@@ -703,3 +707,7 @@ class GuardNode(SlcoLockableNode):
     ):
         self.conditional = conditional
         self.body = body
+
+    @property
+    def priority(self) -> int:
+        return self.body.priority
