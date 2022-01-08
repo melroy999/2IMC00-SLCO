@@ -112,6 +112,8 @@ public class Test {
             }
 
             private boolean t_SMC0_0_s_0_n_0() {
+                lock_ids[0] = target_locks[1] = 1 + 0; // Acquire x[0]
+                lockManager.acquire_locks(lock_ids, 1);
                 lockManager.check_lock(1 + 0); // Check x[0]
                 if(x[0] > 0) {
                     lock_ids[0] = target_locks[1]; // Release x[0]
@@ -139,6 +141,8 @@ public class Test {
                     lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
+                lock_ids[0] = target_locks[1]; // Release x[0]
+                lockManager.release_locks(lock_ids, 1);
                 return false;
             }
 
@@ -160,8 +164,6 @@ public class Test {
                     lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release x[0]
-                lockManager.release_locks(lock_ids, 1);
                 return false;
             }
 
@@ -380,16 +382,6 @@ public class Test {
                 return true;
             }
 
-            private boolean ds_SMC0_s_0_n_0() {
-                lockManager.check_lock(1 + 0); // Check x[0]
-                if(x[0] > 0) {
-                    lock_ids[0] = target_locks[1]; // Release x[0]
-                    lockManager.release_locks(lock_ids, 1);
-                    return true;
-                }
-                return false;
-            }
-
             private void exec_SMC0() {
                 switch(random.nextInt(8)) {
                     case 0 -> {
@@ -409,24 +401,15 @@ public class Test {
                     }
                     case 1 -> {
                         // SLCO guard statement: x[0] > 0 -> x[0] > 0
-                        if(ds_SMC0_s_0_n_0()) {
-                            switch(random.nextInt(2)) {
-                                case 0 -> {
-                                    // SLCO guard statement: x[0] > 0 -> x[0] > 0
-                                    if(execute_transition_SMC0_0()) {
-                                        return;
-                                    }
-                                }
-                                case 1 -> {
-                                    // SLCO guard statement: x[0] > 0 -> x[0] > 0
-                                    if(execute_transition_SMC0_1()) {
-                                        return;
-                                    }
-                                }
-                            }
+                        if(execute_transition_SMC0_0()) {
+                            return;
                         }
                         // SLCO guard statement: x[0] <= 0 -> x[0] <= 0
                         if(execute_transition_SMC0_2()) {
+                            return;
+                        }
+                        // SLCO guard statement: x[0] > 0 -> x[0] > 0
+                        if(execute_transition_SMC0_1()) {
                             return;
                         }
                         return;

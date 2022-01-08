@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, List, Tuple
 
 import settings
 from rendering.environment_settings import env
-from objects.ast.models import Expression, Composite, Assignment, Transition, GuardNode, DecisionNode, Primary
+from objects.ast.models import Expression, Composite, Assignment, Transition, DecisionNode, Primary
 from rendering.statement_renderer import render_composite, render_assignment, render_root_expression, \
     create_statement_prefix, render_statement
 
@@ -61,40 +61,6 @@ def render_transition_wrapper(model: Transition) -> str:
     )
 
 
-def render_guard_node(
-        model: GuardNode,
-        control_node_methods: List[str],
-        decision_structure_prefix: str,
-        i: int
-) -> Tuple[str, int]:
-    """
-    Render a guard node within the decision structure as Java code.
-    """
-    # Create an unique prefix for the statement.
-    statement_prefix, i = create_statement_prefix(decision_structure_prefix, i)
-
-    # Create an in-line Java code string for the expression.
-    in_line_conditional = render_statement(model.conditional, control_node_methods, statement_prefix)
-
-    # Render the body as Java code.
-    if isinstance(model.body, Transition):
-        rendered_body = render_transition_wrapper(model.body)
-    elif isinstance(model.body, GuardNode):
-        rendered_body, i = render_guard_node(model.body, control_node_methods, decision_structure_prefix, i)
-    elif isinstance(model.body, DecisionNode):
-        rendered_body, i = render_decision_node(model.body, control_node_methods, decision_structure_prefix, i)
-    else:
-        raise Exception(f"No function exists to turn objects of type {type(model.body)} into in-line Java statements.")
-
-    # Render the guard node as Java code.
-    result = java_guard_node_template.render(
-        in_line_conditional=in_line_conditional,
-        rendered_body=rendered_body,
-        conditional=model.conditional
-    )
-    return result, i
-
-
 def render_decision_node(
         model: DecisionNode,
         control_node_methods: List[str],
@@ -109,8 +75,6 @@ def render_decision_node(
     for decision in model.decisions:
         if isinstance(decision, Transition):
             result = render_transition_wrapper(decision)
-        elif isinstance(decision, GuardNode):
-            result, i = render_guard_node(decision, control_node_methods, decision_structure_prefix, i)
         elif isinstance(decision, DecisionNode):
             result, i = render_decision_node(decision, control_node_methods, decision_structure_prefix, i)
         else:

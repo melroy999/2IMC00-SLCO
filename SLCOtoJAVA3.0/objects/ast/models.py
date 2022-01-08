@@ -322,7 +322,7 @@ class Transition(SlcoStructuralNode):
         - Transitions always start with an expression or composite. If missing, a true expression will be prepended.
         - If the first statement is a composite with no guard, a true expression is prepended to the statement list.
         - All statements are of the types Composite, Assignment, Expression, ActionRef or Primary.
-        - Superfluous Expression and Primary statements are removed.
+        - Superfluous Expression and Primary statements are marked as obsolete.
         - Composites that only contain a guard are automatically converted to an Expression instead.
     """
     def __init__(self, source: State, target: State, priority: int = 0) -> None:
@@ -330,6 +330,8 @@ class Transition(SlcoStructuralNode):
         self.target = target
         self.priority = priority
         self._statements: List[SlcoStatementNode] = []
+
+        # Decision structure info.
         self.id: int = -1
 
     def __repr__(self) -> str:
@@ -687,27 +689,10 @@ class DecisionNode(SlcoLockableNode):
     An object representing (non-)deterministic decision nodes in the code generator.
     """
 
-    def __init__(self, decisions: List[Union[DecisionNode, GuardNode, Transition]], is_deterministic: bool):
+    def __init__(self, decisions: List[Union[DecisionNode, Transition]], is_deterministic: bool):
         self.decisions = decisions
         self.is_deterministic = is_deterministic
 
     @property
     def priority(self) -> int:
         return min(d.priority for d in self.decisions)
-
-
-class GuardNode(SlcoLockableNode):
-    """
-    An object representing a guard wrapper for a given object.
-    """
-    def __init__(
-            self,
-            conditional: Union[Expression, Primary],
-            body: Union[DecisionNode, GuardNode, Transition]
-    ):
-        self.conditional = conditional
-        self.body = body
-
-    @property
-    def priority(self) -> int:
-        return self.body.priority

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, List, Union, Set
 
 from z3 import z3
 
-from objects.ast.models import DecisionNode, GuardNode
+from objects.ast.models import DecisionNode
 
 if TYPE_CHECKING:
     from objects.ast.models import Transition
@@ -127,7 +127,7 @@ def create_decision_groupings(transitions: List[Transition]) -> Union[DecisionNo
         s.add(z3.And(v >= 0, v < 2))
 
     # Calculate truth matrices for the transitions that still need to be assigned to a group.
-    non_deterministic_choices: List[Union[DecisionNode, Transition, GuardNode]] = []
+    non_deterministic_choices: List[Union[DecisionNode, Transition]] = []
     while len(remaining_transitions) > 0:
         # Save the current state of the solver.
         s.push()
@@ -157,37 +157,9 @@ def create_decision_groupings(transitions: List[Transition]) -> Union[DecisionNo
             raise Exception("Unsatisfiable result.")
 
         # Find the target transitions that are part of the deterministic group and process them accordingly.
-        grouped_transitions: List[Transition] = [
+        deterministic_choices: List[Transition] = [
             t for t in remaining_transitions if model.evaluate(alias_variables[f"g{t.id}"], model_completion=True) == 1
         ]
-
-        # Extract the deterministic choices.
-        # Moreover, merge transitions with the exact same solution space into a non-deterministic decision.
-        deterministic_choices: List[Union[Transition, GuardNode, DecisionNode]] = []
-        processed_transition_ids: Set[int] = set()
-        for t in grouped_transitions:
-            # Skip transitions that have been encountered already.
-            if t.id in processed_transition_ids:
-                continue
-
-            # Find all transitions that have the same solution space.
-            equivalent_transitions = [
-                t2 for t2 in grouped_transitions if model.evaluate(
-                    alias_variables[f"ieq{t.id}_{t2.id}"], model_completion=True
-                )
-            ]
-
-            # Wrap the transitions in a non-deterministic decision node if needed.
-            if len(equivalent_transitions) == 1:
-                deterministic_choices.append(t)
-                processed_transition_ids.add(t.id)
-            else:
-                # Sort the transitions based on the priority.
-                equivalent_transitions.sort(key=lambda x: x.priority)
-
-                # Create a nested group and mark all contained transitions as processed.
-                deterministic_choices.append(GuardNode(t.guard, DecisionNode(equivalent_transitions, False)))
-                processed_transition_ids.update([t.id for t in equivalent_transitions])
 
         # Create a deterministic decision node for the current grouping and add it to the list of groupings.
         if len(deterministic_choices) == 1:
@@ -198,7 +170,7 @@ def create_decision_groupings(transitions: List[Transition]) -> Union[DecisionNo
             non_deterministic_choices.append(DecisionNode(deterministic_choices, True))
 
         # Remove the transitions from the to be processed list.
-        for t in grouped_transitions:
+        for t in deterministic_choices:
             remaining_transitions.remove(t)
 
         # Restore the state of the solver.

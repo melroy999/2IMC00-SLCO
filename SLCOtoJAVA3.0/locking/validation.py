@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from typing import Set, TYPE_CHECKING
-from objects.ast.models import Assignment
+from objects.ast.models import Assignment, DecisionNode
 
 import networkx as nx
 
@@ -71,8 +71,15 @@ def validate_locking_instruction_integrity(
         2. The lock requests to be released and lock requests to be acquired sets do not have elements in common.
         3. Lock requests that are released need to be present in the acquired lock requests list.
         4. If the node has no successors, the list of acquired locks needs to be equivalent to the locks to be released.
+        ~5. Decision nodes should not have locks to release or request.
     """
     instructions = n.locking_instructions
+
+    # TODO: alter such that unpacking is included.
+
+    # ~5. Decision nodes should not have locks to release or request.
+    if isinstance(n.partner, DecisionNode) and instructions.has_locks():
+        return False
 
     # 1. Any locks added in this node should not yet be present in the acquired lock requests list.
     if len(acquired_lock_requests.intersection(instructions.locks_to_acquire)) > 0:

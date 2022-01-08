@@ -3,13 +3,13 @@ from typing import Dict, Set, List
 
 import networkx as nx
 
+import settings
 from locking.validation import validate_locking_structure_integrity
 from objects.ast.interfaces import SlcoLockableNode, SlcoStatementNode
-from objects.ast.models import Primary, Composite, Transition, Assignment, Expression, StateMachine, Class, VariableRef, \
-    Variable, GuardNode, DecisionNode, State
+from objects.ast.models import Primary, Composite, Transition, Assignment, Expression, StateMachine, Class, \
+    VariableRef, Variable, DecisionNode, State
 from objects.ast.util import get_class_variable_references, get_variable_references
 from objects.locking.models import AtomicNode, LockingNode, Lock, LockRequest, LockRequestInstanceProvider
-from objects.locking.visualization import render_locking_structure_instructions
 
 
 def get_locking_structure(model: StateMachine, state: State):
@@ -133,6 +133,25 @@ def is_boolean_statement(model) -> bool:
     return False
 
 
+def construct_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given deterministic decision node.
+    """
+    # Get an atomic node for all of the options.
+    atomic_nodes = [create_locking_structure(v) for v in model.decisions]
+    for n in atomic_nodes:
+        result.include_atomic_node(n)
+
+    # When one branch fails, the control flow will proceed to the next one in line.
+    result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
+    for i in range(1, len(atomic_nodes)):
+        result.graph.add_edge(atomic_nodes[i - 1].failure_exit, atomic_nodes[i].entry_node)
+    result.graph.add_edge(atomic_nodes[-1].failure_exit, result.failure_exit)
+
+    # TODO: Explore how secondary expression/primary statements (non-guard) can still be part of the decision structure.
+    # TODO: Make separate entry points for each stage of the transition.
+
+
 def construct_non_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
     """
     Add components to the DAG of locking nodes for the given non-deterministic decision node.
@@ -149,22 +168,6 @@ def construct_non_deterministic_decision_node(model: DecisionNode, result: Atomi
         result.graph.add_edge(n.failure_exit, result.failure_exit)
 
 
-def construct_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given deterministic decision node.
-    """
-    # Get an atomic node for all of the options.
-    atomic_nodes = [create_locking_structure(v) for v in model.decisions]
-    for n in atomic_nodes:
-        result.include_atomic_node(n)
-
-    # When one branch fails, the control flow will proceed to the next one in line.
-    result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
-    for i in range(1, len(atomic_nodes)):
-        result.graph.add_edge(atomic_nodes[i - 1].failure_exit, atomic_nodes[i].entry_node)
-    result.graph.add_edge(atomic_nodes[-1].failure_exit, result.failure_exit)
-
-
 def construct_sequential_decision_node(model: DecisionNode, result: AtomicNode) -> None:
     """
     Add components to the DAG of locking nodes for the given sequential decision node.
@@ -174,7 +177,142 @@ def construct_sequential_decision_node(model: DecisionNode, result: AtomicNode) 
     for n in atomic_nodes:
         result.include_atomic_node(n)
 
-    # TODO
+    # Having the sequential operation be completely atomic would be a large hit on the performance.
+    # Hence, use the same approach taken for non-determinism.
+    for n in atomic_nodes:
+        result.graph.add_edge(result.entry_node, n.entry_node)
+        result.graph.add_edge(n.failure_exit, result.failure_exit)
+
+
+def construct_composite_node(model: Composite, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given composite node.
+    """
+    # Create atomic nodes for each of the components, including the guard.
+    atomic_nodes = [create_locking_structure(v) for v in [model.guard] + model.assignments]
+    for n in atomic_nodes:
+        result.include_atomic_node(n)
+
+    # Chain all the components and connect the failure exit of the guard to the composite's atomic node.
+    result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
+    result.graph.add_edge(atomic_nodes[0].failure_exit, result.failure_exit)
+    for i in range(1, len(atomic_nodes)):
+        result.graph.add_edge(atomic_nodes[i - 1].success_exit, atomic_nodes[i].entry_node)
+    result.graph.add_edge(atomic_nodes[-1].success_exit, result.success_exit)
+
+
+def construct_assignment_node(model: Assignment, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given assignment node.
+    """
+    # The left hand side of the assignment cannot be locked locally, and hence will not get an atomic node.
+    # The right side will only get an atomic node if it is a boolean expression or primary.
+    if is_boolean_statement(model.right):
+        # Create an atomic node and include it.
+        right_atomic_node = create_locking_structure(model.right)
+
+        # The assignment does not use the expression's partner evaluations. Hence, mark it as indifferent.
+        right_atomic_node.mark_indifferent()
+
+        # Add the right hand side atomic node to the graph.
+        result.include_atomic_node(right_atomic_node)
+
+        # Add  the appropriate connections.
+        result.graph.add_edge(result.entry_node, right_atomic_node.entry_node)
+        result.graph.add_edge(right_atomic_node.success_exit, result.success_exit)
+    else:
+        # Simply create a connection to the success exit point--the statement will be locked in its entirety.
+        result.graph.add_edge(result.entry_node, result.success_exit)
+
+    # Assignments cannot fail, and hence, the atomic node should be indifferent to the partner's evaluation.
+    result.mark_indifferent()
+
+
+def construct_expression_node(model: Expression, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given expression node.
+    """
+    # Conjunction and disjunction statements need special treatment due to their control flow characteristics.
+    # Additionally, exclusive disjunction needs different treatment too, since it can have nested aggregates.
+    if model.op in ["and", "or"]:
+        # Find over which nodes the statement is made and add all the graphs to the result node.
+        atomic_nodes = [create_locking_structure(v) for v in model.values]
+        for n in atomic_nodes:
+            result.include_atomic_node(n)
+
+        # Connect all clauses that prematurely exit the expression to the appropriate exit point.
+        for n in atomic_nodes:
+            if model.op == "and":
+                result.graph.add_edge(n.failure_exit, result.failure_exit)
+            else:
+                result.graph.add_edge(n.success_exit, result.success_exit)
+
+        # Chain the remaining exit points and entry points in order of the clauses.
+        result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
+        for i in range(0, len(model.values) - 1):
+            if model.op == "and":
+                result.graph.add_edge(atomic_nodes[i].success_exit, atomic_nodes[i + 1].entry_node)
+            else:
+                result.graph.add_edge(atomic_nodes[i].failure_exit, atomic_nodes[i + 1].entry_node)
+        if model.op == "and":
+            result.graph.add_edge(atomic_nodes[-1].success_exit, result.success_exit)
+        else:
+            result.graph.add_edge(atomic_nodes[-1].failure_exit, result.failure_exit)
+    elif model.op == "xor":
+        # Find over which nodes the statement is made and add all the graphs to the result node.
+        atomic_nodes = [create_locking_structure(v) for v in model.values]
+        for n in atomic_nodes:
+            # Nodes should be marked indifferent, since the partner's value does not alter the control flow.
+            n.mark_indifferent()
+            result.include_atomic_node(n)
+
+        # Chain the exit points and entry points in order of the clauses.
+        result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
+        for i in range(0, len(model.values) - 1):
+            result.graph.add_edge(atomic_nodes[i].success_exit, atomic_nodes[i + 1].entry_node)
+        result.graph.add_edge(atomic_nodes[-1].success_exit, result.success_exit)
+        result.graph.add_edge(atomic_nodes[-1].success_exit, result.failure_exit)
+    else:
+        # Add success and failure exit connections.
+        # Note that math operators aren't treated differently--they cannot reach this point.
+        result.graph.add_edge(result.entry_node, result.success_exit)
+        result.graph.add_edge(result.entry_node, result.failure_exit)
+
+
+def construct_primary_node(model: Primary, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given primary node.
+    """
+    if model.body is not None:
+        # Add a child relationship to the body.
+        child_node = create_locking_structure(model.body)
+
+        result.include_atomic_node(child_node)
+        result.graph.add_edge(result.entry_node, child_node.entry_node)
+
+        if model.sign == "not":
+            # Boolean negations simply switch the success and failure branch of the object in question.
+            result.graph.add_edge(child_node.success_exit, result.failure_exit)
+            result.graph.add_edge(child_node.failure_exit, result.success_exit)
+        else:
+            result.graph.add_edge(child_node.success_exit, result.success_exit)
+            result.graph.add_edge(child_node.failure_exit, result.failure_exit)
+    elif model.ref is not None:
+        # Add a success exit connection. Additionally, add a failure connection of the variable is a boolean.
+        result.graph.add_edge(result.entry_node, result.success_exit)
+        if model.ref.var.is_boolean:
+            result.graph.add_edge(result.entry_node, result.failure_exit)
+    else:
+        # The primary contains a constant.
+        if model.value is False:
+            # Special case: don't connect the true branch, since the expression will always yield false.
+            result.graph.add_edge(result.entry_node, result.failure_exit)
+        elif model.value is True:
+            # Special case: don't connect the false branch, since the expression will always yield true.
+            result.graph.add_edge(result.entry_node, result.success_exit)
+        else:
+            # For integer/byte values, there is only a success path.
+            result.graph.add_edge(result.entry_node, result.success_exit)
 
 
 def create_locking_structure(model) -> AtomicNode:
@@ -194,137 +332,22 @@ def create_locking_structure(model) -> AtomicNode:
     # All objects from this point on will return an atomic node.
     result = AtomicNode(model)
 
-    if isinstance(model, GuardNode):
-        # Get an atomic node for the conditional and body.
-        conditional_atomic_node = create_locking_structure(model.conditional)
-        body_atomic_node = create_locking_structure(model.body)
-
-        # Include the atomic nodes.
-        result.include_atomic_node(conditional_atomic_node)
-        result.include_atomic_node(body_atomic_node)
-
-        # Note that a guard node will only proceed to the body if its conditional is successful.
-        result.graph.add_edge(result.entry_node, conditional_atomic_node.entry_node)
-        result.graph.add_edge(conditional_atomic_node.success_exit, body_atomic_node.entry_node)
-        result.graph.add_edge(conditional_atomic_node.failure_exit, result.failure_exit)
-        result.graph.add_edge(body_atomic_node.failure_exit, result.failure_exit)
-    elif isinstance(model, DecisionNode):
+    if isinstance(model, DecisionNode):
         # The structure depends on the type of decision made.
         if model.is_deterministic:
             construct_deterministic_decision_node(model, result)
-        else:
+        elif settings.non_determinism:
             construct_non_deterministic_decision_node(model, result)
+        else:
+            construct_sequential_decision_node(model, result)
     elif isinstance(model, Composite):
-        # Create atomic nodes for each of the components, including the guard.
-        atomic_nodes = [create_locking_structure(v) for v in [model.guard] + model.assignments]
-        for n in atomic_nodes:
-            result.include_atomic_node(n)
-
-        # Chain all the components and connect the failure exit of the guard to the composite's atomic node.
-        result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
-        result.graph.add_edge(atomic_nodes[0].failure_exit, result.failure_exit)
-        for i in range(1, len(atomic_nodes)):
-            result.graph.add_edge(atomic_nodes[i - 1].success_exit, atomic_nodes[i].entry_node)
-        result.graph.add_edge(atomic_nodes[-1].success_exit, result.success_exit)
+        construct_composite_node(model, result)
     elif isinstance(model, Assignment):
-        # The left hand side of the assignment cannot be locked locally, and hence will not get an atomic node.
-        # The right side will only get an atomic node if it is a boolean expression or primary.
-        if is_boolean_statement(model.right):
-            # Create an atomic node and include it.
-            right_atomic_node = create_locking_structure(model.right)
-
-            # The assignment does not use the expression's partner evaluations. Hence, mark it as indifferent.
-            right_atomic_node.mark_indifferent()
-
-            # Add the right hand side atomic node to the graph.
-            result.include_atomic_node(right_atomic_node)
-
-            # Add  the appropriate connections.
-            result.graph.add_edge(result.entry_node, right_atomic_node.entry_node)
-            result.graph.add_edge(right_atomic_node.success_exit, result.success_exit)
-        else:
-            # Simply create a connection to the success exit point--the statement will be locked in its entirety.
-            result.graph.add_edge(result.entry_node, result.success_exit)
-
-        # Assignments cannot fail, and hence, the atomic node should be indifferent to the partner's evaluation.
-        result.mark_indifferent()
+        construct_assignment_node(model, result)
     elif isinstance(model, Expression):
-        # Conjunction and disjunction statements need special treatment due to their control flow characteristics.
-        # Additionally, exclusive disjunction needs different treatment too, since it can have nested aggregates.
-        if model.op in ["and", "or"]:
-            # Find over which nodes the statement is made and add all the graphs to the result node.
-            atomic_nodes = [create_locking_structure(v) for v in model.values]
-            for n in atomic_nodes:
-                result.include_atomic_node(n)
-
-            # Connect all clauses that prematurely exit the expression to the appropriate exit point.
-            for n in atomic_nodes:
-                if model.op == "and":
-                    result.graph.add_edge(n.failure_exit, result.failure_exit)
-                else:
-                    result.graph.add_edge(n.success_exit, result.success_exit)
-
-            # Chain the remaining exit points and entry points in order of the clauses.
-            result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
-            for i in range(0, len(model.values) - 1):
-                if model.op == "and":
-                    result.graph.add_edge(atomic_nodes[i].success_exit, atomic_nodes[i + 1].entry_node)
-                else:
-                    result.graph.add_edge(atomic_nodes[i].failure_exit, atomic_nodes[i + 1].entry_node)
-            if model.op == "and":
-                result.graph.add_edge(atomic_nodes[-1].success_exit, result.success_exit)
-            else:
-                result.graph.add_edge(atomic_nodes[-1].failure_exit, result.failure_exit)
-        elif model.op == "xor":
-            # Find over which nodes the statement is made and add all the graphs to the result node.
-            atomic_nodes = [create_locking_structure(v) for v in model.values]
-            for n in atomic_nodes:
-                # Nodes should be marked indifferent, since the partner's value does not alter the control flow.
-                n.mark_indifferent()
-                result.include_atomic_node(n)
-
-            # Chain the exit points and entry points in order of the clauses.
-            result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
-            for i in range(0, len(model.values) - 1):
-                result.graph.add_edge(atomic_nodes[i].success_exit, atomic_nodes[i + 1].entry_node)
-            result.graph.add_edge(atomic_nodes[-1].success_exit, result.success_exit)
-            result.graph.add_edge(atomic_nodes[-1].success_exit, result.failure_exit)
-        else:
-            # Add success and failure exit connections.
-            # Note that math operators aren't treated differently--they cannot reach this point.
-            result.graph.add_edge(result.entry_node, result.success_exit)
-            result.graph.add_edge(result.entry_node, result.failure_exit)
+        construct_expression_node(model, result)
     elif isinstance(model, Primary):
-        if model.body is not None:
-            # Add a child relationship to the body.
-            child_node = create_locking_structure(model.body)
-
-            result.include_atomic_node(child_node)
-            result.graph.add_edge(result.entry_node, child_node.entry_node)
-
-            if model.sign == "not":
-                # Boolean negations simply switch the success and failure branch of the object in question.
-                result.graph.add_edge(child_node.success_exit, result.failure_exit)
-                result.graph.add_edge(child_node.failure_exit, result.success_exit)
-            else:
-                result.graph.add_edge(child_node.success_exit, result.success_exit)
-                result.graph.add_edge(child_node.failure_exit, result.failure_exit)
-        elif model.ref is not None:
-            # Add a success exit connection. Additionally, add a failure connection of the variable is a boolean.
-            result.graph.add_edge(result.entry_node, result.success_exit)
-            if model.ref.var.is_boolean:
-                result.graph.add_edge(result.entry_node, result.failure_exit)
-        else:
-            # The primary contains a constant.
-            if model.value is False:
-                # Special case: don't connect the true branch, since the expression will always yield false.
-                result.graph.add_edge(result.entry_node, result.failure_exit)
-            elif model.value is True:
-                # Special case: don't connect the false branch, since the expression will always yield true.
-                result.graph.add_edge(result.entry_node, result.success_exit)
-            else:
-                # For integer/byte values, there is only a success path.
-                result.graph.add_edge(result.entry_node, result.success_exit)
+        construct_primary_node(model, result)
     else:
         raise Exception("This node is not allowed to be part of the locking structure.")
 

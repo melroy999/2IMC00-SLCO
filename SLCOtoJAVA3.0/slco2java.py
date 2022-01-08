@@ -83,6 +83,11 @@ def get_argument_parser():
     """Get a parser for the input arguments"""
     parser = argparse.ArgumentParser(description="Transform an SLCO 2.0 model to a Java program")
     parser.add_argument("model", help="The SLCO 2.0 model to be converted to a Java program.")
+    parser.add_argument("-non_determinism", action='store_true', help="Use non-deterministic structures instead of "
+                                                                      "relying on the priority and list ordering.")
+    parser.add_argument("-resume_decision_structure", action='store_true', help="Return the decision structure if the "
+                                                                                "transition fails outside of the guard "
+                                                                                "statement.")
     parser.add_argument("-verify_locks", action='store_true', help="Add Java statements that verify whether locks have "
                                                                    "been acquired before use.")
     return parser
