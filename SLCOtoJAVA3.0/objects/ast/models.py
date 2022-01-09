@@ -169,7 +169,7 @@ class StateMachine(SlcoStructuralNode):
         self._variables: List[Variable] = []
         self._transitions: List[Transition] = []
         self.state_to_transitions: Dict[State, List[Transition]] = defaultdict(list)
-        self.state_to_decision_node: Dict[State, Union[DecisionNode, Transition]] = dict()
+        self.state_to_decision_node: Dict[State, DecisionNode] = dict()
         self.max_number_of_lock_requests: int = 0
 
     def __repr__(self) -> str:

@@ -1,4 +1,4 @@
-// SLCO guard statement: {{ model.guard.get_original_statement() }} -> {{ model.guard }}
+// SLCO transition (id:{{ model.id }}, p:{{ model.priority }}) | {{ model.source }} -> {{ model.target }} | guard: {{ model.guard }}
 if(execute_transition_{{ model.source }}_{{ model.id }}()) {
     return;
 }

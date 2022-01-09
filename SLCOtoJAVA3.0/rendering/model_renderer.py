@@ -5,8 +5,7 @@ from typing import TYPE_CHECKING, List, Tuple
 import settings
 from rendering.environment_settings import env
 from objects.ast.models import Expression, Composite, Assignment, Transition, DecisionNode, Primary
-from rendering.statement_renderer import render_composite, render_assignment, render_root_expression, \
-    create_statement_prefix, render_statement
+from rendering.statement_renderer import render_composite, render_assignment, render_root_expression
 
 if TYPE_CHECKING:
     from objects.ast.models import StateMachine, Class, SlcoModel, Variable, Object, State
@@ -15,9 +14,9 @@ if TYPE_CHECKING:
 def render_type(model: Variable):
     """Render the type of the given variable object."""
     if model.is_array:
-        return "%s[]" % ("boolean" if model.is_boolean else "int")
+        return f"{'boolean' if model.is_boolean else 'int'}[]"
     else:
-        return "%s" % ("boolean" if model.is_boolean else "int")
+        return f"{'boolean' if model.is_boolean else 'int'}"
 
 
 def render_transition(model: Transition) -> str:
@@ -89,9 +88,14 @@ def render_decision_node(
             rendered_decisions=rendered_decisions
         )
     else:
-        result = java_non_deterministic_decision_node_template.render(
-            rendered_decisions=rendered_decisions
-        )
+        if settings.non_determinism:
+            result = java_non_deterministic_decision_node_template.render(
+                rendered_decisions=rendered_decisions
+            )
+        else:
+            result = java_sequential_decision_node_template.render(
+                rendered_decisions=rendered_decisions
+            )
     return result, i
 
 
@@ -183,7 +187,6 @@ java_model_template = env.get_template("java_model.jinja2template")
 
 java_decision_structure_template = env.get_template("decision_structures/java_decision_structure.jinja2template")
 java_transition_wrapper_template = env.get_template("decision_structures/java_transition_wrapper.jinja2template")
-java_guard_node_template = env.get_template("decision_structures/java_guard_node.jinja2template")
 java_deterministic_decision_node_template = env.get_template(
     "decision_structures/java_deterministic_decision_node.jinja2template"
 )

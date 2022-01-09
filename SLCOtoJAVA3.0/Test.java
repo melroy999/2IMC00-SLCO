@@ -79,7 +79,8 @@ public class Test {
         interface P_SM1Thread_States {
             enum States {
                 SMC0, 
-                SMC1
+                SMC1, 
+                NewState0
             }
         }
 
@@ -107,7 +108,7 @@ public class Test {
                 currentState = SM1Thread.States.SMC0;
                 lockManager = lockManagerInstance;
                 lock_ids = new int[1];
-                target_locks = new int[2];
+                target_locks = new int[1];
                 random = new Random();
             }
 
@@ -123,7 +124,7 @@ public class Test {
                 return false;
             }
 
-            // Representation of SLCO transition SMC0_0 (SMC0 -> SMC0)
+            // SLCO transition (id:0, p:0) | SMC0 -> SMC0
             private boolean execute_transition_SMC0_0() {
                 // SLCO statement: !(x[0] > 0) -> !(x[0] > 0)
                 if(!(t_SMC0_0_s_0_n_0())) {
@@ -146,7 +147,7 @@ public class Test {
                 return false;
             }
 
-            // Representation of SLCO transition SMC0_1 (SMC0 -> SMC0)
+            // SLCO transition (id:1, p:1) | SMC0 -> SMC0
             private boolean execute_transition_SMC0_1() {
                 // SLCO statement: !(x[0] > 0) -> !(x[0] > 0)
                 if(!(t_SMC0_1_s_0_n_0())) {
@@ -167,7 +168,7 @@ public class Test {
                 return false;
             }
 
-            // Representation of SLCO transition SMC0_2 (SMC0 -> SMC0)
+            // SLCO transition (id:2, p:0) | SMC0 -> SMC0
             private boolean execute_transition_SMC0_2() {
                 // SLCO statement: !(x[0] <= 0) -> !(x[0] <= 0)
                 if(!(t_SMC0_2_s_0_n_0())) {
@@ -190,7 +191,7 @@ public class Test {
                 return false;
             }
 
-            // Representation of SLCO transition SMC0_3 (SMC0 -> SMC0)
+            // SLCO transition (id:3, p:0) | SMC0 -> SMC0
             private boolean execute_transition_SMC0_3() {
                 // SLCO statement: !(y <= 0) -> !(y <= 0)
                 if(!(t_SMC0_3_s_0_n_0())) {
@@ -216,7 +217,7 @@ public class Test {
                 return false;
             }
 
-            // Representation of SLCO transition SMC0_4 (SMC0 -> SMC0)
+            // SLCO transition (id:4, p:0) | SMC0 -> SMC0
             private boolean execute_transition_SMC0_4() {
                 // SLCO statement: !(y > 0 and y <= 3) -> !(y > 0 and y <= 3)
                 if(!(t_SMC0_4_s_0_n_0() && t_SMC0_4_s_0_n_1())) {
@@ -239,7 +240,7 @@ public class Test {
                 return false;
             }
 
-            // Representation of SLCO transition SMC0_5 (SMC0 -> SMC0)
+            // SLCO transition (id:5, p:0) | SMC0 -> SMC0
             private boolean execute_transition_SMC0_5() {
                 // SLCO statement: !(y > 3) -> !(y > 3)
                 if(!(t_SMC0_5_s_0_n_0())) {
@@ -254,21 +255,22 @@ public class Test {
                 return true;
             }
 
-            // Representation of SLCO transition SMC0_6 (SMC0 -> SMC0)
+            // SLCO transition (id:6, p:0) | SMC0 -> NewState0
             private boolean execute_transition_SMC0_6() {
                 // SLCO statement: !(true) -> !(true)
                 if(!(t_SMC0_6_s_0_n_0())) {
                     return false;
                 }
 
-                // SLCO statement: [y := 0] -> y := 0lock_ids[0] = target_locks[0] = 0; // Acquire y
+                // SLCO statement: [y := 0] -> y := 0
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 lockManager.check_lock(0); // Check y
                 y = 0;
                 lock_ids[0] = target_locks[0]; // Release y
                 lockManager.release_locks(lock_ids, 1);
 
-                currentState = SM1Thread.States.SMC0;
+                currentState = SM1Thread.States.NewState0;
                 return true;
             }
 
@@ -276,14 +278,15 @@ public class Test {
                 return true;
             }
 
-            // Representation of SLCO transition SMC0_7 (SMC0 -> SMC0)
+            // SLCO transition (id:7, p:1) | SMC0 -> SMC0
             private boolean execute_transition_SMC0_7() {
                 // SLCO statement: !(true) -> !(true)
                 if(!(t_SMC0_7_s_0_n_0())) {
                     return false;
                 }
 
-                // SLCO statement: [y := 1] -> y := 1lock_ids[0] = target_locks[0] = 0; // Acquire y
+                // SLCO statement: [y := 1] -> y := 1
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 lockManager.check_lock(0); // Check y
                 y = 1;
@@ -298,14 +301,15 @@ public class Test {
                 return true;
             }
 
-            // Representation of SLCO transition SMC0_8 (SMC0 -> SMC0)
+            // SLCO transition (id:8, p:5) | SMC0 -> SMC0
             private boolean execute_transition_SMC0_8() {
                 // SLCO statement: !(true) -> !(true)
                 if(!(t_SMC0_8_s_0_n_0())) {
                     return false;
                 }
 
-                // SLCO statement: [y := 5] -> y := 5lock_ids[0] = target_locks[0] = 0; // Acquire y
+                // SLCO statement: [y := 5] -> y := 5
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 lockManager.check_lock(0); // Check y
                 y = 5;
@@ -320,14 +324,15 @@ public class Test {
                 return true;
             }
 
-            // Representation of SLCO transition SMC0_9 (SMC0 -> SMC0)
+            // SLCO transition (id:9, p:3) | SMC0 -> SMC0
             private boolean execute_transition_SMC0_9() {
                 // SLCO statement: !(true) -> !(true)
                 if(!(t_SMC0_9_s_0_n_0())) {
                     return false;
                 }
 
-                // SLCO statement: [y := 3] -> y := 3lock_ids[0] = target_locks[0] = 0; // Acquire y
+                // SLCO statement: [y := 3] -> y := 3
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 lockManager.check_lock(0); // Check y
                 y = 3;
@@ -342,14 +347,15 @@ public class Test {
                 return true;
             }
 
-            // Representation of SLCO transition SMC0_10 (SMC0 -> SMC0)
+            // SLCO transition (id:10, p:2) | SMC0 -> SMC0
             private boolean execute_transition_SMC0_10() {
                 // SLCO statement: !(true) -> !(true)
                 if(!(t_SMC0_10_s_0_n_0())) {
                     return false;
                 }
 
-                // SLCO statement: [y := 2] -> y := 2lock_ids[0] = target_locks[0] = 0; // Acquire y
+                // SLCO statement: [y := 2] -> y := 2
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 lockManager.check_lock(0); // Check y
                 y = 2;
@@ -364,14 +370,15 @@ public class Test {
                 return true;
             }
 
-            // Representation of SLCO transition SMC0_11 (SMC0 -> SMC0)
+            // SLCO transition (id:11, p:4) | SMC0 -> SMC0
             private boolean execute_transition_SMC0_11() {
                 // SLCO statement: !(true) -> !(true)
                 if(!(t_SMC0_11_s_0_n_0())) {
                     return false;
                 }
 
-                // SLCO statement: [y := 4] -> y := 4lock_ids[0] = target_locks[0] = 0; // Acquire y
+                // SLCO statement: [y := 4] -> y := 4
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 lockManager.check_lock(0); // Check y
                 y = 4;
@@ -382,70 +389,93 @@ public class Test {
                 return true;
             }
 
+            private boolean t_NewState0_0_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(0); // Check y
+                if(y > 3) {
+                    lock_ids[0] = target_locks[0]; // Release y
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO transition (id:0, p:0) | NewState0 -> SMC0
+            private boolean execute_transition_NewState0_0() {
+                // SLCO statement: !(y > 3) -> !(y > 3)
+                if(!(t_NewState0_0_s_0_n_0())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
             private void exec_SMC0() {
                 switch(random.nextInt(8)) {
                     case 0 -> {
-                        // SLCO guard statement: y <= 0 -> y <= 0
+                        // SLCO transition (id:3, p:0) | SMC0 -> SMC0 | guard: y <= 0
                         if(execute_transition_SMC0_3()) {
                             return;
                         }
-                        // SLCO guard statement: y > 0 and y <= 3 -> y > 0 and y <= 3
+                        // SLCO transition (id:4, p:0) | SMC0 -> SMC0 | guard: y > 0 and y <= 3
                         if(execute_transition_SMC0_4()) {
                             return;
                         }
-                        // SLCO guard statement: y > 3 -> y > 3
+                        // SLCO transition (id:5, p:0) | SMC0 -> SMC0 | guard: y > 3
                         if(execute_transition_SMC0_5()) {
                             return;
                         }
-                        return;
                     }
                     case 1 -> {
-                        // SLCO guard statement: x[0] > 0 -> x[0] > 0
+                        // SLCO transition (id:0, p:0) | SMC0 -> SMC0 | guard: x[0] > 0
                         if(execute_transition_SMC0_0()) {
                             return;
                         }
-                        // SLCO guard statement: x[0] <= 0 -> x[0] <= 0
+                        // SLCO transition (id:2, p:0) | SMC0 -> SMC0 | guard: x[0] <= 0
                         if(execute_transition_SMC0_2()) {
                             return;
                         }
-                        // SLCO guard statement: x[0] > 0 -> x[0] > 0
+                        // SLCO transition (id:1, p:1) | SMC0 -> SMC0 | guard: x[0] > 0
                         if(execute_transition_SMC0_1()) {
                             return;
                         }
-                        return;
                     }
                     case 2 -> {
-                        // SLCO guard statement: true -> true
+                        // SLCO transition (id:6, p:0) | SMC0 -> NewState0 | guard: true
                         if(execute_transition_SMC0_6()) {
                             return;
                         }
                     }
                     case 3 -> {
-                        // SLCO guard statement: true -> true
+                        // SLCO transition (id:7, p:1) | SMC0 -> SMC0 | guard: true
                         if(execute_transition_SMC0_7()) {
                             return;
                         }
                     }
                     case 4 -> {
-                        // SLCO guard statement: true -> true
+                        // SLCO transition (id:10, p:2) | SMC0 -> SMC0 | guard: true
                         if(execute_transition_SMC0_10()) {
                             return;
                         }
                     }
                     case 5 -> {
-                        // SLCO guard statement: true -> true
+                        // SLCO transition (id:9, p:3) | SMC0 -> SMC0 | guard: true
                         if(execute_transition_SMC0_9()) {
                             return;
                         }
                     }
                     case 6 -> {
-                        // SLCO guard statement: true -> true
+                        // SLCO transition (id:11, p:4) | SMC0 -> SMC0 | guard: true
                         if(execute_transition_SMC0_11()) {
                             return;
                         }
                     }
                     case 7 -> {
-                        // SLCO guard statement: true -> true
+                        // SLCO transition (id:8, p:5) | SMC0 -> SMC0 | guard: true
                         if(execute_transition_SMC0_8()) {
                             return;
                         }
@@ -457,6 +487,13 @@ public class Test {
                 // There are no transitions starting in state SMC1.
             }
 
+            private void exec_NewState0() {
+                // SLCO transition (id:0, p:0) | NewState0 -> SMC0 | guard: y > 3
+                if(execute_transition_NewState0_0()) {
+                    return;
+                }
+            }
+
             // Execute method
             private void exec() {
                 while(true) {
@@ -464,6 +501,7 @@ public class Test {
                     switch(currentState) {
                         case SMC0 -> exec_SMC0();
                         case SMC1 -> exec_SMC1();
+                        case NewState0 -> exec_NewState0();
                     }
                 }
             }

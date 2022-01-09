@@ -18,7 +18,7 @@ def get_locking_structure(model: StateMachine, state: State):
     """
     # Assert that no locking identities have been assigned yet.
     _class: Class = model.parent
-    assert(all(v.lock_id == -1 for v in _class.variables))
+    assert(len(_class.variables) == 0 or all(v.lock_id == -1 for v in _class.variables))
 
     # Find the root of the target decision structure.
     if state not in model.state_to_decision_node:
@@ -71,7 +71,7 @@ def finalize_locking_structure(model: StateMachine, state: State):
     """
     # Assert that the locking identities have been assigned.
     _class: Class = model.parent
-    assert(any(v.lock_id != -1 for v in _class.variables))
+    assert(len(_class.variables) == 0 or any(v.lock_id != -1 for v in _class.variables))
 
     # Find the root of the target decision structure.
     if state not in model.state_to_decision_node:

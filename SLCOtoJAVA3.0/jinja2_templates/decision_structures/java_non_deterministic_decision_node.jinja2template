@@ -1,3 +1,4 @@
+{% if rendered_decisions | length > 1 %}
 switch(random.nextInt({{ rendered_decisions | length }})) {
 {% for i in range(0, rendered_decisions | length) %}
 {% set decision = rendered_decisions[i] %}
@@ -6,3 +7,6 @@ switch(random.nextInt({{ rendered_decisions | length }})) {
     }
 {% endfor %}
 }
+{% else %}
+{{ rendered_decisions[0] | trim }}
+{% endif %}

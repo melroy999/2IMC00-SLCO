@@ -89,15 +89,11 @@ def create_is_true_table(transitions, alias_variables) -> None:
         s.add(alias_variables[f"it{t.id}"] == result)
 
 
-def create_decision_groupings(transitions: List[Transition]) -> Union[DecisionNode, Transition]:
+def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
     """
     Use z3 optimization to create a minimally sized collections of groups of transitions in which the guard statements'
     active regions do not overlap.
     """
-    if len(transitions) == 1:
-        # Return the transition.
-        return transitions[0]
-
     # Give all transitions an unique identity.
     for i, t in enumerate(transitions):
         t.id = i

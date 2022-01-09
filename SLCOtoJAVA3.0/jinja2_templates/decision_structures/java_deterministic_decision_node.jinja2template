@@ -1,4 +1,3 @@
 {% for node in rendered_decisions %}
 {{ node | trim }}
 {% endfor %}
-return;
