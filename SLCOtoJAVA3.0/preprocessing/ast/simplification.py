@@ -77,6 +77,9 @@ def simplify_composite(e: Composite):
     e.guard = simplify(e.guard)
     e.assignments = [simplify(v) for v in e.assignments]
 
+    if e.guard.is_false():
+        # A false guarded composite is equivalent to its guard.
+        return e.guard
     if e.guard.is_true() and len(e.assignments) == 1:
         # A composite with a true guard and only one assignment can be converted to an assignment.
         return e.assignments[0]
@@ -104,6 +107,8 @@ def simplify_transition(e: Transition):
     e.statements = restructured_statements
 
     # Exclude all statements succeeding a false expression.
+    # TODO: this should no longer be possible now that the model is always a simple SLCO model.
+    #   - The transition should not be added in the first place.
     for i, s in enumerate(e.statements):
         if isinstance(s, SlcoEvaluableNode) and s.is_false():
             # Exclude all succeeding statements from rendering, since the code is unreachable.

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Set, TYPE_CHECKING
 from objects.ast.models import Assignment, DecisionNode
 
@@ -54,6 +55,7 @@ def validate_locking_node_integrity(
     # Ensure that all variables used by the statement are locked.
     target_locks: Set[Lock] = {Lock(r, entry_node) for r in target_variables}
     if len(target_locks) > 0 and len(target_locks.difference(acquired_locks)) > 0:
+        logging.info("Locking structure validation failed. The statement has variables that are not locked.")
         return False
 
     # The path so far is valid. Check if successors are valid too.
@@ -68,40 +70,39 @@ def validate_locking_instruction_integrity(
     """
     Verify the following:
         1. Any locks added in this node should not yet be present in the acquired lock requests list.
-        2. The lock requests to be released and lock requests to be acquired sets do not have elements in common.
-        3. Lock requests that are released need to be present in the acquired lock requests list.
-        4. If the node has no successors, the list of acquired locks needs to be equivalent to the locks to be released.
-        ~5. Decision nodes should not have locks to release or request.
+        2. Lock requests that are released need to be present in the acquired lock requests list.
+        3. If the node has no successors, the list of acquired locks needs to be equivalent to the locks to be released.
+        ~4. Decision nodes should not have locks to release or request.
     """
     instructions = n.locking_instructions
 
-    # TODO: alter such that unpacking is included.
-
-    # ~5. Decision nodes should not have locks to release or request.
+    # ~4. Decision nodes should not have locks to release or request.
     if isinstance(n.partner, DecisionNode) and instructions.has_locks():
+        logging.info("Locking structure validation failed. The decision nodes have locks to release or request.")
         return False
 
     # 1. Any locks added in this node should not yet be present in the acquired lock requests list.
-    if len(acquired_lock_requests.intersection(instructions.locks_to_acquire)) > 0:
-        return False
-
-    # 2. The lock requests to be released and lock requests to be acquired sets do not have elements in common.
-    if len(instructions.locks_to_acquire.intersection(instructions.locks_to_release)) > 0:
+    if len(acquired_lock_requests.intersection(instructions.locks_to_acquire)) > 0 \
+            or len(acquired_lock_requests.intersection(instructions.unpacked_lock_requests)):
+        logging.info("Locking structure validation failed. Locks acquired by the node are already present beforehand.")
         return False
 
     # Add the locks acquired by the current node to the list.
     acquired_lock_requests.update(instructions.locks_to_acquire)
+    acquired_lock_requests.update(instructions.unpacked_lock_requests)
 
-    # 3. Lock requests that are released need to be present in the acquired lock requests list.
+    # 2. Lock requests that are released need to be present in the acquired lock requests list.
     if len(instructions.locks_to_release.difference(acquired_lock_requests)) != 0:
+        logging.info("Locking structure validation failed. Locks released by the node weren't present beforehand.")
         return False
 
     # Release locks that are released by the current node.
     acquired_lock_requests.difference_update(instructions.locks_to_release)
 
     if len(list(graph.successors(n))) == 0:
-        # 4. No locks are allowed to remain after the lock release is done.
+        # 3. No locks are allowed to remain after the lock release is done.
         if len(acquired_lock_requests) > 0:
+            logging.info("Locking structure validation failed. Locks remain at the end of the control flow.")
             return False
 
     # The path so far is valid. Check if successors are valid too.

@@ -3,6 +3,19 @@ import importlib
 slco2slco = importlib.import_module("SLCOtoSLCO.python-textx-jinja2.slco2slco")
 
 
+# Hotfixes.
+def RepresentsInt(s):
+    try:
+        int(s)
+        return True
+    except (ValueError, TypeError):
+        return False
+
+
+# Overwrite functions with hotfixed versions.
+slco2slco.RepresentsInt = RepresentsInt
+
+
 def simplify_slco_model(model):
     """Use the SLCO2SLCO module to convert the slco model to a simplified model."""
     slco2slco.model = model

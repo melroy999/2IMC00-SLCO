@@ -1,5 +1,6 @@
 {% if not exclude_comment %}
-// SLCO statement: {{ model.get_original_statement() }} -> {{ model }}
+// SLCO assignment {{ model.get_original_statement() }} -> {{ model }} {% if model.exclude_statement %}(Superfluous){% endif %}
+
 {% endif %}
 {% if locking_control_node.entry_node.has_locks() %}
 {{ locking_control_node.entry_node.locking_instructions | render_locking_instruction | trim }}

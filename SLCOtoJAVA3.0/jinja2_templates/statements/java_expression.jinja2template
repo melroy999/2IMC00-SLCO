@@ -1,5 +1,6 @@
 {% if not exclude_comment %}
-// SLCO statement: !({{ model.get_original_statement() }}) -> !({{ model }})
+// SLCO expression !({{ model.get_original_statement() }}) -> !({{ model }}) {% if model.exclude_statement %}(Superfluous){% endif %}
+
 {% endif %}
 if(!({{ in_line_expression }})) {
     {% if is_guard %}

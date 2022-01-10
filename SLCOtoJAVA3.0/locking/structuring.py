@@ -664,6 +664,7 @@ def generate_locking_instructions(model: AtomicNode, provider: LockRequestInstan
             else:
                 # Weak unpacking. Variable references used exclusively in unpacking can be let go of at the end.
                 # Note that the supplemental lock releases are moved by another algorithm to the appropriate spot.
+                instructions.locks_to_acquire.update(supplemental_lock_requests)
                 instructions.unpacked_lock_requests.add(LockRequest.get(i, provider))
                 instructions.locks_to_release.update(supplemental_lock_requests)
 

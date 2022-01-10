@@ -696,3 +696,7 @@ class DecisionNode(SlcoLockableNode):
     @property
     def priority(self) -> int:
         return min(d.priority for d in self.decisions)
+
+    @property
+    def id(self) -> int:
+        return min(d.id for d in self.decisions)

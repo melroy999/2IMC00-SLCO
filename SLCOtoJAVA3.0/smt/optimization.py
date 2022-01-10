@@ -69,26 +69,6 @@ def create_is_equal_table(transitions, alias_variables) -> None:
                 s.add(alias_variables[f"ieq{t2.id}_{t1.id}"] == alias_variables[f"ieq{t1.id}_{t2.id}"])
 
 
-def create_is_true_table(transitions, alias_variables) -> None:
-    """Create a truth table for the given list of transitions that denotes if a guard is always true."""
-    # Create the truth table.
-    for t in transitions:
-        alias_variables[f"it{t.id}"] = z3.Bool(f"it{t.id}")
-
-    for t in transitions:
-        # Add a new negated equality relation to the solver.
-        e = t.guard.smt
-
-        # Existential quantifiers are not supported, so do the check separately.
-        s.push()
-        s.add(z3.Not(e))
-        result = s.check().r == z3.Z3_L_FALSE
-        s.pop()
-
-        # Add the constant to the solver.
-        s.add(alias_variables[f"it{t.id}"] == result)
-
-
 def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
     """
     Use z3 optimization to create a minimally sized collections of groups of transitions in which the guard statements'
@@ -113,6 +93,11 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
     # Create variables for each transition that will indicate whether they are part of the group or not.
     alias_variables = {f"g{t.id}": z3.Int(f"g{t.id}") for t in remaining_transitions}
 
+    # Create support variables for the priorities assigned to the transitions.
+    for t in remaining_transitions:
+        v = alias_variables[f"p{t.id}"] = z3.Int(f"p{t.id}")
+        s.add(v == t.priority)
+
     # Create the appropriate truth tables for the target transitions.
     create_and_truth_table(remaining_transitions, alias_variables)
     create_is_equal_table(remaining_transitions, alias_variables)
@@ -131,11 +116,22 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
         # Create the rules needed to construct valid groupings.
         for t1 in remaining_transitions:
             v = alias_variables[f"g{t1.id}"]
+
+            # It must hold that the transition has no overlap with any of the members in the same group.
             inner_or = z3.Or([
                 z3.And(
                     alias_variables[f"g{t2.id}"] == 1,
                     alias_variables[f"and{t1.id}_{t2.id}"],
                     z3.Not(alias_variables[f"ieq{t1.id}_{t2.id}"])
+                ) for t2 in remaining_transitions if t1.id != t2.id
+            ])
+            s.add(z3.Implies(v == 1, z3.Not(inner_or)))
+
+            # It must hold that the priority of each member in the group is the same.
+            inner_or = z3.Or([
+                z3.And(
+                    alias_variables[f"g{t2.id}"] == 1,
+                    alias_variables[f"p{t2.id}"] != alias_variables[f"p{t1.id}"]
                 ) for t2 in remaining_transitions if t1.id != t2.id
             ])
             s.add(z3.Implies(v == 1, z3.Not(inner_or)))
@@ -162,7 +158,7 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
             non_deterministic_choices.append(deterministic_choices[0])
         else:
             # Sort the decisions based on the priority.
-            deterministic_choices.sort(key=lambda x: x.priority)
+            deterministic_choices.sort(key=lambda x: (x.priority, x.id))
             non_deterministic_choices.append(DecisionNode(deterministic_choices, True))
 
         # Remove the transitions from the to be processed list.
@@ -177,7 +173,7 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
 
     # Sort the decisions based on the priority.
     non_deterministic_choices += trivially_satisfiable_transitions
-    non_deterministic_choices.sort(key=lambda x: x.priority)
+    non_deterministic_choices.sort(key=lambda x: (x.priority, x.id))
 
     # Create and return a non-deterministic decision node for the given decisions.
     return DecisionNode(non_deterministic_choices, False)

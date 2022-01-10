@@ -15,6 +15,9 @@ model Test {
             1: from SMC0 to SMC0 {
                 x[0] > 0;
             }
+            0: from SMC0 to SMC0 {
+                x[0] > 0;
+            }
             from SMC0 to SMC0 {
                 x[0] <= 0;
             }
@@ -45,6 +48,12 @@ model Test {
             }
             4: from SMC0 to SMC0 {
                 [y := 4];
+            }
+            from SMC1 to SMC1 {
+                y > 3 || y < 5;
+            }
+            from SMC1 to SMC1 {
+                y > 5 && y < 3;
             }
         }
 	}
