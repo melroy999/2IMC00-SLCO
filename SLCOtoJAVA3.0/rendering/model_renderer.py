@@ -32,16 +32,16 @@ def render_transition(model: Transition) -> str:
     rendered_statements = []
     for s in model.statements:
         # The first statement is the guard statement.
-        is_guard: bool = len(rendered_statements) == 0
         if isinstance(s, Composite):
-            result, i = render_composite(s, control_node_methods, transition_prefix, i, is_guard)
+            result, i = render_composite(s, control_node_methods, transition_prefix, i)
         elif isinstance(s, Assignment):
             result, i = render_assignment(s, control_node_methods, transition_prefix, i)
         elif isinstance(s, (Expression, Primary)):
-            result, i = render_root_expression(s, control_node_methods, transition_prefix, i, is_guard)
+            result, i = render_root_expression(s, control_node_methods, transition_prefix, i)
         else:
             raise Exception(f"No function exists to turn objects of type {type(s)} into Java statements.")
-        rendered_statements.append(result)
+        if result is not None:
+            rendered_statements.append(result)
 
     # Render the transition and its statements.
     return java_transition_template.render(
@@ -82,19 +82,29 @@ def render_decision_node(
             )
         rendered_decisions.append(result)
 
+    # Render identifiable statements for transitions that have been left out.
+    rendered_excluded_transitions = []
+    for t in model.excluded_transitions:
+        rendered_excluded_transitions.append(
+            f"// - (Superfluous) SLCO transition (id:{ t.id }, p:{t.priority}) | {t.source} -> {t.target}"
+        )
+
     # Render the decision of the appropriate type as Java code.
     if model.is_deterministic:
         result = java_deterministic_decision_node_template.render(
-            rendered_decisions=rendered_decisions
+            rendered_decisions=rendered_decisions,
+            rendered_excluded_transitions=rendered_excluded_transitions
         )
     else:
         if settings.non_determinism:
             result = java_non_deterministic_decision_node_template.render(
-                rendered_decisions=rendered_decisions
+                rendered_decisions=rendered_decisions,
+                rendered_excluded_transitions=rendered_excluded_transitions
             )
         else:
             result = java_sequential_decision_node_template.render(
-                rendered_decisions=rendered_decisions
+                rendered_decisions=rendered_decisions,
+                rendered_excluded_transitions=rendered_excluded_transitions
             )
     return result, i
 

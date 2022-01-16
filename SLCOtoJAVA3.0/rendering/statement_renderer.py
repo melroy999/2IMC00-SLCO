@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Tuple, Set
+from typing import TYPE_CHECKING, List, Tuple, Set, Union
 
 import settings
 from objects.ast.util import get_class_variable_references
@@ -50,16 +50,16 @@ def render_expression(model: Expression, control_node_methods: List[str], contro
     Render the given expression object as in-line Java code.
     """
     if model.op == "**":
-        left_str = render_statement(model.values[0], control_node_methods, control_node_method_prefix)
-        right_str = render_statement(model.values[1], control_node_methods, control_node_method_prefix)
+        left_str = render_expression_component(model.values[0], control_node_methods, control_node_method_prefix)
+        right_str = render_expression_component(model.values[1], control_node_methods, control_node_method_prefix)
         return "(int) Math.pow(%s, %s)" % (left_str, right_str)
     elif model.op == "%":
         # The % operator in Java is the remainder operator, which is not the modulo operator.
-        left_str = render_statement(model.values[0], control_node_methods, control_node_method_prefix)
-        right_str = render_statement(model.values[1], control_node_methods, control_node_method_prefix)
+        left_str = render_expression_component(model.values[0], control_node_methods, control_node_method_prefix)
+        right_str = render_expression_component(model.values[1], control_node_methods, control_node_method_prefix)
         return "Math.floorMod(%s, %s)" % (left_str, right_str)
     else:
-        values_str = [render_statement(v, control_node_methods, control_node_method_prefix) for v in model.values]
+        values_str = [render_expression_component(v, control_node_methods, control_node_method_prefix) for v in model.values]
         return (" %s " % java_operator_mappings.get(model.op, model.op)).join(values_str)
 
 
@@ -70,9 +70,9 @@ def render_primary(model: Primary, control_node_methods: List[str], control_node
     if model.value is not None:
         exp_str = str(model.value).lower()
     elif model.ref is not None:
-        exp_str = render_statement(model.ref, control_node_methods, control_node_method_prefix)
+        exp_str = render_expression_component(model.ref, control_node_methods, control_node_method_prefix)
     else:
-        exp_str = "(%s)" % render_statement(model.body, control_node_methods, control_node_method_prefix)
+        exp_str = "(%s)" % render_expression_component(model.body, control_node_methods, control_node_method_prefix)
     return ("!(%s)" if model.sign == "not" else model.sign + "%s") % exp_str
 
 
@@ -82,11 +82,11 @@ def render_variable_ref(model: VariableRef, control_node_methods: List[str], con
     """
     result = model.var.name
     if model.index is not None:
-        result += "[%s]" % render_statement(model.index, control_node_methods, control_node_method_prefix)
+        result += "[%s]" % render_expression_component(model.index, control_node_methods, control_node_method_prefix)
     return result
 
 
-def render_statement(
+def render_expression_component(
         model: SlcoStatementNode,
         control_node_methods: List[str] = None,
         control_node_method_prefix: str = ""
@@ -107,18 +107,27 @@ def render_statement(
     else:
         raise Exception(f"No function exists to turn objects of type {type(model)} into in-line Java statements.")
 
+    # Get the class variables used in the object.
+    class_variable_references = get_class_variable_references(model) if settings.verify_locks else set()
+
     # Statements with an atomic node that has locks needs to be rendered as a method.
     # Create the method and refer to it instead.
     if model.locking_atomic_node is not None and (
         model.locking_atomic_node.has_locks() or (
-            settings.verify_locks and len(model.locking_atomic_node.child_atomic_nodes) == 0
+            settings.verify_locks
+            and len(model.locking_atomic_node.child_atomic_nodes) == 0
+            and len(class_variable_references) > 0
         )
     ):
         # Give the node a name, render it as a separate method, and return a call to the method.
         method_name = f"{control_node_method_prefix}_n_{len(control_node_methods)}"
 
-        # Get the class variables used in the object.
-        class_variable_references = get_class_variable_references(model) if settings.verify_locks else set()
+        # Determine if the internal if-statement can be simplified.
+        condition_is_true = model.is_true()
+        condition_is_false = not condition_is_true and model.is_false()
+
+        # Create an easily identifiable comment.
+        statement_comment = f"// SLCO expression wrapper | {model}"
 
         # Render the statement as a control node method and return the method name.
         control_node_methods.append(
@@ -126,7 +135,10 @@ def render_statement(
                 locking_control_node=model.locking_atomic_node,
                 method_name=method_name,
                 in_line_statement=in_line_statement,
-                class_variable_references=class_variable_references
+                class_variable_references=class_variable_references,
+                condition_is_true=condition_is_true,
+                condition_is_false=condition_is_false,
+                statement_comment=statement_comment
             )
         )
         return f"{method_name}()"
@@ -143,28 +155,53 @@ def create_statement_prefix(transition_prefix: str, i: int) -> Tuple[str, int]:
 
 
 def render_root_expression(
-        model: Expression,
+        model: Union[Expression, Primary],
         control_node_methods: List[str],
         transition_prefix: str,
-        i: int,
-        is_guard: bool,
-        exclude_comment: bool = False
+        i: int
 ) -> Tuple[str, int]:
     """
     Render the given expression object as Java code.
     """
-    # Create an unique prefix for the statement.
-    statement_prefix, i = create_statement_prefix(transition_prefix, i)
+    # False expressions should have been filtered out during the decision structure construction.
+    if model.is_false():
+        raise Exception("An illegal attempt is made at rendering an expression that is always false.")
+
+    # Support flags to control rendering settings.
+    is_superfluous = False
+
+    # Determine if the statement needs to be rendered or not.
+    if model.is_true():
+        if isinstance(model, Expression):
+            raise Exception("An illegal attempt is made at rendering an expression instead of a true-valued primary.")
+        elif model.value is not True:
+            raise Exception("An illegal attempt is made at rendering a true primary that is not true-valued.")
+        elif not model.locking_atomic_node.has_locks():
+            # The if-statement is superfluous.
+            is_superfluous = True
 
     # Create an in-line Java code string for the expression.
-    in_line_expression = render_statement(model, control_node_methods, statement_prefix)
+    in_line_expression = ""
+    if not is_superfluous:
+        # Create an unique prefix for the statement.
+        statement_prefix, i = create_statement_prefix(transition_prefix, i)
+        in_line_expression = render_expression_component(model, control_node_methods, statement_prefix)
+
+    # Create an easily identifiable comment.
+    original_slco_expression_string = str(model.get_original_statement())
+    preprocessed_slco_expression_string = str(model)
+    statement_comment = "// "
+    if is_superfluous:
+        statement_comment += "(Superfluous) "
+    statement_comment += f"SLCO expression | {original_slco_expression_string}"
+    if original_slco_expression_string != preprocessed_slco_expression_string:
+        statement_comment += f" -> {preprocessed_slco_expression_string}"
 
     # Render the expression as an if statement.
     result = java_expression_template.render(
-        model=model,
         in_line_expression=in_line_expression,
-        exclude_comment=exclude_comment,
-        is_guard=is_guard
+        statement_comment=statement_comment,
+        is_superfluous=is_superfluous
     )
     return result, i
 
@@ -173,8 +210,7 @@ def render_assignment(
         model: Assignment,
         control_node_methods: List[str],
         transition_prefix: str,
-        i: int,
-        exclude_comment: bool = False
+        i: int
 ) -> Tuple[str, int]:
     """
     Render the given assignment object as Java code.
@@ -183,12 +219,19 @@ def render_assignment(
     statement_prefix, i = create_statement_prefix(transition_prefix, i)
 
     # Create an in-line Java code string for the left and right hand side.
-    in_line_lhs = render_statement(model.left, control_node_methods, statement_prefix)
-    in_line_rhs = render_statement(model.right, control_node_methods, statement_prefix)
+    in_line_lhs = render_expression_component(model.left, control_node_methods, statement_prefix)
+    in_line_rhs = render_expression_component(model.right, control_node_methods, statement_prefix)
 
     class_variable_references = get_class_variable_references(model.left) if settings.verify_locks else set()
     if settings.verify_locks and len(model.locking_atomic_node.child_atomic_nodes) == 0:
         class_variable_references.update(get_class_variable_references(model.right))
+
+    # Create an easily identifiable comment.
+    original_slco_statement_string = str(model.get_original_statement())
+    preprocessed_slco_statement_string = str(model)
+    statement_comment = f"// SLCO assignment | {original_slco_statement_string}"
+    if original_slco_statement_string != preprocessed_slco_statement_string:
+        statement_comment += f" -> {preprocessed_slco_statement_string}"
 
     # Render the assignment as Java code.
     result = java_assignment_template.render(
@@ -197,7 +240,7 @@ def render_assignment(
         in_line_lhs=in_line_lhs,
         in_line_rhs=in_line_rhs,
         class_variable_references=class_variable_references,
-        exclude_comment=exclude_comment
+        statement_comment=statement_comment
     )
     return result, i
 
@@ -207,31 +250,36 @@ def render_composite(
         control_node_methods: List[str],
         transition_prefix: str,
         i: int,
-        is_guard: bool,
 ) -> Tuple[str, int]:
     """
     Render the given composite object as Java code.
     """
     # Gather all the statements used in the composite.
     rendered_statements = []
-    rendered_guard, i = render_root_expression(
-        model.guard, control_node_methods, transition_prefix, i, is_guard, exclude_comment=True
-    )
+    rendered_guard, i = render_root_expression(model.guard, control_node_methods, transition_prefix, i)
     rendered_statements.append(rendered_guard)
     for a in model.assignments:
-        rendered_assignment, i = render_assignment(a, control_node_methods, transition_prefix, i, exclude_comment=True)
+        rendered_assignment, i = render_assignment(a, control_node_methods, transition_prefix, i)
         rendered_statements.append(rendered_assignment)
+
+    # Create an easily identifiable comment.
+    original_slco_composite_string = str(model.get_original_statement())
+    preprocessed_slco_composite_string = str(model)
+    statement_comment = f"// SLCO composite | {original_slco_composite_string}"
+    if original_slco_composite_string != preprocessed_slco_composite_string:
+        statement_comment += f" -> {preprocessed_slco_composite_string}"
 
     # Render the composite and all of its statements.
     result = java_composite_template.render(
         model=model,
-        rendered_statements=rendered_statements
+        rendered_statements=rendered_statements,
+        statement_comment=statement_comment
     )
     return result, i
 
 
 # Add supportive filters.
-env.filters["render_statement"] = render_statement
+env.filters["render_statement"] = render_expression_component
 env.filters["render_locking_instruction"] = render_locking_instruction
 env.filters["render_locking_check"] = render_locking_check
 

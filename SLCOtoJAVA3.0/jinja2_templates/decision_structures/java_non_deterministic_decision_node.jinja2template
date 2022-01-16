@@ -1,3 +1,4 @@
+// [N_DET.START]
 {% if rendered_decisions | length > 1 %}
 switch(random.nextInt({{ rendered_decisions | length }})) {
 {% for i in range(0, rendered_decisions | length) %}
@@ -10,3 +11,10 @@ switch(random.nextInt({{ rendered_decisions | length }})) {
 {% else %}
 {{ rendered_decisions[0] | trim }}
 {% endif %}
+{% if rendered_excluded_transitions | length > 0 %}
+// Excluded transitions:
+{% for node in rendered_excluded_transitions %}
+{{ node | trim }}
+{% endfor %}
+{% endif %}
+// [N_DET.END]

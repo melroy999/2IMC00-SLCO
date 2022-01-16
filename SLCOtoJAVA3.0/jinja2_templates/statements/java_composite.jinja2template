@@ -1,5 +1,4 @@
-// SLCO composite {{ model.get_original_statement() }} -> {{ model }} {% if model.exclude_statement %}(Superfluous){% endif %}
-
+{{ statement_comment }}
 {% for s in rendered_statements %}
 {{ s | trim }}
 {% endfor %}

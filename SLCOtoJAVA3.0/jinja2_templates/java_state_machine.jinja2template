@@ -38,7 +38,11 @@ class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{
     }
 
     {% for t in model.transitions %}
+    {% if not t.is_excluded %}
     {{ t | render_transition | indent(4, False) }}
+    {% else %}
+    // (Superfluous) SLCO transition (id:{{ t.id }}, p:{{ t.priority }}) | {{ t.source }} -> {{ t.target }} | Excluded due to False guard
+    {% endif %}
 
     {% endfor %}
     {% for s in model.states %}

@@ -10,6 +10,7 @@ from objects.ast.models import Primary, Composite, Transition, Assignment, Expre
     VariableRef, Variable, DecisionNode, State
 from objects.ast.util import get_class_variable_references, get_variable_references
 from objects.locking.models import AtomicNode, LockingNode, Lock, LockRequest, LockRequestInstanceProvider
+from objects.locking.visualization import render_locking_structure_instructions
 
 
 def get_locking_structure(model: StateMachine, state: State):
@@ -109,8 +110,8 @@ def finalize_locking_structure(model: StateMachine, state: State):
     model.target_locks_list_size = model.lock_request_instance_provider.counter
 
     # Render the locking structure as an image.
-    # for n in target_atomic_nodes:
-    #     render_locking_structure_instructions(n)
+    for n in target_atomic_nodes:
+        render_locking_structure_instructions(n)
 
 
 def is_boolean_statement(model) -> bool:
@@ -147,9 +148,6 @@ def construct_deterministic_decision_node(model: DecisionNode, result: AtomicNod
     for i in range(1, len(atomic_nodes)):
         result.graph.add_edge(atomic_nodes[i - 1].failure_exit, atomic_nodes[i].entry_node)
     result.graph.add_edge(atomic_nodes[-1].failure_exit, result.failure_exit)
-
-    # TODO: Explore how secondary expression/primary statements (non-guard) can still be part of the decision structure.
-    # TODO: Make separate entry points for each stage of the transition.
 
 
 def construct_non_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
@@ -339,7 +337,11 @@ def create_locking_structure(model) -> AtomicNode:
         elif settings.non_determinism:
             construct_non_deterministic_decision_node(model, result)
         else:
-            construct_sequential_decision_node(model, result)
+            if settings.atomic_sequential:
+                # The sequential should behave like a deterministic group instead.
+                construct_deterministic_decision_node(model, result)
+            else:
+                construct_sequential_decision_node(model, result)
     elif isinstance(model, Composite):
         construct_composite_node(model, result)
     elif isinstance(model, Assignment):

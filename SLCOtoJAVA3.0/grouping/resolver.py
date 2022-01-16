@@ -30,13 +30,14 @@ def print_decision_structure(model: Union[Transition, DecisionNode], indents=0) 
     if isinstance(model, DecisionNode):
         if model.is_deterministic:
             logging.info(f"{' ' * indents} - DET:")
-            for decision in model.decisions:
+            for decision in model.decisions + model.excluded_transitions:
                 print_decision_structure(decision, indents + 2)
         else:
             logging.info(f"{' ' * indents} - N_DET:")
-            for decision in model.decisions:
+            for decision in model.decisions + model.excluded_transitions:
                 print_decision_structure(decision, indents + 2)
     else:
         logging.info(
-            f"{' ' * indents} - p:{model.priority}, id:{model.id} {model.source} -> {model.target}: {model.guard}"
+            f"{' ' * indents} - {'(Excluded) ' if model.is_excluded else ''}(p:{model.priority}, id:{model.id}) | "
+            f"{model.source} -> {model.target} | {model.guard}"
         )

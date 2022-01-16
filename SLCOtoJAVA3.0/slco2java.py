@@ -48,6 +48,8 @@ def get_argument_parser():
                                                                       "relying on the priority and list ordering.")
     parser.add_argument("-verify_locks", action='store_true', help="Add Java statements that verify whether locks have "
                                                                    "been acquired before use.")
+    parser.add_argument("-atomic_sequential", action='store_true', help="Make the sequential decision structures an "
+                                                                        "atomic operation.")
     return parser
 
 

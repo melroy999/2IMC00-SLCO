@@ -5,6 +5,7 @@ from typing import Union, List, Optional, Iterator, Dict
 
 import networkx as nx
 
+import settings
 from objects.ast.interfaces import SlcoNode, SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode, SlcoLockableNode
 
 
@@ -333,6 +334,7 @@ class Transition(SlcoStructuralNode):
 
         # Decision structure info.
         self.id: int = -1
+        self.is_excluded = False
 
     def __repr__(self) -> str:
         transition_repr = f"{self.priority}: {self.source} -> {self.target} {{"
@@ -689,9 +691,22 @@ class DecisionNode(SlcoLockableNode):
     An object representing (non-)deterministic decision nodes in the code generator.
     """
 
-    def __init__(self, decisions: List[Union[DecisionNode, Transition]], is_deterministic: bool):
+    def __init__(
+            self,
+            is_deterministic: bool,
+            decisions: List[Union[DecisionNode, Transition]],
+            excluded_transitions: List[Transition]
+    ):
         self.decisions = decisions
         self.is_deterministic = is_deterministic
+
+        # Track which decisions have been intentionally excluded in the decision node/structure.
+        self.excluded_transitions = excluded_transitions
+        for t in excluded_transitions:
+            t.is_excluded = True
+
+    def __repr__(self) -> str:
+        return "DET" if self.is_deterministic else "N_DET" if settings.non_determinism else "SEQ"
 
     @property
     def priority(self) -> int:

@@ -107,8 +107,6 @@ def simplify_transition(e: Transition):
     e.statements = restructured_statements
 
     # Exclude all statements succeeding a false expression.
-    # TODO: this should no longer be possible now that the model is always a simple SLCO model.
-    #   - The transition should not be added in the first place.
     for i, s in enumerate(e.statements):
         if isinstance(s, SlcoEvaluableNode) and s.is_false():
             # Exclude all succeeding statements from rendering, since the code is unreachable.
@@ -118,8 +116,11 @@ def simplify_transition(e: Transition):
 
     # Exclude expressions that always hold true.
     for s in e.statements:
-        if isinstance(s, SlcoEvaluableNode) and not isinstance(s, Composite) and s.is_true():
-            s.exclude_statement = True
+        if isinstance(s, SlcoEvaluableNode) and s.is_true():
+            if isinstance(s, Composite):
+                s.guard.exclude_statement = True
+            else:
+                s.exclude_statement = True
 
     # Exclude assignments that assign itself.
     for s in e.statements:

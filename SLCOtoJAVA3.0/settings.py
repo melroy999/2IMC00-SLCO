@@ -11,10 +11,13 @@ verify_locks = False
 # What decision structures should be used? Sequential of False, Random pick if True.
 non_determinism = False
 
+# Should the sequential decision grouping be considered an atomic operation?
+atomic_sequential = False
+
 
 def init(parameters):
     """Initialize the global variables, defining the settings of the program"""
-    global model_folder, model_name, verify_locks, non_determinism
+    global model_folder, model_name, verify_locks, non_determinism, atomic_sequential
 
     # Add the name of the model and the location.
     model_folder, model_name = os.path.split(parameters.model)
@@ -22,3 +25,4 @@ def init(parameters):
     # Store all of the desired settings.
     verify_locks = parameters.verify_locks
     non_determinism = parameters.non_determinism
+    atomic_sequential = parameters.atomic_sequential

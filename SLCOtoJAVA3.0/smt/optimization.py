@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, List, Union, Set
 
 from z3 import z3
 
+import settings
 from objects.ast.models import DecisionNode
 
 if TYPE_CHECKING:
@@ -81,9 +82,12 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
     # Filter out all transitions that are invariably true.
     trivially_satisfiable_transitions = []
     remaining_transitions = []
+    excluded_transitions = []
     for t in transitions:
         if t.guard.is_true():
             trivially_satisfiable_transitions.append(t)
+        elif t.guard.is_false():
+            excluded_transitions.append(t)
         else:
             remaining_transitions.append(t)
 
@@ -149,9 +153,39 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
             raise Exception("Unsatisfiable result.")
 
         # Find the target transitions that are part of the deterministic group and process them accordingly.
-        deterministic_choices: List[Transition] = [
+        grouped_transitions: List[Transition] = [
             t for t in remaining_transitions if model.evaluate(alias_variables[f"g{t.id}"], model_completion=True) == 1
         ]
+
+        # Remove the transitions from the to be processed list.
+        for t in grouped_transitions:
+            remaining_transitions.remove(t)
+
+        # Ensure that duplicates in the group are handled appropriately.
+        distinct_guard_groups: List[List[Transition]] = []
+        for t in grouped_transitions:
+            d: List[Transition]
+            # Warning: syntax is correct. The else will only be executed if the loop isn't stopped prematurely.
+            for d in distinct_guard_groups:
+                if model.evaluate(alias_variables[f"ieq{t.id}_{d[0].id}"], model_completion=True):
+                    d.append(t)
+                    break
+            else:
+                distinct_guard_groups.append([t])
+
+        # Sort the guard groups by priority and index and make non-deterministic groups if appropriate.
+        deterministic_choices: List[Union[DecisionNode, Transition]] = []
+        for d in distinct_guard_groups:
+            d.sort(key=lambda x: (x.priority, x.id))
+            if len(d) > 1:
+                if not settings.non_determinism:
+                    # Given that all transitions have the same guard, only the first will be reachable. Exclude others.
+                    deterministic_choices.append(DecisionNode(False, d[:1], d[1:]))
+                else:
+                    # Create a non-deterministic block.
+                    deterministic_choices.append(DecisionNode(False, d, []))
+            else:
+                deterministic_choices.append(d[0])
 
         # Create a deterministic decision node for the current grouping and add it to the list of groupings.
         if len(deterministic_choices) == 1:
@@ -159,11 +193,7 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
         else:
             # Sort the decisions based on the priority.
             deterministic_choices.sort(key=lambda x: (x.priority, x.id))
-            non_deterministic_choices.append(DecisionNode(deterministic_choices, True))
-
-        # Remove the transitions from the to be processed list.
-        for t in deterministic_choices:
-            remaining_transitions.remove(t)
+            non_deterministic_choices.append(DecisionNode(True, deterministic_choices, []))
 
         # Restore the state of the solver.
         s.pop()
@@ -171,9 +201,11 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
     # Restore the state of the solver.
     s.pop()
 
+    # TODO: decisions following a true expression in the outer non deterministic group are superfluous if sequential.
+
     # Sort the decisions based on the priority.
     non_deterministic_choices += trivially_satisfiable_transitions
     non_deterministic_choices.sort(key=lambda x: (x.priority, x.id))
 
     # Create and return a non-deterministic decision node for the given decisions.
-    return DecisionNode(non_deterministic_choices, False)
+    return DecisionNode(False, non_deterministic_choices, excluded_transitions)
