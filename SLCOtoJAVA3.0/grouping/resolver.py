@@ -38,6 +38,5 @@ def print_decision_structure(model: Union[Transition, DecisionNode], indents=0) 
                 print_decision_structure(decision, indents + 2)
     else:
         logging.info(
-            f"{' ' * indents} - {'(Excluded) ' if model.is_excluded else ''}(p:{model.priority}, id:{model.id}) | "
-            f"{model.source} -> {model.target} | {model.guard}"
+            f"{' ' * indents} - {model}"
         )

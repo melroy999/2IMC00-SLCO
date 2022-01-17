@@ -1,7 +1,7 @@
 model Test {
 	classes
 	P {
-        variables Integer[2] x Integer[2] y Boolean[3] b Integer i := 0
+        variables Integer[2] x Integer[2] y Boolean[3] b Integer i := 0 Byte[2] c Byte d
         state machines
         SM1 {
             initial SMC0 states SMC1
@@ -14,6 +14,8 @@ model Test {
                 [i >= 0 and i < 2; i := 0; x[i] := 0; x[x[i]] := 0];
                 [i := 0; b[i] := i >= 0 and i < 2 and b[i]];
                 [b[0] := True; i := 0; b[i] := i >= 0 and i < 2 and b[i]];
+                d := 0;
+                c[0] := 0;
             }
         }
 	}

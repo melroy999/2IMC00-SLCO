@@ -5,7 +5,11 @@
 {% if class_variable_references | length > 0 %}
 {{ class_variable_references | render_locking_check | trim }}
 {% endif %}
+{% if is_byte_typed %}
+{{ in_line_lhs }} = ({{ in_line_rhs }}) & 0xff;
+{% else %}
 {{ in_line_lhs }} = {{ in_line_rhs }};
+{% endif %}
 {% if locking_control_node.success_exit.has_locks() %}
 {{ locking_control_node.success_exit.locking_instructions | render_locking_instruction | trim }}
 {% endif %}

@@ -303,15 +303,8 @@ def construct_primary_node(model: Primary, result: AtomicNode) -> None:
             result.graph.add_edge(result.entry_node, result.failure_exit)
     else:
         # The primary contains a constant.
-        if model.value is False:
-            # Special case: don't connect the true branch, since the expression will always yield false.
-            result.graph.add_edge(result.entry_node, result.failure_exit)
-        elif model.value is True:
-            # Special case: don't connect the false branch, since the expression will always yield true.
-            result.graph.add_edge(result.entry_node, result.success_exit)
-        else:
-            # For integer/byte values, there is only a success path.
-            result.graph.add_edge(result.entry_node, result.success_exit)
+        result.graph.add_edge(result.entry_node, result.success_exit)
+        result.graph.add_edge(result.entry_node, result.failure_exit)
 
 
 def create_locking_structure(model) -> AtomicNode:

@@ -25,7 +25,7 @@ def simplify_slco_model(model):
     model = slco2slco.model
     # slco2slco.check_vars(model)
     slco2slco.check_repeatedwrites(model)
-    slco2slco.combine_trans(model)
+    # slco2slco.combine_trans(model) TODO: Causes statements to disappear?
     slco2slco.make_simple(model)
 
     return model

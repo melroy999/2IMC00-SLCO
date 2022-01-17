@@ -13,10 +13,11 @@ if TYPE_CHECKING:
 
 def render_type(model: Variable):
     """Render the type of the given variable object."""
+    type_name = "boolean" if model.is_boolean else "char" if model.is_byte else "int"
     if model.is_array:
-        return f"{'boolean' if model.is_boolean else 'int'}[]"
+        return f"{type_name}[]"
     else:
-        return f"{'boolean' if model.is_boolean else 'int'}"
+        return f"{type_name}"
 
 
 def render_transition(model: Transition) -> str:
@@ -157,8 +158,11 @@ def render_object_instantiation(model: Object) -> str:
     arguments = []
     for i, a in enumerate(model.initial_values):
         v = model.type.variables[i]
+        type_name = "boolean" if v.is_boolean else "char" if v.is_byte else "int"
         if v.is_array:
-            arguments.append("new %s[]{ %s }" % ("boolean" if v.is_boolean else "int", ", ".join(map(str, a)).lower()))
+            arguments.append(f"new {type_name}[]{{ {', '.join(map(str, a)).lower()} }}")
+        elif v.is_byte:
+            arguments.append(f"(char) {a}")
         else:
             arguments.append(a)
 

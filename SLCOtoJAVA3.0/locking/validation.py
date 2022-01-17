@@ -9,6 +9,7 @@ import networkx as nx
 
 from objects.ast.util import get_variables_to_be_locked
 from objects.locking.models import Lock
+from objects.locking.visualization import render_locking_structure_instructions
 
 if TYPE_CHECKING:
     from objects.ast.models import VariableRef
@@ -28,8 +29,10 @@ def validate_locking_structure_integrity(model: AtomicNode):
 
     # Raise an exception of any of the paths does not get through the validation.
     if not all(validate_locking_node_integrity(n, model.graph, set()) for n in starting_points):
+        render_locking_structure_instructions(model)
         raise Exception(f"The atomic node of \"{model.partner}\" has a path that violates the locking semantics.")
     if not all(validate_locking_instruction_integrity(n, model.graph, set()) for n in starting_points):
+        render_locking_structure_instructions(model)
         raise Exception(f"The atomic node of \"{model.partner}\" has a path that violates the locking semantics.")
 
 

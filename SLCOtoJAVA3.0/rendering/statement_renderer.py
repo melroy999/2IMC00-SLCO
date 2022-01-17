@@ -215,6 +215,8 @@ def render_assignment(
     """
     Render the given assignment object as Java code.
     """
+    # TODO: handle bytes. Maybe use char instead of int with a & 0xff mask?
+
     # Create an unique prefix for the statement.
     statement_prefix, i = create_statement_prefix(transition_prefix, i)
 
@@ -240,7 +242,8 @@ def render_assignment(
         in_line_lhs=in_line_lhs,
         in_line_rhs=in_line_rhs,
         class_variable_references=class_variable_references,
-        statement_comment=statement_comment
+        statement_comment=statement_comment,
+        is_byte_typed=model.left.var.is_byte
     )
     return result, i
 

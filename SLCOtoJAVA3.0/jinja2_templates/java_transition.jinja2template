@@ -2,7 +2,7 @@
 {{ support_methods }}
 
 {% endfor %}
-// SLCO transition (id:{{ model.id }}, p:{{ model.priority }}) | {{ model.source }} -> {{ model.target }}
+// SLCO transition {{ model }}
 private boolean execute_transition_{{ model.source }}_{{ model.id }}() {
     {% for s in rendered_statements %}
     {{ s | indent(4, False) | trim }}

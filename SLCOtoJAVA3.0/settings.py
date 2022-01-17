@@ -39,5 +39,5 @@ def init(parameters):
     verify_locks = parameters.verify_locks
     non_determinism = parameters.non_determinism
     atomic_sequential = parameters.atomic_sequential
-    lock_full_arrays = statement_locks or parameters.lock_full_arrays
+    lock_full_arrays = parameters.lock_full_arrays
     statement_locks = parameters.statement_locks

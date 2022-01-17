@@ -38,7 +38,7 @@ def get_byte_variables(e):
     while len(exploration_stack) > 0:
         v = exploration_stack.pop()
         if type(v).__name__ == "VariableRef" and v.var.is_byte:
-            byte_variables.add(v.var.smt)
+            byte_variables.add(v.smt)
         if isinstance(e, Iterable):
             exploration_stack.extend(list(v))
     return byte_variables

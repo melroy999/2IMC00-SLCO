@@ -337,14 +337,17 @@ class Transition(SlcoStructuralNode):
         self.is_excluded = False
 
     def __repr__(self) -> str:
-        transition_repr = f"{self.priority}: {self.source} -> {self.target} {{"
-        for s in self.statements:
-            if s.exclude_statement:
-                transition_repr += f"\n\t(x) {s};"
-            else:
-                transition_repr += f"\n\t{s};"
-        transition_repr += "\n}"
-        return transition_repr
+        return f"{'(Excluded) ' if self.is_excluded else ''}(p:{self.priority}, id:{self.id}) | {self.source} -> {self.target} | {' | '.join(str(s) for s in self.statements)}"
+
+        #
+        # transition_repr = f"{self.priority}: {self.source} -> {self.target} {{"
+        # for s in self.statements:
+        #     if s.exclude_statement:
+        #         transition_repr += f"\n\t(x) {s};"
+        #     else:
+        #         transition_repr += f"\n\t{s};"
+        # transition_repr += "\n}"
+        # return transition_repr
 
     def __iter__(self) -> Iterator[Union[Expression, Composite, Assignment, Primary]]:
         """Iterate through all objects part of the AST structure."""
