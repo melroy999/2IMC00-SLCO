@@ -50,6 +50,12 @@ def get_argument_parser():
                                                                    "been acquired before use.")
     parser.add_argument("-atomic_sequential", action='store_true', help="Make the sequential decision structures an "
                                                                         "atomic operation.")
+    parser.add_argument("-lock_full_arrays", action='store_true', help="Lock the entirety of an array instead of a "
+                                                                       "single element.")
+    parser.add_argument("-statement_locks", action='store_true', help="Make the execution sequential by having each "
+                                                                      "statement use the same lock.")
+    parser.add_argument("-visualize_locking_graph", action='store_true', help="Create a graph visualization of the "
+                                                                              "locking graph.")
     return parser
 
 

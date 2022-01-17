@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List, Tuple, Set, Union
 
 import settings
-from objects.ast.util import get_class_variable_references
+from objects.ast.util import get_variables_to_be_locked
 from rendering.environment_settings import env
 from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment
 
@@ -108,7 +108,7 @@ def render_expression_component(
         raise Exception(f"No function exists to turn objects of type {type(model)} into in-line Java statements.")
 
     # Get the class variables used in the object.
-    class_variable_references = get_class_variable_references(model) if settings.verify_locks else set()
+    class_variable_references = get_variables_to_be_locked(model) if settings.verify_locks else set()
 
     # Statements with an atomic node that has locks needs to be rendered as a method.
     # Create the method and refer to it instead.
@@ -222,9 +222,9 @@ def render_assignment(
     in_line_lhs = render_expression_component(model.left, control_node_methods, statement_prefix)
     in_line_rhs = render_expression_component(model.right, control_node_methods, statement_prefix)
 
-    class_variable_references = get_class_variable_references(model.left) if settings.verify_locks else set()
+    class_variable_references = get_variables_to_be_locked(model.left) if settings.verify_locks else set()
     if settings.verify_locks and len(model.locking_atomic_node.child_atomic_nodes) == 0:
-        class_variable_references.update(get_class_variable_references(model.right))
+        class_variable_references.update(get_variables_to_be_locked(model.right))
 
     # Create an easily identifiable comment.
     original_slco_statement_string = str(model.get_original_statement())

@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import logging
 from typing import Set, TYPE_CHECKING
+
 from objects.ast.models import Assignment, DecisionNode
 
 import networkx as nx
 
-from objects.ast.util import get_class_variable_references
+from objects.ast.util import get_variables_to_be_locked
 from objects.locking.models import Lock
 
 if TYPE_CHECKING:
@@ -48,9 +49,9 @@ def validate_locking_node_integrity(
     # All locks used in base-level lockable components need to have been acquired before use.
     target_variables: Set[VariableRef] = set()
     if len(n.partner.locking_atomic_node.child_atomic_nodes) == 0:
-        target_variables = get_class_variable_references(n.partner)
+        target_variables = get_variables_to_be_locked(n.partner)
     elif isinstance(n.partner, Assignment) and len(n.partner.locking_atomic_node.child_atomic_nodes) == 1:
-        target_variables = get_class_variable_references(n.partner.left)
+        target_variables = get_variables_to_be_locked(n.partner.left)
 
     # Ensure that all variables used by the statement are locked.
     target_locks: Set[Lock] = {Lock(r, entry_node) for r in target_variables}

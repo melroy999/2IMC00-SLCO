@@ -8,7 +8,7 @@ from locking.validation import validate_locking_structure_integrity
 from objects.ast.interfaces import SlcoLockableNode, SlcoStatementNode
 from objects.ast.models import Primary, Composite, Transition, Assignment, Expression, StateMachine, Class, \
     VariableRef, Variable, DecisionNode, State
-from objects.ast.util import get_class_variable_references, get_variable_references
+from objects.ast.util import get_class_variable_references, get_variable_references, get_variables_to_be_locked
 from objects.locking.models import AtomicNode, LockingNode, Lock, LockRequest, LockRequestInstanceProvider
 from objects.locking.visualization import render_locking_structure_instructions
 
@@ -110,8 +110,9 @@ def finalize_locking_structure(model: StateMachine, state: State):
     model.target_locks_list_size = model.lock_request_instance_provider.counter
 
     # Render the locking structure as an image.
-    for n in target_atomic_nodes:
-        render_locking_structure_instructions(n)
+    if settings.visualize_locking_graph:
+        for n in target_atomic_nodes:
+            render_locking_structure_instructions(n)
 
 
 def is_boolean_statement(model) -> bool:
@@ -367,11 +368,11 @@ def generate_base_level_locking_entries(model: AtomicNode):
     """
     if isinstance(model.partner, Assignment):
         # Find the variables that are targeted by the assignment's atomic node.
-        class_variable_references = get_class_variable_references(model.partner.left)
+        class_variable_references = get_variables_to_be_locked(model.partner.left)
 
         if len(model.child_atomic_nodes) == 0:
             # No atomic node present for the right hand side. Add the requested locks to the assignment's atomic node.
-            class_variable_references.update(get_class_variable_references(model.partner.right))
+            class_variable_references.update(get_variables_to_be_locked(model.partner.right))
         else:
             # Recursively add the appropriate data to the right hand side.
             for n in model.partner.locking_atomic_node.child_atomic_nodes:
@@ -388,7 +389,7 @@ def generate_base_level_locking_entries(model: AtomicNode):
             generate_base_level_locking_entries(n)
     else:
         # The node is a base-level lockable node. Add the appropriate locks.
-        class_variable_references = get_class_variable_references(model.partner)
+        class_variable_references = get_variables_to_be_locked(model.partner)
         locks = {Lock(r, model.entry_node) for r in class_variable_references}
         model.entry_node.locks_to_acquire.update(locks)
         model.success_exit.locks_to_release.update(locks)
@@ -559,7 +560,7 @@ def mark_lock_ordering_violations(model: AtomicNode):
     for n in model.graph.nodes:
         i: Lock
         for i in (j for j in n.locks_to_acquire if j.ref.var.is_array):
-            class_variable_references: Set[VariableRef] = get_class_variable_references(i.ref.index)
+            class_variable_references: Set[VariableRef] = get_variables_to_be_locked(i.ref.index)
             if any(r for r in class_variable_references if r.var.lock_id >= i.ref.var.lock_id):
                 # A violation is found. Mark the lock as dirty.
                 i.is_dirty = True
