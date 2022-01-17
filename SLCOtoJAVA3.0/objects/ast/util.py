@@ -267,23 +267,31 @@ def get_class_variable_references(model: SlcoStatementNode) -> Set[VariableRef]:
     return model.class_variable_references.copy()
 
 
+# A variable used to lock entire statements.
+statement_lock_variable = Variable("statement lock", Type("int", 0))
+statement_lock_variable.lock_id = 0
+
+
 def get_variables_to_be_locked(model: SlcoStatementNode):
     """
     Get the variables that need to be locked within the given statement.
     """
-    # Get the class variables being referenced.
-    class_variable_references = get_class_variable_references(model)
+    if settings.statement_locks:
+        return {VariableRef(statement_lock_variable)}
+    else:
+        # Get the class variables being referenced.
+        class_variable_references = get_class_variable_references(model)
 
-    if settings.lock_full_arrays:
-        # The entire array can be locked by enforcing that the index of array variables is always zero.
-        adjusted_variable_references = set()
-        for r in class_variable_references:
-            if r.var.is_array:
-                adjusted_variable_references.add(VariableRef(r.var, Primary(target=0)))
-            else:
-                adjusted_variable_references.add(r)
-        class_variable_references = adjusted_variable_references
-    return class_variable_references
+        if settings.lock_full_arrays:
+            # The entire array can be locked by enforcing that the index of array variables is always zero.
+            adjusted_variable_references = set()
+            for r in class_variable_references:
+                if r.var.is_array:
+                    adjusted_variable_references.add(VariableRef(r.var, Primary(target=0)))
+                else:
+                    adjusted_variable_references.add(r)
+            class_variable_references = adjusted_variable_references
+        return class_variable_references
 
 
 def get_variable_dependency_graph(model: SlcoStatementNode) -> nx.DiGraph:

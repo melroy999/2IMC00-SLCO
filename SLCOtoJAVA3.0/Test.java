@@ -107,20 +107,20 @@ public class Test {
             SM1Thread (LockManager lockManagerInstance) {
                 currentState = SM1Thread.States.SMC0;
                 lockManager = lockManagerInstance;
-                lock_ids = new int[2];
-                target_locks = new int[2];
+                lock_ids = new int[1];
+                target_locks = new int[1];
                 random = new Random();
             }
 
             // SLCO expression wrapper | x[0] > 0
             private boolean t_SMC0_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0 + 0; // Acquire x
+                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0 + 0); // Check x[0]
+                lockManager.check_lock(0); // Check statement lock
                 if(x[0] > 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release x
+                lock_ids[0] = target_locks[0]; // Release statement lock
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
@@ -133,17 +133,13 @@ public class Test {
                     return false;
                 }
                 // SLCO assignment | i := i + 1
-                lock_ids[0] = target_locks[1] = 0; // Acquire i
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check i
+                lockManager.check_lock(0); // Check statement lock
                 i = i + 1;
                 // SLCO assignment | x[i] := 1
-                lockManager.check_lock(0); // Check i
-                lockManager.check_lock(0 + 0); // Check x[0]
+                lockManager.check_lock(0); // Check statement lock
                 x[i] = 1;
-                lock_ids[0] = target_locks[1]; // Release i
-                lock_ids[1] = target_locks[0]; // Release x
-                lockManager.release_locks(lock_ids, 2);
+                lock_ids[0] = target_locks[0]; // Release statement lock
+                lockManager.release_locks(lock_ids, 1);
 
                 currentState = SM1Thread.States.NewState3;
                 return true;
@@ -151,13 +147,13 @@ public class Test {
 
             // SLCO expression wrapper | x[0] > 0
             private boolean t_NewState0_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0 + 0; // Acquire x
+                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0 + 0); // Check x[0]
+                lockManager.check_lock(0); // Check statement lock
                 if(x[0] > 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release x
+                lock_ids[0] = target_locks[0]; // Release statement lock
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
@@ -170,20 +166,15 @@ public class Test {
                     return false;
                 }
                 // SLCO assignment | i := 2
-                lock_ids[0] = target_locks[1] = 0; // Acquire i
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check i
+                lockManager.check_lock(0); // Check statement lock
                 i = 2;
                 // SLCO assignment | x[i] := 1
-                lockManager.check_lock(0); // Check i
-                lockManager.check_lock(0 + 0); // Check x[0]
+                lockManager.check_lock(0); // Check statement lock
                 x[i] = 1;
-                lock_ids[0] = target_locks[1]; // Release i
-                lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | x[1] := 1
-                lockManager.check_lock(0 + 0); // Check x[0]
+                lockManager.check_lock(0); // Check statement lock
                 x[1] = 1;
-                lock_ids[0] = target_locks[0]; // Release x
+                lock_ids[0] = target_locks[0]; // Release statement lock
                 lockManager.release_locks(lock_ids, 1);
 
                 currentState = SM1Thread.States.SMC0;
@@ -192,13 +183,13 @@ public class Test {
 
             // SLCO expression wrapper | x[0] > 0
             private boolean t_NewState1_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0 + 0; // Acquire x
+                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0 + 0); // Check x[0]
+                lockManager.check_lock(0); // Check statement lock
                 if(x[0] > 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release x
+                lock_ids[0] = target_locks[0]; // Release statement lock
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
@@ -211,20 +202,15 @@ public class Test {
                     return false;
                 }
                 // SLCO assignment | i := 0
-                lock_ids[0] = target_locks[1] = 0; // Acquire i
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check i
+                lockManager.check_lock(0); // Check statement lock
                 i = 0;
                 // SLCO assignment | x[i] := 1
-                lockManager.check_lock(0); // Check i
-                lockManager.check_lock(0 + 0); // Check x[0]
+                lockManager.check_lock(0); // Check statement lock
                 x[i] = 1;
-                lock_ids[0] = target_locks[1]; // Release i
-                lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | x[1] := 1
-                lockManager.check_lock(0 + 0); // Check x[0]
+                lockManager.check_lock(0); // Check statement lock
                 x[1] = 1;
-                lock_ids[0] = target_locks[0]; // Release x
+                lock_ids[0] = target_locks[0]; // Release statement lock
                 lockManager.release_locks(lock_ids, 1);
 
                 currentState = SM1Thread.States.NewState0;
@@ -233,42 +219,36 @@ public class Test {
 
             // SLCO expression wrapper | i >= 0
             private boolean t_NewState2_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0; // Acquire i
+                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check i
+                lockManager.check_lock(0); // Check statement lock
                 if(i >= 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release i
+                lock_ids[0] = target_locks[0]; // Release statement lock
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
 
             // SLCO expression wrapper | i < 3
             private boolean t_NewState2_0_s_0_n_1() {
-                lockManager.check_lock(0); // Check i
+                lockManager.check_lock(0); // Check statement lock
                 if(i < 3) {
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release i
+                lock_ids[0] = target_locks[0]; // Release statement lock
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
 
             // SLCO expression wrapper | b[i]
             private boolean t_NewState2_0_s_0_n_2() {
-                lock_ids[0] = target_locks[1] = 0 + 0; // Acquire b
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check i
-                lockManager.check_lock(0 + 0); // Check b[0]
+                lockManager.check_lock(0); // Check statement lock
                 if(b[i]) {
-                    lock_ids[0] = target_locks[1]; // Release b
-                    lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release i
-                lock_ids[1] = target_locks[1]; // Release b
-                lockManager.release_locks(lock_ids, 2);
+                lock_ids[0] = target_locks[0]; // Release statement lock
+                lockManager.release_locks(lock_ids, 1);
                 return false;
             }
 
@@ -280,20 +260,15 @@ public class Test {
                     return false;
                 }
                 // SLCO assignment | i := 0
-                lockManager.check_lock(0); // Check i
+                lockManager.check_lock(0); // Check statement lock
                 i = 0;
                 // SLCO assignment | x[i] := 1
-                lock_ids[0] = target_locks[2] = 0 + 0; // Acquire x
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check i
-                lockManager.check_lock(0 + 0); // Check x[0]
+                lockManager.check_lock(0); // Check statement lock
                 x[i] = 1;
-                lock_ids[0] = target_locks[0]; // Release i
-                lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | x[1] := 1
-                lockManager.check_lock(0 + 0); // Check x[0]
+                lockManager.check_lock(0); // Check statement lock
                 x[1] = 1;
-                lock_ids[0] = target_locks[2]; // Release x
+                lock_ids[0] = target_locks[0]; // Release statement lock
                 lockManager.release_locks(lock_ids, 1);
 
                 currentState = SM1Thread.States.NewState1;
@@ -302,24 +277,24 @@ public class Test {
 
             // SLCO expression wrapper | i >= 0
             private boolean t_NewState3_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0; // Acquire i
+                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check i
+                lockManager.check_lock(0); // Check statement lock
                 if(i >= 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release i
+                lock_ids[0] = target_locks[0]; // Release statement lock
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
 
             // SLCO expression wrapper | i < 2
             private boolean t_NewState3_0_s_0_n_1() {
-                lockManager.check_lock(0); // Check i
+                lockManager.check_lock(0); // Check statement lock
                 if(i < 2) {
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release i
+                lock_ids[0] = target_locks[0]; // Release statement lock
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
@@ -332,21 +307,16 @@ public class Test {
                     return false;
                 }
                 // SLCO assignment | i := 0
-                lockManager.check_lock(0); // Check i
+                lockManager.check_lock(0); // Check statement lock
                 i = 0;
                 // SLCO assignment | x[i] := 0
-                lock_ids[0] = target_locks[1] = 0 + 0; // Acquire x
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check i
-                lockManager.check_lock(0 + 0); // Check x[0]
+                lockManager.check_lock(0); // Check statement lock
                 x[i] = 0;
                 // SLCO assignment | x[x[i]] := 0
-                lockManager.check_lock(0); // Check i
-                lockManager.check_lock(0 + 0); // Check x[0]
+                lockManager.check_lock(0); // Check statement lock
                 x[x[i]] = 0;
-                lock_ids[0] = target_locks[0]; // Release i
-                lock_ids[1] = target_locks[1]; // Release x
-                lockManager.release_locks(lock_ids, 2);
+                lock_ids[0] = target_locks[0]; // Release statement lock
+                lockManager.release_locks(lock_ids, 1);
 
                 currentState = SM1Thread.States.NewState2;
                 return true;
@@ -429,7 +399,7 @@ public class Test {
 
         P(int[] x, int[] y, boolean[] b, int i) {
             // Create a lock manager.
-            LockManager lockManager = new LockManager(3);
+            LockManager lockManager = new LockManager(6);
 
             // Instantiate global variables
             this.x = x;
