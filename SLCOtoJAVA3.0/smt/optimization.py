@@ -33,6 +33,7 @@ def create_and_truth_table(transitions, alias_variables) -> None:
             # Existential quantifiers are not supported, so do the check separately.
             s.push()
             s.add(z3.And(e1, e2))
+            # noinspection DuplicatedCode
             result = s.check().r == z3.Z3_L_TRUE
             s.pop()
 
@@ -61,6 +62,7 @@ def create_is_equal_table(transitions, alias_variables) -> None:
             # Existential quantifiers are not supported, so do the check separately.
             s.push()
             s.add(z3.Not(e1 == e2))
+            # noinspection DuplicatedCode
             result = s.check().r == z3.Z3_L_FALSE
             s.pop()
 

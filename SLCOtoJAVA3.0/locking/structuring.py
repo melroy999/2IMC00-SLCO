@@ -1,5 +1,5 @@
 import logging
-from typing import Dict, Set, List
+from typing import Dict, Set, List, Union
 
 import networkx as nx
 
@@ -8,12 +8,307 @@ from locking.validation import validate_locking_structure_integrity
 from objects.ast.interfaces import SlcoLockableNode, SlcoStatementNode
 from objects.ast.models import Primary, Composite, Transition, Assignment, Expression, StateMachine, Class, \
     VariableRef, Variable, DecisionNode, State
-from objects.ast.util import get_class_variable_references, get_variable_references, get_variables_to_be_locked
+from objects.ast.util import get_variable_references, get_variables_to_be_locked
 from objects.locking.models import AtomicNode, LockingNode, Lock, LockRequest, LockRequestInstanceProvider
 from objects.locking.visualization import render_locking_structure_instructions
 
 
-def get_locking_structure(model: StateMachine, state: State):
+def initialize_transition_locking_structure(model: Transition):
+    """
+    Construct a locking structure for the targeted transition.
+    """
+    # Construct the locking structure for the transition.
+    create_transition_locking_structure(model)
+
+    # Generate the base-level locking data and add it to the locking structure.
+    for s in model.statements:
+        generate_base_level_locking_entries(s.locking_atomic_node)
+        assign_locking_node_ids(s.locking_atomic_node)
+        generate_location_sensitive_marks(s.locking_atomic_node)
+
+    # Perform a movement step prior to knowing the lock identities.
+    # Two passes are required: one to get the non-constant array variables to the right position in the graph, and a
+    # second to compensate for the effect that the movement of the aforementioned non-constant array indices may have
+    # on the location of constant valued indices.
+    for s in model.statements:
+        restructure_lock_acquisitions(s.locking_atomic_node, nr_of_passes=2)
+
+
+def is_boolean_statement(model) -> bool:
+    """
+    Determine whether the given statement yields a boolean result or not.
+    """
+    if isinstance(model, Primary):
+        if model.sign == "not" and model.value is None:
+            # Values with a negation that are non-constant are boolean statements.
+            return True
+        elif model.ref is not None and model.ref.var.is_boolean:
+            # Primaries referencing to boolean variables are boolean statements.
+            return True
+        elif model.body is not None:
+            # Determine if the nested object is a boolean statement or not.
+            return is_boolean_statement(model.body)
+    elif isinstance(model, Expression) and model.op not in ["+", "-", "*", "/", "%", "**"]:
+        # Expressions not using mathematical operators are boolean statements.
+        return True
+    return False
+
+
+def construct_composite_node(model: Composite, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given composite node.
+    """
+    # Create atomic nodes for each of the components, including the guard.
+    atomic_nodes = [create_transition_locking_structure(v) for v in [model.guard] + model.assignments]
+    for n in atomic_nodes:
+        result.include_atomic_node(n)
+
+    # Chain all the components and connect the failure exit of the guard to the composite's atomic node.
+    result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
+    result.graph.add_edge(atomic_nodes[0].failure_exit, result.failure_exit)
+    for i in range(1, len(atomic_nodes)):
+        result.graph.add_edge(atomic_nodes[i - 1].success_exit, atomic_nodes[i].entry_node)
+    result.graph.add_edge(atomic_nodes[-1].success_exit, result.success_exit)
+
+
+def construct_assignment_node(model: Assignment, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given assignment node.
+    """
+    # The left hand side of the assignment cannot be locked locally, and hence will not get an atomic node.
+    # The right side will only get an atomic node if it is a boolean expression or primary.
+    if is_boolean_statement(model.right):
+        # Create an atomic node and include it.
+        right_atomic_node = create_transition_locking_structure(model.right)
+
+        # The assignment does not use the expression's partner evaluations. Hence, mark it as indifferent.
+        right_atomic_node.mark_indifferent()
+
+        # Add the right hand side atomic node to the graph.
+        result.include_atomic_node(right_atomic_node)
+
+        # Add  the appropriate connections.
+        result.graph.add_edge(result.entry_node, right_atomic_node.entry_node)
+        result.graph.add_edge(right_atomic_node.success_exit, result.success_exit)
+    else:
+        # Simply create a connection to the success exit point--the statement will be locked in its entirety.
+        result.graph.add_edge(result.entry_node, result.success_exit)
+
+    # Assignments cannot fail, and hence, the atomic node should be indifferent to the partner's evaluation.
+    result.mark_indifferent()
+
+
+def construct_expression_node(model: Expression, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given expression node.
+    """
+    # Conjunction and disjunction statements need special treatment due to their control flow characteristics.
+    # Additionally, exclusive disjunction needs different treatment too, since it can have nested aggregates.
+    if model.op in ["and", "or"]:
+        # Find over which nodes the statement is made and add all the graphs to the result node.
+        atomic_nodes = [create_transition_locking_structure(v) for v in model.values]
+        for n in atomic_nodes:
+            result.include_atomic_node(n)
+
+        # Connect all clauses that prematurely exit the expression to the appropriate exit point.
+        for n in atomic_nodes:
+            if model.op == "and":
+                result.graph.add_edge(n.failure_exit, result.failure_exit)
+            else:
+                result.graph.add_edge(n.success_exit, result.success_exit)
+
+        # Chain the remaining exit points and entry points in order of the clauses.
+        result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
+        for i in range(0, len(model.values) - 1):
+            if model.op == "and":
+                result.graph.add_edge(atomic_nodes[i].success_exit, atomic_nodes[i + 1].entry_node)
+            else:
+                result.graph.add_edge(atomic_nodes[i].failure_exit, atomic_nodes[i + 1].entry_node)
+        if model.op == "and":
+            result.graph.add_edge(atomic_nodes[-1].success_exit, result.success_exit)
+        else:
+            result.graph.add_edge(atomic_nodes[-1].failure_exit, result.failure_exit)
+    elif model.op == "xor":
+        # Find over which nodes the statement is made and add all the graphs to the result node.
+        atomic_nodes = [create_transition_locking_structure(v) for v in model.values]
+        for n in atomic_nodes:
+            # Nodes should be marked indifferent, since the partner's value does not alter the control flow.
+            n.mark_indifferent()
+            result.include_atomic_node(n)
+
+        # Chain the exit points and entry points in order of the clauses.
+        result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
+        for i in range(0, len(model.values) - 1):
+            result.graph.add_edge(atomic_nodes[i].success_exit, atomic_nodes[i + 1].entry_node)
+        result.graph.add_edge(atomic_nodes[-1].success_exit, result.success_exit)
+        result.graph.add_edge(atomic_nodes[-1].success_exit, result.failure_exit)
+    else:
+        # Add success and failure exit connections.
+        # Note that math operators aren't treated differently--they cannot reach this point.
+        result.graph.add_edge(result.entry_node, result.success_exit)
+        result.graph.add_edge(result.entry_node, result.failure_exit)
+
+
+def construct_primary_node(model: Primary, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given primary node.
+    """
+    if model.body is not None:
+        # Add a child relationship to the body.
+        child_node = create_transition_locking_structure(model.body)
+
+        result.include_atomic_node(child_node)
+        result.graph.add_edge(result.entry_node, child_node.entry_node)
+
+        if model.sign == "not":
+            # Boolean negations simply switch the success and failure branch of the object in question.
+            result.graph.add_edge(child_node.success_exit, result.failure_exit)
+            result.graph.add_edge(child_node.failure_exit, result.success_exit)
+        else:
+            result.graph.add_edge(child_node.success_exit, result.success_exit)
+            result.graph.add_edge(child_node.failure_exit, result.failure_exit)
+    elif model.ref is not None:
+        # Add a success exit connection. Additionally, add a failure connection of the variable is a boolean.
+        result.graph.add_edge(result.entry_node, result.success_exit)
+        if model.ref.var.is_boolean:
+            result.graph.add_edge(result.entry_node, result.failure_exit)
+    else:
+        # The primary contains a constant.
+        result.graph.add_edge(result.entry_node, result.success_exit)
+        result.graph.add_edge(result.entry_node, result.failure_exit)
+
+
+def create_transition_locking_structure(model: Union[Transition, SlcoStatementNode]) -> AtomicNode:
+    """
+    Create a DAG of locking nodes that will dictate which locks will need to be requested/released at what position.
+    """
+    if isinstance(model, Transition):
+        # The guard expression of the transition needs to be included in the main structure. Other statements do not.
+        for s in model.statements:
+            create_transition_locking_structure(s)
+        return model.guard.locking_atomic_node
+
+    # All objects from this point on will return an atomic node.
+    result = AtomicNode(model)
+
+    if isinstance(model, Composite):
+        construct_composite_node(model, result)
+    elif isinstance(model, Assignment):
+        construct_assignment_node(model, result)
+    elif isinstance(model, Expression):
+        construct_expression_node(model, result)
+    elif isinstance(model, Primary):
+        construct_primary_node(model, result)
+    else:
+        raise Exception("This node is not allowed to be part of the locking structure.")
+
+    # Store the node inside the partner such that it can be accessed by the code generator.
+    if isinstance(model, SlcoLockableNode):
+        model.locking_atomic_node = result
+
+    # Return the atomic node associated with the model.
+    return result
+
+
+def generate_base_level_locking_entries(model: AtomicNode):
+    """
+    Add the requested lock objects to the base-level lockable components.
+    """
+    if isinstance(model.partner, Assignment):
+        # Find the variables that are targeted by the assignment's atomic node.
+        class_variable_references = get_variables_to_be_locked(model.partner.left)
+
+        if len(model.child_atomic_nodes) == 0:
+            # No atomic node present for the right hand side. Add the requested locks to the assignment's atomic node.
+            class_variable_references.update(get_variables_to_be_locked(model.partner.right))
+        else:
+            # Recursively add the appropriate data to the right hand side.
+            for n in model.partner.locking_atomic_node.child_atomic_nodes:
+                generate_base_level_locking_entries(n)
+                model.used_variables.update(n.used_variables)
+
+        # Create lock objects for all of the used class variables, and add them to the entry and exit points.
+        locks = {Lock(r, model.entry_node) for r in class_variable_references}
+        model.entry_node.locks_to_acquire.update(locks)
+        model.success_exit.locks_to_release.update(locks)
+        model.failure_exit.locks_to_release.update(locks)
+        model.used_variables.update(r.var for r in class_variable_references)
+    elif len(model.child_atomic_nodes) > 0:
+        # The node is not a base-level lockable node. Continue recursively.
+        for n in model.partner.locking_atomic_node.child_atomic_nodes:
+            generate_base_level_locking_entries(n)
+            model.used_variables.update(n.used_variables)
+    else:
+        # The node is a base-level lockable node. Add the appropriate locks.
+        class_variable_references = get_variables_to_be_locked(model.partner)
+        locks = {Lock(r, model.entry_node) for r in class_variable_references}
+        model.entry_node.locks_to_acquire.update(locks)
+        model.success_exit.locks_to_release.update(locks)
+        model.failure_exit.locks_to_release.update(locks)
+        model.used_variables.update(r.var for r in class_variable_references)
+
+
+def get_bound_checked_variables(model: SlcoStatementNode) -> Set[VariableRef]:
+    """
+    Get the referenced variables that are potentially bound checked by the given statement.
+    """
+    # This function should only be called for base-level lockable components.
+    assert(model.locking_atomic_node is None or len(model.locking_atomic_node.child_atomic_nodes) == 0)
+
+    result: Set[VariableRef] = set()
+    if isinstance(model, VariableRef):
+        # Moreover, boolean types cannot be bound checked, since they cannot be used in the index of a variable.
+        if not model.var.is_boolean:
+            result.add(model)
+    else:
+        for v in model:
+            result.update(get_bound_checked_variables(v))
+
+    # Return all the used variables.
+    return result
+
+
+def generate_location_sensitive_marks(model: AtomicNode, aggregate_variable_references: Set[VariableRef] = None):
+    """
+    Add a flag to locks that depend upon the control flow for a successful/error prone evaluation.
+    """
+    # Check which variable references have been encountered so far.
+    if aggregate_variable_references is None:
+        aggregate_variable_references = set()
+
+    if len(model.child_atomic_nodes) > 0:
+        if isinstance(model.partner, Assignment):
+            # Reset the list if an assignment is entered, since each statement should be evaluated individually.
+            aggregate_variable_references: Set[VariableRef] = set()
+
+        # Generate flags for the children.
+        for n in model.child_atomic_nodes:
+            generate_location_sensitive_marks(n, aggregate_variable_references)
+            model.location_sensitive_variables.update(n.location_sensitive_variables)
+    elif not isinstance(model.partner, Assignment) and len(model.entry_node.locks_to_acquire) > 0:
+        # The node is a base-level lockable component. Check if the node uses variables that have been encountered
+        # previously in the index of class array variables.
+        array_class_variable_references: Set[Lock] = {
+            r for r in model.entry_node.locks_to_acquire if r.ref.var.is_array
+        }
+
+        # Check for each to be acquired locks if it is position sensitive or not.
+        # A lock is location sensitive if its index uses a variable that is constrained/used earlier in the atomic tree.
+        i: Lock
+        for i in array_class_variable_references:
+            # Get the variables used in the index of the array variable.
+            variable_references = get_variable_references(i.ref.index)
+
+            # The lock is position sensitive if any of the references are in the aggregated list.
+            if variable_references.intersection(aggregate_variable_references):
+                i.is_location_sensitive = True
+                model.location_sensitive_variables.add(i.ref.var)
+
+        # Add all the used variables to the aggregate variables list.
+        aggregate_variable_references.update(get_bound_checked_variables(model.partner))
+
+
+def initialize_main_locking_structure(model: StateMachine, state: State):
     """
     Construct a locking structure for the targeted decision structure.
     """
@@ -27,24 +322,14 @@ def get_locking_structure(model: StateMachine, state: State):
     decision_structure_root = model.state_to_decision_node[state]
 
     # Construct the locking structure for the structure.
-    create_locking_structure(decision_structure_root)
-
-    # Not all atomic nodes are part of the main decision structure. Find the objects that need to be iterated over.
-    target_atomic_nodes = [decision_structure_root.locking_atomic_node]
-    for t in model.state_to_transitions[state]:
-        target_atomic_nodes.extend([s.locking_atomic_node for s in t.statements[1:]])
-
-    # Generate the base-level locking data and add it to the locking structure.
-    for n in target_atomic_nodes:
-        generate_base_level_locking_entries(n)
-        generate_location_sensitive_marks(n)
+    create_main_locking_structure(decision_structure_root)
+    assign_locking_node_ids(decision_structure_root.locking_atomic_node)
 
     # Perform a movement step prior to knowing the lock identities.
     # Two passes are required: one to get the non-constant array variables to the right position in the graph, and a
     # second to compensate for the effect that the movement of the aforementioned non-constant array indices may have
     # on the location of constant valued indices.
-    for n in target_atomic_nodes:
-        restructure_lock_acquisitions(n)
+    restructure_lock_acquisitions(decision_structure_root.locking_atomic_node, nr_of_passes=2)
 
 
 def get_max_list_size(model: AtomicNode) -> int:
@@ -64,6 +349,101 @@ def get_max_list_size(model: AtomicNode) -> int:
         pass
 
     return max_size
+
+
+def construct_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given deterministic decision node.
+    """
+    # Get an atomic node for all of the options.
+    atomic_nodes = [create_main_locking_structure(v) for v in model.decisions]
+    for n in atomic_nodes:
+        result.include_atomic_node(n)
+
+    # When one branch fails, the control flow will proceed to the next one in line.
+    result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
+    for i in range(1, len(atomic_nodes)):
+        result.graph.add_edge(atomic_nodes[i - 1].failure_exit, atomic_nodes[i].entry_node)
+    result.graph.add_edge(atomic_nodes[-1].failure_exit, result.failure_exit)
+
+
+def construct_non_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given non-deterministic decision node.
+    """
+    # Get an atomic node for all of the options.
+    atomic_nodes = [create_main_locking_structure(v) for v in model.decisions]
+    for n in atomic_nodes:
+        result.include_atomic_node(n)
+
+    # Given that the decision is completely random, the entry is connected to the entry of all choices.
+    # Moreover, each failure exit is connected to the failure exit of the node.
+    for n in atomic_nodes:
+        result.graph.add_edge(result.entry_node, n.entry_node)
+        result.graph.add_edge(n.failure_exit, result.failure_exit)
+
+
+def construct_sequential_decision_node(model: DecisionNode, result: AtomicNode) -> None:
+    """
+    Add components to the DAG of locking nodes for the given sequential decision node.
+    """
+    # Get an atomic node for all of the options.
+    atomic_nodes = [create_main_locking_structure(v) for v in model.decisions]
+    for n in atomic_nodes:
+        result.include_atomic_node(n)
+
+    # Having the sequential operation be completely atomic would be a large hit on the performance.
+    # Hence, use the same approach taken for non-determinism.
+    for n in atomic_nodes:
+        result.graph.add_edge(result.entry_node, n.entry_node)
+        result.graph.add_edge(n.failure_exit, result.failure_exit)
+
+
+def create_main_locking_structure(model) -> AtomicNode:
+    """
+    Create a DAG of locking nodes that will dictate which locks will need to be requested/released at what position.
+
+    The returned node is the encompassing atomic node of the model.
+    """
+    if isinstance(model, Transition):
+        # The guard expression of the transition needs to be included in the main structure. Other statements do not.
+        # Chain the guard statement with the overarching decision structure.
+        return model.guard.locking_atomic_node
+
+    # All objects from this point on will return an atomic node.
+    result = AtomicNode(model)
+
+    if isinstance(model, DecisionNode):
+        # The structure depends on the type of decision made.
+        if model.is_deterministic:
+            construct_deterministic_decision_node(model, result)
+        elif settings.non_determinism:
+            construct_non_deterministic_decision_node(model, result)
+        else:
+            if settings.atomic_sequential:
+                # The sequential should behave like a deterministic group instead.
+                construct_deterministic_decision_node(model, result)
+            else:
+                construct_sequential_decision_node(model, result)
+    else:
+        raise Exception("This node is not allowed to be part of the locking structure.")
+
+    # Store the node inside the partner such that it can be accessed by the code generator.
+    if isinstance(model, SlcoLockableNode):
+        model.locking_atomic_node = result
+
+    # Return the atomic node associated with the model.
+    return result
+
+
+def assign_locking_node_ids(model: AtomicNode):
+    """
+    Assign numbers to the locking nodes such that the node's predecessors always have a lower id.
+    """
+    n: LockingNode
+    for n in nx.topological_sort(model.graph):
+        # Get the maximum id of the node's predecessors.
+        n.id = max((m.id + 1 for m in model.graph.predecessors(n)), default=0)
 
 
 def finalize_locking_structure(model: StateMachine, state: State):
@@ -113,341 +493,6 @@ def finalize_locking_structure(model: StateMachine, state: State):
     if settings.visualize_locking_graph:
         for n in target_atomic_nodes:
             render_locking_structure_instructions(n)
-
-
-def is_boolean_statement(model) -> bool:
-    """
-    Determine whether the given statement yields a boolean result or not.
-    """
-    if isinstance(model, Primary):
-        if model.sign == "not" and model.value is None:
-            # Values with a negation that are non-constant are boolean statements.
-            return True
-        elif model.ref is not None and model.ref.var.is_boolean:
-            # Primaries referencing to boolean variables are boolean statements.
-            return True
-        elif model.body is not None:
-            # Determine if the nested object is a boolean statement or not.
-            return is_boolean_statement(model.body)
-    elif isinstance(model, Expression) and model.op not in ["+", "-", "*", "/", "%", "**"]:
-        # Expressions not using mathematical operators are boolean statements.
-        return True
-    return False
-
-
-def construct_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given deterministic decision node.
-    """
-    # Get an atomic node for all of the options.
-    atomic_nodes = [create_locking_structure(v) for v in model.decisions]
-    for n in atomic_nodes:
-        result.include_atomic_node(n)
-
-    # When one branch fails, the control flow will proceed to the next one in line.
-    result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
-    for i in range(1, len(atomic_nodes)):
-        result.graph.add_edge(atomic_nodes[i - 1].failure_exit, atomic_nodes[i].entry_node)
-    result.graph.add_edge(atomic_nodes[-1].failure_exit, result.failure_exit)
-
-
-def construct_non_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given non-deterministic decision node.
-    """
-    # Get an atomic node for all of the options.
-    atomic_nodes = [create_locking_structure(v) for v in model.decisions]
-    for n in atomic_nodes:
-        result.include_atomic_node(n)
-
-    # Given that the decision is completely random, the entry is connected to the entry of all choices.
-    # Moreover, each failure exit is connected to the failure exit of the node.
-    for n in atomic_nodes:
-        result.graph.add_edge(result.entry_node, n.entry_node)
-        result.graph.add_edge(n.failure_exit, result.failure_exit)
-
-
-def construct_sequential_decision_node(model: DecisionNode, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given sequential decision node.
-    """
-    # Get an atomic node for all of the options.
-    atomic_nodes = [create_locking_structure(v) for v in model.decisions]
-    for n in atomic_nodes:
-        result.include_atomic_node(n)
-
-    # Having the sequential operation be completely atomic would be a large hit on the performance.
-    # Hence, use the same approach taken for non-determinism.
-    for n in atomic_nodes:
-        result.graph.add_edge(result.entry_node, n.entry_node)
-        result.graph.add_edge(n.failure_exit, result.failure_exit)
-
-
-def construct_composite_node(model: Composite, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given composite node.
-    """
-    # Create atomic nodes for each of the components, including the guard.
-    atomic_nodes = [create_locking_structure(v) for v in [model.guard] + model.assignments]
-    for n in atomic_nodes:
-        result.include_atomic_node(n)
-
-    # Chain all the components and connect the failure exit of the guard to the composite's atomic node.
-    result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
-    result.graph.add_edge(atomic_nodes[0].failure_exit, result.failure_exit)
-    for i in range(1, len(atomic_nodes)):
-        result.graph.add_edge(atomic_nodes[i - 1].success_exit, atomic_nodes[i].entry_node)
-    result.graph.add_edge(atomic_nodes[-1].success_exit, result.success_exit)
-
-
-def construct_assignment_node(model: Assignment, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given assignment node.
-    """
-    # The left hand side of the assignment cannot be locked locally, and hence will not get an atomic node.
-    # The right side will only get an atomic node if it is a boolean expression or primary.
-    if is_boolean_statement(model.right):
-        # Create an atomic node and include it.
-        right_atomic_node = create_locking_structure(model.right)
-
-        # The assignment does not use the expression's partner evaluations. Hence, mark it as indifferent.
-        right_atomic_node.mark_indifferent()
-
-        # Add the right hand side atomic node to the graph.
-        result.include_atomic_node(right_atomic_node)
-
-        # Add  the appropriate connections.
-        result.graph.add_edge(result.entry_node, right_atomic_node.entry_node)
-        result.graph.add_edge(right_atomic_node.success_exit, result.success_exit)
-    else:
-        # Simply create a connection to the success exit point--the statement will be locked in its entirety.
-        result.graph.add_edge(result.entry_node, result.success_exit)
-
-    # Assignments cannot fail, and hence, the atomic node should be indifferent to the partner's evaluation.
-    result.mark_indifferent()
-
-
-def construct_expression_node(model: Expression, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given expression node.
-    """
-    # Conjunction and disjunction statements need special treatment due to their control flow characteristics.
-    # Additionally, exclusive disjunction needs different treatment too, since it can have nested aggregates.
-    if model.op in ["and", "or"]:
-        # Find over which nodes the statement is made and add all the graphs to the result node.
-        atomic_nodes = [create_locking_structure(v) for v in model.values]
-        for n in atomic_nodes:
-            result.include_atomic_node(n)
-
-        # Connect all clauses that prematurely exit the expression to the appropriate exit point.
-        for n in atomic_nodes:
-            if model.op == "and":
-                result.graph.add_edge(n.failure_exit, result.failure_exit)
-            else:
-                result.graph.add_edge(n.success_exit, result.success_exit)
-
-        # Chain the remaining exit points and entry points in order of the clauses.
-        result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
-        for i in range(0, len(model.values) - 1):
-            if model.op == "and":
-                result.graph.add_edge(atomic_nodes[i].success_exit, atomic_nodes[i + 1].entry_node)
-            else:
-                result.graph.add_edge(atomic_nodes[i].failure_exit, atomic_nodes[i + 1].entry_node)
-        if model.op == "and":
-            result.graph.add_edge(atomic_nodes[-1].success_exit, result.success_exit)
-        else:
-            result.graph.add_edge(atomic_nodes[-1].failure_exit, result.failure_exit)
-    elif model.op == "xor":
-        # Find over which nodes the statement is made and add all the graphs to the result node.
-        atomic_nodes = [create_locking_structure(v) for v in model.values]
-        for n in atomic_nodes:
-            # Nodes should be marked indifferent, since the partner's value does not alter the control flow.
-            n.mark_indifferent()
-            result.include_atomic_node(n)
-
-        # Chain the exit points and entry points in order of the clauses.
-        result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
-        for i in range(0, len(model.values) - 1):
-            result.graph.add_edge(atomic_nodes[i].success_exit, atomic_nodes[i + 1].entry_node)
-        result.graph.add_edge(atomic_nodes[-1].success_exit, result.success_exit)
-        result.graph.add_edge(atomic_nodes[-1].success_exit, result.failure_exit)
-    else:
-        # Add success and failure exit connections.
-        # Note that math operators aren't treated differently--they cannot reach this point.
-        result.graph.add_edge(result.entry_node, result.success_exit)
-        result.graph.add_edge(result.entry_node, result.failure_exit)
-
-
-def construct_primary_node(model: Primary, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given primary node.
-    """
-    if model.body is not None:
-        # Add a child relationship to the body.
-        child_node = create_locking_structure(model.body)
-
-        result.include_atomic_node(child_node)
-        result.graph.add_edge(result.entry_node, child_node.entry_node)
-
-        if model.sign == "not":
-            # Boolean negations simply switch the success and failure branch of the object in question.
-            result.graph.add_edge(child_node.success_exit, result.failure_exit)
-            result.graph.add_edge(child_node.failure_exit, result.success_exit)
-        else:
-            result.graph.add_edge(child_node.success_exit, result.success_exit)
-            result.graph.add_edge(child_node.failure_exit, result.failure_exit)
-    elif model.ref is not None:
-        # Add a success exit connection. Additionally, add a failure connection of the variable is a boolean.
-        result.graph.add_edge(result.entry_node, result.success_exit)
-        if model.ref.var.is_boolean:
-            result.graph.add_edge(result.entry_node, result.failure_exit)
-    else:
-        # The primary contains a constant.
-        result.graph.add_edge(result.entry_node, result.success_exit)
-        result.graph.add_edge(result.entry_node, result.failure_exit)
-
-
-def create_locking_structure(model) -> AtomicNode:
-    """
-    Create a DAG of locking nodes that will dictate which locks will need to be requested/released at what position.
-
-    The returned node is the encompassing atomic node of the model.
-    """
-    if isinstance(model, Transition):
-        # The guard expression of the transition needs to be included in the main structure. Other statements do not.
-        for s in model.statements:
-            create_locking_structure(s)
-
-        # Chain the guard statement with the overarching decision structure.
-        return model.guard.locking_atomic_node
-
-    # All objects from this point on will return an atomic node.
-    result = AtomicNode(model)
-
-    if isinstance(model, DecisionNode):
-        # The structure depends on the type of decision made.
-        if model.is_deterministic:
-            construct_deterministic_decision_node(model, result)
-        elif settings.non_determinism:
-            construct_non_deterministic_decision_node(model, result)
-        else:
-            if settings.atomic_sequential:
-                # The sequential should behave like a deterministic group instead.
-                construct_deterministic_decision_node(model, result)
-            else:
-                construct_sequential_decision_node(model, result)
-    elif isinstance(model, Composite):
-        construct_composite_node(model, result)
-    elif isinstance(model, Assignment):
-        construct_assignment_node(model, result)
-    elif isinstance(model, Expression):
-        construct_expression_node(model, result)
-    elif isinstance(model, Primary):
-        construct_primary_node(model, result)
-    else:
-        raise Exception("This node is not allowed to be part of the locking structure.")
-
-    # Store the node inside the partner such that it can be accessed by the code generator.
-    if isinstance(model, SlcoLockableNode):
-        model.locking_atomic_node = result
-
-    # Return the atomic node associated with the model.
-    return result
-
-
-def generate_base_level_locking_entries(model: AtomicNode):
-    """
-    Add the requested lock objects to the base-level lockable components.
-    """
-    if isinstance(model.partner, Assignment):
-        # Find the variables that are targeted by the assignment's atomic node.
-        class_variable_references = get_variables_to_be_locked(model.partner.left)
-
-        if len(model.child_atomic_nodes) == 0:
-            # No atomic node present for the right hand side. Add the requested locks to the assignment's atomic node.
-            class_variable_references.update(get_variables_to_be_locked(model.partner.right))
-        else:
-            # Recursively add the appropriate data to the right hand side.
-            for n in model.partner.locking_atomic_node.child_atomic_nodes:
-                generate_base_level_locking_entries(n)
-
-        # Create lock objects for all of the used class variables, and add them to the entry and exit points.
-        locks = {Lock(r, model.entry_node) for r in class_variable_references}
-        model.entry_node.locks_to_acquire.update(locks)
-        model.success_exit.locks_to_release.update(locks)
-        model.failure_exit.locks_to_release.update(locks)
-    elif len(model.child_atomic_nodes) > 0:
-        # The node is not a base-level lockable node. Continue recursively.
-        for n in model.partner.locking_atomic_node.child_atomic_nodes:
-            generate_base_level_locking_entries(n)
-    else:
-        # The node is a base-level lockable node. Add the appropriate locks.
-        class_variable_references = get_variables_to_be_locked(model.partner)
-        locks = {Lock(r, model.entry_node) for r in class_variable_references}
-        model.entry_node.locks_to_acquire.update(locks)
-        model.success_exit.locks_to_release.update(locks)
-        model.failure_exit.locks_to_release.update(locks)
-
-
-def get_bound_checked_variables(model: SlcoStatementNode) -> Set[VariableRef]:
-    """
-    Get the referenced variables that are potentially bound checked by the given statement.
-    """
-    # This function should only be called for base-level lockable components.
-    assert(model.locking_atomic_node is None or len(model.locking_atomic_node.child_atomic_nodes) == 0)
-
-    result: Set[VariableRef] = set()
-    if isinstance(model, VariableRef):
-        # Moreover, boolean types cannot be bound checked, since they cannot be used in the index of a variable.
-        if not model.var.is_boolean:
-            result.add(model)
-    else:
-        for v in model:
-            result.update(get_bound_checked_variables(v))
-
-    # Return all the used variables.
-    return result
-
-
-def generate_location_sensitive_marks(model: AtomicNode, aggregate_variable_references: Set[VariableRef] = None):
-    """
-    Add a flag to locks that depend upon the control flow for a successful/error prone evaluation.
-    """
-    # Check which variable references have been encountered so far.
-    if aggregate_variable_references is None:
-        aggregate_variable_references = set()
-
-    if len(model.child_atomic_nodes) > 0:
-        if isinstance(model.partner, Assignment):
-            # Reset the list if an assignment is entered, since each statement should be evaluated individually.
-            aggregate_variable_references: Set[VariableRef] = set()
-
-        # Generate flags for the children.
-        for n in model.child_atomic_nodes:
-            if isinstance(model.partner, DecisionNode):
-                # Reset the list after every statement within the decision node--lock sensitivity is statement local.
-                aggregate_variable_references: Set[VariableRef] = set()
-            generate_location_sensitive_marks(n, aggregate_variable_references)
-    elif not isinstance(model.partner, Assignment) and len(model.entry_node.locks_to_acquire) > 0:
-        # The node is a base-level lockable component. Check if the node uses variables that have been encountered
-        # previously in the index of class array variables.
-        array_class_variable_references: Set[Lock] = {
-            r for r in model.entry_node.locks_to_acquire if r.ref.var.is_array
-        }
-
-        # Check for each to be acquired locks if it is position sensitive or not.
-        # A lock is location sensitive if its index uses a variable that is constrained/used earlier in the atomic tree.
-        i: Lock
-        for i in array_class_variable_references:
-            # Get the variables used in the index of the array variable.
-            variable_references = get_variable_references(i.ref.index)
-
-            # The lock is position sensitive if any of the references are in the aggregated list.
-            if variable_references.intersection(aggregate_variable_references):
-                i.is_location_sensitive = True
-
-        # Add all the used variables to the aggregate variables list.
-        aggregate_variable_references.update(get_bound_checked_variables(model.partner))
 
 
 def restructure_lock_acquisitions(model: AtomicNode, nr_of_passes=2):

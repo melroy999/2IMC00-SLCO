@@ -9,7 +9,7 @@ import networkx as nx
 # Avoid circular imports due to type checking.
 import objects.ast.util as util
 import settings
-from objects.ast.models import Expression
+from objects.ast.models import Expression, Variable
 from preprocessing.ast.simplification import simplify
 
 if TYPE_CHECKING:
@@ -238,6 +238,9 @@ class LockingNode:
         # The atomic node that created this locking node.
         self.parent = parent
 
+        # An id used to detect lock ordering violations.
+        self.id = -1
+
     def __eq__(self, o: object) -> bool:
         return super().__eq__(o)
 
@@ -279,6 +282,12 @@ class AtomicNode:
 
         # A pointer to the node's parent, if it exists.
         self.parent: Optional[AtomicNode] = None
+
+        # The variables in the atomic node that are marked location sensitive.
+        self.location_sensitive_variables = set()
+
+        # All of the unique variables used within the atomic node.
+        self.used_variables: Set[Variable] = set()
 
     def include_atomic_node(self, node: AtomicNode):
         """
