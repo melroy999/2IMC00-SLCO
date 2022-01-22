@@ -424,6 +424,9 @@ def generate_location_sensitive_marks(model: AtomicNode, aggregate_variable_refe
 
         # Generate flags for the children.
         for n in model.child_atomic_nodes:
+            if isinstance(model.partner, DecisionNode):
+                # Reset the list after every statement within the decision node--lock sensitivity is statement local.
+                aggregate_variable_references: Set[VariableRef] = set()
             generate_location_sensitive_marks(n, aggregate_variable_references)
     elif not isinstance(model.partner, Assignment) and len(model.entry_node.locks_to_acquire) > 0:
         # The node is a base-level lockable component. Check if the node uses variables that have been encountered

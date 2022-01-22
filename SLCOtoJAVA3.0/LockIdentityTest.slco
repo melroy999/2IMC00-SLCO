@@ -1,0 +1,97 @@
+model Test {
+	classes
+	P {
+        variables Integer[2] x Integer[2] y Integer i := 0 Integer j := 0
+        state machines
+        SM1 {
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 {
+                i >= 0 && i < 2 && x[i] = 0;
+            }
+            from SMC0 to SMC0 {
+                y[j] = 0;
+            }
+        }
+	}
+    Q {
+        variables Integer[2] x Integer[2] y Integer i := 0 Integer j := 0
+        state machines
+        SM1 {
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 {
+                i >= 0 && i < 2 && x[i] = 0 && y[j] = 0;
+            }
+        }
+	}
+    R {
+        variables Integer[2] x Integer[2] y Integer i := 0 Integer j := 0
+        state machines
+        SM1 {
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 {
+                y[j] = 0 && i >= 0 && i < 2 && x[i] = 0;
+            }
+        }
+	}
+    S {
+        variables Boolean[2] x Boolean[2] y Boolean[2] z Boolean[2] b Boolean[2] c Integer i := 0 Integer j := 0
+        state machines
+        SM1 {
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 {
+                x[y[0]] && y[z[0]] && z[x[0]];
+            }
+            from SMC0 to SMC0 {
+                b[j] && i >= 0 && i < 2 && b[i];
+            }
+            from SMC0 to SMC0 {
+                i >= 0 && i < 2 && c[i];
+            }
+        }
+	}
+    T {
+        variables Boolean[2] x Boolean[2] y Boolean[2] z Boolean[2] b Boolean[2] c Integer i := 0 Integer j := 0
+        state machines
+        SM1 {
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 {
+                x[y[0]] && y[z[0]] && z[x[0]];
+            }
+            from SMC0 to SMC0 {
+                i >= 0 && i < 2 && c[i];
+            }
+            from SMC0 to SMC0 {
+                b[j] && i >= 0 && i < 2 && b[i];
+            }
+        }
+	}
+    U {
+        variables Integer[2] x Integer[2] y Integer i := 0
+        state machines
+        SM1 {
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 {
+                x[0] > 0 && y[0] >= 0 && y[0] < 2 && x[y[0]] > 0;
+            }
+            from SMC0 to SMC0 {
+                y[x[0]] > 0;
+            }
+            from SMC0 to SMC0 {
+                y[x[0]] > 0;
+            }
+            from SMC0 to SMC0 {
+                y[x[0]] > 0;
+            }
+            from SMC0 to SMC0 {
+                y[x[0]] > 0;
+            }
+        }
+	}
+	objects p: P(), q: Q()
+}

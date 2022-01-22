@@ -202,6 +202,9 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
     s.pop()
 
     # TODO: decisions following a true expression in the outer non deterministic group are superfluous if sequential.
+    # TODO: potentially have transitions with location sensitive locking targets be earlier in the list?
+    #   - The order of statements can have a large effect on the performance of the locking structure.
+    #   - This would need to be done before the full locking structure is generated.
 
     # Sort the decisions based on the priority.
     non_deterministic_choices += trivially_satisfiable_transitions

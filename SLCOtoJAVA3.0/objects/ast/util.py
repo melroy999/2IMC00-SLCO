@@ -224,7 +224,6 @@ def get_variable_references(model: SlcoStatementNode) -> Set[VariableRef]:
     Get a list of all the variables that have been referenced to by the statement. Note that variables used in
     composites need to be adjusted through rewrite rules to compensate for assignments.
     """
-    # TODO: add a way to exclude indices.
     if model.variable_references is not None:
         return model.variable_references.copy()
 
@@ -345,8 +344,10 @@ def get_weighted_variable_dependency_graph(model: Class) -> nx.DiGraph:
                         graph.add_node(v, weight=1)
 
                 inserted_variable_pairs = set()
+                processed = set()
                 while len(references) > 0:
                     source = references.pop()
+                    processed.add(source)
                     if source.index:
                         target_references = get_variable_references(source.index)
                         for target in target_references:
@@ -356,6 +357,11 @@ def get_weighted_variable_dependency_graph(model: Class) -> nx.DiGraph:
                                     graph[source.var][target.var]["weight"] += 1
                                 else:
                                     graph.add_edge(source.var, target.var, weight=1)
+                                if len(target_references.difference(processed.union(references))) > 0:
+                                    raise Exception(
+                                        "Look at this situation. It indicates that indices need to be revisited when "
+                                        "processing them in the dependency graph."
+                                    )
                                 references.update(target_references)
 
     model.weighted_variable_dependency_graph = graph

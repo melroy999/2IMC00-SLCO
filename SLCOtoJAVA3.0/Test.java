@@ -74,24 +74,14 @@ public class Test {
         // Global variables
         private volatile int[] x;
         private volatile int[] y;
-        private volatile boolean[] b;
         private volatile int i;
-        private volatile char[] c;
-        private volatile char d;
+        private volatile int j;
 
         // Define the states fot the state machine SM1
         interface P_SM1Thread_States {
             enum States {
                 SMC0, 
-                SMC1, 
-                SimpleState0, 
-                SimpleState1, 
-                SimpleState2, 
-                SimpleState3, 
-                SimpleState4, 
-                SimpleState5, 
-                SimpleState6, 
-                SimpleState7
+                SMC1
             }
         }
 
@@ -113,507 +103,116 @@ public class Test {
             SM1Thread (LockManager lockManagerInstance) {
                 currentState = SM1Thread.States.SMC0;
                 lockManager = lockManagerInstance;
-                lock_ids = new int[1];
-                target_locks = new int[1];
+                lock_ids = new int[2];
+                target_locks = new int[4];
                 random = new Random();
             }
 
-            // SLCO expression wrapper | x[0] > 0
+            // SLCO expression wrapper | i >= 0
             private boolean t_SMC0_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
+                lock_ids[0] = target_locks[2] = 0; // Acquire i
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check statement lock
-                if(x[0] > 0) {
-                    return true;
-                }
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
-                return false;
-            }
-
-            // SLCO transition (p:0, id:0) | SMC0 -> SimpleState0 | [x[0] > 0; i := i + 1; x[i] := 1]
-            private boolean execute_transition_SMC0_0() {
-                // SLCO composite | [x[0] > 0; i := i + 1; x[i] := 1]
-                // SLCO expression | x[0] > 0
-                if(!(t_SMC0_0_s_0_n_0())) {
-                    return false;
-                }
-                // SLCO assignment | i := i + 1
-                lockManager.check_lock(0); // Check statement lock
-                i = i + 1;
-                // SLCO assignment | x[i] := 1
-                lockManager.check_lock(0); // Check statement lock
-                x[i] = 1;
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
-
-                currentState = SM1Thread.States.SimpleState0;
-                return true;
-            }
-
-            // SLCO expression wrapper | x[0] > 0
-            private boolean t_SimpleState0_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check statement lock
-                if(x[0] > 0) {
-                    return true;
-                }
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
-                return false;
-            }
-
-            // SLCO transition (p:0, id:0) | SimpleState0 -> SimpleState1 | [x[0] > 0; i := 2; x[i] := 1; x[1] := 1]
-            private boolean execute_transition_SimpleState0_0() {
-                // SLCO composite | [x[0] > 0; i := 2; x[i] := 1; x[1] := 1]
-                // SLCO expression | x[0] > 0
-                if(!(t_SimpleState0_0_s_0_n_0())) {
-                    return false;
-                }
-                // SLCO assignment | i := 2
-                lockManager.check_lock(0); // Check statement lock
-                i = 2;
-                // SLCO assignment | x[i] := 1
-                lockManager.check_lock(0); // Check statement lock
-                x[i] = 1;
-                // SLCO assignment | x[1] := 1
-                lockManager.check_lock(0); // Check statement lock
-                x[1] = 1;
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
-
-                currentState = SM1Thread.States.SimpleState1;
-                return true;
-            }
-
-            // SLCO expression wrapper | x[0] > 0
-            private boolean t_SimpleState1_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check statement lock
-                if(x[0] > 0) {
-                    return true;
-                }
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
-                return false;
-            }
-
-            // SLCO transition (p:0, id:0) | SimpleState1 -> SimpleState2 | [x[0] > 0; i := 0; x[i] := 1; x[1] := 1]
-            private boolean execute_transition_SimpleState1_0() {
-                // SLCO composite | [x[0] > 0; i := 0; x[i] := 1; x[1] := 1]
-                // SLCO expression | x[0] > 0
-                if(!(t_SimpleState1_0_s_0_n_0())) {
-                    return false;
-                }
-                // SLCO assignment | i := 0
-                lockManager.check_lock(0); // Check statement lock
-                i = 0;
-                // SLCO assignment | x[i] := 1
-                lockManager.check_lock(0); // Check statement lock
-                x[i] = 1;
-                // SLCO assignment | x[1] := 1
-                lockManager.check_lock(0); // Check statement lock
-                x[1] = 1;
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
-
-                currentState = SM1Thread.States.SimpleState2;
-                return true;
-            }
-
-            // SLCO expression wrapper | i >= 0
-            private boolean t_SimpleState2_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check statement lock
+                lockManager.check_lock(0); // Check i
                 if(i >= 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
-                return false;
-            }
-
-            // SLCO expression wrapper | i < 3
-            private boolean t_SimpleState2_0_s_0_n_1() {
-                lockManager.check_lock(0); // Check statement lock
-                if(i < 3) {
-                    return true;
-                }
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
-                return false;
-            }
-
-            // SLCO expression wrapper | b[i]
-            private boolean t_SimpleState2_0_s_0_n_2() {
-                lockManager.check_lock(0); // Check statement lock
-                if(b[i]) {
-                    return true;
-                }
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
-                return false;
-            }
-
-            // SLCO transition (p:0, id:0) | SimpleState2 -> SimpleState3 | [i >= 0 and i < 3 and b[i]; i := 0; x[i] := 1; x[1] := 1]
-            private boolean execute_transition_SimpleState2_0() {
-                // SLCO composite | [i >= 0 and i < 3 and b[i]; i := 0; x[i] := 1; x[1] := 1]
-                // SLCO expression | i >= 0 and i < 3 and b[i]
-                if(!(t_SimpleState2_0_s_0_n_0() && t_SimpleState2_0_s_0_n_1() && t_SimpleState2_0_s_0_n_2())) {
-                    return false;
-                }
-                // SLCO assignment | i := 0
-                lockManager.check_lock(0); // Check statement lock
-                i = 0;
-                // SLCO assignment | x[i] := 1
-                lockManager.check_lock(0); // Check statement lock
-                x[i] = 1;
-                // SLCO assignment | x[1] := 1
-                lockManager.check_lock(0); // Check statement lock
-                x[1] = 1;
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
-
-                currentState = SM1Thread.States.SimpleState3;
-                return true;
-            }
-
-            // SLCO expression wrapper | i >= 0
-            private boolean t_SimpleState3_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check statement lock
-                if(i >= 0) {
-                    return true;
-                }
-                lock_ids[0] = target_locks[0]; // Release statement lock
+                lock_ids[0] = target_locks[2]; // Release i
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
 
             // SLCO expression wrapper | i < 2
-            private boolean t_SimpleState3_0_s_0_n_1() {
-                lockManager.check_lock(0); // Check statement lock
+            private boolean t_SMC0_0_s_0_n_1() {
+                lockManager.check_lock(0); // Check i
                 if(i < 2) {
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release statement lock
+                lock_ids[0] = target_locks[2]; // Release i
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
 
-            // SLCO transition (p:0, id:0) | SimpleState3 -> SimpleState4 | [i >= 0 and i < 2; i := 0; x[i] := 0; x[x[i]] := 0]
-            private boolean execute_transition_SimpleState3_0() {
-                // SLCO composite | [i >= 0 and i < 2; i := 0; x[i] := 0; x[x[i]] := 0]
-                // SLCO expression | i >= 0 and i < 2
-                if(!(t_SimpleState3_0_s_0_n_0() && t_SimpleState3_0_s_0_n_1())) {
+            // SLCO expression wrapper | x[i] = 0
+            private boolean t_SMC0_0_s_0_n_2() {
+                lock_ids[0] = target_locks[3] = 4 + i; // Acquire x[i]
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(0); // Check i
+                lockManager.check_lock(4 + i); // Check x[i]
+                if(x[i] == 0) {
+                    lock_ids[0] = target_locks[2]; // Release i
+                    lock_ids[1] = target_locks[3]; // Release x[i]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[2]; // Release i
+                lock_ids[1] = target_locks[3]; // Release x[i]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | i >= 0 and i < 2 and x[i] = 0
+            private boolean execute_transition_SMC0_0() {
+                // SLCO expression | i >= 0 and i < 2 and x[i] = 0
+                if(!(t_SMC0_0_s_0_n_0() && t_SMC0_0_s_0_n_1() && t_SMC0_0_s_0_n_2())) {
                     return false;
                 }
-                // SLCO assignment | i := 0
-                lockManager.check_lock(0); // Check statement lock
-                i = 0;
-                // SLCO assignment | x[i] := 0
-                lockManager.check_lock(0); // Check statement lock
-                x[i] = 0;
-                // SLCO assignment | x[x[i]] := 0
-                lockManager.check_lock(0); // Check statement lock
-                x[x[i]] = 0;
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
 
-                currentState = SM1Thread.States.SimpleState4;
+                currentState = SM1Thread.States.SMC0;
                 return true;
             }
 
-            // SLCO expression wrapper | true
-            private boolean t_SimpleState4_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
+            // SLCO expression wrapper | y[j] = 0
+            private boolean t_SMC0_1_s_0_n_0() {
+                lock_ids[0] = target_locks[1] = 1; // Acquire j
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check statement lock
-                try {
-                    return true;
-                } finally {
-                    lock_ids[0] = target_locks[0]; // Release statement lock
-                    lockManager.release_locks(lock_ids, 1);
-                }
-            }
-
-            // SLCO expression wrapper | true
-            private boolean t_SimpleState4_0_s_1_n_1() {
-                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
+                lock_ids[0] = target_locks[0] = 2 + j; // Acquire y[j]
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check statement lock
-                try {
+                lockManager.check_lock(2 + j); // Check y[j]
+                lockManager.check_lock(1); // Check j
+                if(y[j] == 0) {
+                    lock_ids[0] = target_locks[0]; // Release y[j]
+                    lock_ids[1] = target_locks[1]; // Release j
+                    lockManager.release_locks(lock_ids, 2);
                     return true;
-                } finally {
-                    
                 }
+                lock_ids[0] = target_locks[0]; // Release y[j]
+                lock_ids[1] = target_locks[1]; // Release j
+                lockManager.release_locks(lock_ids, 2);
+                return false;
             }
 
-            // SLCO expression wrapper | i >= 0
-            private boolean t_SimpleState4_0_s_3_n_2() {
-                lockManager.check_lock(0); // Check statement lock
-                return i >= 0;
-            }
-
-            // SLCO expression wrapper | i < 2
-            private boolean t_SimpleState4_0_s_3_n_3() {
-                lockManager.check_lock(0); // Check statement lock
-                return i < 2;
-            }
-
-            // SLCO expression wrapper | b[i]
-            private boolean t_SimpleState4_0_s_3_n_4() {
-                lockManager.check_lock(0); // Check statement lock
-                return b[i];
-            }
-
-            // SLCO transition (p:0, id:0) | SimpleState4 -> SimpleState5 | true | [true; i := 0; b[i] := i >= 0 and i < 2 and b[i]]
-            private boolean execute_transition_SimpleState4_0() {
-                // SLCO expression | true
-                if(!(t_SimpleState4_0_s_0_n_0())) {
+            // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | y[j] = 0
+            private boolean execute_transition_SMC0_1() {
+                // SLCO expression | y[j] = 0
+                if(!(t_SMC0_1_s_0_n_0())) {
                     return false;
                 }
-
-                // SLCO composite | [i := 0; b[i] := i >= 0 and i < 2 and b[i]] -> [true; i := 0; b[i] := i >= 0 and i < 2 and b[i]]
-                // SLCO expression | true
-                if(!(t_SimpleState4_0_s_1_n_1())) {
-                    return false;
-                }
-                // SLCO assignment | i := 0
-                lockManager.check_lock(0); // Check statement lock
-                i = 0;
-                // SLCO assignment | b[i] := i >= 0 and i < 2 and b[i]
-                lockManager.check_lock(0); // Check statement lock
-                b[i] = t_SimpleState4_0_s_3_n_2() && t_SimpleState4_0_s_3_n_3() && t_SimpleState4_0_s_3_n_4();
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
-
-                currentState = SM1Thread.States.SimpleState5;
-                return true;
-            }
-
-            // SLCO expression wrapper | true
-            private boolean t_SimpleState5_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check statement lock
-                try {
-                    return true;
-                } finally {
-                    lock_ids[0] = target_locks[0]; // Release statement lock
-                    lockManager.release_locks(lock_ids, 1);
-                }
-            }
-
-            // SLCO expression wrapper | true
-            private boolean t_SimpleState5_0_s_1_n_1() {
-                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check statement lock
-                try {
-                    return true;
-                } finally {
-                    
-                }
-            }
-
-            // SLCO expression wrapper | i >= 0
-            private boolean t_SimpleState5_0_s_4_n_2() {
-                lockManager.check_lock(0); // Check statement lock
-                return i >= 0;
-            }
-
-            // SLCO expression wrapper | i < 2
-            private boolean t_SimpleState5_0_s_4_n_3() {
-                lockManager.check_lock(0); // Check statement lock
-                return i < 2;
-            }
-
-            // SLCO expression wrapper | b[i]
-            private boolean t_SimpleState5_0_s_4_n_4() {
-                lockManager.check_lock(0); // Check statement lock
-                return b[i];
-            }
-
-            // SLCO transition (p:0, id:0) | SimpleState5 -> SimpleState6 | true | [true; b[0] := true; i := 0; b[i] := i >= 0 and i < 2 and b[i]]
-            private boolean execute_transition_SimpleState5_0() {
-                // SLCO expression | true
-                if(!(t_SimpleState5_0_s_0_n_0())) {
-                    return false;
-                }
-
-                // SLCO composite | [b[0] := true; i := 0; b[i] := i >= 0 and i < 2 and b[i]] -> [true; b[0] := true; i := 0; b[i] := i >= 0 and i < 2 and b[i]]
-                // SLCO expression | true
-                if(!(t_SimpleState5_0_s_1_n_1())) {
-                    return false;
-                }
-                // SLCO assignment | b[0] := true
-                lockManager.check_lock(0); // Check statement lock
-                b[0] = true;
-                // SLCO assignment | i := 0
-                lockManager.check_lock(0); // Check statement lock
-                i = 0;
-                // SLCO assignment | b[i] := i >= 0 and i < 2 and b[i]
-                lockManager.check_lock(0); // Check statement lock
-                b[i] = t_SimpleState5_0_s_4_n_2() && t_SimpleState5_0_s_4_n_3() && t_SimpleState5_0_s_4_n_4();
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
-
-                currentState = SM1Thread.States.SimpleState6;
-                return true;
-            }
-
-            // SLCO expression wrapper | true
-            private boolean t_SimpleState6_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check statement lock
-                try {
-                    return true;
-                } finally {
-                    lock_ids[0] = target_locks[0]; // Release statement lock
-                    lockManager.release_locks(lock_ids, 1);
-                }
-            }
-
-            // SLCO transition (p:0, id:0) | SimpleState6 -> SimpleState7 | true | d := 0
-            private boolean execute_transition_SimpleState6_0() {
-                // SLCO expression | true
-                if(!(t_SimpleState6_0_s_0_n_0())) {
-                    return false;
-                }
-
-                // SLCO assignment | d := 0
-                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check statement lock
-                d = (0) & 0xff;
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
-
-                currentState = SM1Thread.States.SimpleState7;
-                return true;
-            }
-
-            // SLCO expression wrapper | true
-            private boolean t_SimpleState7_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check statement lock
-                try {
-                    return true;
-                } finally {
-                    lock_ids[0] = target_locks[0]; // Release statement lock
-                    lockManager.release_locks(lock_ids, 1);
-                }
-            }
-
-            // SLCO transition (p:0, id:0) | SimpleState7 -> SMC0 | true | c[0] := 0
-            private boolean execute_transition_SimpleState7_0() {
-                // SLCO expression | true
-                if(!(t_SimpleState7_0_s_0_n_0())) {
-                    return false;
-                }
-
-                // SLCO assignment | c[0] := 0
-                lock_ids[0] = target_locks[0] = 0; // Acquire statement lock
-                lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check statement lock
-                c[0] = (0) & 0xff;
-                lock_ids[0] = target_locks[0]; // Release statement lock
-                lockManager.release_locks(lock_ids, 1);
 
                 currentState = SM1Thread.States.SMC0;
                 return true;
             }
 
             private void exec_SMC0() {
-                // [SEQ.START]
-                // SLCO transition (id:0, p:0) | SMC0 -> SimpleState0 | guard: [x[0] > 0; i := i + 1; x[i] := 1]
-                if(execute_transition_SMC0_0()) {
-                    return;
+                // [N_DET.START]
+                switch(random.nextInt(2)) {
+                    case 0 -> {
+                        // SLCO transition (id:0, p:0) | SMC0 -> SMC0 | guard: i >= 0 and i < 2 and x[i] = 0
+                        if(execute_transition_SMC0_0()) {
+                            return;
+                        }
+                    }
+                    case 1 -> {
+                        // SLCO transition (id:1, p:0) | SMC0 -> SMC0 | guard: y[j] = 0
+                        if(execute_transition_SMC0_1()) {
+                            return;
+                        }
+                    }
                 }
-                // [SEQ.END]
+                // [N_DET.END]
             }
 
             private void exec_SMC1() {
                 // There are no transitions starting in state SMC1.
-            }
-
-            private void exec_SimpleState0() {
-                // [SEQ.START]
-                // SLCO transition (id:0, p:0) | SimpleState0 -> SimpleState1 | guard: [x[0] > 0; i := 2; x[i] := 1; x[1] := 1]
-                if(execute_transition_SimpleState0_0()) {
-                    return;
-                }
-                // [SEQ.END]
-            }
-
-            private void exec_SimpleState1() {
-                // [SEQ.START]
-                // SLCO transition (id:0, p:0) | SimpleState1 -> SimpleState2 | guard: [x[0] > 0; i := 0; x[i] := 1; x[1] := 1]
-                if(execute_transition_SimpleState1_0()) {
-                    return;
-                }
-                // [SEQ.END]
-            }
-
-            private void exec_SimpleState2() {
-                // [SEQ.START]
-                // SLCO transition (id:0, p:0) | SimpleState2 -> SimpleState3 | guard: [i >= 0 and i < 3 and b[i]; i := 0; x[i] := 1; x[1] := 1]
-                if(execute_transition_SimpleState2_0()) {
-                    return;
-                }
-                // [SEQ.END]
-            }
-
-            private void exec_SimpleState3() {
-                // [SEQ.START]
-                // SLCO transition (id:0, p:0) | SimpleState3 -> SimpleState4 | guard: [i >= 0 and i < 2; i := 0; x[i] := 0; x[x[i]] := 0]
-                if(execute_transition_SimpleState3_0()) {
-                    return;
-                }
-                // [SEQ.END]
-            }
-
-            private void exec_SimpleState4() {
-                // [SEQ.START]
-                // SLCO transition (id:0, p:0) | SimpleState4 -> SimpleState5 | guard: true
-                if(execute_transition_SimpleState4_0()) {
-                    return;
-                }
-                // [SEQ.END]
-            }
-
-            private void exec_SimpleState5() {
-                // [SEQ.START]
-                // SLCO transition (id:0, p:0) | SimpleState5 -> SimpleState6 | guard: true
-                if(execute_transition_SimpleState5_0()) {
-                    return;
-                }
-                // [SEQ.END]
-            }
-
-            private void exec_SimpleState6() {
-                // [SEQ.START]
-                // SLCO transition (id:0, p:0) | SimpleState6 -> SimpleState7 | guard: true
-                if(execute_transition_SimpleState6_0()) {
-                    return;
-                }
-                // [SEQ.END]
-            }
-
-            private void exec_SimpleState7() {
-                // [SEQ.START]
-                // SLCO transition (id:0, p:0) | SimpleState7 -> SMC0 | guard: true
-                if(execute_transition_SimpleState7_0()) {
-                    return;
-                }
-                // [SEQ.END]
             }
 
             // Execute method
@@ -623,14 +222,6 @@ public class Test {
                     switch(currentState) {
                         case SMC0 -> exec_SMC0();
                         case SMC1 -> exec_SMC1();
-                        case SimpleState0 -> exec_SimpleState0();
-                        case SimpleState1 -> exec_SimpleState1();
-                        case SimpleState2 -> exec_SimpleState2();
-                        case SimpleState3 -> exec_SimpleState3();
-                        case SimpleState4 -> exec_SimpleState4();
-                        case SimpleState5 -> exec_SimpleState5();
-                        case SimpleState6 -> exec_SimpleState6();
-                        case SimpleState7 -> exec_SimpleState7();
                     }
                 }
             }
@@ -646,17 +237,1402 @@ public class Test {
             }
         }
 
-        P(int[] x, int[] y, boolean[] b, int i, char[] c, char d) {
+        P(int[] x, int[] y, int i, int j) {
             // Create a lock manager.
-            LockManager lockManager = new LockManager(8);
+            LockManager lockManager = new LockManager(6);
 
             // Instantiate global variables
             this.x = x;
             this.y = y;
-            this.b = b;
             this.i = i;
+            this.j = j;
+
+            // Instantiate state machines
+            T_SM1 = new SM1Thread(lockManager);
+        }
+
+        // Start all threads
+        public void startThreads() {
+            T_SM1.start();
+        }
+
+        // Join all threads
+        public void joinThreads() {
+            while (true) {
+                try {
+                    T_SM1.join();
+                    break;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // Representation of the SLCO class Q
+    private static class Q implements SLCO_Class {
+        // The threads
+        private final Thread T_SM1;
+
+        // Global variables
+        private volatile int[] x;
+        private volatile int[] y;
+        private volatile int i;
+        private volatile int j;
+
+        // Define the states fot the state machine SM1
+        interface Q_SM1Thread_States {
+            enum States {
+                SMC0, 
+                SMC1
+            }
+        }
+
+        // Representation of the SLCO state machine SM1
+        class SM1Thread extends Thread implements Q_SM1Thread_States {
+            // Current state
+            private SM1Thread.States currentState;
+
+            // Random number generator to handle non-determinism
+            private final Random random;
+
+            // The lock manager
+            private final LockManager lockManager;
+
+            // A list of lock ids and target locks that can be reused
+            private final int[] lock_ids;
+            private final int[] target_locks;
+
+            SM1Thread (LockManager lockManagerInstance) {
+                currentState = SM1Thread.States.SMC0;
+                lockManager = lockManagerInstance;
+                lock_ids = new int[2];
+                target_locks = new int[4];
+                random = new Random();
+            }
+
+            // SLCO expression wrapper | i >= 0
+            private boolean t_SMC0_0_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 0; // Acquire i
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(0); // Check i
+                if(i >= 0) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | i < 2
+            private boolean t_SMC0_0_s_0_n_1() {
+                lockManager.check_lock(0); // Check i
+                if(i < 2) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | x[i] = 0
+            private boolean t_SMC0_0_s_0_n_2() {
+                lock_ids[0] = target_locks[1] = 1 + i; // Acquire x[i]
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(0); // Check i
+                lockManager.check_lock(1 + i); // Check x[i]
+                if(x[i] == 0) {
+                    lock_ids[0] = target_locks[0]; // Release i
+                    lock_ids[1] = target_locks[1]; // Release x[i]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release i
+                lock_ids[1] = target_locks[1]; // Release x[i]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO expression wrapper | y[j] = 0
+            private boolean t_SMC0_0_s_0_n_3() {
+                lock_ids[0] = target_locks[3] = 3; // Acquire j
+                lockManager.acquire_locks(lock_ids, 1);
+                lock_ids[0] = target_locks[2] = 4 + j; // Acquire y[j]
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(4 + j); // Check y[j]
+                lockManager.check_lock(3); // Check j
+                if(y[j] == 0) {
+                    lock_ids[0] = target_locks[2]; // Release y[j]
+                    lock_ids[1] = target_locks[3]; // Release j
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[2]; // Release y[j]
+                lock_ids[1] = target_locks[3]; // Release j
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | i >= 0 and i < 2 and x[i] = 0 and y[j] = 0
+            private boolean execute_transition_SMC0_0() {
+                // SLCO expression | i >= 0 and i < 2 and x[i] = 0 and y[j] = 0
+                if(!(t_SMC0_0_s_0_n_0() && t_SMC0_0_s_0_n_1() && t_SMC0_0_s_0_n_2() && t_SMC0_0_s_0_n_3())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            private void exec_SMC0() {
+                // [N_DET.START]
+                // SLCO transition (id:0, p:0) | SMC0 -> SMC0 | guard: i >= 0 and i < 2 and x[i] = 0 and y[j] = 0
+                if(execute_transition_SMC0_0()) {
+                    return;
+                }
+                // [N_DET.END]
+            }
+
+            private void exec_SMC1() {
+                // There are no transitions starting in state SMC1.
+            }
+
+            // Execute method
+            private void exec() {
+                while(true) {
+                    lockManager.check_no_locks();
+                    switch(currentState) {
+                        case SMC0 -> exec_SMC0();
+                        case SMC1 -> exec_SMC1();
+                    }
+                }
+            }
+
+            // Run method
+            public void run() {
+                try {
+                    exec();
+                } catch(Exception e) {
+                    lockManager.exception_unlock();
+                    throw e;
+                }
+            }
+        }
+
+        Q(int[] x, int[] y, int i, int j) {
+            // Create a lock manager.
+            LockManager lockManager = new LockManager(6);
+
+            // Instantiate global variables
+            this.x = x;
+            this.y = y;
+            this.i = i;
+            this.j = j;
+
+            // Instantiate state machines
+            T_SM1 = new SM1Thread(lockManager);
+        }
+
+        // Start all threads
+        public void startThreads() {
+            T_SM1.start();
+        }
+
+        // Join all threads
+        public void joinThreads() {
+            while (true) {
+                try {
+                    T_SM1.join();
+                    break;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // Representation of the SLCO class R
+    private static class R implements SLCO_Class {
+        // The threads
+        private final Thread T_SM1;
+
+        // Global variables
+        private volatile int[] x;
+        private volatile int[] y;
+        private volatile int i;
+        private volatile int j;
+
+        // Define the states fot the state machine SM1
+        interface R_SM1Thread_States {
+            enum States {
+                SMC0, 
+                SMC1
+            }
+        }
+
+        // Representation of the SLCO state machine SM1
+        class SM1Thread extends Thread implements R_SM1Thread_States {
+            // Current state
+            private SM1Thread.States currentState;
+
+            // Random number generator to handle non-determinism
+            private final Random random;
+
+            // The lock manager
+            private final LockManager lockManager;
+
+            // A list of lock ids and target locks that can be reused
+            private final int[] lock_ids;
+            private final int[] target_locks;
+
+            SM1Thread (LockManager lockManagerInstance) {
+                currentState = SM1Thread.States.SMC0;
+                lockManager = lockManagerInstance;
+                lock_ids = new int[2];
+                target_locks = new int[4];
+                random = new Random();
+            }
+
+            // SLCO expression wrapper | y[j] = 0
+            private boolean t_SMC0_0_s_0_n_0() {
+                lock_ids[0] = target_locks[1] = 0; // Acquire j
+                lockManager.acquire_locks(lock_ids, 1);
+                lock_ids[0] = target_locks[0] = 1 + j; // Acquire y[j]
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(1 + j); // Check y[j]
+                lockManager.check_lock(0); // Check j
+                if(y[j] == 0) {
+                    lock_ids[0] = target_locks[0]; // Release y[j]
+                    lock_ids[1] = target_locks[1]; // Release j
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y[j]
+                lock_ids[1] = target_locks[1]; // Release j
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO expression wrapper | i >= 0
+            private boolean t_SMC0_0_s_0_n_1() {
+                lock_ids[0] = target_locks[2] = 3; // Acquire i
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(3); // Check i
+                if(i >= 0) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[2]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | i < 2
+            private boolean t_SMC0_0_s_0_n_2() {
+                lockManager.check_lock(3); // Check i
+                if(i < 2) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[2]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | x[i] = 0
+            private boolean t_SMC0_0_s_0_n_3() {
+                lock_ids[0] = target_locks[3] = 4 + i; // Acquire x[i]
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(3); // Check i
+                lockManager.check_lock(4 + i); // Check x[i]
+                if(x[i] == 0) {
+                    lock_ids[0] = target_locks[2]; // Release i
+                    lock_ids[1] = target_locks[3]; // Release x[i]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[2]; // Release i
+                lock_ids[1] = target_locks[3]; // Release x[i]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | y[j] = 0 and i >= 0 and i < 2 and x[i] = 0
+            private boolean execute_transition_SMC0_0() {
+                // SLCO expression | y[j] = 0 and i >= 0 and i < 2 and x[i] = 0
+                if(!(t_SMC0_0_s_0_n_0() && t_SMC0_0_s_0_n_1() && t_SMC0_0_s_0_n_2() && t_SMC0_0_s_0_n_3())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            private void exec_SMC0() {
+                // [N_DET.START]
+                // SLCO transition (id:0, p:0) | SMC0 -> SMC0 | guard: y[j] = 0 and i >= 0 and i < 2 and x[i] = 0
+                if(execute_transition_SMC0_0()) {
+                    return;
+                }
+                // [N_DET.END]
+            }
+
+            private void exec_SMC1() {
+                // There are no transitions starting in state SMC1.
+            }
+
+            // Execute method
+            private void exec() {
+                while(true) {
+                    lockManager.check_no_locks();
+                    switch(currentState) {
+                        case SMC0 -> exec_SMC0();
+                        case SMC1 -> exec_SMC1();
+                    }
+                }
+            }
+
+            // Run method
+            public void run() {
+                try {
+                    exec();
+                } catch(Exception e) {
+                    lockManager.exception_unlock();
+                    throw e;
+                }
+            }
+        }
+
+        R(int[] x, int[] y, int i, int j) {
+            // Create a lock manager.
+            LockManager lockManager = new LockManager(6);
+
+            // Instantiate global variables
+            this.x = x;
+            this.y = y;
+            this.i = i;
+            this.j = j;
+
+            // Instantiate state machines
+            T_SM1 = new SM1Thread(lockManager);
+        }
+
+        // Start all threads
+        public void startThreads() {
+            T_SM1.start();
+        }
+
+        // Join all threads
+        public void joinThreads() {
+            while (true) {
+                try {
+                    T_SM1.join();
+                    break;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // Representation of the SLCO class S
+    private static class S implements SLCO_Class {
+        // The threads
+        private final Thread T_SM1;
+
+        // Global variables
+        private volatile boolean[] x;
+        private volatile boolean[] y;
+        private volatile boolean[] z;
+        private volatile boolean[] b;
+        private volatile boolean[] c;
+        private volatile int i;
+        private volatile int j;
+
+        // Define the states fot the state machine SM1
+        interface S_SM1Thread_States {
+            enum States {
+                SMC0, 
+                SMC1
+            }
+        }
+
+        // Representation of the SLCO state machine SM1
+        class SM1Thread extends Thread implements S_SM1Thread_States {
+            // Current state
+            private SM1Thread.States currentState;
+
+            // Random number generator to handle non-determinism
+            private final Random random;
+
+            // The lock manager
+            private final LockManager lockManager;
+
+            // A list of lock ids and target locks that can be reused
+            private final int[] lock_ids;
+            private final int[] target_locks;
+
+            SM1Thread (LockManager lockManagerInstance) {
+                currentState = SM1Thread.States.SMC0;
+                lockManager = lockManagerInstance;
+                lock_ids = new int[6];
+                target_locks = new int[13];
+                random = new Random();
+            }
+
+            // SLCO expression wrapper | x[y[0]]
+            private boolean t_SMC0_0_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 6 + 0; // Acquire x[0]
+                lock_ids[1] = target_locks[5] = 6 + 1; // Acquire x[1]
+                lockManager.acquire_locks(lock_ids, 2);
+                lock_ids[0] = target_locks[3] = 8 + 0; // Acquire z[0]
+                lock_ids[1] = target_locks[4] = 8 + x[0]; // Acquire z[x[0]]
+                lockManager.acquire_locks(lock_ids, 2);
+                lock_ids[0] = target_locks[2] = 10 + z[0]; // Acquire y[z[0]]
+                lock_ids[1] = target_locks[1] = 10 + 0; // Acquire y[0]
+                lockManager.acquire_locks(lock_ids, 2);
+                lock_ids[0] = target_locks[6] = 6 + y[0]; // Acquire x[y[0]]
+                lockManager.acquire_locks(lock_ids, 1);
+                lock_ids[0] = target_locks[5]; // Release x[1]
+                lockManager.release_locks(lock_ids, 1);
+                lockManager.check_lock(10 + 0); // Check y[0]
+                lockManager.check_lock(6 + y[0]); // Check x[y[0]]
+                if(x[y[0]]) {
+                    lock_ids[0] = target_locks[6]; // Release x[y[0]]
+                    lock_ids[1] = target_locks[1]; // Release y[0]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[6]; // Release x[y[0]]
+                lock_ids[1] = target_locks[0]; // Release x[0]
+                lock_ids[2] = target_locks[2]; // Release y[z[0]]
+                lock_ids[3] = target_locks[1]; // Release y[0]
+                lock_ids[4] = target_locks[3]; // Release z[0]
+                lock_ids[5] = target_locks[4]; // Release z[x[0]]
+                lockManager.release_locks(lock_ids, 6);
+                return false;
+            }
+
+            // SLCO expression wrapper | y[z[0]]
+            private boolean t_SMC0_0_s_0_n_1() {
+                lockManager.check_lock(10 + z[0]); // Check y[z[0]]
+                lockManager.check_lock(8 + 0); // Check z[0]
+                if(y[z[0]]) {
+                    lock_ids[0] = target_locks[2]; // Release y[z[0]]
+                    lock_ids[1] = target_locks[3]; // Release z[0]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release x[0]
+                lock_ids[1] = target_locks[2]; // Release y[z[0]]
+                lock_ids[2] = target_locks[3]; // Release z[0]
+                lock_ids[3] = target_locks[4]; // Release z[x[0]]
+                lockManager.release_locks(lock_ids, 4);
+                return false;
+            }
+
+            // SLCO expression wrapper | z[x[0]]
+            private boolean t_SMC0_0_s_0_n_2() {
+                lockManager.check_lock(8 + x[0]); // Check z[x[0]]
+                lockManager.check_lock(6 + 0); // Check x[0]
+                if(z[x[0]]) {
+                    lock_ids[0] = target_locks[4]; // Release z[x[0]]
+                    lock_ids[1] = target_locks[0]; // Release x[0]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[4]; // Release z[x[0]]
+                lock_ids[1] = target_locks[0]; // Release x[0]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | x[y[0]] and y[z[0]] and z[x[0]]
+            private boolean execute_transition_SMC0_0() {
+                // SLCO expression | x[y[0]] and y[z[0]] and z[x[0]]
+                if(!(t_SMC0_0_s_0_n_0() && t_SMC0_0_s_0_n_1() && t_SMC0_0_s_0_n_2())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | b[j]
+            private boolean t_SMC0_1_s_0_n_0() {
+                lock_ids[0] = target_locks[9] = 0; // Acquire j
+                lockManager.acquire_locks(lock_ids, 1);
+                lock_ids[0] = target_locks[11] = 1 + 0; // Acquire b[0]
+                lock_ids[1] = target_locks[10] = 1 + 1; // Acquire b[1]
+                lock_ids[2] = target_locks[8] = 1 + j; // Acquire b[j]
+                lockManager.acquire_locks(lock_ids, 3);
+                lockManager.check_lock(1 + j); // Check b[j]
+                lockManager.check_lock(0); // Check j
+                if(b[j]) {
+                    lock_ids[0] = target_locks[8]; // Release b[j]
+                    lock_ids[1] = target_locks[9]; // Release j
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[11]; // Release b[0]
+                lock_ids[1] = target_locks[10]; // Release b[1]
+                lock_ids[2] = target_locks[8]; // Release b[j]
+                lock_ids[3] = target_locks[9]; // Release j
+                lockManager.release_locks(lock_ids, 4);
+                return false;
+            }
+
+            // SLCO expression wrapper | i >= 0
+            private boolean t_SMC0_1_s_0_n_1() {
+                lock_ids[0] = target_locks[7] = 3; // Acquire i
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(3); // Check i
+                if(i >= 0) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[10]; // Release b[1]
+                lock_ids[2] = target_locks[11]; // Release b[0]
+                lockManager.release_locks(lock_ids, 3);
+                return false;
+            }
+
+            // SLCO expression wrapper | i < 2
+            private boolean t_SMC0_1_s_0_n_2() {
+                lockManager.check_lock(3); // Check i
+                if(i < 2) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[10]; // Release b[1]
+                lock_ids[2] = target_locks[11]; // Release b[0]
+                lockManager.release_locks(lock_ids, 3);
+                return false;
+            }
+
+            // SLCO expression wrapper | b[i]
+            private boolean t_SMC0_1_s_0_n_3() {
+                lockManager.check_lock(3); // Check i
+                lockManager.check_lock(1 + i); // Check b[i]
+                if(b[i]) {
+                    lock_ids[0] = target_locks[7]; // Release i
+                    lock_ids[1] = target_locks[10]; // Release b[1]
+                    lock_ids[2] = target_locks[11]; // Release b[0]
+                    lockManager.release_locks(lock_ids, 3);
+                    return true;
+                }
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[10]; // Release b[1]
+                lock_ids[2] = target_locks[11]; // Release b[0]
+                lockManager.release_locks(lock_ids, 3);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | b[j] and i >= 0 and i < 2 and b[i]
+            private boolean execute_transition_SMC0_1() {
+                // SLCO expression | b[j] and i >= 0 and i < 2 and b[i]
+                if(!(t_SMC0_1_s_0_n_0() && t_SMC0_1_s_0_n_1() && t_SMC0_1_s_0_n_2() && t_SMC0_1_s_0_n_3())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | i >= 0
+            private boolean t_SMC0_2_s_0_n_0() {
+                lock_ids[0] = target_locks[7] = 3; // Acquire i
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(3); // Check i
+                if(i >= 0) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[7]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | i < 2
+            private boolean t_SMC0_2_s_0_n_1() {
+                lockManager.check_lock(3); // Check i
+                if(i < 2) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[7]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | c[i]
+            private boolean t_SMC0_2_s_0_n_2() {
+                lock_ids[0] = target_locks[12] = 4 + i; // Acquire c[i]
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(3); // Check i
+                lockManager.check_lock(4 + i); // Check c[i]
+                if(c[i]) {
+                    lock_ids[0] = target_locks[7]; // Release i
+                    lock_ids[1] = target_locks[12]; // Release c[i]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[12]; // Release c[i]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | i >= 0 and i < 2 and c[i]
+            private boolean execute_transition_SMC0_2() {
+                // SLCO expression | i >= 0 and i < 2 and c[i]
+                if(!(t_SMC0_2_s_0_n_0() && t_SMC0_2_s_0_n_1() && t_SMC0_2_s_0_n_2())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            private void exec_SMC0() {
+                // [N_DET.START]
+                switch(random.nextInt(3)) {
+                    case 0 -> {
+                        // SLCO transition (id:0, p:0) | SMC0 -> SMC0 | guard: x[y[0]] and y[z[0]] and z[x[0]]
+                        if(execute_transition_SMC0_0()) {
+                            return;
+                        }
+                    }
+                    case 1 -> {
+                        // SLCO transition (id:1, p:0) | SMC0 -> SMC0 | guard: b[j] and i >= 0 and i < 2 and b[i]
+                        if(execute_transition_SMC0_1()) {
+                            return;
+                        }
+                    }
+                    case 2 -> {
+                        // SLCO transition (id:2, p:0) | SMC0 -> SMC0 | guard: i >= 0 and i < 2 and c[i]
+                        if(execute_transition_SMC0_2()) {
+                            return;
+                        }
+                    }
+                }
+                // [N_DET.END]
+            }
+
+            private void exec_SMC1() {
+                // There are no transitions starting in state SMC1.
+            }
+
+            // Execute method
+            private void exec() {
+                while(true) {
+                    lockManager.check_no_locks();
+                    switch(currentState) {
+                        case SMC0 -> exec_SMC0();
+                        case SMC1 -> exec_SMC1();
+                    }
+                }
+            }
+
+            // Run method
+            public void run() {
+                try {
+                    exec();
+                } catch(Exception e) {
+                    lockManager.exception_unlock();
+                    throw e;
+                }
+            }
+        }
+
+        S(boolean[] x, boolean[] y, boolean[] z, boolean[] b, boolean[] c, int i, int j) {
+            // Create a lock manager.
+            LockManager lockManager = new LockManager(12);
+
+            // Instantiate global variables
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.b = b;
             this.c = c;
-            this.d = d;
+            this.i = i;
+            this.j = j;
+
+            // Instantiate state machines
+            T_SM1 = new SM1Thread(lockManager);
+        }
+
+        // Start all threads
+        public void startThreads() {
+            T_SM1.start();
+        }
+
+        // Join all threads
+        public void joinThreads() {
+            while (true) {
+                try {
+                    T_SM1.join();
+                    break;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // Representation of the SLCO class T
+    private static class T implements SLCO_Class {
+        // The threads
+        private final Thread T_SM1;
+
+        // Global variables
+        private volatile boolean[] x;
+        private volatile boolean[] y;
+        private volatile boolean[] z;
+        private volatile boolean[] b;
+        private volatile boolean[] c;
+        private volatile int i;
+        private volatile int j;
+
+        // Define the states fot the state machine SM1
+        interface T_SM1Thread_States {
+            enum States {
+                SMC0, 
+                SMC1
+            }
+        }
+
+        // Representation of the SLCO state machine SM1
+        class SM1Thread extends Thread implements T_SM1Thread_States {
+            // Current state
+            private SM1Thread.States currentState;
+
+            // Random number generator to handle non-determinism
+            private final Random random;
+
+            // The lock manager
+            private final LockManager lockManager;
+
+            // A list of lock ids and target locks that can be reused
+            private final int[] lock_ids;
+            private final int[] target_locks;
+
+            SM1Thread (LockManager lockManagerInstance) {
+                currentState = SM1Thread.States.SMC0;
+                lockManager = lockManagerInstance;
+                lock_ids = new int[6];
+                target_locks = new int[13];
+                random = new Random();
+            }
+
+            // SLCO expression wrapper | x[y[0]]
+            private boolean t_SMC0_0_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 6 + 0; // Acquire x[0]
+                lock_ids[1] = target_locks[5] = 6 + 1; // Acquire x[1]
+                lockManager.acquire_locks(lock_ids, 2);
+                lock_ids[0] = target_locks[3] = 8 + 0; // Acquire z[0]
+                lock_ids[1] = target_locks[4] = 8 + x[0]; // Acquire z[x[0]]
+                lockManager.acquire_locks(lock_ids, 2);
+                lock_ids[0] = target_locks[2] = 10 + z[0]; // Acquire y[z[0]]
+                lock_ids[1] = target_locks[1] = 10 + 0; // Acquire y[0]
+                lockManager.acquire_locks(lock_ids, 2);
+                lock_ids[0] = target_locks[6] = 6 + y[0]; // Acquire x[y[0]]
+                lockManager.acquire_locks(lock_ids, 1);
+                lock_ids[0] = target_locks[5]; // Release x[1]
+                lockManager.release_locks(lock_ids, 1);
+                lockManager.check_lock(10 + 0); // Check y[0]
+                lockManager.check_lock(6 + y[0]); // Check x[y[0]]
+                if(x[y[0]]) {
+                    lock_ids[0] = target_locks[6]; // Release x[y[0]]
+                    lock_ids[1] = target_locks[1]; // Release y[0]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[6]; // Release x[y[0]]
+                lock_ids[1] = target_locks[0]; // Release x[0]
+                lock_ids[2] = target_locks[2]; // Release y[z[0]]
+                lock_ids[3] = target_locks[1]; // Release y[0]
+                lock_ids[4] = target_locks[3]; // Release z[0]
+                lock_ids[5] = target_locks[4]; // Release z[x[0]]
+                lockManager.release_locks(lock_ids, 6);
+                return false;
+            }
+
+            // SLCO expression wrapper | y[z[0]]
+            private boolean t_SMC0_0_s_0_n_1() {
+                lockManager.check_lock(10 + z[0]); // Check y[z[0]]
+                lockManager.check_lock(8 + 0); // Check z[0]
+                if(y[z[0]]) {
+                    lock_ids[0] = target_locks[2]; // Release y[z[0]]
+                    lock_ids[1] = target_locks[3]; // Release z[0]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release x[0]
+                lock_ids[1] = target_locks[2]; // Release y[z[0]]
+                lock_ids[2] = target_locks[3]; // Release z[0]
+                lock_ids[3] = target_locks[4]; // Release z[x[0]]
+                lockManager.release_locks(lock_ids, 4);
+                return false;
+            }
+
+            // SLCO expression wrapper | z[x[0]]
+            private boolean t_SMC0_0_s_0_n_2() {
+                lockManager.check_lock(8 + x[0]); // Check z[x[0]]
+                lockManager.check_lock(6 + 0); // Check x[0]
+                if(z[x[0]]) {
+                    lock_ids[0] = target_locks[4]; // Release z[x[0]]
+                    lock_ids[1] = target_locks[0]; // Release x[0]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[4]; // Release z[x[0]]
+                lock_ids[1] = target_locks[0]; // Release x[0]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | x[y[0]] and y[z[0]] and z[x[0]]
+            private boolean execute_transition_SMC0_0() {
+                // SLCO expression | x[y[0]] and y[z[0]] and z[x[0]]
+                if(!(t_SMC0_0_s_0_n_0() && t_SMC0_0_s_0_n_1() && t_SMC0_0_s_0_n_2())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | i >= 0
+            private boolean t_SMC0_1_s_0_n_0() {
+                lock_ids[0] = target_locks[7] = 3; // Acquire i
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(3); // Check i
+                if(i >= 0) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[7]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | i < 2
+            private boolean t_SMC0_1_s_0_n_1() {
+                lockManager.check_lock(3); // Check i
+                if(i < 2) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[7]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | c[i]
+            private boolean t_SMC0_1_s_0_n_2() {
+                lock_ids[0] = target_locks[12] = 4 + i; // Acquire c[i]
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(3); // Check i
+                lockManager.check_lock(4 + i); // Check c[i]
+                if(c[i]) {
+                    lock_ids[0] = target_locks[7]; // Release i
+                    lock_ids[1] = target_locks[12]; // Release c[i]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[12]; // Release c[i]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | i >= 0 and i < 2 and c[i]
+            private boolean execute_transition_SMC0_1() {
+                // SLCO expression | i >= 0 and i < 2 and c[i]
+                if(!(t_SMC0_1_s_0_n_0() && t_SMC0_1_s_0_n_1() && t_SMC0_1_s_0_n_2())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | b[j]
+            private boolean t_SMC0_2_s_0_n_0() {
+                lock_ids[0] = target_locks[9] = 0; // Acquire j
+                lockManager.acquire_locks(lock_ids, 1);
+                lock_ids[0] = target_locks[11] = 1 + 0; // Acquire b[0]
+                lock_ids[1] = target_locks[10] = 1 + 1; // Acquire b[1]
+                lock_ids[2] = target_locks[8] = 1 + j; // Acquire b[j]
+                lockManager.acquire_locks(lock_ids, 3);
+                lockManager.check_lock(1 + j); // Check b[j]
+                lockManager.check_lock(0); // Check j
+                if(b[j]) {
+                    lock_ids[0] = target_locks[8]; // Release b[j]
+                    lock_ids[1] = target_locks[9]; // Release j
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[11]; // Release b[0]
+                lock_ids[1] = target_locks[10]; // Release b[1]
+                lock_ids[2] = target_locks[8]; // Release b[j]
+                lock_ids[3] = target_locks[9]; // Release j
+                lockManager.release_locks(lock_ids, 4);
+                return false;
+            }
+
+            // SLCO expression wrapper | i >= 0
+            private boolean t_SMC0_2_s_0_n_1() {
+                lock_ids[0] = target_locks[7] = 3; // Acquire i
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(3); // Check i
+                if(i >= 0) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[10]; // Release b[1]
+                lock_ids[2] = target_locks[11]; // Release b[0]
+                lockManager.release_locks(lock_ids, 3);
+                return false;
+            }
+
+            // SLCO expression wrapper | i < 2
+            private boolean t_SMC0_2_s_0_n_2() {
+                lockManager.check_lock(3); // Check i
+                if(i < 2) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[10]; // Release b[1]
+                lock_ids[2] = target_locks[11]; // Release b[0]
+                lockManager.release_locks(lock_ids, 3);
+                return false;
+            }
+
+            // SLCO expression wrapper | b[i]
+            private boolean t_SMC0_2_s_0_n_3() {
+                lockManager.check_lock(3); // Check i
+                lockManager.check_lock(1 + i); // Check b[i]
+                if(b[i]) {
+                    lock_ids[0] = target_locks[7]; // Release i
+                    lock_ids[1] = target_locks[10]; // Release b[1]
+                    lock_ids[2] = target_locks[11]; // Release b[0]
+                    lockManager.release_locks(lock_ids, 3);
+                    return true;
+                }
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[10]; // Release b[1]
+                lock_ids[2] = target_locks[11]; // Release b[0]
+                lockManager.release_locks(lock_ids, 3);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | b[j] and i >= 0 and i < 2 and b[i]
+            private boolean execute_transition_SMC0_2() {
+                // SLCO expression | b[j] and i >= 0 and i < 2 and b[i]
+                if(!(t_SMC0_2_s_0_n_0() && t_SMC0_2_s_0_n_1() && t_SMC0_2_s_0_n_2() && t_SMC0_2_s_0_n_3())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            private void exec_SMC0() {
+                // [N_DET.START]
+                switch(random.nextInt(3)) {
+                    case 0 -> {
+                        // SLCO transition (id:0, p:0) | SMC0 -> SMC0 | guard: x[y[0]] and y[z[0]] and z[x[0]]
+                        if(execute_transition_SMC0_0()) {
+                            return;
+                        }
+                    }
+                    case 1 -> {
+                        // SLCO transition (id:1, p:0) | SMC0 -> SMC0 | guard: i >= 0 and i < 2 and c[i]
+                        if(execute_transition_SMC0_1()) {
+                            return;
+                        }
+                    }
+                    case 2 -> {
+                        // SLCO transition (id:2, p:0) | SMC0 -> SMC0 | guard: b[j] and i >= 0 and i < 2 and b[i]
+                        if(execute_transition_SMC0_2()) {
+                            return;
+                        }
+                    }
+                }
+                // [N_DET.END]
+            }
+
+            private void exec_SMC1() {
+                // There are no transitions starting in state SMC1.
+            }
+
+            // Execute method
+            private void exec() {
+                while(true) {
+                    lockManager.check_no_locks();
+                    switch(currentState) {
+                        case SMC0 -> exec_SMC0();
+                        case SMC1 -> exec_SMC1();
+                    }
+                }
+            }
+
+            // Run method
+            public void run() {
+                try {
+                    exec();
+                } catch(Exception e) {
+                    lockManager.exception_unlock();
+                    throw e;
+                }
+            }
+        }
+
+        T(boolean[] x, boolean[] y, boolean[] z, boolean[] b, boolean[] c, int i, int j) {
+            // Create a lock manager.
+            LockManager lockManager = new LockManager(12);
+
+            // Instantiate global variables
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.b = b;
+            this.c = c;
+            this.i = i;
+            this.j = j;
+
+            // Instantiate state machines
+            T_SM1 = new SM1Thread(lockManager);
+        }
+
+        // Start all threads
+        public void startThreads() {
+            T_SM1.start();
+        }
+
+        // Join all threads
+        public void joinThreads() {
+            while (true) {
+                try {
+                    T_SM1.join();
+                    break;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // Representation of the SLCO class U
+    private static class U implements SLCO_Class {
+        // The threads
+        private final Thread T_SM1;
+
+        // Global variables
+        private volatile int[] x;
+        private volatile int[] y;
+        private volatile int i;
+
+        // Define the states fot the state machine SM1
+        interface U_SM1Thread_States {
+            enum States {
+                SMC0, 
+                SMC1
+            }
+        }
+
+        // Representation of the SLCO state machine SM1
+        class SM1Thread extends Thread implements U_SM1Thread_States {
+            // Current state
+            private SM1Thread.States currentState;
+
+            // Random number generator to handle non-determinism
+            private final Random random;
+
+            // The lock manager
+            private final LockManager lockManager;
+
+            // A list of lock ids and target locks that can be reused
+            private final int[] lock_ids;
+            private final int[] target_locks;
+
+            SM1Thread (LockManager lockManagerInstance) {
+                currentState = SM1Thread.States.SMC0;
+                lockManager = lockManagerInstance;
+                lock_ids = new int[3];
+                target_locks = new int[4];
+                random = new Random();
+            }
+
+            // SLCO expression wrapper | x[0] > 0
+            private boolean t_SMC0_0_s_0_n_0() {
+                lock_ids[0] = target_locks[2] = 1 + 1; // Acquire x[1]
+                lock_ids[1] = target_locks[1] = 1 + 0; // Acquire x[0]
+                lockManager.acquire_locks(lock_ids, 2);
+                lockManager.check_lock(1 + 0); // Check x[0]
+                if(x[0] > 0) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[2]; // Release x[1]
+                lock_ids[1] = target_locks[1]; // Release x[0]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO expression wrapper | y[0] >= 0
+            private boolean t_SMC0_0_s_0_n_1() {
+                lock_ids[0] = target_locks[3] = 3 + 0; // Acquire y[0]
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(3 + 0); // Check y[0]
+                if(y[0] >= 0) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[2]; // Release x[1]
+                lock_ids[1] = target_locks[1]; // Release x[0]
+                lock_ids[2] = target_locks[3]; // Release y[0]
+                lockManager.release_locks(lock_ids, 3);
+                return false;
+            }
+
+            // SLCO expression wrapper | y[0] < 2
+            private boolean t_SMC0_0_s_0_n_2() {
+                lockManager.check_lock(3 + 0); // Check y[0]
+                if(y[0] < 2) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[2]; // Release x[1]
+                lock_ids[1] = target_locks[1]; // Release x[0]
+                lock_ids[2] = target_locks[3]; // Release y[0]
+                lockManager.release_locks(lock_ids, 3);
+                return false;
+            }
+
+            // SLCO expression wrapper | x[y[0]] > 0
+            private boolean t_SMC0_0_s_0_n_3() {
+                lockManager.check_lock(3 + 0); // Check y[0]
+                lockManager.check_lock(1 + y[0]); // Check x[y[0]]
+                if(x[y[0]] > 0) {
+                    lock_ids[0] = target_locks[2]; // Release x[1]
+                    lock_ids[1] = target_locks[1]; // Release x[0]
+                    lock_ids[2] = target_locks[3]; // Release y[0]
+                    lockManager.release_locks(lock_ids, 3);
+                    return true;
+                }
+                lock_ids[0] = target_locks[2]; // Release x[1]
+                lock_ids[1] = target_locks[1]; // Release x[0]
+                lock_ids[2] = target_locks[3]; // Release y[0]
+                lockManager.release_locks(lock_ids, 3);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | x[0] > 0 and y[0] >= 0 and y[0] < 2 and x[y[0]] > 0
+            private boolean execute_transition_SMC0_0() {
+                // SLCO expression | x[0] > 0 and y[0] >= 0 and y[0] < 2 and x[y[0]] > 0
+                if(!(t_SMC0_0_s_0_n_0() && t_SMC0_0_s_0_n_1() && t_SMC0_0_s_0_n_2() && t_SMC0_0_s_0_n_3())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | y[x[0]] > 0
+            private boolean t_SMC0_1_s_0_n_0() {
+                lock_ids[0] = target_locks[1] = 1 + 0; // Acquire x[0]
+                lockManager.acquire_locks(lock_ids, 1);
+                lock_ids[0] = target_locks[0] = 3 + x[0]; // Acquire y[x[0]]
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(3 + x[0]); // Check y[x[0]]
+                lockManager.check_lock(1 + 0); // Check x[0]
+                if(y[x[0]] > 0) {
+                    lock_ids[0] = target_locks[0]; // Release y[x[0]]
+                    lock_ids[1] = target_locks[1]; // Release x[0]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y[x[0]]
+                lock_ids[1] = target_locks[1]; // Release x[0]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | y[x[0]] > 0
+            private boolean execute_transition_SMC0_1() {
+                // SLCO expression | y[x[0]] > 0
+                if(!(t_SMC0_1_s_0_n_0())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | y[x[0]] > 0
+            private boolean t_SMC0_2_s_0_n_0() {
+                lock_ids[0] = target_locks[1] = 1 + 0; // Acquire x[0]
+                lockManager.acquire_locks(lock_ids, 1);
+                lock_ids[0] = target_locks[0] = 3 + x[0]; // Acquire y[x[0]]
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(3 + x[0]); // Check y[x[0]]
+                lockManager.check_lock(1 + 0); // Check x[0]
+                if(y[x[0]] > 0) {
+                    lock_ids[0] = target_locks[0]; // Release y[x[0]]
+                    lock_ids[1] = target_locks[1]; // Release x[0]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y[x[0]]
+                lock_ids[1] = target_locks[1]; // Release x[0]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | y[x[0]] > 0
+            private boolean execute_transition_SMC0_2() {
+                // SLCO expression | y[x[0]] > 0
+                if(!(t_SMC0_2_s_0_n_0())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | y[x[0]] > 0
+            private boolean t_SMC0_3_s_0_n_0() {
+                lock_ids[0] = target_locks[1] = 1 + 0; // Acquire x[0]
+                lockManager.acquire_locks(lock_ids, 1);
+                lock_ids[0] = target_locks[0] = 3 + x[0]; // Acquire y[x[0]]
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(3 + x[0]); // Check y[x[0]]
+                lockManager.check_lock(1 + 0); // Check x[0]
+                if(y[x[0]] > 0) {
+                    lock_ids[0] = target_locks[0]; // Release y[x[0]]
+                    lock_ids[1] = target_locks[1]; // Release x[0]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y[x[0]]
+                lock_ids[1] = target_locks[1]; // Release x[0]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:3) | SMC0 -> SMC0 | y[x[0]] > 0
+            private boolean execute_transition_SMC0_3() {
+                // SLCO expression | y[x[0]] > 0
+                if(!(t_SMC0_3_s_0_n_0())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | y[x[0]] > 0
+            private boolean t_SMC0_4_s_0_n_0() {
+                lock_ids[0] = target_locks[1] = 1 + 0; // Acquire x[0]
+                lockManager.acquire_locks(lock_ids, 1);
+                lock_ids[0] = target_locks[0] = 3 + x[0]; // Acquire y[x[0]]
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(3 + x[0]); // Check y[x[0]]
+                lockManager.check_lock(1 + 0); // Check x[0]
+                if(y[x[0]] > 0) {
+                    lock_ids[0] = target_locks[0]; // Release y[x[0]]
+                    lock_ids[1] = target_locks[1]; // Release x[0]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y[x[0]]
+                lock_ids[1] = target_locks[1]; // Release x[0]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:4) | SMC0 -> SMC0 | y[x[0]] > 0
+            private boolean execute_transition_SMC0_4() {
+                // SLCO expression | y[x[0]] > 0
+                if(!(t_SMC0_4_s_0_n_0())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            private void exec_SMC0() {
+                // [N_DET.START]
+                switch(random.nextInt(2)) {
+                    case 0 -> {
+                        // SLCO transition (id:0, p:0) | SMC0 -> SMC0 | guard: x[0] > 0 and y[0] >= 0 and y[0] < 2 and x[y[0]] > 0
+                        if(execute_transition_SMC0_0()) {
+                            return;
+                        }
+                    }
+                    case 1 -> {
+                        // [N_DET.START]
+                        switch(random.nextInt(4)) {
+                            case 0 -> {
+                                // SLCO transition (id:1, p:0) | SMC0 -> SMC0 | guard: y[x[0]] > 0
+                                if(execute_transition_SMC0_1()) {
+                                    return;
+                                }
+                            }
+                            case 1 -> {
+                                // SLCO transition (id:2, p:0) | SMC0 -> SMC0 | guard: y[x[0]] > 0
+                                if(execute_transition_SMC0_2()) {
+                                    return;
+                                }
+                            }
+                            case 2 -> {
+                                // SLCO transition (id:3, p:0) | SMC0 -> SMC0 | guard: y[x[0]] > 0
+                                if(execute_transition_SMC0_3()) {
+                                    return;
+                                }
+                            }
+                            case 3 -> {
+                                // SLCO transition (id:4, p:0) | SMC0 -> SMC0 | guard: y[x[0]] > 0
+                                if(execute_transition_SMC0_4()) {
+                                    return;
+                                }
+                            }
+                        }
+                        // [N_DET.END]
+                    }
+                }
+                // [N_DET.END]
+            }
+
+            private void exec_SMC1() {
+                // There are no transitions starting in state SMC1.
+            }
+
+            // Execute method
+            private void exec() {
+                while(true) {
+                    lockManager.check_no_locks();
+                    switch(currentState) {
+                        case SMC0 -> exec_SMC0();
+                        case SMC1 -> exec_SMC1();
+                    }
+                }
+            }
+
+            // Run method
+            public void run() {
+                try {
+                    exec();
+                } catch(Exception e) {
+                    lockManager.exception_unlock();
+                    throw e;
+                }
+            }
+        }
+
+        U(int[] x, int[] y, int i) {
+            // Create a lock manager.
+            LockManager lockManager = new LockManager(5);
+
+            // Instantiate global variables
+            this.x = x;
+            this.y = y;
+            this.i = i;
 
             // Instantiate state machines
             T_SM1 = new SM1Thread(lockManager);
@@ -686,10 +1662,14 @@ public class Test {
             new P(
                 new int[]{ 0, 0 },
                 new int[]{ 0, 0 },
-                new boolean[]{ false, false, false },
                 0,
-                new char[]{ 0, 0 },
-                (char) 0
+                0
+            ),
+            new Q(
+                new int[]{ 0, 0 },
+                new int[]{ 0, 0 },
+                0,
+                0
             )
         };
     }
