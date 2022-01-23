@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Dict, Set, Tuple, List
+from typing import TYPE_CHECKING, Dict, Set, Tuple
 
 import networkx as nx
 
 from objects.ast.models import Class, Variable, VariableRef
-from objects.ast.util import get_weighted_class_variable_dependency_graph, get_class_variable_references
-from util.graph import convert_to_directed_acyclic_graph
+from objects.ast.util import get_class_variable_references
 
 if TYPE_CHECKING:
     from objects.locking.models import AtomicNode, LockingNode
@@ -15,22 +14,6 @@ if TYPE_CHECKING:
 
 def assign_lock_identities(model: Class) -> None:
     """Assign lock identities to the global variables within the given class."""
-    logging.info(f"> Assigning lock identities to class \"{model}\"")
-    # # Convert the graph to a DAG and assign lock identities to the class variables using topological sort.
-    # weighted_dependency_graph = get_weighted_class_variable_dependency_graph(model)
-    # directed_acyclic_graph = convert_to_directed_acyclic_graph(weighted_dependency_graph)
-    # reversed_graph = directed_acyclic_graph.reverse()
-    #
-    # # Perform a topological sort with a strict ordering such that results are always reproducible.
-    # v: Variable
-    # i = 0
-    # for v in nx.lexicographical_topological_sort(
-    #         reversed_graph, key=lambda x: (-reversed_graph.nodes[x]["weight"], x.name)
-    # ):
-    #     v.lock_id = i
-    #     i += max(1, v.type.size)
-    #     logging.info(f" - {v} {v.lock_id}")
-
     generate_lock_identities(model)
 
 
@@ -259,7 +242,7 @@ def process_locking_sub_graph(model: AtomicNode, graph: nx.DiGraph) -> None:
 
         # Mark a node as location sensitive if appropriate.
         for i in n.locks_to_acquire:
-            if i.is_location_sensitive and n == i.original_locking_node:
+            if i.is_location_sensitive and not i.unavoidable_location_conflict:
                 # Avoid adding weight to the location sensitivity if a violation is unavoidable.
                 add_variable_weight(i.ref.var, len(model.graph), "ls:is_location_sensitive", graph)
 

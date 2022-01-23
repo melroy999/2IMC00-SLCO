@@ -9,7 +9,6 @@ def set_groupings(model: StateMachine):
     """
     Assign groupings of transitions to the given state machine.
     """
-    logging.info(f"> Assigning decision groupings for state machine {model}")
     # Create a mapping between starting state and the transitions starting therein.
     for t in model.transitions:
         model.state_to_transitions[t.source].append(t)

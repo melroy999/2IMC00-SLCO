@@ -24,7 +24,8 @@ def initialize_transition_locking_structure(model: Transition):
     for s in model.statements:
         generate_base_level_locking_entries(s.locking_atomic_node)
         assign_locking_node_ids(s.locking_atomic_node)
-        generate_location_sensitive_marks(s.locking_atomic_node)
+        generate_location_sensitivity_checks(s.locking_atomic_node)
+        generate_unavoidable_location_sensitivity_violation_marks(s.locking_atomic_node)
 
     # Perform a movement step prior to knowing the lock identities.
     # Two passes are required: one to get the non-constant array variables to the right position in the graph, and a
@@ -248,7 +249,7 @@ def generate_base_level_locking_entries(model: AtomicNode):
         model.used_variables.update(r.var for r in class_variable_references)
 
 
-def get_bound_checked_variables(model: SlcoStatementNode) -> Set[VariableRef]:
+def get_bound_checked_variable_references(model: SlcoStatementNode) -> Set[VariableRef]:
     """
     Get the referenced variables that are potentially bound checked by the given statement.
     """
@@ -257,35 +258,53 @@ def get_bound_checked_variables(model: SlcoStatementNode) -> Set[VariableRef]:
 
     result: Set[VariableRef] = set()
     if isinstance(model, VariableRef):
+        # Note that only the variable itself is range checked, and not its indices.
         # Moreover, boolean types cannot be bound checked, since they cannot be used in the index of a variable.
         if not model.var.is_boolean:
             result.add(model)
     else:
         for v in model:
-            result.update(get_bound_checked_variables(v))
+            result.update(get_bound_checked_variable_references(v))
 
     # Return all the used variables.
     return result
 
 
-def generate_location_sensitive_marks(model: AtomicNode, aggregate_variable_references: Set[VariableRef] = None):
+def get_bound_checked_variables(model: AtomicNode) -> Set[Lock]:
     """
-    Add a flag to locks that depend upon the control flow for a successful/error prone evaluation.
+    Get the referenced variables that are potentially bound checked by the given statement.
     """
-    # Check which variable references have been encountered so far.
+    # This function should only be called for base-level lockable components.
+    assert(len(model.child_atomic_nodes) == 0)
+
+    # Get all the variable references that are bound checked.
+    bound_checked_variable_references = get_bound_checked_variable_references(model.partner)
+
+    # Find all lock objects that are bound checked.
+    result: Set[Lock] = set()
+    for i in model.entry_node.locks_to_acquire:
+        if i.ref in bound_checked_variable_references:
+            result.add(i)
+
+    # Return all the used variables.
+    return result
+
+
+def generate_location_sensitivity_checks(model: AtomicNode, aggregate_variable_references: Set[Lock] = None):
+    """
+    Add verification pointers to locks that depend upon the control flow for a successful/error prone evaluation.
+    """
+    # Check which locks have been encountered so far.
     if aggregate_variable_references is None:
-        aggregate_variable_references = set()
+        aggregate_variable_references: Set[Lock] = set()
 
+    # Perform a DFS on the objects atomic nodes.
     if len(model.child_atomic_nodes) > 0:
-        if isinstance(model.partner, Assignment):
-            # Reset the list if an assignment is entered, since each statement should be evaluated individually.
-            aggregate_variable_references: Set[VariableRef] = set()
-
-        # Generate flags for the children.
+        # Generate the checks for all children.
         for n in model.child_atomic_nodes:
-            generate_location_sensitive_marks(n, aggregate_variable_references)
+            generate_location_sensitivity_checks(n, aggregate_variable_references)
             model.location_sensitive_variables.update(n.location_sensitive_variables)
-    elif not isinstance(model.partner, Assignment) and len(model.entry_node.locks_to_acquire) > 0:
+    else:
         # The node is a base-level lockable component. Check if the node uses variables that have been encountered
         # previously in the index of class array variables.
         array_class_variable_references: Set[Lock] = {
@@ -300,12 +319,56 @@ def generate_location_sensitive_marks(model: AtomicNode, aggregate_variable_refe
             variable_references = get_variable_references(i.ref.index)
 
             # The lock is position sensitive if any of the references are in the aggregated list.
-            if variable_references.intersection(aggregate_variable_references):
+            bound_checked_index_variables: List[Lock] = []
+            j: Lock
+            for j in aggregate_variable_references:
+                if j.ref in variable_references:
+                    bound_checked_index_variables.append(j)
+            if len(bound_checked_index_variables) > 0:
                 i.is_location_sensitive = True
+                i.bound_checked_index_variables = bound_checked_index_variables
                 model.location_sensitive_variables.add(i.ref.var)
+                logging.info(
+                    f"Marking {i}.{i.original_locking_node.id} as location sensitive with bound checked indices "
+                    f"[{', '.join(f'{v}.{v.original_locking_node.id}' for v in bound_checked_index_variables)}]."
+                )
 
         # Add all the used variables to the aggregate variables list.
-        aggregate_variable_references.update(get_bound_checked_variables(model.partner))
+        aggregate_variable_references.update(get_bound_checked_variables(model))
+
+
+def generate_unavoidable_location_sensitivity_violation_marks(model: AtomicNode, encountered_locks: Set[Lock] = None):
+    # Check which locks have been encountered so far.
+    if encountered_locks is None:
+        encountered_locks: Set[Lock] = set()
+
+    # Do a depth-first search.
+    if len(model.child_atomic_nodes) > 0:
+        # Generate the checks for all children.
+        for n in model.child_atomic_nodes:
+            generate_unavoidable_location_sensitivity_violation_marks(n, encountered_locks)
+    else:
+        # The node is a base-level lockable component.
+        location_sensitive_locks = [i for i in model.entry_node.locks_to_acquire if i.is_location_sensitive]
+        for i in location_sensitive_locks:
+            # Find all locks already encountered with the same variable.
+            variable_sharing_locks = [j for j in encountered_locks if i.ref.var == j.ref.var]
+            if len(variable_sharing_locks):
+                first_variable_occurrence = min((j.original_locking_node.id for j in variable_sharing_locks))
+
+                # Check if the lock with the shared variable occurs before a bound checked index variable.
+                if any(
+                    j.original_locking_node.id >= first_variable_occurrence for j in i.bound_checked_index_variables
+                ):
+                    i.unavoidable_location_conflict = True
+                    logging.info(
+                        f"Flagging {i}.{i.original_locking_node.id} due to the occurrence of an unavoidable location "
+                        f"sensitivity violation caused by one of the following locks: "
+                        f"[{', '.join(f'{v}.{v.original_locking_node.id}' for v in variable_sharing_locks)}]."
+                    )
+
+    # Add all the used variables to the encountered variables list.
+    encountered_locks.update(model.entry_node.locks_to_acquire)
 
 
 def initialize_main_locking_structure(model: StateMachine, state: State):
@@ -577,12 +640,8 @@ def mark_location_sensitivity_violations(model: AtomicNode):
     for n in model.graph.nodes:
         i: Lock
         for i in (j for j in n.locks_to_acquire if j.is_location_sensitive):
-            if isinstance(i.ref.index, Primary) and i.ref.index.value is not None:
-                # Locks with a constant index should not be marked dirty.
-                continue
-
-            # Check if the current node n is equivalent to the node the lock object was created in.
-            if n != i.original_locking_node:
+            # Check if the lock has moved past or into the node of one of its bound checked variables.
+            if any(n.id <= j.original_locking_node.id for j in i.bound_checked_index_variables):
                 # The lock has been moved. Mark as dirty.
                 i.is_dirty = True
                 logging.info(

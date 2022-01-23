@@ -34,6 +34,12 @@ class Lock:
         # A flag indicating whether the lock request is location sensitive or not. I.e., depends on the control flow.
         self.is_location_sensitive: bool = False
 
+        # The variables used within the index that are potentially bound checked by an earlier locking node.
+        self.bound_checked_index_variables: Optional[List[Lock]] = None
+
+        # A flag that is set true when a location sensitive reference will always forced to be moved past the indices.
+        self.unavoidable_location_conflict: bool = False
+
         # A flag indicating that is set to true when the index cannot be locked with the locks currently available.
         self.is_dirty: bool = False
 

@@ -63,10 +63,10 @@ model Test {
                 x[y[0]] && y[z[0]] && z[x[0]];
             }
             from SMC0 to SMC0 {
-                i >= 0 && i < 2 && c[i];
+                i >= 0 && i < 2 && c[i] && c[i];
             }
             from SMC0 to SMC0 {
-                b[j] && i >= 0 && i < 2 && b[i];
+                b[j] && i >= 0 && i < 2 && b[i] && b[i];
             }
         }
 	}
