@@ -290,7 +290,7 @@ class AtomicNode:
         self.parent: Optional[AtomicNode] = None
 
         # The variables in the atomic node that are marked location sensitive.
-        self.location_sensitive_variables = set()
+        self.location_sensitive_locks: List[Lock] = []
 
         # All of the unique variables used within the atomic node.
         self.used_variables: Set[Variable] = set()

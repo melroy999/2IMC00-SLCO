@@ -187,7 +187,7 @@ def create_transition_locking_structure(model: Union[Transition, SlcoStatementNo
         # The guard expression of the transition needs to be included in the main structure. Other statements do not.
         for s in model.statements:
             create_transition_locking_structure(s)
-        return model.guard.locking_atomic_node
+        return model.locking_atomic_node
 
     # All objects from this point on will return an atomic node.
     result = AtomicNode(model)
@@ -303,7 +303,7 @@ def generate_location_sensitivity_checks(model: AtomicNode, aggregate_variable_r
         # Generate the checks for all children.
         for n in model.child_atomic_nodes:
             generate_location_sensitivity_checks(n, aggregate_variable_references)
-            model.location_sensitive_variables.update(n.location_sensitive_variables)
+            model.location_sensitive_locks.extend(n.location_sensitive_locks)
     else:
         # The node is a base-level lockable component. Check if the node uses variables that have been encountered
         # previously in the index of class array variables.
@@ -327,7 +327,7 @@ def generate_location_sensitivity_checks(model: AtomicNode, aggregate_variable_r
             if len(bound_checked_index_variables) > 0:
                 i.is_location_sensitive = True
                 i.bound_checked_index_variables = bound_checked_index_variables
-                model.location_sensitive_variables.add(i.ref.var)
+                model.location_sensitive_locks.append(i)
                 logging.info(
                     f"Marking {i}.{i.original_locking_node.id} as location sensitive with bound checked indices "
                     f"[{', '.join(f'{v}.{v.original_locking_node.id}' for v in bound_checked_index_variables)}]."
@@ -362,8 +362,8 @@ def generate_unavoidable_location_sensitivity_violation_marks(model: AtomicNode,
                 ):
                     i.unavoidable_location_conflict = True
                     logging.info(
-                        f"Flagging {i}.{i.original_locking_node.id} due to the occurrence of an unavoidable location "
-                        f"sensitivity violation caused by one of the following locks: "
+                        f"Flagging lock {i}.{i.original_locking_node.id} due to the occurrence of an unavoidable "
+                        f"location sensitivity violation caused by one of the following locks: "
                         f"[{', '.join(f'{v}.{v.original_locking_node.id}' for v in variable_sharing_locks)}]."
                     )
 
@@ -471,7 +471,7 @@ def create_main_locking_structure(model) -> AtomicNode:
     if isinstance(model, Transition):
         # The guard expression of the transition needs to be included in the main structure. Other statements do not.
         # Chain the guard statement with the overarching decision structure.
-        return model.guard.locking_atomic_node
+        return model.locking_atomic_node
 
     # All objects from this point on will return an atomic node.
     result = AtomicNode(model)

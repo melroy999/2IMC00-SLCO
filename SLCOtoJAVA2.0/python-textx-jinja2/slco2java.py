@@ -852,7 +852,7 @@ def get_vercors_last_associated_aux_var(s, v):
 				return V[len(V)-1][1]
 	elif s.__class__.__name__ == "Assignment":
 		oldvarname = vercors_vars.get(s,s.left.var.name)
-		return getinstruction_old(s.right, s.left.var, oldvarname[1])
+		return getinstruction_old(s.right, s.left.var, oldvarname[0])
 	else:
 		return ""
 

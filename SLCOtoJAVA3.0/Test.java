@@ -18,22 +18,6 @@ public class Test {
             }
         }
 
-        // Lock check
-        void check_no_locks() {
-            for(ReentrantLock lock: locks) {
-                if(lock.isHeldByCurrentThread()) {
-                    throw new RuntimeException("The locking structure is incorrect. locks remain at the start of an iteration.");
-                }
-            }
-        }
-
-        // Lock check
-        void check_lock(int lock_id) {
-            if(!locks[lock_id].isHeldByCurrentThread()) {
-                throw new RuntimeException("Atomicity is violated due to not having locked a class variable.");
-            }
-        }
-
         // Lock method
         void acquire_locks(int[] lock_ids, int end) {
             Arrays.sort(lock_ids, 0, end);
@@ -112,7 +96,6 @@ public class Test {
             private boolean t_SMC0_0_s_0_n_0() {
                 lock_ids[0] = target_locks[2] = 0; // Acquire i
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check i
                 if(i >= 0) {
                     return true;
                 }
@@ -123,7 +106,6 @@ public class Test {
 
             // SLCO expression wrapper | i < 2
             private boolean t_SMC0_0_s_0_n_1() {
-                lockManager.check_lock(0); // Check i
                 if(i < 2) {
                     return true;
                 }
@@ -136,16 +118,14 @@ public class Test {
             private boolean t_SMC0_0_s_0_n_2() {
                 lock_ids[0] = target_locks[3] = 4 + i; // Acquire x[i]
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(4 + i); // Check x[i]
-                lockManager.check_lock(0); // Check i
                 if(x[i] == 0) {
-                    lock_ids[0] = target_locks[3]; // Release x[i]
-                    lock_ids[1] = target_locks[2]; // Release i
+                    lock_ids[0] = target_locks[2]; // Release i
+                    lock_ids[1] = target_locks[3]; // Release x[i]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[3]; // Release x[i]
-                lock_ids[1] = target_locks[2]; // Release i
+                lock_ids[0] = target_locks[2]; // Release i
+                lock_ids[1] = target_locks[3]; // Release x[i]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -163,20 +143,18 @@ public class Test {
 
             // SLCO expression wrapper | y[j] = 0
             private boolean t_SMC0_1_s_0_n_0() {
-                lock_ids[0] = target_locks[1] = 1; // Acquire j
+                lock_ids[0] = target_locks[0] = 1; // Acquire j
                 lockManager.acquire_locks(lock_ids, 1);
-                lock_ids[0] = target_locks[0] = 2 + j; // Acquire y[j]
+                lock_ids[0] = target_locks[1] = 2 + j; // Acquire y[j]
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(2 + j); // Check y[j]
-                lockManager.check_lock(1); // Check j
                 if(y[j] == 0) {
-                    lock_ids[0] = target_locks[0]; // Release y[j]
-                    lock_ids[1] = target_locks[1]; // Release j
+                    lock_ids[0] = target_locks[0]; // Release j
+                    lock_ids[1] = target_locks[1]; // Release y[j]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release y[j]
-                lock_ids[1] = target_locks[1]; // Release j
+                lock_ids[0] = target_locks[0]; // Release j
+                lock_ids[1] = target_locks[1]; // Release y[j]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -212,7 +190,6 @@ public class Test {
             // Execute method
             private void exec() {
                 while(true) {
-                    lockManager.check_no_locks();
                     switch(currentState) {
                         case SMC0 -> exec_SMC0();
                         case SMC1 -> exec_SMC1();
@@ -309,7 +286,6 @@ public class Test {
             private boolean t_SMC0_0_s_0_n_0() {
                 lock_ids[0] = target_locks[0] = 0; // Acquire i
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(0); // Check i
                 if(i >= 0) {
                     return true;
                 }
@@ -320,7 +296,6 @@ public class Test {
 
             // SLCO expression wrapper | i < 2
             private boolean t_SMC0_0_s_0_n_1() {
-                lockManager.check_lock(0); // Check i
                 if(i < 2) {
                     return true;
                 }
@@ -333,36 +308,32 @@ public class Test {
             private boolean t_SMC0_0_s_0_n_2() {
                 lock_ids[0] = target_locks[1] = 1 + i; // Acquire x[i]
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(1 + i); // Check x[i]
-                lockManager.check_lock(0); // Check i
                 if(x[i] == 0) {
-                    lock_ids[0] = target_locks[1]; // Release x[i]
-                    lock_ids[1] = target_locks[0]; // Release i
+                    lock_ids[0] = target_locks[0]; // Release i
+                    lock_ids[1] = target_locks[1]; // Release x[i]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release x[i]
-                lock_ids[1] = target_locks[0]; // Release i
+                lock_ids[0] = target_locks[0]; // Release i
+                lock_ids[1] = target_locks[1]; // Release x[i]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
 
             // SLCO expression wrapper | y[j] = 0
             private boolean t_SMC0_0_s_0_n_3() {
-                lock_ids[0] = target_locks[3] = 3; // Acquire j
+                lock_ids[0] = target_locks[2] = 3; // Acquire j
                 lockManager.acquire_locks(lock_ids, 1);
-                lock_ids[0] = target_locks[2] = 4 + j; // Acquire y[j]
+                lock_ids[0] = target_locks[3] = 4 + j; // Acquire y[j]
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(4 + j); // Check y[j]
-                lockManager.check_lock(3); // Check j
                 if(y[j] == 0) {
-                    lock_ids[0] = target_locks[2]; // Release y[j]
-                    lock_ids[1] = target_locks[3]; // Release j
+                    lock_ids[0] = target_locks[2]; // Release j
+                    lock_ids[1] = target_locks[3]; // Release y[j]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[2]; // Release y[j]
-                lock_ids[1] = target_locks[3]; // Release j
+                lock_ids[0] = target_locks[2]; // Release j
+                lock_ids[1] = target_locks[3]; // Release y[j]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -394,7 +365,6 @@ public class Test {
             // Execute method
             private void exec() {
                 while(true) {
-                    lockManager.check_no_locks();
                     switch(currentState) {
                         case SMC0 -> exec_SMC0();
                         case SMC1 -> exec_SMC1();
@@ -489,20 +459,18 @@ public class Test {
 
             // SLCO expression wrapper | y[j] = 0
             private boolean t_SMC0_0_s_0_n_0() {
-                lock_ids[0] = target_locks[1] = 0; // Acquire j
+                lock_ids[0] = target_locks[0] = 0; // Acquire j
                 lockManager.acquire_locks(lock_ids, 1);
-                lock_ids[0] = target_locks[0] = 1 + j; // Acquire y[j]
+                lock_ids[0] = target_locks[1] = 1 + j; // Acquire y[j]
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(1 + j); // Check y[j]
-                lockManager.check_lock(0); // Check j
                 if(y[j] == 0) {
-                    lock_ids[0] = target_locks[0]; // Release y[j]
-                    lock_ids[1] = target_locks[1]; // Release j
+                    lock_ids[0] = target_locks[0]; // Release j
+                    lock_ids[1] = target_locks[1]; // Release y[j]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release y[j]
-                lock_ids[1] = target_locks[1]; // Release j
+                lock_ids[0] = target_locks[0]; // Release j
+                lock_ids[1] = target_locks[1]; // Release y[j]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -511,7 +479,6 @@ public class Test {
             private boolean t_SMC0_0_s_0_n_1() {
                 lock_ids[0] = target_locks[2] = 3; // Acquire i
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(3); // Check i
                 if(i >= 0) {
                     return true;
                 }
@@ -522,7 +489,6 @@ public class Test {
 
             // SLCO expression wrapper | i < 2
             private boolean t_SMC0_0_s_0_n_2() {
-                lockManager.check_lock(3); // Check i
                 if(i < 2) {
                     return true;
                 }
@@ -535,16 +501,14 @@ public class Test {
             private boolean t_SMC0_0_s_0_n_3() {
                 lock_ids[0] = target_locks[3] = 4 + i; // Acquire x[i]
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(4 + i); // Check x[i]
-                lockManager.check_lock(3); // Check i
                 if(x[i] == 0) {
-                    lock_ids[0] = target_locks[3]; // Release x[i]
-                    lock_ids[1] = target_locks[2]; // Release i
+                    lock_ids[0] = target_locks[2]; // Release i
+                    lock_ids[1] = target_locks[3]; // Release x[i]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[3]; // Release x[i]
-                lock_ids[1] = target_locks[2]; // Release i
+                lock_ids[0] = target_locks[2]; // Release i
+                lock_ids[1] = target_locks[3]; // Release x[i]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -576,7 +540,6 @@ public class Test {
             // Execute method
             private void exec() {
                 while(true) {
-                    lockManager.check_no_locks();
                     switch(currentState) {
                         case SMC0 -> exec_SMC0();
                         case SMC1 -> exec_SMC1();
@@ -674,67 +637,61 @@ public class Test {
 
             // SLCO expression wrapper | x[y[0]]
             private boolean t_SMC0_0_s_0_n_0() {
-                lock_ids[0] = target_locks[2] = 6 + 0; // Acquire x[0]
-                lock_ids[1] = target_locks[5] = 6 + 1; // Acquire x[1]
+                lock_ids[0] = target_locks[5] = 6 + 1; // Acquire x[1]
+                lock_ids[1] = target_locks[2] = 6 + 0; // Acquire x[0]
                 lockManager.acquire_locks(lock_ids, 2);
-                lock_ids[0] = target_locks[1] = 8 + x[0]; // Acquire z[x[0]]
-                lock_ids[1] = target_locks[0] = 8 + 0; // Acquire z[0]
+                lock_ids[0] = target_locks[3] = 8 + 0; // Acquire z[0]
+                lock_ids[1] = target_locks[4] = 8 + x[0]; // Acquire z[x[0]]
                 lockManager.acquire_locks(lock_ids, 2);
-                lock_ids[0] = target_locks[4] = 10 + z[0]; // Acquire y[z[0]]
-                lock_ids[1] = target_locks[3] = 10 + 0; // Acquire y[0]
+                lock_ids[0] = target_locks[1] = 10 + z[0]; // Acquire y[z[0]]
+                lock_ids[1] = target_locks[0] = 10 + 0; // Acquire y[0]
                 lockManager.acquire_locks(lock_ids, 2);
                 lock_ids[0] = target_locks[6] = 6 + y[0]; // Acquire x[y[0]]
                 lockManager.acquire_locks(lock_ids, 1);
                 lock_ids[0] = target_locks[5]; // Release x[1]
                 lockManager.release_locks(lock_ids, 1);
-                lockManager.check_lock(6 + y[0]); // Check x[y[0]]
-                lockManager.check_lock(10 + 0); // Check y[0]
                 if(x[y[0]]) {
-                    lock_ids[0] = target_locks[6]; // Release x[y[0]]
-                    lock_ids[1] = target_locks[3]; // Release y[0]
+                    lock_ids[0] = target_locks[0]; // Release y[0]
+                    lock_ids[1] = target_locks[6]; // Release x[y[0]]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release z[0]
-                lock_ids[1] = target_locks[1]; // Release z[x[0]]
-                lock_ids[2] = target_locks[6]; // Release x[y[0]]
+                lock_ids[0] = target_locks[0]; // Release y[0]
+                lock_ids[1] = target_locks[6]; // Release x[y[0]]
+                lock_ids[2] = target_locks[1]; // Release y[z[0]]
                 lock_ids[3] = target_locks[2]; // Release x[0]
-                lock_ids[4] = target_locks[3]; // Release y[0]
-                lock_ids[5] = target_locks[4]; // Release y[z[0]]
+                lock_ids[4] = target_locks[3]; // Release z[0]
+                lock_ids[5] = target_locks[4]; // Release z[x[0]]
                 lockManager.release_locks(lock_ids, 6);
                 return false;
             }
 
             // SLCO expression wrapper | y[z[0]]
             private boolean t_SMC0_0_s_0_n_1() {
-                lockManager.check_lock(8 + 0); // Check z[0]
-                lockManager.check_lock(10 + z[0]); // Check y[z[0]]
                 if(y[z[0]]) {
-                    lock_ids[0] = target_locks[0]; // Release z[0]
-                    lock_ids[1] = target_locks[4]; // Release y[z[0]]
+                    lock_ids[0] = target_locks[1]; // Release y[z[0]]
+                    lock_ids[1] = target_locks[3]; // Release z[0]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release z[0]
-                lock_ids[1] = target_locks[1]; // Release z[x[0]]
-                lock_ids[2] = target_locks[2]; // Release x[0]
-                lock_ids[3] = target_locks[4]; // Release y[z[0]]
+                lock_ids[0] = target_locks[1]; // Release y[z[0]]
+                lock_ids[1] = target_locks[2]; // Release x[0]
+                lock_ids[2] = target_locks[3]; // Release z[0]
+                lock_ids[3] = target_locks[4]; // Release z[x[0]]
                 lockManager.release_locks(lock_ids, 4);
                 return false;
             }
 
             // SLCO expression wrapper | z[x[0]]
             private boolean t_SMC0_0_s_0_n_2() {
-                lockManager.check_lock(6 + 0); // Check x[0]
-                lockManager.check_lock(8 + x[0]); // Check z[x[0]]
                 if(z[x[0]]) {
                     lock_ids[0] = target_locks[2]; // Release x[0]
-                    lock_ids[1] = target_locks[1]; // Release z[x[0]]
+                    lock_ids[1] = target_locks[4]; // Release z[x[0]]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
                 lock_ids[0] = target_locks[2]; // Release x[0]
-                lock_ids[1] = target_locks[1]; // Release z[x[0]]
+                lock_ids[1] = target_locks[4]; // Release z[x[0]]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -752,24 +709,22 @@ public class Test {
 
             // SLCO expression wrapper | b[j]
             private boolean t_SMC0_1_s_0_n_0() {
-                lock_ids[0] = target_locks[9] = 0; // Acquire j
+                lock_ids[0] = target_locks[8] = 0; // Acquire j
                 lockManager.acquire_locks(lock_ids, 1);
-                lock_ids[0] = target_locks[11] = 1 + 0; // Acquire b[0]
-                lock_ids[1] = target_locks[10] = 1 + 1; // Acquire b[1]
-                lock_ids[2] = target_locks[8] = 1 + j; // Acquire b[j]
+                lock_ids[0] = target_locks[10] = 1 + 0; // Acquire b[0]
+                lock_ids[1] = target_locks[11] = 1 + 1; // Acquire b[1]
+                lock_ids[2] = target_locks[9] = 1 + j; // Acquire b[j]
                 lockManager.acquire_locks(lock_ids, 3);
-                lockManager.check_lock(1 + j); // Check b[j]
-                lockManager.check_lock(0); // Check j
                 if(b[j]) {
-                    lock_ids[0] = target_locks[8]; // Release b[j]
-                    lock_ids[1] = target_locks[9]; // Release j
+                    lock_ids[0] = target_locks[8]; // Release j
+                    lock_ids[1] = target_locks[9]; // Release b[j]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[11]; // Release b[0]
-                lock_ids[1] = target_locks[10]; // Release b[1]
-                lock_ids[2] = target_locks[8]; // Release b[j]
-                lock_ids[3] = target_locks[9]; // Release j
+                lock_ids[0] = target_locks[8]; // Release j
+                lock_ids[1] = target_locks[10]; // Release b[0]
+                lock_ids[2] = target_locks[11]; // Release b[1]
+                lock_ids[3] = target_locks[9]; // Release b[j]
                 lockManager.release_locks(lock_ids, 4);
                 return false;
             }
@@ -778,44 +733,40 @@ public class Test {
             private boolean t_SMC0_1_s_0_n_1() {
                 lock_ids[0] = target_locks[7] = 3; // Acquire i
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(3); // Check i
                 if(i >= 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[11]; // Release b[0]
-                lock_ids[1] = target_locks[10]; // Release b[1]
-                lock_ids[2] = target_locks[7]; // Release i
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[10]; // Release b[0]
+                lock_ids[2] = target_locks[11]; // Release b[1]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
 
             // SLCO expression wrapper | i < 2
             private boolean t_SMC0_1_s_0_n_2() {
-                lockManager.check_lock(3); // Check i
                 if(i < 2) {
                     return true;
                 }
-                lock_ids[0] = target_locks[11]; // Release b[0]
-                lock_ids[1] = target_locks[10]; // Release b[1]
-                lock_ids[2] = target_locks[7]; // Release i
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[10]; // Release b[0]
+                lock_ids[2] = target_locks[11]; // Release b[1]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
 
             // SLCO expression wrapper | b[i]
             private boolean t_SMC0_1_s_0_n_3() {
-                lockManager.check_lock(3); // Check i
-                lockManager.check_lock(1 + i); // Check b[i]
                 if(b[i]) {
-                    lock_ids[0] = target_locks[11]; // Release b[0]
-                    lock_ids[1] = target_locks[10]; // Release b[1]
-                    lock_ids[2] = target_locks[7]; // Release i
+                    lock_ids[0] = target_locks[7]; // Release i
+                    lock_ids[1] = target_locks[10]; // Release b[0]
+                    lock_ids[2] = target_locks[11]; // Release b[1]
                     lockManager.release_locks(lock_ids, 3);
                     return true;
                 }
-                lock_ids[0] = target_locks[11]; // Release b[0]
-                lock_ids[1] = target_locks[10]; // Release b[1]
-                lock_ids[2] = target_locks[7]; // Release i
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[10]; // Release b[0]
+                lock_ids[2] = target_locks[11]; // Release b[1]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
@@ -835,7 +786,6 @@ public class Test {
             private boolean t_SMC0_2_s_0_n_0() {
                 lock_ids[0] = target_locks[7] = 3; // Acquire i
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(3); // Check i
                 if(i >= 0) {
                     return true;
                 }
@@ -846,7 +796,6 @@ public class Test {
 
             // SLCO expression wrapper | i < 2
             private boolean t_SMC0_2_s_0_n_1() {
-                lockManager.check_lock(3); // Check i
                 if(i < 2) {
                     return true;
                 }
@@ -859,16 +808,14 @@ public class Test {
             private boolean t_SMC0_2_s_0_n_2() {
                 lock_ids[0] = target_locks[12] = 4 + i; // Acquire c[i]
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(4 + i); // Check c[i]
-                lockManager.check_lock(3); // Check i
                 if(c[i]) {
-                    lock_ids[0] = target_locks[12]; // Release c[i]
-                    lock_ids[1] = target_locks[7]; // Release i
+                    lock_ids[0] = target_locks[7]; // Release i
+                    lock_ids[1] = target_locks[12]; // Release c[i]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[12]; // Release c[i]
-                lock_ids[1] = target_locks[7]; // Release i
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[12]; // Release c[i]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -908,7 +855,6 @@ public class Test {
             // Execute method
             private void exec() {
                 while(true) {
-                    lockManager.check_no_locks();
                     switch(currentState) {
                         case SMC0 -> exec_SMC0();
                         case SMC1 -> exec_SMC1();
@@ -1009,67 +955,61 @@ public class Test {
 
             // SLCO expression wrapper | x[y[0]]
             private boolean t_SMC0_0_s_0_n_0() {
-                lock_ids[0] = target_locks[2] = 1 + 0; // Acquire x[0]
-                lock_ids[1] = target_locks[5] = 1 + 1; // Acquire x[1]
+                lock_ids[0] = target_locks[5] = 1 + 1; // Acquire x[1]
+                lock_ids[1] = target_locks[2] = 1 + 0; // Acquire x[0]
                 lockManager.acquire_locks(lock_ids, 2);
-                lock_ids[0] = target_locks[1] = 3 + x[0]; // Acquire z[x[0]]
-                lock_ids[1] = target_locks[0] = 3 + 0; // Acquire z[0]
+                lock_ids[0] = target_locks[3] = 3 + 0; // Acquire z[0]
+                lock_ids[1] = target_locks[4] = 3 + x[0]; // Acquire z[x[0]]
                 lockManager.acquire_locks(lock_ids, 2);
-                lock_ids[0] = target_locks[4] = 5 + z[0]; // Acquire y[z[0]]
-                lock_ids[1] = target_locks[3] = 5 + 0; // Acquire y[0]
+                lock_ids[0] = target_locks[1] = 5 + z[0]; // Acquire y[z[0]]
+                lock_ids[1] = target_locks[0] = 5 + 0; // Acquire y[0]
                 lockManager.acquire_locks(lock_ids, 2);
                 lock_ids[0] = target_locks[6] = 1 + y[0]; // Acquire x[y[0]]
                 lockManager.acquire_locks(lock_ids, 1);
                 lock_ids[0] = target_locks[5]; // Release x[1]
                 lockManager.release_locks(lock_ids, 1);
-                lockManager.check_lock(1 + y[0]); // Check x[y[0]]
-                lockManager.check_lock(5 + 0); // Check y[0]
                 if(x[y[0]]) {
-                    lock_ids[0] = target_locks[6]; // Release x[y[0]]
-                    lock_ids[1] = target_locks[3]; // Release y[0]
+                    lock_ids[0] = target_locks[0]; // Release y[0]
+                    lock_ids[1] = target_locks[6]; // Release x[y[0]]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release z[0]
-                lock_ids[1] = target_locks[1]; // Release z[x[0]]
-                lock_ids[2] = target_locks[6]; // Release x[y[0]]
+                lock_ids[0] = target_locks[0]; // Release y[0]
+                lock_ids[1] = target_locks[6]; // Release x[y[0]]
+                lock_ids[2] = target_locks[1]; // Release y[z[0]]
                 lock_ids[3] = target_locks[2]; // Release x[0]
-                lock_ids[4] = target_locks[3]; // Release y[0]
-                lock_ids[5] = target_locks[4]; // Release y[z[0]]
+                lock_ids[4] = target_locks[3]; // Release z[0]
+                lock_ids[5] = target_locks[4]; // Release z[x[0]]
                 lockManager.release_locks(lock_ids, 6);
                 return false;
             }
 
             // SLCO expression wrapper | y[z[0]]
             private boolean t_SMC0_0_s_0_n_1() {
-                lockManager.check_lock(3 + 0); // Check z[0]
-                lockManager.check_lock(5 + z[0]); // Check y[z[0]]
                 if(y[z[0]]) {
-                    lock_ids[0] = target_locks[0]; // Release z[0]
-                    lock_ids[1] = target_locks[4]; // Release y[z[0]]
+                    lock_ids[0] = target_locks[1]; // Release y[z[0]]
+                    lock_ids[1] = target_locks[3]; // Release z[0]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release z[0]
-                lock_ids[1] = target_locks[1]; // Release z[x[0]]
-                lock_ids[2] = target_locks[2]; // Release x[0]
-                lock_ids[3] = target_locks[4]; // Release y[z[0]]
+                lock_ids[0] = target_locks[1]; // Release y[z[0]]
+                lock_ids[1] = target_locks[2]; // Release x[0]
+                lock_ids[2] = target_locks[3]; // Release z[0]
+                lock_ids[3] = target_locks[4]; // Release z[x[0]]
                 lockManager.release_locks(lock_ids, 4);
                 return false;
             }
 
             // SLCO expression wrapper | z[x[0]]
             private boolean t_SMC0_0_s_0_n_2() {
-                lockManager.check_lock(1 + 0); // Check x[0]
-                lockManager.check_lock(3 + x[0]); // Check z[x[0]]
                 if(z[x[0]]) {
                     lock_ids[0] = target_locks[2]; // Release x[0]
-                    lock_ids[1] = target_locks[1]; // Release z[x[0]]
+                    lock_ids[1] = target_locks[4]; // Release z[x[0]]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
                 lock_ids[0] = target_locks[2]; // Release x[0]
-                lock_ids[1] = target_locks[1]; // Release z[x[0]]
+                lock_ids[1] = target_locks[4]; // Release z[x[0]]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -1089,7 +1029,6 @@ public class Test {
             private boolean t_SMC0_1_s_0_n_0() {
                 lock_ids[0] = target_locks[7] = 9; // Acquire i
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(9); // Check i
                 if(i >= 0) {
                     return true;
                 }
@@ -1100,7 +1039,6 @@ public class Test {
 
             // SLCO expression wrapper | i < 2
             private boolean t_SMC0_1_s_0_n_1() {
-                lockManager.check_lock(9); // Check i
                 if(i < 2) {
                     return true;
                 }
@@ -1113,29 +1051,25 @@ public class Test {
             private boolean t_SMC0_1_s_0_n_2() {
                 lock_ids[0] = target_locks[12] = 10 + i; // Acquire c[i]
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(10 + i); // Check c[i]
-                lockManager.check_lock(9); // Check i
                 if(c[i]) {
                     return true;
                 }
-                lock_ids[0] = target_locks[12]; // Release c[i]
-                lock_ids[1] = target_locks[7]; // Release i
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[12]; // Release c[i]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
 
             // SLCO expression wrapper | c[i]
             private boolean t_SMC0_1_s_0_n_3() {
-                lockManager.check_lock(10 + i); // Check c[i]
-                lockManager.check_lock(9); // Check i
                 if(c[i]) {
-                    lock_ids[0] = target_locks[12]; // Release c[i]
-                    lock_ids[1] = target_locks[7]; // Release i
+                    lock_ids[0] = target_locks[7]; // Release i
+                    lock_ids[1] = target_locks[12]; // Release c[i]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[12]; // Release c[i]
-                lock_ids[1] = target_locks[7]; // Release i
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[12]; // Release c[i]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -1153,24 +1087,22 @@ public class Test {
 
             // SLCO expression wrapper | b[j]
             private boolean t_SMC0_2_s_0_n_0() {
-                lock_ids[0] = target_locks[9] = 0; // Acquire j
+                lock_ids[0] = target_locks[8] = 0; // Acquire j
                 lockManager.acquire_locks(lock_ids, 1);
-                lock_ids[0] = target_locks[11] = 7 + 0; // Acquire b[0]
-                lock_ids[1] = target_locks[10] = 7 + 1; // Acquire b[1]
-                lock_ids[2] = target_locks[8] = 7 + j; // Acquire b[j]
+                lock_ids[0] = target_locks[10] = 7 + 0; // Acquire b[0]
+                lock_ids[1] = target_locks[11] = 7 + 1; // Acquire b[1]
+                lock_ids[2] = target_locks[9] = 7 + j; // Acquire b[j]
                 lockManager.acquire_locks(lock_ids, 3);
-                lockManager.check_lock(7 + j); // Check b[j]
-                lockManager.check_lock(0); // Check j
                 if(b[j]) {
-                    lock_ids[0] = target_locks[8]; // Release b[j]
-                    lock_ids[1] = target_locks[9]; // Release j
+                    lock_ids[0] = target_locks[8]; // Release j
+                    lock_ids[1] = target_locks[9]; // Release b[j]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[11]; // Release b[0]
-                lock_ids[1] = target_locks[10]; // Release b[1]
-                lock_ids[2] = target_locks[8]; // Release b[j]
-                lock_ids[3] = target_locks[9]; // Release j
+                lock_ids[0] = target_locks[8]; // Release j
+                lock_ids[1] = target_locks[10]; // Release b[0]
+                lock_ids[2] = target_locks[11]; // Release b[1]
+                lock_ids[3] = target_locks[9]; // Release b[j]
                 lockManager.release_locks(lock_ids, 4);
                 return false;
             }
@@ -1179,58 +1111,52 @@ public class Test {
             private boolean t_SMC0_2_s_0_n_1() {
                 lock_ids[0] = target_locks[7] = 9; // Acquire i
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(9); // Check i
                 if(i >= 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[11]; // Release b[0]
-                lock_ids[1] = target_locks[10]; // Release b[1]
-                lock_ids[2] = target_locks[7]; // Release i
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[10]; // Release b[0]
+                lock_ids[2] = target_locks[11]; // Release b[1]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
 
             // SLCO expression wrapper | i < 2
             private boolean t_SMC0_2_s_0_n_2() {
-                lockManager.check_lock(9); // Check i
                 if(i < 2) {
                     return true;
                 }
-                lock_ids[0] = target_locks[11]; // Release b[0]
-                lock_ids[1] = target_locks[10]; // Release b[1]
-                lock_ids[2] = target_locks[7]; // Release i
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[10]; // Release b[0]
+                lock_ids[2] = target_locks[11]; // Release b[1]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
 
             // SLCO expression wrapper | b[i]
             private boolean t_SMC0_2_s_0_n_3() {
-                lockManager.check_lock(9); // Check i
-                lockManager.check_lock(7 + i); // Check b[i]
                 if(b[i]) {
                     return true;
                 }
-                lock_ids[0] = target_locks[11]; // Release b[0]
-                lock_ids[1] = target_locks[10]; // Release b[1]
-                lock_ids[2] = target_locks[7]; // Release i
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[10]; // Release b[0]
+                lock_ids[2] = target_locks[11]; // Release b[1]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
 
             // SLCO expression wrapper | b[i]
             private boolean t_SMC0_2_s_0_n_4() {
-                lockManager.check_lock(9); // Check i
-                lockManager.check_lock(7 + i); // Check b[i]
                 if(b[i]) {
-                    lock_ids[0] = target_locks[11]; // Release b[0]
-                    lock_ids[1] = target_locks[10]; // Release b[1]
-                    lock_ids[2] = target_locks[7]; // Release i
+                    lock_ids[0] = target_locks[7]; // Release i
+                    lock_ids[1] = target_locks[10]; // Release b[0]
+                    lock_ids[2] = target_locks[11]; // Release b[1]
                     lockManager.release_locks(lock_ids, 3);
                     return true;
                 }
-                lock_ids[0] = target_locks[11]; // Release b[0]
-                lock_ids[1] = target_locks[10]; // Release b[1]
-                lock_ids[2] = target_locks[7]; // Release i
+                lock_ids[0] = target_locks[7]; // Release i
+                lock_ids[1] = target_locks[10]; // Release b[0]
+                lock_ids[2] = target_locks[11]; // Release b[1]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
@@ -1270,7 +1196,6 @@ public class Test {
             // Execute method
             private void exec() {
                 while(true) {
-                    lockManager.check_no_locks();
                     switch(currentState) {
                         case SMC0 -> exec_SMC0();
                         case SMC1 -> exec_SMC1();
@@ -1367,15 +1292,14 @@ public class Test {
 
             // SLCO expression wrapper | x[0] > 0
             private boolean t_SMC0_0_s_0_n_0() {
-                lock_ids[0] = target_locks[2] = 1 + 1; // Acquire x[1]
-                lock_ids[1] = target_locks[1] = 1 + 0; // Acquire x[0]
+                lock_ids[0] = target_locks[0] = 1 + 0; // Acquire x[0]
+                lock_ids[1] = target_locks[2] = 1 + 1; // Acquire x[1]
                 lockManager.acquire_locks(lock_ids, 2);
-                lockManager.check_lock(1 + 0); // Check x[0]
                 if(x[0] > 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[2]; // Release x[1]
-                lock_ids[1] = target_locks[1]; // Release x[0]
+                lock_ids[0] = target_locks[0]; // Release x[0]
+                lock_ids[1] = target_locks[2]; // Release x[1]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -1384,44 +1308,40 @@ public class Test {
             private boolean t_SMC0_0_s_0_n_1() {
                 lock_ids[0] = target_locks[3] = 3 + 0; // Acquire y[0]
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(3 + 0); // Check y[0]
                 if(y[0] >= 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[3]; // Release y[0]
-                lock_ids[1] = target_locks[1]; // Release x[0]
-                lock_ids[2] = target_locks[2]; // Release x[1]
+                lock_ids[0] = target_locks[0]; // Release x[0]
+                lock_ids[1] = target_locks[2]; // Release x[1]
+                lock_ids[2] = target_locks[3]; // Release y[0]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
 
             // SLCO expression wrapper | y[0] < 2
             private boolean t_SMC0_0_s_0_n_2() {
-                lockManager.check_lock(3 + 0); // Check y[0]
                 if(y[0] < 2) {
                     return true;
                 }
-                lock_ids[0] = target_locks[3]; // Release y[0]
-                lock_ids[1] = target_locks[1]; // Release x[0]
-                lock_ids[2] = target_locks[2]; // Release x[1]
+                lock_ids[0] = target_locks[0]; // Release x[0]
+                lock_ids[1] = target_locks[2]; // Release x[1]
+                lock_ids[2] = target_locks[3]; // Release y[0]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
 
             // SLCO expression wrapper | x[y[0]] > 0
             private boolean t_SMC0_0_s_0_n_3() {
-                lockManager.check_lock(3 + 0); // Check y[0]
-                lockManager.check_lock(1 + y[0]); // Check x[y[0]]
                 if(x[y[0]] > 0) {
-                    lock_ids[0] = target_locks[3]; // Release y[0]
-                    lock_ids[1] = target_locks[1]; // Release x[0]
-                    lock_ids[2] = target_locks[2]; // Release x[1]
+                    lock_ids[0] = target_locks[0]; // Release x[0]
+                    lock_ids[1] = target_locks[2]; // Release x[1]
+                    lock_ids[2] = target_locks[3]; // Release y[0]
                     lockManager.release_locks(lock_ids, 3);
                     return true;
                 }
-                lock_ids[0] = target_locks[3]; // Release y[0]
-                lock_ids[1] = target_locks[1]; // Release x[0]
-                lock_ids[2] = target_locks[2]; // Release x[1]
+                lock_ids[0] = target_locks[0]; // Release x[0]
+                lock_ids[1] = target_locks[2]; // Release x[1]
+                lock_ids[2] = target_locks[3]; // Release y[0]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
@@ -1439,20 +1359,18 @@ public class Test {
 
             // SLCO expression wrapper | y[x[0]] > 0
             private boolean t_SMC0_1_s_0_n_0() {
-                lock_ids[0] = target_locks[1] = 1 + 0; // Acquire x[0]
+                lock_ids[0] = target_locks[0] = 1 + 0; // Acquire x[0]
                 lockManager.acquire_locks(lock_ids, 1);
-                lock_ids[0] = target_locks[0] = 3 + x[0]; // Acquire y[x[0]]
+                lock_ids[0] = target_locks[1] = 3 + x[0]; // Acquire y[x[0]]
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(3 + x[0]); // Check y[x[0]]
-                lockManager.check_lock(1 + 0); // Check x[0]
                 if(y[x[0]] > 0) {
-                    lock_ids[0] = target_locks[0]; // Release y[x[0]]
-                    lock_ids[1] = target_locks[1]; // Release x[0]
+                    lock_ids[0] = target_locks[0]; // Release x[0]
+                    lock_ids[1] = target_locks[1]; // Release y[x[0]]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release y[x[0]]
-                lock_ids[1] = target_locks[1]; // Release x[0]
+                lock_ids[0] = target_locks[0]; // Release x[0]
+                lock_ids[1] = target_locks[1]; // Release y[x[0]]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -1500,7 +1418,6 @@ public class Test {
             // Execute method
             private void exec() {
                 while(true) {
-                    lockManager.check_no_locks();
                     switch(currentState) {
                         case SMC0 -> exec_SMC0();
                         case SMC1 -> exec_SMC1();
@@ -1526,6 +1443,647 @@ public class Test {
             // Instantiate global variables
             this.x = x;
             this.y = y;
+            this.i = i;
+
+            // Instantiate state machines
+            T_SM1 = new SM1Thread(lockManager);
+        }
+
+        // Start all threads
+        public void startThreads() {
+            T_SM1.start();
+        }
+
+        // Join all threads
+        public void joinThreads() {
+            while (true) {
+                try {
+                    T_SM1.join();
+                    break;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // Representation of the SLCO class V
+    private static class V implements SLCO_Class {
+        // The threads
+        private final Thread T_SM1;
+
+        // Global variables
+        private volatile int[] x;
+        private volatile int[] y;
+        private volatile int[] z;
+        private volatile int i;
+
+        // Define the states fot the state machine SM1
+        interface V_SM1Thread_States {
+            enum States {
+                SMC0, 
+                SMC1
+            }
+        }
+
+        // Representation of the SLCO state machine SM1
+        class SM1Thread extends Thread implements V_SM1Thread_States {
+            // Current state
+            private SM1Thread.States currentState;
+
+            // Random number generator to handle non-determinism
+            private final Random random;
+
+            // The lock manager
+            private final LockManager lockManager;
+
+            // A list of lock ids and target locks that can be reused
+            private final int[] lock_ids;
+            private final int[] target_locks;
+
+            SM1Thread (LockManager lockManagerInstance) {
+                currentState = SM1Thread.States.SMC0;
+                lockManager = lockManagerInstance;
+                lock_ids = new int[2];
+                target_locks = new int[7];
+                random = new Random();
+            }
+
+            // SLCO expression wrapper | x[0] > 0
+            private boolean t_SMC0_0_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 1 + 0; // Acquire x[0]
+                lockManager.acquire_locks(lock_ids, 1);
+                if(x[0] > 0) {
+                    lock_ids[0] = target_locks[0]; // Release x[0]
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release x[0]
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | x[0] > 0
+            private boolean execute_transition_SMC0_0() {
+                // SLCO expression | x[0] > 0
+                if(!(t_SMC0_0_s_0_n_0())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | y[0] > 0
+            private boolean t_SMC0_1_s_0_n_0() {
+                lock_ids[0] = target_locks[1] = 5 + 0; // Acquire y[0]
+                lockManager.acquire_locks(lock_ids, 1);
+                if(y[0] > 0) {
+                    lock_ids[0] = target_locks[1]; // Release y[0]
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                lock_ids[0] = target_locks[1]; // Release y[0]
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | y[0] > 0
+            private boolean execute_transition_SMC0_1() {
+                // SLCO expression | y[0] > 0
+                if(!(t_SMC0_1_s_0_n_0())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | z[0] > 0
+            private boolean t_SMC0_2_s_0_n_0() {
+                lock_ids[0] = target_locks[2] = 3 + 0; // Acquire z[0]
+                lockManager.acquire_locks(lock_ids, 1);
+                if(z[0] > 0) {
+                    lock_ids[0] = target_locks[2]; // Release z[0]
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                lock_ids[0] = target_locks[2]; // Release z[0]
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO transition (p:1, id:2) | SMC0 -> SMC0 | z[0] > 0
+            private boolean execute_transition_SMC0_2() {
+                // SLCO expression | z[0] > 0
+                if(!(t_SMC0_2_s_0_n_0())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | i >= 0
+            private boolean t_SMC0_3_s_0_n_0() {
+                lock_ids[0] = target_locks[3] = 0; // Acquire i
+                lockManager.acquire_locks(lock_ids, 1);
+                if(i >= 0) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[3]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | i < 2
+            private boolean t_SMC0_3_s_0_n_1() {
+                if(i < 2) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[3]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | x[i] > 0
+            private boolean t_SMC0_3_s_0_n_2() {
+                lock_ids[0] = target_locks[4] = 1 + i; // Acquire x[i]
+                lockManager.acquire_locks(lock_ids, 1);
+                if(x[i] > 0) {
+                    lock_ids[0] = target_locks[3]; // Release i
+                    lock_ids[1] = target_locks[4]; // Release x[i]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[3]; // Release i
+                lock_ids[1] = target_locks[4]; // Release x[i]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:3) | SMC0 -> SMC0 | i >= 0 and i < 2 and x[i] > 0
+            private boolean execute_transition_SMC0_3() {
+                // SLCO expression | i >= 0 and i < 2 and x[i] > 0
+                if(!(t_SMC0_3_s_0_n_0() && t_SMC0_3_s_0_n_1() && t_SMC0_3_s_0_n_2())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | i >= 0
+            private boolean t_SMC0_4_s_0_n_0() {
+                lock_ids[0] = target_locks[3] = 0; // Acquire i
+                lockManager.acquire_locks(lock_ids, 1);
+                if(i >= 0) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[3]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | i < 2
+            private boolean t_SMC0_4_s_0_n_1() {
+                if(i < 2) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[3]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | y[i] > 0
+            private boolean t_SMC0_4_s_0_n_2() {
+                lock_ids[0] = target_locks[5] = 5 + i; // Acquire y[i]
+                lockManager.acquire_locks(lock_ids, 1);
+                if(y[i] > 0) {
+                    lock_ids[0] = target_locks[3]; // Release i
+                    lock_ids[1] = target_locks[5]; // Release y[i]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[3]; // Release i
+                lock_ids[1] = target_locks[5]; // Release y[i]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:4) | SMC0 -> SMC0 | i >= 0 and i < 2 and y[i] > 0
+            private boolean execute_transition_SMC0_4() {
+                // SLCO expression | i >= 0 and i < 2 and y[i] > 0
+                if(!(t_SMC0_4_s_0_n_0() && t_SMC0_4_s_0_n_1() && t_SMC0_4_s_0_n_2())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | i >= 0
+            private boolean t_SMC0_5_s_0_n_0() {
+                lock_ids[0] = target_locks[3] = 0; // Acquire i
+                lockManager.acquire_locks(lock_ids, 1);
+                if(i >= 0) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[3]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | i < 2
+            private boolean t_SMC0_5_s_0_n_1() {
+                if(i < 2) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[3]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | z[i] > 0
+            private boolean t_SMC0_5_s_0_n_2() {
+                lock_ids[0] = target_locks[6] = 3 + i; // Acquire z[i]
+                lockManager.acquire_locks(lock_ids, 1);
+                if(z[i] > 0) {
+                    lock_ids[0] = target_locks[3]; // Release i
+                    lock_ids[1] = target_locks[6]; // Release z[i]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[3]; // Release i
+                lock_ids[1] = target_locks[6]; // Release z[i]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:1, id:5) | SMC0 -> SMC0 | i >= 0 and i < 2 and z[i] > 0
+            private boolean execute_transition_SMC0_5() {
+                // SLCO expression | i >= 0 and i < 2 and z[i] > 0
+                if(!(t_SMC0_5_s_0_n_0() && t_SMC0_5_s_0_n_1() && t_SMC0_5_s_0_n_2())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | i >= 0
+            private boolean t_SMC0_6_s_0_n_0() {
+                lock_ids[0] = target_locks[3] = 0; // Acquire i
+                lockManager.acquire_locks(lock_ids, 1);
+                if(i >= 0) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[3]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | i < 2
+            private boolean t_SMC0_6_s_0_n_1() {
+                if(i < 2) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[3]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | z[i] > 0
+            private boolean t_SMC0_6_s_0_n_2() {
+                lock_ids[0] = target_locks[6] = 3 + i; // Acquire z[i]
+                lockManager.acquire_locks(lock_ids, 1);
+                if(z[i] > 0) {
+                    lock_ids[0] = target_locks[6]; // Release z[i]
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                lock_ids[0] = target_locks[3]; // Release i
+                lock_ids[1] = target_locks[6]; // Release z[i]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO expression wrapper | y[i] > 0
+            private boolean t_SMC0_6_s_0_n_3() {
+                lock_ids[0] = target_locks[5] = 5 + i; // Acquire y[i]
+                lockManager.acquire_locks(lock_ids, 1);
+                if(y[i] > 0) {
+                    lock_ids[0] = target_locks[3]; // Release i
+                    lock_ids[1] = target_locks[5]; // Release y[i]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[3]; // Release i
+                lock_ids[1] = target_locks[5]; // Release y[i]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:6) | SMC0 -> SMC0 | i >= 0 and i < 2 and z[i] > 0 and y[i] > 0
+            private boolean execute_transition_SMC0_6() {
+                // SLCO expression | i >= 0 and i < 2 and z[i] > 0 and y[i] > 0
+                if(!(t_SMC0_6_s_0_n_0() && t_SMC0_6_s_0_n_1() && t_SMC0_6_s_0_n_2() && t_SMC0_6_s_0_n_3())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            private void exec_SMC0() {
+                // [SEQ.START]
+                // SLCO transition (id:0, p:0) | SMC0 -> SMC0 | guard: x[0] > 0
+                if(execute_transition_SMC0_0()) {
+                    return;
+                }
+                // SLCO transition (id:1, p:0) | SMC0 -> SMC0 | guard: y[0] > 0
+                if(execute_transition_SMC0_1()) {
+                    return;
+                }
+                // SLCO transition (id:3, p:0) | SMC0 -> SMC0 | guard: i >= 0 and i < 2 and x[i] > 0
+                if(execute_transition_SMC0_3()) {
+                    return;
+                }
+                // SLCO transition (id:4, p:0) | SMC0 -> SMC0 | guard: i >= 0 and i < 2 and y[i] > 0
+                if(execute_transition_SMC0_4()) {
+                    return;
+                }
+                // SLCO transition (id:6, p:0) | SMC0 -> SMC0 | guard: i >= 0 and i < 2 and z[i] > 0 and y[i] > 0
+                if(execute_transition_SMC0_6()) {
+                    return;
+                }
+                // SLCO transition (id:2, p:1) | SMC0 -> SMC0 | guard: z[0] > 0
+                if(execute_transition_SMC0_2()) {
+                    return;
+                }
+                // SLCO transition (id:5, p:1) | SMC0 -> SMC0 | guard: i >= 0 and i < 2 and z[i] > 0
+                if(execute_transition_SMC0_5()) {
+                    return;
+                }
+                // [SEQ.END]
+            }
+
+            private void exec_SMC1() {
+                // There are no transitions starting in state SMC1.
+            }
+
+            // Execute method
+            private void exec() {
+                while(true) {
+                    switch(currentState) {
+                        case SMC0 -> exec_SMC0();
+                        case SMC1 -> exec_SMC1();
+                    }
+                }
+            }
+
+            // Run method
+            public void run() {
+                try {
+                    exec();
+                } catch(Exception e) {
+                    lockManager.exception_unlock();
+                    throw e;
+                }
+            }
+        }
+
+        V(int[] x, int[] y, int[] z, int i) {
+            // Create a lock manager.
+            LockManager lockManager = new LockManager(7);
+
+            // Instantiate global variables
+            this.x = x;
+            this.y = y;
+            this.z = z;
+            this.i = i;
+
+            // Instantiate state machines
+            T_SM1 = new SM1Thread(lockManager);
+        }
+
+        // Start all threads
+        public void startThreads() {
+            T_SM1.start();
+        }
+
+        // Join all threads
+        public void joinThreads() {
+            while (true) {
+                try {
+                    T_SM1.join();
+                    break;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // Representation of the SLCO class W
+    private static class W implements SLCO_Class {
+        // The threads
+        private final Thread T_SM1;
+
+        // Global variables
+        private volatile int[] x;
+        private volatile int i;
+
+        // Define the states fot the state machine SM1
+        interface W_SM1Thread_States {
+            enum States {
+                SMC0, 
+                SMC1
+            }
+        }
+
+        // Representation of the SLCO state machine SM1
+        class SM1Thread extends Thread implements W_SM1Thread_States {
+            // Current state
+            private SM1Thread.States currentState;
+
+            // Random number generator to handle non-determinism
+            private final Random random;
+
+            // The lock manager
+            private final LockManager lockManager;
+
+            // A list of lock ids and target locks that can be reused
+            private final int[] lock_ids;
+            private final int[] target_locks;
+
+            SM1Thread (LockManager lockManagerInstance) {
+                currentState = SM1Thread.States.SMC0;
+                lockManager = lockManagerInstance;
+                lock_ids = new int[6];
+                target_locks = new int[6];
+                random = new Random();
+            }
+
+            // SLCO expression wrapper | i >= 0
+            private boolean t_SMC0_0_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 0; // Acquire i
+                lockManager.acquire_locks(lock_ids, 1);
+                return i >= 0;
+            }
+
+            // SLCO expression wrapper | i >= 0 and i < 2
+            private boolean t_SMC0_0_s_0_n_1() {
+                if(t_SMC0_0_s_0_n_0() && i < 2) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[4] = 1 + 2; // Acquire x[2]
+                lock_ids[1] = target_locks[2] = 1 + 1; // Acquire x[1]
+                lock_ids[2] = target_locks[1] = 1 + 3; // Acquire x[3]
+                lock_ids[3] = target_locks[3] = 1 + 0; // Acquire x[0]
+                lockManager.acquire_locks(lock_ids, 4);
+                return false;
+            }
+
+            // SLCO expression wrapper | x[i] > 0
+            private boolean t_SMC0_0_s_0_n_2() {
+                lock_ids[0] = target_locks[4] = 1 + 2; // Acquire x[2]
+                lock_ids[1] = target_locks[2] = 1 + 1; // Acquire x[1]
+                lock_ids[2] = target_locks[1] = 1 + 3; // Acquire x[3]
+                lock_ids[3] = target_locks[3] = 1 + 0; // Acquire x[0]
+                lock_ids[4] = target_locks[5] = 1 + i; // Acquire x[i]
+                lockManager.acquire_locks(lock_ids, 5);
+                if(x[i] > 0) {
+                    lock_ids[0] = target_locks[0]; // Release i
+                    lock_ids[1] = target_locks[4]; // Release x[2]
+                    lock_ids[2] = target_locks[2]; // Release x[1]
+                    lock_ids[3] = target_locks[1]; // Release x[3]
+                    lock_ids[4] = target_locks[3]; // Release x[0]
+                    lock_ids[5] = target_locks[5]; // Release x[i]
+                    lockManager.release_locks(lock_ids, 6);
+                    return true;
+                }
+                lock_ids[0] = target_locks[5]; // Release x[i]
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | i >= 0 and i < 2 and x[i] > 0
+            private boolean execute_transition_SMC0_0() {
+                // SLCO expression | i >= 0 and i < 2 and x[i] > 0
+                if(!(t_SMC0_0_s_0_n_1() && t_SMC0_0_s_0_n_2())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | i >= 2
+            private boolean t_SMC0_1_s_0_n_0() {
+                if(i >= 2) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release i
+                lock_ids[1] = target_locks[1]; // Release x[3]
+                lock_ids[2] = target_locks[3]; // Release x[0]
+                lock_ids[3] = target_locks[4]; // Release x[2]
+                lock_ids[4] = target_locks[2]; // Release x[1]
+                lockManager.release_locks(lock_ids, 5);
+                return false;
+            }
+
+            // SLCO expression wrapper | i < 4
+            private boolean t_SMC0_1_s_0_n_1() {
+                if(i < 4) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release i
+                lock_ids[1] = target_locks[1]; // Release x[3]
+                lock_ids[2] = target_locks[3]; // Release x[0]
+                lock_ids[3] = target_locks[4]; // Release x[2]
+                lock_ids[4] = target_locks[2]; // Release x[1]
+                lockManager.release_locks(lock_ids, 5);
+                return false;
+            }
+
+            // SLCO expression wrapper | x[i] > 1
+            private boolean t_SMC0_1_s_0_n_2() {
+                if(x[i] > 1) {
+                    lock_ids[0] = target_locks[0]; // Release i
+                    lock_ids[1] = target_locks[1]; // Release x[3]
+                    lock_ids[2] = target_locks[3]; // Release x[0]
+                    lock_ids[3] = target_locks[4]; // Release x[2]
+                    lock_ids[4] = target_locks[2]; // Release x[1]
+                    lockManager.release_locks(lock_ids, 5);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release i
+                lock_ids[1] = target_locks[1]; // Release x[3]
+                lock_ids[2] = target_locks[3]; // Release x[0]
+                lock_ids[3] = target_locks[4]; // Release x[2]
+                lock_ids[4] = target_locks[2]; // Release x[1]
+                lockManager.release_locks(lock_ids, 5);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | i >= 2 and i < 4 and x[i] > 1
+            private boolean execute_transition_SMC0_1() {
+                // SLCO expression | i >= 2 and i < 4 and x[i] > 1
+                if(!(t_SMC0_1_s_0_n_0() && t_SMC0_1_s_0_n_1() && t_SMC0_1_s_0_n_2())) {
+                    return false;
+                }
+
+                currentState = SM1Thread.States.SMC0;
+                return true;
+            }
+
+            private void exec_SMC0() {
+                // [SEQ.START]
+                // [DET.START]
+                // SLCO transition (id:0, p:0) | SMC0 -> SMC0 | guard: i >= 0 and i < 2 and x[i] > 0
+                if(execute_transition_SMC0_0()) {
+                    return;
+                }
+                // SLCO transition (id:1, p:0) | SMC0 -> SMC0 | guard: i >= 2 and i < 4 and x[i] > 1
+                if(execute_transition_SMC0_1()) {
+                    return;
+                }
+                // [DET.END]
+                // [SEQ.END]
+            }
+
+            private void exec_SMC1() {
+                // There are no transitions starting in state SMC1.
+            }
+
+            // Execute method
+            private void exec() {
+                while(true) {
+                    switch(currentState) {
+                        case SMC0 -> exec_SMC0();
+                        case SMC1 -> exec_SMC1();
+                    }
+                }
+            }
+
+            // Run method
+            public void run() {
+                try {
+                    exec();
+                } catch(Exception e) {
+                    lockManager.exception_unlock();
+                    throw e;
+                }
+            }
+        }
+
+        W(int[] x, int i) {
+            // Create a lock manager.
+            LockManager lockManager = new LockManager(5);
+
+            // Instantiate global variables
+            this.x = x;
             this.i = i;
 
             // Instantiate state machines

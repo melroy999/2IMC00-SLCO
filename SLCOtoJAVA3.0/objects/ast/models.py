@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import Union, List, Optional, Iterator, Dict
+from typing import Union, List, Optional, Iterator, Dict, Set, TYPE_CHECKING
 
 import networkx as nx
 
 import settings
 from objects.ast.interfaces import SlcoNode, SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode, SlcoLockableNode
+
+if TYPE_CHECKING:
+    from objects.locking.models import Lock, AtomicNode
 
 
 # SLCO TYPES
@@ -339,16 +342,6 @@ class Transition(SlcoStructuralNode):
     def __repr__(self) -> str:
         return f"{'(Excluded) ' if self.is_excluded else ''}(p:{self.priority}, id:{self.id}) | {self.source} -> {self.target} | {' | '.join(str(s) for s in self.statements)}"
 
-        #
-        # transition_repr = f"{self.priority}: {self.source} -> {self.target} {{"
-        # for s in self.statements:
-        #     if s.exclude_statement:
-        #         transition_repr += f"\n\t(x) {s};"
-        #     else:
-        #         transition_repr += f"\n\t{s};"
-        # transition_repr += "\n}"
-        # return transition_repr
-
     def __iter__(self) -> Iterator[Union[Expression, Composite, Assignment, Primary]]:
         """Iterate through all objects part of the AST structure."""
         for s in self.statements:
@@ -369,6 +362,27 @@ class Transition(SlcoStructuralNode):
         self._statements[:] = val
         for v in self._statements:
             v.parent = self
+
+    @property
+    def locking_atomic_node(self) -> AtomicNode:
+        """
+        Get the atomic node of the transition's guard statement.
+        """
+        return self.guard.locking_atomic_node
+
+    @property
+    def used_variables(self) -> Set[Variable]:
+        """
+        Get the variables used within the transition's guard statement.
+        """
+        return self.locking_atomic_node.used_variables
+
+    @property
+    def location_sensitive_locks(self) -> List[Lock]:
+        """
+        Get the location sensitive locks used within the transition's guard statement.
+        """
+        return self.locking_atomic_node.location_sensitive_locks
 
 
 class Composite(SlcoStatementNode, SlcoEvaluableNode):
@@ -708,6 +722,16 @@ class DecisionNode(SlcoLockableNode):
         for t in excluded_transitions:
             t.is_excluded = True
 
+        # Track the variables used within the child nodes.
+        self.used_variables: Set[Variable] = set()
+        for d in decisions:
+            self.used_variables.update(d.used_variables)
+
+        # Track the variables used within the child nodes that are location sensitive.
+        self.location_sensitive_locks: List[Lock] = []
+        for d in decisions:
+            self.location_sensitive_locks.extend(d.location_sensitive_locks)
+
     def __repr__(self) -> str:
         return "DET" if self.is_deterministic else "N_DET" if settings.non_determinism else "SEQ"
 
@@ -718,3 +742,4 @@ class DecisionNode(SlcoLockableNode):
     @property
     def id(self) -> int:
         return min(d.id for d in self.decisions)
+

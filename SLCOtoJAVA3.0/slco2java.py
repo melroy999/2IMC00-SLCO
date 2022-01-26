@@ -71,6 +71,9 @@ def main(_args):
     # Define the arguments that the program supports and parse accordingly.
     parser = get_argument_parser()
     parsed_arguments = parser.parse_args(_args)
+    if parsed_arguments.atomic_sequential and parsed_arguments.non_determinism:
+        parser.error("The arguments -atomic_sequential and -non_determinism are exclusive.")
+
     logging.info(f"Parsed arguments: {parsed_arguments}")
     logging.info("#" * 180)
 
