@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from cachetools import cached, LRUCache
 from typing import TYPE_CHECKING, Iterable
 from smt.util import z3_always_holds, z3_never_holds, z3_is_equivalent, z3_is_negation_equivalent
 
@@ -7,24 +8,28 @@ if TYPE_CHECKING:
     from objects.ast.interfaces import SlcoEvaluableNode
 
 
+@cached(cache={}, key=lambda e: e.id)
 def is_true(e) -> bool:
     """Evaluate whether the statement always holds true. May throw an exception if not a boolean smt statement."""
     byte_values = get_byte_variables(e)
     return z3_always_holds(e.smt, byte_values)
 
 
+@cached(cache={}, key=lambda e: e.id)
 def is_false(e) -> bool:
     """Evaluate whether the statement never holds true. May throw an exception if not a boolean smt statement."""
     byte_values = get_byte_variables(e)
     return z3_never_holds(e.smt, byte_values)
 
 
+@cached(cache={}, key=lambda e1, e2: (e1.id, e2.id))
 def is_equivalent(e, target: SlcoEvaluableNode) -> bool:
     """Evaluate whether the given statements have the same solution space."""
     byte_values = get_byte_variables(e)
     return z3_is_equivalent(e.smt, target.smt, byte_values)
 
 
+@cached(cache={}, key=lambda e1, e2: (e1.id, e2.id))
 def is_negation_equivalent(e, target: SlcoEvaluableNode) -> bool:
     """Evaluate whether this statement and the negation of the given statement have the same solution space."""
     byte_values = get_byte_variables(e)

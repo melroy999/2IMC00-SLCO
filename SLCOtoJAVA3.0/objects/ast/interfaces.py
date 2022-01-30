@@ -6,6 +6,7 @@ from typing import Optional, Set, TYPE_CHECKING
 
 import networkx as nx
 
+from objects.util import get_incremental_id
 from smt.conversion import to_smt
 from smt.solving import is_true, is_false, is_equivalent, is_negation_equivalent
 
@@ -20,7 +21,9 @@ class SlcoNode(metaclass=ABCMeta):
     """
     A metaclass representing a node in the SLCO AST.
     """
-    parent = None
+    def __init__(self) -> None:
+        self.parent = None
+        self.id = get_incremental_id()
 
 
 class SlcoStructuralNode(SlcoNode, Iterable, metaclass=ABCMeta):
@@ -55,7 +58,7 @@ class SlcoEvaluableNode(SlcoNode, metaclass=ABCMeta):
         return to_smt(self)
 
 
-class SlcoVerifiableNode:
+class SlcoVerifiableNode(SlcoNode):
     """
     A metaclass that provides helper functions for formal verification purposes.
     """
@@ -63,7 +66,7 @@ class SlcoVerifiableNode:
     vercors_statements: Set[str] = None
 
 
-class SlcoVersioningNode(metaclass=ABCMeta):
+class SlcoVersioningNode(SlcoNode, metaclass=ABCMeta):
     """
     A metaclass that helps tracking changes made to objects for verification purposes.
     """

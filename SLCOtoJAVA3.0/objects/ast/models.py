@@ -18,6 +18,7 @@ class SlcoModel(SlcoStructuralNode):
     An object representing the encompassing model in the SLCO framework.
     """
     def __init__(self, name: str) -> None:
+        super().__init__()
         self.name = name
         self._actions: List[Action] = []
         self.channels: List[str] = []
@@ -68,6 +69,7 @@ class Action(SlcoNode):
     An object representing actions in the SLCO framework.
     """
     def __init__(self, name: str) -> None:
+        super().__init__()
         self.name = name
 
     def __repr__(self) -> str:
@@ -87,6 +89,7 @@ class Object(SlcoNode):
     An object representing class instantiations in the SLCO framework.
     """
     def __init__(self, name: str, _type: Class) -> None:
+        super().__init__()
         self.name = name
         self.type = _type
         self._assignments: List[Initialisation] = []
@@ -111,6 +114,7 @@ class Initialisation(SlcoNode):
     An object representing variable initialisations in the SLCO framework.
     """
     def __init__(self, left: Variable, right: Union[int, bool], rights: Union[List[int], List[bool]]) -> None:
+        super().__init__()
         self.left = left
         self.right = right
         self.rights = rights
@@ -127,6 +131,7 @@ class Class(SlcoStructuralNode):
     weighted_class_variable_dependency_graph: nx.DiGraph = None
 
     def __init__(self, name: str) -> None:
+        super().__init__()
         self.name = name
         self.ports: List[str] = []
         self._state_machines: List[StateMachine] = []
@@ -167,6 +172,7 @@ class StateMachine(SlcoStructuralNode):
     """
 
     def __init__(self, name: str, initial_state: State) -> None:
+        super().__init__()
         self.name = name
         self._initial_state = initial_state
         self._states: List[State] = []
@@ -225,6 +231,7 @@ class State(SlcoNode):
     An object representing states in the SLCO framework.
     """
     def __init__(self, name: str) -> None:
+        super().__init__()
         self.name = name
 
     def __repr__(self) -> str:
@@ -244,6 +251,7 @@ class Variable(SlcoEvaluableNode):
     An object representing variables in the SLCO framework.
     """
     def __init__(self, name: str, _type: Optional[Type] = None) -> None:
+        super().__init__()
         self.name = name
         self.lock_id = -1
         self.type = _type
@@ -284,6 +292,7 @@ class Type(SlcoNode):
     An object representing variable types in the SLCO framework.
     """
     def __init__(self, base: str, size: int) -> None:
+        super().__init__()
         self.base = base
         self.size = size
 
@@ -330,6 +339,7 @@ class Transition(SlcoStructuralNode):
         - Composites that only contain a guard are automatically converted to an Expression instead.
     """
     def __init__(self, source: State, target: State, priority: int = 0) -> None:
+        super().__init__()
         self.source = source
         self.target = target
         self.priority = priority
@@ -394,6 +404,7 @@ class Composite(SlcoStatementNode, SlcoEvaluableNode):
         - Superfluous guard statements are simplified to a true expression when appropriate.
     """
     def __init__(self, guard=None, assignments=None) -> None:
+        super().__init__()
         self._guard = None
         self._assignments: List[Assignment] = []
 
@@ -450,6 +461,7 @@ class Assignment(SlcoStatementNode):
     An object representing assignment statements in the SLCO framework.
     """
     def __init__(self) -> None:
+        super().__init__()
         self._left = None
         self._right = None
 
@@ -503,6 +515,7 @@ class Expression(SlcoStatementNode, SlcoEvaluableNode):
         - The ordering of variables within the expressions are not changed.
     """
     def __init__(self, op: str, values=None) -> None:
+        super().__init__()
         self.op = operator_normalizations.get(op, op)
 
         # Note: Instead of left and right, the expression is depicted as an operation over an array of values.
@@ -541,12 +554,8 @@ class Primary(SlcoStatementNode, SlcoEvaluableNode):
     """
     An object representing primary values in the SLCO framework.
     """
-    def __init__(
-            self,
-            sign: str = "",
-            value: Optional[Union[int, bool]] = None,
-            target=None,
-    ) -> None:
+    def __init__(self, sign: str = "", value: Optional[Union[int, bool]] = None, target=None) -> None:
+        super().__init__()
         self._body: Optional[Expression, Primary] = None
         self._ref: Optional[VariableRef] = None
         self.sign = sign
@@ -643,6 +652,7 @@ class VariableRef(SlcoStatementNode, SlcoEvaluableNode):
         - VariableRef objects do not necessarily need a parent. Hence, the parent can be ``None``.
     """
     def __init__(self, var: Variable, index=None) -> None:
+        super().__init__()
         self.var = var
         self._index = None
         if index is not None:
@@ -685,6 +695,7 @@ class ActionRef(SlcoStatementNode):
     """
 
     def __init__(self, act: Action) -> None:
+        super().__init__()
         self.act: Action = act
 
     def __repr__(self) -> str:
@@ -714,6 +725,7 @@ class DecisionNode(SlcoLockableNode):
             decisions: List[Union[DecisionNode, Transition]],
             excluded_transitions: List[Transition]
     ):
+        super().__init__()
         self.decisions = decisions
         self.is_deterministic = is_deterministic
 
