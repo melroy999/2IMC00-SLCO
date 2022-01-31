@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, List, Tuple, Set, Union
 
 import settings
 from objects.ast.util import get_variables_to_be_locked
-from rendering.environment_settings import env
+from rendering.java.environment_settings import env
 from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment
 
 if TYPE_CHECKING:
@@ -59,7 +59,9 @@ def render_expression(model: Expression, control_node_methods: List[str], contro
         right_str = render_expression_component(model.values[1], control_node_methods, control_node_method_prefix)
         return "Math.floorMod(%s, %s)" % (left_str, right_str)
     else:
-        values_str = [render_expression_component(v, control_node_methods, control_node_method_prefix) for v in model.values]
+        values_str = [
+            render_expression_component(v, control_node_methods, control_node_method_prefix) for v in model.values
+        ]
         return (" %s " % java_operator_mappings.get(model.op, model.op)).join(values_str)
 
 

@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List, Tuple
 
 import settings
-from rendering.environment_settings import env
+from rendering.java.environment_settings import env
 from objects.ast.models import Expression, Composite, Assignment, Transition, DecisionNode, Primary
-from rendering.statement_renderer import render_composite, render_assignment, render_root_expression
+from rendering.java.statement_renderer import render_composite, render_assignment, render_root_expression
 
 if TYPE_CHECKING:
     from objects.ast.models import StateMachine, Class, SlcoModel, Variable, Object, State

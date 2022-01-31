@@ -73,7 +73,7 @@ class Action(SlcoNode):
         self.name = name
 
     def __repr__(self) -> str:
-        return self.name
+        return f"Action:{self.name}"
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, Action):
@@ -165,6 +165,10 @@ class Class(SlcoStructuralNode):
         for v in self._variables:
             v.parent = self
 
+    @property
+    def max_lock_id(self) -> int:
+        return max((v.lock_id + v.type.size for v in self.variables), default=0)
+
 
 class StateMachine(SlcoStructuralNode):
     """
@@ -196,7 +200,7 @@ class StateMachine(SlcoStructuralNode):
 
     @property
     def states(self) -> List[State]:
-        """Get the list of states excluding the initial state, including the initial state as the first element."""
+        """Get the list of states, including the initial state as the first element."""
         return self._states
 
     @states.setter
@@ -745,7 +749,7 @@ class DecisionNode(SlcoLockableNode):
             self.location_sensitive_locks.extend(d.location_sensitive_locks)
 
     def __repr__(self) -> str:
-        return "DET" if self.is_deterministic else "N_DET" if settings.non_determinism else "SEQ"
+        return f"DecisionNode:{'DET' if self.is_deterministic else 'N_DET' if settings.non_determinism else 'SEQ'}"
 
     @property
     def priority(self) -> int:

@@ -1,0 +1,7 @@
+// VerCors verification instructions for SLCO model {{ model.name }}.
+// >>> MODEL.START ({{ model }})
+{% for c in model.classes %}
+{{ c | render_class | trim }}
+
+{% endfor %}
+// <<< MODEL.END ({{ model }})

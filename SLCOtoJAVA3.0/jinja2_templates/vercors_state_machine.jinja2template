@@ -1,0 +1,8 @@
+// VerCors verification instructions for SLCO state machine {{ model.name }}.
+// >> SM.START ({{ model }})
+
+{% for t in model.transitions %}
+{{ t | render_transition | trim }}
+
+{% endfor %}
+// << SM.END ({{ model }})

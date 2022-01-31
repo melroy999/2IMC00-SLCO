@@ -1,0 +1,113 @@
+// VerCors imitation of the lock manager associated with SLCO class {{ model.name }}.
+// >> LOCKMANAGER.START ({{ model }})
+
+// Define non-array global variables as class variables such that they become heap variables.
+{% for v in model.variables | sort(attribute='lock_id') %}
+{% if v.is_array %}
+// {{ v | render_type }} {{ v.name }}; // Lock id {{ v.lock_id }}, length {{ v.type.size }}
+{% else %}
+{{ v | render_type }} {{ v.name }}; // Lock id {{ v.lock_id }}
+{% endif %}
+{% endfor %}
+
+// Lock method.
+/*@
+// The locking array and all array class variables are given as ghost parameters.
+given int[] locks;
+{% for v in model.variables | sort(attribute='lock_id') if v.is_array %}
+given {{ v | render_type }} {{ v.name }};
+{% endfor %}
+
+// Require and ensure that the arrays are not null and of the appropriate size.
+context locks != null && locks.length == {{ model.max_lock_id }};
+{% for v in model.variables | sort(attribute='lock_id') if v.is_array %}
+context {{ v.name }} != null && {{ v.name }}.length == {{ v.type.size }};
+{% endfor %}
+
+// Put restrictions on the input variables.
+requires lock_id >= 0 && lock_id < {{ model.max_lock_id }};
+
+// Require and ensure the permission of writing to the target element in the locks array.
+context Perm(locks[lock_id], 1);
+
+// Require and ensure that the value in the locks array is always a positive value.
+context locks[lock_id] >= 0;
+
+// Ensure that the locks counter is properly incremented.
+ensures locks[lock_id] == \old(locks[lock_id] + 1);
+
+// Require and ensure that the right permission is enforced, based on the value in the lock array.
+{% for v in model.variables | sort(attribute='lock_id') %}
+{% if v.is_array %}
+context lock_id >= {{ v.lock_id }} && lock_id < {{ v.type.size + v.lock_id }} ==> (locks[lock_id] > 0 ==> Perm({{ v.name }}[lock_id - {{ v.lock_id }}], 1)) ** (locks[lock_id] == 0 ==> Perm({{ v.name }}[lock_id - {{ v.lock_id }}], 0));
+{% else %}
+context lock_id == {{ v.lock_id }} ==> (locks[lock_id] > 0 ==> Perm({{ v.name }}, 1)) ** (locks[lock_id] == 0 ==> Perm({{ v.name }}, 0));
+{% endif %}
+{% endfor %}
+@*/
+void acquire_lock(int lock_id) {
+    /*@
+    ghost locks[lock_id]++;
+
+    // Assume that the post-condition holds to simulate the effect of Re-entrant locking.
+    {% for v in model.variables | sort(attribute='lock_id') %}
+    {% if v.is_array %}
+    assume lock_id >= {{ v.lock_id }} && lock_id < {{ v.type.size + v.lock_id }} ==> (locks[lock_id] > 0 ==> Perm({{ v.name }}[lock_id - {{ v.lock_id }}], 1)) ** (locks[lock_id] == 0 ==> Perm({{ v.name }}[lock_id - {{ v.lock_id }}], 0));
+    {% else %}
+    assume lock_id == {{ v.lock_id }} ==> (locks[lock_id] > 0 ==> Perm({{ v.name }}, 1)) ** (locks[lock_id] == 0 ==> Perm({{ v.name }}, 0));
+    {% endif %}
+    {% endfor %}
+    @*/
+}
+
+// Unlock method.
+/*@
+// The locking array and all array class variables are given as ghost parameters.
+given int[] locks;
+{% for v in model.variables | sort(attribute='lock_id') if v.is_array %}
+given {{ v | render_type }} {{ v.name }};
+{% endfor %}
+
+// Require and ensure that the arrays are not null and of the appropriate size.
+context locks != null && locks.length == {{ model.max_lock_id }};
+{% for v in model.variables | sort(attribute='lock_id') if v.is_array %}
+context {{ v.name }} != null && {{ v.name }}.length == {{ v.type.size }};
+{% endfor %}
+
+// Put restrictions on the input variables.
+requires lock_id >= 0 && lock_id < {{ model.max_lock_id }};
+
+// Require and ensure the permission of writing to the target element in the locks array.
+context Perm(locks[lock_id], 1);
+
+// Require that the target lock has been acquired at least once beforehand.
+requires locks[lock_id] > 0;
+
+// Ensure that the locks counter is properly decremented.
+ensures locks[lock_id] == \old(locks[lock_id] - 1);
+
+// Require and ensure that the right permission is enforced, based on the value in the lock array.
+{% for v in model.variables | sort(attribute='lock_id') %}
+{% if v.is_array %}
+context lock_id >= {{ v.lock_id }} && lock_id < {{ v.type.size + v.lock_id }} ==> (locks[lock_id] > 0 ==> Perm({{ v.name }}[lock_id - {{ v.lock_id }}], 1)) ** (locks[lock_id] == 0 ==> Perm({{ v.name }}[lock_id - {{ v.lock_id }}], 0));
+{% else %}
+context lock_id == {{ v.lock_id }} ==> (locks[lock_id] > 0 ==> Perm({{ v.name }}, 1)) ** (locks[lock_id] == 0 ==> Perm({{ v.name }}, 0));
+{% endif %}
+{% endfor %}
+@*/
+void release_lock(int lock_id) {
+    /*@
+    ghost locks[lock_id]--;
+
+    // Assume that the post-condition holds to simulate the effect of Re-entrant locking.
+    {% for v in model.variables | sort(attribute='lock_id') %}
+    {% if v.is_array %}
+    assume lock_id >= {{ v.lock_id }} && lock_id < {{ v.type.size + v.lock_id }} ==> (locks[lock_id] > 0 ==> Perm({{ v.name }}[lock_id - {{ v.lock_id }}], 1)) ** (locks[lock_id] == 0 ==> Perm({{ v.name }}[lock_id - {{ v.lock_id }}], 0));
+    {% else %}
+    assume lock_id == {{ v.lock_id }} ==> (locks[lock_id] > 0 ==> Perm({{ v.name }}, 1)) ** (locks[lock_id] == 0 ==> Perm({{ v.name }}, 0));
+    {% endif %}
+    {% endfor %}
+    @*/
+}
+
+// << LOCKMANAGER.END ({{ model }})
