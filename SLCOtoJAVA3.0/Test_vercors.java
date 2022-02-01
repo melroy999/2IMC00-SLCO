@@ -1,5 +1,5 @@
 // VerCors verification instructions for SLCO model Test.
-// >>> MODEL.START (SLCOModel:Test)
+// > MODEL.START (SLCOModel:Test)
 // VerCors verification instructions for SLCO class P.
 class P {
     // VerCors imitation of the lock manager associated with SLCO class P.
@@ -7,13 +7,15 @@ class P {
 
     // Define non-array global variables as class variables such that they become heap variables.
     int i; // Lock id 0
-    // int[] x; // Lock id 1, length 2
+    int[] x; // Lock id 1, length 2
 
     // Lock method.
     /*@
-    // The locking array and all array class variables are given as ghost parameters.
+    // The locking array is given as a ghost parameter.
     given int[] locks;
-    given int[] x;
+
+    // Require and ensure that read permission is given for the array variables.
+    context Perm(x, 1\2);
 
     // Require and ensure that the arrays are not null and of the appropriate size.
     context locks != null && locks.length == 3;
@@ -47,9 +49,11 @@ class P {
 
     // Unlock method.
     /*@
-    // The locking array and all array class variables are given as ghost parameters.
+    // The locking array is given as a ghost parameter.
     given int[] locks;
-    given int[] x;
+
+    // Require and ensure that read permission is given for the array variables.
+    context Perm(x, 1\2);
 
     // Require and ensure that the arrays are not null and of the appropriate size.
     context locks != null && locks.length == 3;
@@ -86,17 +90,11 @@ class P {
     // VerCors verification instructions for SLCO state machine SM1.
     // >> SM.START (StateMachine:SM1)
 
-    // > TRANSITION.START (Transition:SMC0.PP0)
+    // >>> TRANSITION.START (Transition:SMC0.PP0)
 
-    // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | i >= 0 and i < 2 and x[i] = 0
-    private boolean execute_transition_SMC0_0() {
-        // currentState = SM1Thread.States.SMC0;
-        return true;
-    }
-
-    // < TRANSITION.END (Transition:SMC0.PP0)
+    // <<< TRANSITION.END (Transition:SMC0.PP0)
 
     // << SM.END (StateMachine:SM1)
 }
 
-// <<< MODEL.END (SLCOModel:Test)
+// < MODEL.END (SLCOModel:Test)

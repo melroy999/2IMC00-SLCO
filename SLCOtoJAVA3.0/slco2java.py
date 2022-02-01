@@ -12,7 +12,7 @@ from preprocessing.ast.restructuring import restructure
 from preprocessing.ast.simplification import simplify
 from preprocessing.ast.finalization import finalize
 from rendering.java.model_renderer import render_model
-from rendering.vercors.model_renderer import render_model as render_vercors_model
+from rendering.vercors.model_renderer import render_vercors_model
 
 
 def preprocess(model):

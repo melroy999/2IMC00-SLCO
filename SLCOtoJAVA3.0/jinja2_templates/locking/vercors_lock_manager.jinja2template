@@ -4,7 +4,7 @@
 // Define non-array global variables as class variables such that they become heap variables.
 {% for v in model.variables | sort(attribute='lock_id') %}
 {% if v.is_array %}
-// {{ v | render_type }} {{ v.name }}; // Lock id {{ v.lock_id }}, length {{ v.type.size }}
+{{ v | render_type }} {{ v.name }}; // Lock id {{ v.lock_id }}, length {{ v.type.size }}
 {% else %}
 {{ v | render_type }} {{ v.name }}; // Lock id {{ v.lock_id }}
 {% endif %}
@@ -12,10 +12,12 @@
 
 // Lock method.
 /*@
-// The locking array and all array class variables are given as ghost parameters.
+// The locking array is given as a ghost parameter.
 given int[] locks;
+
+// Require and ensure that read permission is given for the array variables.
 {% for v in model.variables | sort(attribute='lock_id') if v.is_array %}
-given {{ v | render_type }} {{ v.name }};
+context Perm({{ v.name }}, 1\2);
 {% endfor %}
 
 // Require and ensure that the arrays are not null and of the appropriate size.
@@ -62,10 +64,12 @@ void acquire_lock(int lock_id) {
 
 // Unlock method.
 /*@
-// The locking array and all array class variables are given as ghost parameters.
+// The locking array is given as a ghost parameter.
 given int[] locks;
+
+// Require and ensure that read permission is given for the array variables.
 {% for v in model.variables | sort(attribute='lock_id') if v.is_array %}
-given {{ v | render_type }} {{ v.name }};
+context Perm({{ v.name }}, 1\2);
 {% endfor %}
 
 // Require and ensure that the arrays are not null and of the appropriate size.

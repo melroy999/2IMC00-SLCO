@@ -1,8 +1,8 @@
 // VerCors verification instructions for SLCO class {{ model.name }}.
 class {{ model.name }} {
-    {{ model | render_lock_manager | indent(4, True) | trim }}
+    {{ model | render_vercors_lock_manager | indent(4, True) | trim }}
 
     {% for sm in model.state_machines %}
-    {{ sm | render_state_machine | indent(4, True) | trim }}
+    {{ sm | render_vercors_state_machine | indent(4, True) | trim }}
     {% endfor %}
 }

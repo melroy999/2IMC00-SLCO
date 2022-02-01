@@ -295,4 +295,3 @@ java_locking_check_template = env.get_template("locking/java_locking_check.jinja
 java_assignment_template = env.get_template("statements/java_assignment.jinja2template")
 java_expression_template = env.get_template("statements/java_expression.jinja2template")
 java_composite_template = env.get_template("statements/java_composite.jinja2template")
-java_transition_template = env.get_template("java_transition.jinja2template")

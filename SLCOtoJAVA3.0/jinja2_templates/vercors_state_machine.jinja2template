@@ -1,8 +1,19 @@
 // VerCors verification instructions for SLCO state machine {{ model.name }}.
 // >> SM.START ({{ model }})
 
+{% if model.variables | length > 0 %}
+// Thread local variables
+{% for v in model.variables %}
+{% if v.is_array %}
+// {{ v | render_type }} {{ v.name }}; // length {{ v.type.size }}
+{% else %}
+// {{ v | render_type }} {{ v.name }};
+{% endif %}
+{% endfor %}
+
+{% endif %}
 {% for t in model.transitions %}
-{{ t | render_transition | trim }}
+{{ t | render_vercors_transition | trim }}
 
 {% endfor %}
 // << SM.END ({{ model }})
