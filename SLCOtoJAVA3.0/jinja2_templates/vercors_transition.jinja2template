@@ -1,9 +1,42 @@
-// >>> TRANSITION.START (Transition:{{ model.source }}.PP{{ model.id }})
+// >> TRANSITION.START (Transition:{{ model.source }}.P{{ model.id }})
 
 {% for support_methods in control_node_methods %}
 {{ support_methods | trim }}
 
 {% endfor %}
+/*@
+// The locking array and all array class variables are given as ghost parameters.
+given int[] locks;
+
+// Require and ensure that the target locks list is of the right size with full write access.
+context target_locks != null && lock_ids.length == 2;
+context Perm(target_locks[*], 1);
+
+// Require and ensure that the state machine has read access to the target class and associating locking mechanism.
+context Perm(c, 1\2);
+context Perm(lm, 1\2);
+context Perm(lm.c, 1\2);
+
+// Require and ensure that the locking mechanism refers to the correct class.
+context lm.c == c;
+
+// Require and ensure that the state machine has access to the array variables within the target class.
+{% for v in model.variables | sort(attribute='lock_id') if v.is_array %}
+context Perm(c.{{ v.name }}, 1\2);
+{% endfor %}
+
+// Require and ensure that the arrays are not null and of the appropriate size.
+context locks != null && locks.length == {{ model.max_lock_id }};
+{% for v in model.variables | sort(attribute='lock_id') if v.is_array %}
+context c.{{ v.name }} != null && c.{{ v.name }}.length == {{ v.type.size }};
+{% endfor %}
+
+// Require and ensure the permission of writing to all elements in the locks array.
+context Perm(locks[*], 1);
+
+// Require and ensure that all values in locks start and end at zero to verify that no locks remain active after execution.
+context (\forall int _i; _i >= 0 && _i < locks.length; locks[_i] >= 0);
+@*/
 // SLCO transition {{ model }}
 private boolean execute_transition_{{ model.source }}_{{ model.id }}() {
     {% for s in rendered_statements %}
@@ -14,4 +47,4 @@ private boolean execute_transition_{{ model.source }}_{{ model.id }}() {
     return true;
 }
 
-// <<< TRANSITION.END (Transition:{{ model.source }}.PP{{ model.id }})
+// << TRANSITION.END (Transition:{{ model.source }}.P{{ model.id }})

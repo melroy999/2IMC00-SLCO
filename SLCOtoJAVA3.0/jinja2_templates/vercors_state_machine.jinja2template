@@ -1,19 +1,28 @@
 // VerCors verification instructions for SLCO state machine {{ model.name }}.
-// >> SM.START ({{ model }})
+class SlcoStateMachine{{ model.name }}InSlcoClass{{ model.parent.name }} {
+    // The class the state machine is a part of.
+    private final SlcoClass{{ model.parent.name }} c;
 
-{% if model.variables | length > 0 %}
-// Thread local variables
-{% for v in model.variables %}
-{% if v.is_array %}
-// {{ v | render_type }} {{ v.name }}; // length {{ v.type.size }}
-{% else %}
-// {{ v | render_type }} {{ v.name }};
-{% endif %}
-{% endfor %}
+    // The lock manager of the target class.
+    private final LockManagerForSlcoClass{{ model.parent.name }} lm;
 
-{% endif %}
-{% for t in model.transitions %}
-{{ t | render_vercors_transition | trim }}
+    // A list of lock ids and target locks that can be reused
+    private final int[] lock_ids;
+    private final int[] target_locks;
 
-{% endfor %}
-// << SM.END ({{ model }})
+    {% if model.variables | length > 0 %}
+    // State machine local variables.
+    {% for v in model.variables %}
+    {% if v.is_array %}
+    final {{ v | render_type }} {{ v.name }}; // length {{ v.type.size }}
+    {% else %}
+    {{ v | render_type }} {{ v.name }};
+    {% endif %}
+    {% endfor %}
+
+    {% endif %}
+    {% for t in model.transitions %}
+    {{ t | render_vercors_transition | indent(4, False) | trim }}
+
+    {% endfor %}
+}

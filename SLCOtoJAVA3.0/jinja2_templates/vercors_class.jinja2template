@@ -1,8 +1,22 @@
-// VerCors verification instructions for SLCO class {{ model.name }}.
-class {{ model.name }} {
-    {{ model | render_vercors_lock_manager | indent(4, True) | trim }}
+{{ model | render_vercors_lock_manager | trim }}
 
-    {% for sm in model.state_machines %}
-    {{ sm | render_vercors_state_machine | indent(4, True) | trim }}
+// VerCors verification instructions for SLCO class {{ model.name }}.
+class SlcoClass{{ model.name }} {
+    // The lock manager of the class.
+    final LockManagerForSlcoClass{{ model.name }} lm;
+    {% if model.variables | length > 0 %}
+
+    // The class variables.
+    {% for v in model.variables | sort(attribute='lock_id') %}
+    {% if v.is_array %}
+    final {{ v | render_type }} {{ v.name }}; // Lock id {{ v.lock_id }}, length {{ v.type.size }}
+    {% else %}
+    {{ v | render_type }} {{ v.name }}; // Lock id {{ v.lock_id }}
+    {% endif %}
     {% endfor %}
+    {% endif %}
 }
+
+{% for sm in model.state_machines %}
+{{ sm | render_vercors_state_machine | trim }}
+{% endfor %}

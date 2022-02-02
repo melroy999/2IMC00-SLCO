@@ -92,6 +92,8 @@ def render_vercors_variable_ref(
     Render the given variable reference object as in-line Java code.
     """
     result = model.var.name
+    if model.var.is_class_variable:
+        result = f"c.{result}"
     if model.index is not None:
         result += "[%s]" % render_vercors_expression_component(
             model.index, control_node_methods, control_node_method_prefix
