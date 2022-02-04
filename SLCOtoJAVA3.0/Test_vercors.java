@@ -33,6 +33,9 @@ class SlcoStateMachineSM1InSlcoClassP {
     // Require and ensure the permission of writing to all class variables.
     context Perm(c.i, 1);
     context Perm(c.x[*], 1);
+
+    // Ensure that the statement's result is equivalent to the associated expression.
+    ensures \result == (c.i >= 0);
     @*/
     // SLCO expression wrapper | i >= 0
     private boolean t_SMC0_0_s_0_n_0() {
@@ -57,6 +60,12 @@ class SlcoStateMachineSM1InSlcoClassP {
     // Require and ensure the permission of writing to all class variables.
     context Perm(c.i, 1);
     context Perm(c.x[*], 1);
+
+    // Require and ensure validity of expressions that have been encountered earlier in the control flow.
+    context c.i >= 0;
+
+    // Ensure that the statement's result is equivalent to the associated expression.
+    ensures \result == (c.i < 2);
     @*/
     // SLCO expression wrapper | i < 2
     private boolean t_SMC0_0_s_0_n_1() {
@@ -81,6 +90,9 @@ class SlcoStateMachineSM1InSlcoClassP {
     // Require and ensure the permission of writing to all class variables.
     context Perm(c.i, 1);
     context Perm(c.x[*], 1);
+
+    // Ensure that the statement's result is equivalent to the associated expression.
+    ensures \result == (c.i >= 0 && c.i < 2);
     @*/
     // SLCO expression wrapper | i >= 0 and i < 2
     private boolean t_SMC0_0_s_0_n_2() {
@@ -111,6 +123,12 @@ class SlcoStateMachineSM1InSlcoClassP {
     // Require and ensure the permission of writing to all class variables.
     context Perm(c.i, 1);
     context Perm(c.x[*], 1);
+
+    // Require and ensure validity of expressions that have been encountered earlier in the control flow.
+    context c.i >= 0 && c.i < 2;
+
+    // Ensure that the statement's result is equivalent to the associated expression.
+    ensures \result == (c.x[c.i] == 0);
     @*/
     // SLCO expression wrapper | x[i] = 0
     private boolean t_SMC0_0_s_0_n_3() {
@@ -135,6 +153,9 @@ class SlcoStateMachineSM1InSlcoClassP {
     // Require and ensure the permission of writing to all class variables.
     context Perm(c.i, 1);
     context Perm(c.x[*], 1);
+
+    // Ensure that the statement's result is equivalent to the associated expression.
+    ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
     @*/
     // SLCO expression wrapper | i >= 0 and i < 2 and x[i] = 0
     private boolean t_SMC0_0_s_0_n_4() {

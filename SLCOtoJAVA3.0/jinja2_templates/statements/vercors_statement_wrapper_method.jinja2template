@@ -1,5 +1,15 @@
 /*@
 {{ c | render_vercors_permissions(sm) | trim }}
+{% if assumptions is not none and assumptions | length > 0 %}
+
+// Require and ensure validity of expressions that have been encountered earlier in the control flow.
+{% for assumption in assumptions %}
+context {{ assumption }};
+{% endfor %}
+{% endif %}
+
+// Ensure that the statement's result is equivalent to the associated expression.
+ensures \result == ({{ target_result }});
 @*/
 {{ statement_comment }}
 private boolean {{ method_name }}() {

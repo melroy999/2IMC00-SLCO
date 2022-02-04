@@ -117,13 +117,13 @@ public class Test {
                 lock_ids[0] = target_locks[1] = 1 + i; // Acquire x[i]
                 lockManager.acquire_locks(lock_ids, 1);
                 if(x[i] == 0) {
-                    lock_ids[0] = target_locks[1]; // Release x[i]
-                    lock_ids[1] = target_locks[0]; // Release i
+                    lock_ids[0] = target_locks[0]; // Release i
+                    lock_ids[1] = target_locks[1]; // Release x[i]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release x[i]
-                lock_ids[1] = target_locks[0]; // Release i
+                lock_ids[0] = target_locks[0]; // Release i
+                lock_ids[1] = target_locks[1]; // Release x[i]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
