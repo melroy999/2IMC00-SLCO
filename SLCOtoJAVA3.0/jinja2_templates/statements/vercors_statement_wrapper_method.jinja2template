@@ -1,32 +1,13 @@
+/*@
+{{ c | render_vercors_permissions(sm) | trim }}
+@*/
 {{ statement_comment }}
 private boolean {{ method_name }}() {
-    {% if locking_control_node.entry_node.has_locks() %}
-    {{ locking_control_node.entry_node.locking_instructions | render_locking_instruction | indent(4, False) | trim }}
+    {% for block in conditional_blocks %}
+    {{ block | indent(4, False) | trim }}
+    {% endfor %}
+    {% if post_condition is not none %}
+    //@ assert {{ post_condition }};
     {% endif %}
-    {% if locking_control_node.success_exit.has_locks() or locking_control_node.failure_exit.has_locks() %}
-    {% if condition_is_true or condition_is_false %}
-    try {
-        return {{ in_line_statement }};
-    } finally {
-        {% if condition_is_true %}
-        {{ locking_control_node.success_exit.locking_instructions | render_locking_instruction | indent(8, False) | trim }}
-        {% else %}
-        {{ locking_control_node.failure_exit.locking_instructions | render_locking_instruction | indent(8, False) | trim }}
-        {% endif %}
-    }
-    {% else %}
-    if({{ in_line_statement }}) {
-        {% if locking_control_node.success_exit.has_locks() %}
-        {{ locking_control_node.success_exit.locking_instructions | render_locking_instruction | indent(8, False) | trim }}
-        {% endif %}
-        return true;
-    }
-    {% if locking_control_node.failure_exit.has_locks() %}
-    {{ locking_control_node.failure_exit.locking_instructions | render_locking_instruction | indent(4, False) | trim }}
-    {% endif %}
-    return false;
-    {% endif %}
-    {% else %}
-    return {{ in_line_statement }};
-    {% endif %}
+    return {% if invert_return_values %}true{% else %}false{% endif %};
 }

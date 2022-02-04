@@ -3,9 +3,6 @@ class SlcoStateMachine{{ model.name }}InSlcoClass{{ model.parent.name }} {
     // The class the state machine is a part of.
     private final SlcoClass{{ model.parent.name }} c;
 
-    // The lock manager of the target class.
-    private final LockManagerForSlcoClass{{ model.parent.name }} lm;
-
     // A list of lock ids and target locks that can be reused
     private final int[] lock_ids;
     private final int[] target_locks;

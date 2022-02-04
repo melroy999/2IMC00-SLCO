@@ -1,0 +1,9 @@
+if({{ in_line_statement }}) {
+    {% if post_condition_body is not none %}
+    //@ assert {{ post_condition_body }};
+    {% endif %}
+    return {% if invert_return_values %}false{% else %}true{% endif %};
+}
+{% if post_condition is not none %}
+//@ assert {{ post_condition }};
+{% endif %}

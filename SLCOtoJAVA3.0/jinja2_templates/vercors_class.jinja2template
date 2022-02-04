@@ -1,9 +1,5 @@
-{{ model | render_vercors_lock_manager | trim }}
-
 // VerCors verification instructions for SLCO class {{ model.name }}.
 class SlcoClass{{ model.name }} {
-    // The lock manager of the class.
-    final LockManagerForSlcoClass{{ model.name }} lm;
     {% if model.variables | length > 0 %}
 
     // The class variables.

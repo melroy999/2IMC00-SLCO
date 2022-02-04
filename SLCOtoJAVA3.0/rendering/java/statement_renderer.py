@@ -4,6 +4,8 @@ from typing import TYPE_CHECKING, List, Tuple, Set, Union
 
 import settings
 from objects.ast.util import get_variables_to_be_locked
+from rendering.common.statement_renderer import get_expression_wrapper_comment, get_root_expression_comment, \
+    get_assignment_comment, get_composite_comment
 from rendering.java.environment_settings import env
 from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment
 
@@ -128,9 +130,6 @@ def render_expression_component(
         condition_is_true = model.is_true()
         condition_is_false = not condition_is_true and model.is_false()
 
-        # Create an easily identifiable comment.
-        statement_comment = f"// SLCO expression wrapper | {model}"
-
         # Render the statement as a control node method and return the method name.
         control_node_methods.append(
             java_control_node_method_template.render(
@@ -140,7 +139,7 @@ def render_expression_component(
                 class_variable_references=class_variable_references,
                 condition_is_true=condition_is_true,
                 condition_is_false=condition_is_false,
-                statement_comment=statement_comment
+                statement_comment=get_expression_wrapper_comment(model)
             )
         )
         return f"{method_name}()"
@@ -189,20 +188,10 @@ def render_root_expression(
         statement_prefix, i = create_statement_prefix(transition_prefix, i)
         in_line_expression = render_expression_component(model, control_node_methods, statement_prefix)
 
-    # Create an easily identifiable comment.
-    original_slco_expression_string = str(model.get_original_statement())
-    preprocessed_slco_expression_string = str(model)
-    statement_comment = "// "
-    if is_superfluous:
-        statement_comment += "(Superfluous) "
-    statement_comment += f"SLCO expression | {original_slco_expression_string}"
-    if original_slco_expression_string != preprocessed_slco_expression_string:
-        statement_comment += f" -> {preprocessed_slco_expression_string}"
-
     # Render the expression as an if statement.
     result = java_expression_template.render(
         in_line_expression=in_line_expression,
-        statement_comment=statement_comment,
+        statement_comment=get_root_expression_comment(is_superfluous, model),
         is_superfluous=is_superfluous
     )
     return result, i
@@ -230,13 +219,6 @@ def render_assignment(
     if settings.verify_locks and len(model.locking_atomic_node.child_atomic_nodes) == 0:
         class_variable_references.update(get_variables_to_be_locked(model.right))
 
-    # Create an easily identifiable comment.
-    original_slco_statement_string = str(model.get_original_statement())
-    preprocessed_slco_statement_string = str(model)
-    statement_comment = f"// SLCO assignment | {original_slco_statement_string}"
-    if original_slco_statement_string != preprocessed_slco_statement_string:
-        statement_comment += f" -> {preprocessed_slco_statement_string}"
-
     # Render the assignment as Java code.
     result = java_assignment_template.render(
         model=model,
@@ -244,7 +226,7 @@ def render_assignment(
         in_line_lhs=in_line_lhs,
         in_line_rhs=in_line_rhs,
         class_variable_references=class_variable_references,
-        statement_comment=statement_comment,
+        statement_comment=get_assignment_comment(model),
         is_byte_typed=model.left.var.is_byte
     )
     return result, i
@@ -267,20 +249,16 @@ def render_composite(
         rendered_assignment, i = render_assignment(a, control_node_methods, transition_prefix, i)
         rendered_statements.append(rendered_assignment)
 
-    # Create an easily identifiable comment.
-    original_slco_composite_string = str(model.get_original_statement())
-    preprocessed_slco_composite_string = str(model)
-    statement_comment = f"// SLCO composite | {original_slco_composite_string}"
-    if original_slco_composite_string != preprocessed_slco_composite_string:
-        statement_comment += f" -> {preprocessed_slco_composite_string}"
-
     # Render the composite and all of its statements.
     result = java_composite_template.render(
         model=model,
         rendered_statements=rendered_statements,
-        statement_comment=statement_comment
+        statement_comment=get_composite_comment(model)
     )
     return result, i
+
+
+
 
 
 # Add supportive filters.

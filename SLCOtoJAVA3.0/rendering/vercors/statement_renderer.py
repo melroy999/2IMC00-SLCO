@@ -4,26 +4,13 @@ from typing import TYPE_CHECKING, List, Tuple, Union
 
 import settings
 from objects.ast.util import get_variables_to_be_locked
+from rendering.common.statement_renderer import get_expression_wrapper_comment, get_root_expression_comment, \
+    get_assignment_comment, get_composite_comment
 from rendering.vercors.environment_settings import env
-from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment
+from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, StateMachine, Class
 
 if TYPE_CHECKING:
     from objects.ast.interfaces import SlcoStatementNode
-    from objects.locking.models import LockingInstruction
-
-
-def render_vercors_locking_instruction(model: LockingInstruction) -> str:
-    """
-    Render the given lock instruction as Java code.
-    """
-    if not model.has_locks():
-        # Simply return an empty string if no locks need to be rendered.
-        return ""
-
-    # Render the appropriate lock acquisitions and releases through the appropriate template.
-    return vercors_locking_instruction_template.render(
-        model=model
-    )
 
 
 # Conversion from SLCO to Java operators.
@@ -36,39 +23,59 @@ java_operator_mappings = {
 }
 
 
+def render_vercors_permissions(c: Class, sm: StateMachine) -> str:
+    """Render method contract statements that ensure full permissions over the used variables."""
+    return vercors_permissions_template.render(
+        c=c,
+        sm=sm,
+        has_array_c_variables=any(v.is_array for v in c.variables),
+        has_array_sm_variables=any(v.is_array for v in sm.variables)
+    )
+
+
 def render_vercors_expression(
-        model: Expression, control_node_methods: List[str], control_node_method_prefix: str
+        model: Expression,
+        sm: StateMachine,
+        control_node_methods: List[str],
+        control_node_method_prefix: str,
+        create_control_nodes: bool
 ) -> str:
     """
     Render the given expression object as in-line Java code.
     """
     if model.op == "**":
         left_str = render_vercors_expression_component(
-            model.values[0], control_node_methods, control_node_method_prefix
+            model.values[0], sm, control_node_methods, control_node_method_prefix, create_control_nodes
         )
         right_str = render_vercors_expression_component(
-            model.values[1], control_node_methods, control_node_method_prefix
+            model.values[1], sm, control_node_methods, control_node_method_prefix, create_control_nodes
         )
         return "(int) Math.pow(%s, %s)" % (left_str, right_str)
     elif model.op == "%":
         # The % operator in Java is the remainder operator, which is not the modulo operator.
         left_str = render_vercors_expression_component(
-            model.values[0], control_node_methods, control_node_method_prefix
+            model.values[0], sm, control_node_methods, control_node_method_prefix, create_control_nodes
         )
         right_str = render_vercors_expression_component(
-            model.values[1], control_node_methods, control_node_method_prefix
+            model.values[1], sm, control_node_methods, control_node_method_prefix, create_control_nodes
         )
         return "Math.floorMod(%s, %s)" % (left_str, right_str)
     else:
         values_str = [
             render_vercors_expression_component(
-                v, control_node_methods, control_node_method_prefix
+                v, sm, control_node_methods, control_node_method_prefix, create_control_nodes
             ) for v in model.values
         ]
         return (" %s " % java_operator_mappings.get(model.op, model.op)).join(values_str)
 
 
-def render_vercors_primary(model: Primary, control_node_methods: List[str], control_node_method_prefix: str) -> str:
+def render_vercors_primary(
+        model: Primary,
+        sm: StateMachine,
+        control_node_methods: List[str],
+        control_node_method_prefix: str,
+        create_control_nodes: bool
+) -> str:
     """
     Render the given primary object as in-line Java code.
     """
@@ -76,17 +83,21 @@ def render_vercors_primary(model: Primary, control_node_methods: List[str], cont
         exp_str = str(model.value).lower()
     elif model.ref is not None:
         exp_str = render_vercors_expression_component(
-            model.ref, control_node_methods, control_node_method_prefix
+            model.ref, sm, control_node_methods, control_node_method_prefix, create_control_nodes
         )
     else:
         exp_str = "(%s)" % render_vercors_expression_component(
-            model.body, control_node_methods, control_node_method_prefix
+            model.body, sm, control_node_methods, control_node_method_prefix, create_control_nodes
         )
     return ("!(%s)" if model.sign == "not" else model.sign + "%s") % exp_str
 
 
 def render_vercors_variable_ref(
-        model: VariableRef, control_node_methods: List[str], control_node_method_prefix: str
+        model: VariableRef,
+        sm: StateMachine,
+        control_node_methods: List[str],
+        control_node_method_prefix: str,
+        create_control_nodes: bool
 ) -> str:
     """
     Render the given variable reference object as in-line Java code.
@@ -96,59 +107,125 @@ def render_vercors_variable_ref(
         result = f"c.{result}"
     if model.index is not None:
         result += "[%s]" % render_vercors_expression_component(
-            model.index, control_node_methods, control_node_method_prefix
+            model.index, sm, control_node_methods, control_node_method_prefix, create_control_nodes
         )
     return result
 
 
 def render_vercors_expression_component(
-    model: SlcoStatementNode, control_node_methods: List[str] = None, control_node_method_prefix: str = ""
+        model: SlcoStatementNode,
+        sm: StateMachine,
+        control_node_methods: List[str] = None,
+        control_node_method_prefix: str = "",
+        create_control_nodes: bool = True
 ) -> str:
     """
     Render the given statement object as in-line Java code and create supportive methods if necessary.
     """
-    # Construct the in-line statement.
-    if isinstance(model, Expression):
-        in_line_statement = render_vercors_expression(model, control_node_methods, control_node_method_prefix)
-    elif isinstance(model, Primary):
-        in_line_statement = render_vercors_primary(model, control_node_methods, control_node_method_prefix)
-    elif isinstance(model, VariableRef):
-        in_line_statement = render_vercors_variable_ref(model, control_node_methods, control_node_method_prefix)
-    else:
-        raise Exception(f"No function exists to turn objects of type {type(model)} into in-line Java statements.")
+    # Render all atomic node holding expressions as a function--this is required due to a need to verify conjunctions
+    # and disjunctions in a specific way because of limitations in VerCors.
+    if create_control_nodes and model.locking_atomic_node is not None:
+        # Construct the conditional block(s) that need to be included in the statement.
+        conditional_blocks = []
 
-    # Get the class variables used in the object.
-    class_variable_references = get_variables_to_be_locked(model)
+        # Render the full statement without control nodes for verification purposes.
+        full_simple_in_line_statement = render_vercors_expression_component(model, sm, create_control_nodes=False)
 
-    # Statements with an atomic node that has locks needs to be rendered as a method.
-    # Create the method and refer to it instead.
-    if model.locking_atomic_node is not None:
+        # Render conjunctions and disjunctions differently due to a lack of short circuit evaluation support in VerCors.
+        if isinstance(model, Expression) and model.op in ["and", "or"]:
+            for i, v in enumerate(model.values):
+                # Find the in-line conditional.
+                in_line_statement = render_vercors_expression_component(
+                    v, sm, control_node_methods, control_node_method_prefix, create_control_nodes
+                )
+
+                # Invert the in-line conditional if the expression is a conjunction.
+                if model.op == "and":
+                    in_line_statement = f"!({in_line_statement})"
+
+                # Render the target statement without control nodes for verification purposes.
+                simple_in_line_statement = render_vercors_expression_component(v, sm, create_control_nodes=False)
+
+                # Define the appropriate pre- and post conditions.
+                post_condition_body = ("!(%s)" if model.op == "and" else "%s") % full_simple_in_line_statement
+                post_condition = f"!({simple_in_line_statement})" if model.op == "or" else simple_in_line_statement
+
+                # Render the target branch of the conditional.
+                conditional_blocks.append(vercors_expression_if_statement_template.render(
+                    in_line_statement=in_line_statement,
+                    post_condition_body=post_condition_body,
+                    post_condition=post_condition,
+                    invert_return_values=(model.op == "and")
+                ))
+
+            # Only add a post condition if the statement is a conjunction or disjunction.
+            post_condition = ("%s" if model.op == "and" else "!(%s)") % full_simple_in_line_statement
+        else:
+            in_line_statement = get_in_line_statement(
+                control_node_method_prefix, control_node_methods, create_control_nodes, model, sm
+            )
+
+            # Define the appropriate pre- and post conditions.
+            post_condition_body = full_simple_in_line_statement
+            post_condition = f"!({full_simple_in_line_statement})"
+
+            # Render the target branch of the conditional.
+            conditional_blocks.append(vercors_expression_if_statement_template.render(
+                in_line_statement=in_line_statement,
+                post_condition_body=post_condition_body,
+                post_condition=post_condition,
+                invert_return_values=False
+            ))
+
+            # Only add a post condition if the statement is a conjunction or disjunction.
+            post_condition = None
+
         # Give the node a name, render it as a separate method, and return a call to the method.
         method_name = f"{control_node_method_prefix}_n_{len(control_node_methods)}"
-
-        # Determine if the internal if-statement can be simplified.
-        condition_is_true = model.is_true()
-        condition_is_false = not condition_is_true and model.is_false()
-
-        # Create an easily identifiable comment.
-        statement_comment = f"// SLCO expression wrapper | {model}"
 
         # Render the statement as a control node method and return the method name.
         control_node_methods.append(
             vercors_control_node_method_template.render(
-                locking_control_node=model.locking_atomic_node,
+                statement_comment=get_expression_wrapper_comment(model),
                 method_name=method_name,
-                in_line_statement=in_line_statement,
-                class_variable_references=class_variable_references,
-                condition_is_true=condition_is_true,
-                condition_is_false=condition_is_false,
-                statement_comment=statement_comment
+                conditional_blocks=conditional_blocks,
+                invert_return_values=(isinstance(model, Expression) and model.op == "and"),
+                post_condition=post_condition,
+                c=sm.parent,
+                sm=sm
             )
         )
         return f"{method_name}()"
     else:
+        # Get the in-line statement and return it outright.
+        in_line_statement = get_in_line_statement(
+            control_node_method_prefix, control_node_methods, create_control_nodes, model, sm
+        )
+
         # Return the statement as an in-line Java statement.
         return in_line_statement
+
+
+def get_in_line_statement(control_node_method_prefix, control_node_methods, create_control_nodes, model, sm):
+    """
+    Generate the correct in-line statement connected to the given object's type.
+    """
+    # Find the in-line conditional.
+    if isinstance(model, Expression):
+        in_line_statement = render_vercors_expression(
+            model, sm, control_node_methods, control_node_method_prefix, create_control_nodes
+        )
+    elif isinstance(model, Primary):
+        in_line_statement = render_vercors_primary(
+            model, sm, control_node_methods, control_node_method_prefix, create_control_nodes
+        )
+    elif isinstance(model, VariableRef):
+        in_line_statement = render_vercors_variable_ref(
+            model, sm, control_node_methods, control_node_method_prefix, create_control_nodes
+        )
+    else:
+        raise Exception(f"No function exists to turn objects of type {type(model)} into in-line Java statements.")
+    return in_line_statement
 
 
 def create_statement_prefix(transition_prefix: str, i: int) -> Tuple[str, int]:
@@ -159,7 +236,11 @@ def create_statement_prefix(transition_prefix: str, i: int) -> Tuple[str, int]:
 
 
 def render_vercors_root_expression(
-    model: Union[Expression, Primary], control_node_methods: List[str], transition_prefix: str, i: int
+        model: Union[Expression, Primary],
+        control_node_methods: List[str],
+        transition_prefix: str,
+        i: int,
+        sm: StateMachine
 ) -> Tuple[str, int]:
     """
     Render the given expression object as Java code.
@@ -187,29 +268,19 @@ def render_vercors_root_expression(
     if not is_superfluous:
         # Create an unique prefix for the statement.
         statement_prefix, i = create_statement_prefix(transition_prefix, i)
-        in_line_expression = render_vercors_expression_component(model, control_node_methods, statement_prefix)
-
-    # Create an easily identifiable comment.
-    original_slco_expression_string = str(model.get_original_statement())
-    preprocessed_slco_expression_string = str(model)
-    statement_comment = "// "
-    if is_superfluous:
-        statement_comment += "(Superfluous) "
-    statement_comment += f"SLCO expression | {original_slco_expression_string}"
-    if original_slco_expression_string != preprocessed_slco_expression_string:
-        statement_comment += f" -> {preprocessed_slco_expression_string}"
+        in_line_expression = render_vercors_expression_component(model, sm, control_node_methods, statement_prefix)
 
     # Render the expression as an if statement.
     result = vercors_expression_template.render(
         in_line_expression=in_line_expression,
-        statement_comment=statement_comment,
+        statement_comment=get_root_expression_comment(is_superfluous, model),
         is_superfluous=is_superfluous
     )
     return result, i
 
 
 def render_vercors_assignment(
-    model: Assignment, control_node_methods: List[str], transition_prefix: str, i: int
+        model: Assignment, control_node_methods: List[str], transition_prefix: str, i: int, sm: StateMachine
 ) -> Tuple[str, int]:
     """
     Render the given assignment object as Java code.
@@ -218,70 +289,55 @@ def render_vercors_assignment(
     statement_prefix, i = create_statement_prefix(transition_prefix, i)
 
     # Create an in-line Java code string for the left and right hand side.
-    in_line_lhs = render_vercors_expression_component(model.left, control_node_methods, statement_prefix)
-    in_line_rhs = render_vercors_expression_component(model.right, control_node_methods, statement_prefix)
+    in_line_lhs = render_vercors_expression_component(model.left, sm, control_node_methods, statement_prefix)
+    in_line_rhs = render_vercors_expression_component(model.right, sm, control_node_methods, statement_prefix)
 
     class_variable_references = get_variables_to_be_locked(model.left)
     if settings.verify_locks and len(model.locking_atomic_node.child_atomic_nodes) == 0:
         class_variable_references.update(get_variables_to_be_locked(model.right))
 
-    # Create an easily identifiable comment.
-    original_slco_statement_string = str(model.get_original_statement())
-    preprocessed_slco_statement_string = str(model)
-    statement_comment = f"// SLCO assignment | {original_slco_statement_string}"
-    if original_slco_statement_string != preprocessed_slco_statement_string:
-        statement_comment += f" -> {preprocessed_slco_statement_string}"
-
     # Render the assignment as Java code.
     result = vercors_assignment_template.render(
-        model=model,
-        locking_control_node=model.locking_atomic_node,
         in_line_lhs=in_line_lhs,
         in_line_rhs=in_line_rhs,
-        class_variable_references=class_variable_references,
-        statement_comment=statement_comment,
+        statement_comment=get_assignment_comment(model),
         is_byte_typed=model.left.var.is_byte
     )
     return result, i
 
 
 def render_vercors_composite(
-    model: Composite, control_node_methods: List[str], transition_prefix: str, i: int
+        model: Composite, control_node_methods: List[str], transition_prefix: str, i: int, sm: StateMachine
 ) -> Tuple[str, int]:
     """
     Render the given composite object as Java code.
     """
     # Gather all the statements used in the composite.
     rendered_statements = []
-    rendered_guard, i = render_vercors_root_expression(model.guard, control_node_methods, transition_prefix, i)
+    rendered_guard, i = render_vercors_root_expression(model.guard, control_node_methods, transition_prefix, i, sm)
     rendered_statements.append(rendered_guard)
     for a in model.assignments:
-        rendered_assignment, i = render_vercors_assignment(a, control_node_methods, transition_prefix, i)
+        rendered_assignment, i = render_vercors_assignment(a, control_node_methods, transition_prefix, i, sm)
         rendered_statements.append(rendered_assignment)
-
-    # Create an easily identifiable comment.
-    original_slco_composite_string = str(model.get_original_statement())
-    preprocessed_slco_composite_string = str(model)
-    statement_comment = f"// SLCO composite | {original_slco_composite_string}"
-    if original_slco_composite_string != preprocessed_slco_composite_string:
-        statement_comment += f" -> {preprocessed_slco_composite_string}"
 
     # Render the composite and all of its statements.
     result = vercors_composite_template.render(
         model=model,
         rendered_statements=rendered_statements,
-        statement_comment=statement_comment
+        statement_comment=get_composite_comment(model)
     )
     return result, i
 
 
 # Add supportive filters.
 env.filters["render_statement"] = render_vercors_expression_component
-env.filters["render_locking_instruction"] = render_vercors_locking_instruction
+env.filters["render_vercors_permissions"] = render_vercors_permissions
 
 # Import the appropriate templates.
 vercors_control_node_method_template = env.get_template("statements/vercors_statement_wrapper_method.jinja2template")
-vercors_locking_instruction_template = env.get_template("locking/vercors_locking_instruction.jinja2template")
 vercors_assignment_template = env.get_template("statements/vercors_assignment.jinja2template")
 vercors_expression_template = env.get_template("statements/vercors_expression.jinja2template")
+vercors_expression_if_statement_template = env.get_template("statements/vercors_expression_if_statement.jinja2template")
 vercors_composite_template = env.get_template("statements/vercors_composite.jinja2template")
+
+vercors_permissions_template = env.get_template("util/vercors_permissions.jinja2template")
