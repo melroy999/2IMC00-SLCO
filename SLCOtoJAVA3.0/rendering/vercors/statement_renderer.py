@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Tuple, Union
+from typing import TYPE_CHECKING, List, Tuple, Union, Dict, Optional
 
 import settings
 from objects.ast.util import get_variables_to_be_locked
 from rendering.common.statement_renderer import get_expression_wrapper_comment, get_root_expression_comment, \
     get_assignment_comment, get_composite_comment
 from rendering.vercors.environment_settings import env
-from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, StateMachine, Class
+from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, StateMachine, Class, Variable
 
 if TYPE_CHECKING:
     from objects.ast.interfaces import SlcoStatementNode
@@ -204,14 +204,21 @@ def render_vercors_expression_component(
                 invert_return_values=(isinstance(model, Expression) and model.op == "and"),
                 post_condition=post_condition,
                 c=sm.parent,
-                sm=sm
+                sm=sm,
+                # required_lock_requests=
+                # model.locking_atomic_node.entry_node.locking_instructions.requires_lock_requests,
+                # ensured_lock_requests_success=
+                # model.locking_atomic_node.success_exit.locking_instructions.ensures_lock_requests,
+                # ensured_lock_requests_failure=
+                # model.locking_atomic_node.failure_exit.locking_instructions.ensures_lock_requests,
             )
         )
         return f"{method_name}()"
     else:
         # Get the in-line statement and return it outright.
-        in_line_statement = get_in_line_statement(model, sm, control_node_methods, control_node_method_prefix,
-                                                  assumptions, create_control_nodes)
+        in_line_statement = get_in_line_statement(
+            model, sm, control_node_methods, control_node_method_prefix, assumptions, create_control_nodes
+        )
 
         # Return the statement as an in-line Java statement.
         return in_line_statement
@@ -298,7 +305,13 @@ def render_vercors_root_expression(
 
 
 def render_vercors_assignment(
-        model: Assignment, control_node_methods: List[str], transition_prefix: str, i: int, sm: StateMachine
+        model: Assignment,
+        control_node_methods: List[str],
+        transition_prefix: str,
+        i: int,
+        sm: StateMachine,
+        verification_targets: Dict[Variable, List[int]],
+        assignment_id: int = 0
 ) -> Tuple[str, int]:
     """
     Render the given assignment object as Java code.
@@ -309,23 +322,32 @@ def render_vercors_assignment(
     # Create an in-line Java code string for the left and right hand side.
     in_line_lhs = render_vercors_expression_component(model.left, sm, control_node_methods, statement_prefix)
     in_line_rhs = render_vercors_expression_component(model.right, sm, control_node_methods, statement_prefix)
+    in_line_index = in_line_lhs[in_line_lhs.find("[")+1:in_line_lhs.rfind("]")] if model.left.var.is_array else None
 
-    class_variable_references = get_variables_to_be_locked(model.left)
-    if settings.verify_locks and len(model.locking_atomic_node.child_atomic_nodes) == 0:
-        class_variable_references.update(get_variables_to_be_locked(model.right))
+    # Add a verification target.
+    variable_writes = verification_targets.get(model.left.var, [])
+    variable_writes.append(assignment_id)
+    verification_targets[model.left.var] = variable_writes
 
     # Render the assignment as Java code.
     result = vercors_assignment_template.render(
         in_line_lhs=in_line_lhs,
         in_line_rhs=in_line_rhs,
+        in_line_index=in_line_index,
         statement_comment=get_assignment_comment(model),
-        is_byte_typed=model.left.var.is_byte
+        is_byte_typed=model.left.var.is_byte,
+        assignment_number=assignment_id
     )
     return result, i
 
 
 def render_vercors_composite(
-        model: Composite, control_node_methods: List[str], transition_prefix: str, i: int, sm: StateMachine
+        model: Composite,
+        control_node_methods: List[str],
+        transition_prefix: str,
+        i: int,
+        sm: StateMachine,
+        verification_targets: Dict[Variable, List[int]]
 ) -> Tuple[str, int]:
     """
     Render the given composite object as Java code.
@@ -334,8 +356,10 @@ def render_vercors_composite(
     rendered_statements = []
     rendered_guard, i = render_vercors_root_expression(model.guard, control_node_methods, transition_prefix, i, sm)
     rendered_statements.append(rendered_guard)
-    for a in model.assignments:
-        rendered_assignment, i = render_vercors_assignment(a, control_node_methods, transition_prefix, i, sm)
+    for n, a in enumerate(model.assignments):
+        rendered_assignment, i = render_vercors_assignment(
+            a, control_node_methods, transition_prefix, i, sm, verification_targets, n
+        )
         rendered_statements.append(rendered_assignment)
 
     # Render the composite and all of its statements.

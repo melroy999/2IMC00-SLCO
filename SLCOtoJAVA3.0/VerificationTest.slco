@@ -10,6 +10,14 @@ model Test {
                 i >= 0 && i < 2 && x[i] = 0;
             }
         }
+        SM2 {
+            variables Integer[2] y
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 {
+                [i >= 0 && i < 2; x[i] := 0; y[i] := 0];
+            }
+        }
 	}
 	objects p: P()
 }

@@ -667,51 +667,6 @@ def mark_lock_ordering_violations(model: AtomicNode):
                 logging.info(f"Marking lock {i} in \"{model.partner}\" as dirty due to a lock ordering violation.")
 
 
-def restructure_lock_releases(model: AtomicNode):
-    """
-    Move lock requests downwards to the appropriate level in the locking graph's locking instructions.
-    """
-    # Gather the lock requests that have already been released by the nodes coming after the target node.
-    locks_released_afterwards: Dict[LockingNode, Set[LockRequest]] = dict()
-    n: LockingNode
-    for n in reversed(list(nx.topological_sort(model.graph))):
-        locks_released_by_successors: Set[LockRequest] = set()
-        s: LockingNode
-        for s in model.graph.successors(n):
-            # Add all of the locks released after the target successor, with its own locks added as well.
-            locks_released_by_successors.update(locks_released_afterwards[s])
-            locks_released_by_successors.update(s.locking_instructions.locks_to_release)
-
-        # Add an entry for the current node.
-        locks_released_afterwards[n] = locks_released_by_successors
-
-    # Move locks that violate the ordering downwards until they are no longer in violation.
-    n: LockingNode
-    for n in nx.topological_sort(model.graph):
-        # Find the locks that are released later on in the graph structure.
-        locks_released_by_successors: Set[LockRequest] = locks_released_afterwards[n]
-
-        # A lock needs to be moved down if a lock with the same target is released by a node further along in the graph.
-        violating_lock_requests: Set[LockRequest] = n.locking_instructions.locks_to_release.intersection(
-            locks_released_by_successors
-        )
-
-        # Move the violating locks downwards.
-        # Note that it will generally imply that, if a lock is released further along in the graph, that an accompanying
-        # lock request will also have been made beforehand. This lock request is moved upwards, and hence, it is assumed
-        # for simplicity that locks do not have to be acquired upon merging nodes. Nevertheless, the validator should be
-        # able to detect such violations occur.
-        if len(violating_lock_requests) > 0:
-            # Remove the violating locks from the current node.
-            n.locking_instructions.locks_to_release.difference_update(violating_lock_requests)
-
-            # Move the violating locks to all successors.
-            s: LockingNode
-            for s in model.graph.successors(n):
-                # Add the locks to the predecessor's release list.
-                s.locking_instructions.locks_to_release.update(violating_lock_requests)
-
-
 def get_unpacked_lock_requests(i: Lock, provider: LockRequestInstanceProvider) -> Set[LockRequest]:
     """
     Get the variable references needed to lock the entirety of the array associated with the lock's target variable.
@@ -786,3 +741,67 @@ def generate_locking_instructions(model: AtomicNode, provider: LockRequestInstan
         for i in strictly_unpacked_to_be_released_locks:
             supplemental_lock_requests = get_unpacked_lock_requests(i, provider)
             instructions.locks_to_release.update(supplemental_lock_requests)
+
+
+def restructure_lock_releases(model: AtomicNode):
+    """
+    Move lock requests downwards to the appropriate level in the locking graph's locking instructions.
+    """
+    # Gather the lock requests that have already been released by the nodes coming after the target node.
+    locks_released_afterwards: Dict[LockingNode, Set[LockRequest]] = dict()
+    n: LockingNode
+    for n in reversed(list(nx.topological_sort(model.graph))):
+        locks_released_by_successors: Set[LockRequest] = set()
+        s: LockingNode
+        for s in model.graph.successors(n):
+            # Add all of the locks released after the target successor, with its own locks added as well.
+            locks_released_by_successors.update(locks_released_afterwards[s])
+            locks_released_by_successors.update(s.locking_instructions.locks_to_release)
+
+        # Add an entry for the current node.
+        locks_released_afterwards[n] = locks_released_by_successors
+
+    # Move locks that violate the ordering downwards until they are no longer in violation.
+    n: LockingNode
+    for n in nx.topological_sort(model.graph):
+        # Find the locks that are released later on in the graph structure.
+        locks_released_by_successors: Set[LockRequest] = locks_released_afterwards[n]
+
+        # A lock needs to be moved down if a lock with the same target is released by a node further along in the graph.
+        violating_lock_requests: Set[LockRequest] = n.locking_instructions.locks_to_release.intersection(
+            locks_released_by_successors
+        )
+
+        # Move the violating locks downwards.
+        # Note that it will generally imply that, if a lock is released further along in the graph, that an accompanying
+        # lock request will also have been made beforehand. This lock request is moved upwards, and hence, it is assumed
+        # for simplicity that locks do not have to be acquired upon merging nodes. Nevertheless, the validator should be
+        # able to detect such violations occur.
+        if len(violating_lock_requests) > 0:
+            # Remove the violating locks from the current node.
+            n.locking_instructions.locks_to_release.difference_update(violating_lock_requests)
+
+            # Move the violating locks to all successors.
+            s: LockingNode
+            for s in model.graph.successors(n):
+                # Add the locks to the predecessor's release list.
+                s.locking_instructions.locks_to_release.update(violating_lock_requests)
+
+    # Gather the requires and ensures data needed by the VerCors verification.
+    n: LockingNode
+    for n in nx.topological_sort(model.graph):
+        # The instructions object of the lock in question.
+        instructions = n.locking_instructions
+
+        # Find which locks are active prior to reaching the node by looking at the data of previous nodes.
+        # Note that all predecessors should have the same locks active for the locking graph to be correct.
+        p: LockingNode
+        for p in model.graph.predecessors(n):
+            instructions.requires_lock_requests.update(p.locking_instructions.ensures_lock_requests)
+            break
+
+        # Find which lock requests will be active after execution of the locking instruction.
+        instructions.ensures_lock_requests.update(instructions.requires_lock_requests)
+        instructions.ensures_lock_requests.update(instructions.locks_to_acquire)
+        instructions.ensures_lock_requests.update(instructions.unpacked_lock_requests)
+        instructions.ensures_lock_requests.difference_update(instructions.locks_to_release)

@@ -1,6 +1,9 @@
 {{ statement_comment }}
+//@ ghost _guard = {{ in_line_expression }};
 {% if not is_superfluous %}
 if(!({{ in_line_expression }})) {
     return false;
 }
+{% else %}
+//@ refute !(in_line_expression);
 {% endif %}

@@ -202,6 +202,10 @@ class LockingInstruction:
         # Phase 3: Release the locks that are no longer required after the execution of the node.
         self.locks_to_release: Set[LockRequest] = set()
 
+        # Track the state for verification purposes.
+        self.requires_lock_requests: Set[LockRequest] = set()
+        self.ensures_lock_requests: Set[LockRequest] = set()
+
         # The parent locking node.
         self.parent = parent
 

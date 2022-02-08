@@ -12,7 +12,7 @@ class SlcoClass{{ model.name }} {
     {% endfor %}
     {% endif %}
 }
-
 {% for sm in model.state_machines %}
+
 {{ sm | render_vercors_state_machine | trim }}
 {% endfor %}

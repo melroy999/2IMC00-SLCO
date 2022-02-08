@@ -1,4 +1,8 @@
 {{ statement_comment }}
+{% if in_line_index is not none %}
+//@ ghost _index_{{ assignment_number }} = {{ in_line_index }};
+{% endif %}
+//@ ghost _rhs_{{ assignment_number }} = {{ in_line_rhs }};
 {% if is_byte_typed %}
 {{ in_line_lhs }} = ({{ in_line_rhs }}) & 0xff;
 {% else %}

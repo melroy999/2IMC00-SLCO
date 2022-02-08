@@ -4,8 +4,18 @@
 {{ support_methods | trim }}
 
 {% endfor %}
+{% if support_pure_functions | length > 0 %}
+/*@
+// Declare helper functions for the verification of value changes.
+{% for declaration in support_pure_functions %}
+{{ declaration }};
+{% endfor %}
+@*/
+{% endif %}
 /*@
 {{ c | render_vercors_permissions(sm) | trim }}
+
+{{ transition_verification | trim }}
 @*/
 // SLCO transition {{ model }}
 private boolean execute_transition_{{ model.source }}_{{ model.id }}() {

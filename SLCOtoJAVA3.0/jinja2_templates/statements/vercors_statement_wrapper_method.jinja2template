@@ -7,6 +7,28 @@
 context {{ assumption }};
 {% endfor %}
 {% endif %}
+{% if c.variables | length > 0 %}
+
+// Ensure that class variable values remain unchanged after calling the function.
+{% for v in c.variables %}
+{% if v.is_array %}
+ensures (\forall* int _i; 0 <= _i && _i < c.{{ v.name }}.length; c.{{ v.name }}[_i] == \old(c.{{ v.name }}[_i]));
+{% else %}
+ensures (c.{{ v.name }} == \old(c.{{ v.name }}));
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if sm.variables | length > 0 %}
+
+// Ensure that state machine variable values remain unchanged after calling the function.
+{% for v in sm.variables %}
+{% if v.is_array %}
+ensures (\forall* int _i; 0 <= _i && _i < {{ v.name }}.length; {{ v.name }}[_i] == \old({{ v.name }}[_i]));
+{% else %}
+ensures ({{ v.name }} == \old({{ v.name }}));
+{% endif %}
+{% endfor %}
+{% endif %}
 
 // Ensure that the statement's result is equivalent to the associated expression.
 ensures \result == ({{ target_result }});
