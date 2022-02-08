@@ -192,6 +192,7 @@ public class Test {
 
             // Thread local variables
             private int[] y;
+            private int j;
 
             // The lock manager
             private final LockManager lockManager;
@@ -206,6 +207,10 @@ public class Test {
                 lock_ids = new int[1];
                 target_locks = new int[2];
                 random = new Random();
+
+                // Variable instantiations.
+                y = new int[]{ 0, 0 };
+                j = 1;
             }
 
             // SLCO expression wrapper | i >= 0

@@ -35,6 +35,13 @@ class {{ model.name }}Thread extends Thread implements {{ model.parent.name }}_{
         lock_ids = new int[{{ model.lock_ids_list_size }}];
         target_locks = new int[{{ model.target_locks_list_size }}];
         random = new Random();
+        {% if model.variables | length > 0 %}
+
+        // Variable instantiations.
+        {% for v in model.variables %}
+        {{ v.name }} = {{ v | render_variable_default_value }};
+        {% endfor %}
+        {% endif %}
     }
 
     {% for t in model.transitions %}

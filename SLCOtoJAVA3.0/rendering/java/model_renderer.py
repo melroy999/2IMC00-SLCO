@@ -135,8 +135,22 @@ def render_decision_structure(model: StateMachine, state: State) -> str:
     )
 
 
+def render_variable_default_value(model: Variable) -> str:
+    """Render the default value of the given variable."""
+    a = model.def_values if model.is_array else model.def_value
+    type_name = "boolean" if model.is_boolean else "char" if model.is_byte else "int"
+    if model.is_array:
+        default_value = f"new {type_name}[]{{ {', '.join(map(str, a)).lower()} }}"
+    elif model.is_byte:
+        default_value = f"(char) {a}"
+    else:
+        default_value = a
+    return default_value
+
+
 def render_state_machine(model: StateMachine) -> str:
     """Render the SLCO state machine as Java code."""
+    # TODO: add variable initializations if given.
     return java_state_machine_template.render(
         model=model,
         settings=settings
@@ -186,12 +200,14 @@ def render_model(model: SlcoModel) -> str:
 
 # Add supportive filters.
 env.filters["render_transition"] = render_transition
+env.filters["render_variable_default_value"] = render_variable_default_value
 env.filters["render_state_machine"] = render_state_machine
 env.filters["render_class"] = render_class
 env.filters["render_lock_manager"] = render_lock_manager
 env.filters["render_type"] = render_type
 env.filters["render_object_instantiation"] = render_object_instantiation
 env.filters["render_decision_structure"] = render_decision_structure
+
 
 # Import the appropriate templates.
 java_transition_template = env.get_template("java_transition.jinja2template")

@@ -1,7 +1,6 @@
 // VerCors verification instructions for SLCO class {{ model.name }}.
 class SlcoClass{{ model.name }} {
     {% if model.variables | length > 0 %}
-
     // The class variables.
     {% for v in model.variables | sort(attribute='lock_id') %}
     {% if v.is_array %}

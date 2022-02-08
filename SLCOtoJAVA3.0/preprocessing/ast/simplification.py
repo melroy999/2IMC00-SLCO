@@ -1,4 +1,5 @@
 import logging
+from typing import Union
 
 from objects.ast.interfaces import SlcoEvaluableNode
 from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, Transition, StateMachine, Class, \
@@ -130,9 +131,25 @@ def simplify_transition(e: Transition):
     return e
 
 
+def assign_missing_default_values(e: Union[StateMachine, Class]) -> None:
+    """
+    Assign default values to all of the variables if missing.
+    """
+    for v in e.variables:
+        if v.is_array:
+            if len(v.def_values) == 0:
+                v.def_values = [False if v.is_boolean else 0] * v.type.size
+        elif v.def_value is None:
+            v.def_value = False if v.is_boolean else 0
+
+
 def simplify_state_machine(e: StateMachine):
     for t in e.transitions:
         simplify(t)
+
+    # Ensure that all of the state machine variables have an initial value.
+    assign_missing_default_values(e)
+
     return e
 
 
@@ -141,12 +158,7 @@ def simplify_class(e: Class):
         simplify(sm)
 
     # Ensure that all of the class variables have an initial value.
-    for v in e.variables:
-        if v.is_array:
-            if len(v.def_values) == 0:
-                v.def_values = [False if v.is_boolean else 0] * v.type.size
-        elif v.def_value is None:
-            v.def_value = False if v.is_boolean else 0
+    assign_missing_default_values(e)
 
     return e
 

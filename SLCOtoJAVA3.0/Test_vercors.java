@@ -3,7 +3,6 @@
 
 // VerCors verification instructions for SLCO class P.
 class SlcoClassP {
-
     // The class variables.
     int i; // Lock id 0
     final int[] x; // Lock id 1, length 2
@@ -219,8 +218,10 @@ class SlcoStateMachineSM1InSlcoClassP {
         // SLCO expression | i >= 0 and i < 2 and x[i] = 0
         //@ ghost _guard = t_SMC0_0_s_0_n_4();
         if(!(t_SMC0_0_s_0_n_4())) {
+            //@ assert !(c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
             return false;
         }
+        //@ assert (c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
 
         // currentState = SM1Thread.States.SMC0;
         return true;
@@ -241,6 +242,7 @@ class SlcoStateMachineSM2InSlcoClassP {
 
     // State machine local variables.
     final int[] y; // length 2
+    int j;
 
     // >> TRANSITION.START (Transition:SMC0.P0)
 
@@ -265,6 +267,7 @@ class SlcoStateMachineSM2InSlcoClassP {
     context Perm(c.x[*], 1);
 
     // Require and ensure the permission of writing to all state machine variables.
+    context Perm(j, 1);
     context Perm(y[*], 1);
 
     // Ensure that class variable values remain unchanged after calling the function.
@@ -273,6 +276,7 @@ class SlcoStateMachineSM2InSlcoClassP {
 
     // Ensure that state machine variable values remain unchanged after calling the function.
     ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
+    ensures (j == \old(j));
 
     // Ensure that the statement's result is equivalent to the associated expression.
     ensures \result == (c.i >= 0);
@@ -308,6 +312,7 @@ class SlcoStateMachineSM2InSlcoClassP {
     context Perm(c.x[*], 1);
 
     // Require and ensure the permission of writing to all state machine variables.
+    context Perm(j, 1);
     context Perm(y[*], 1);
 
     // Require and ensure validity of expressions that have been encountered earlier in the control flow.
@@ -319,6 +324,7 @@ class SlcoStateMachineSM2InSlcoClassP {
 
     // Ensure that state machine variable values remain unchanged after calling the function.
     ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
+    ensures (j == \old(j));
 
     // Ensure that the statement's result is equivalent to the associated expression.
     ensures \result == (c.i < 2);
@@ -354,6 +360,7 @@ class SlcoStateMachineSM2InSlcoClassP {
     context Perm(c.x[*], 1);
 
     // Require and ensure the permission of writing to all state machine variables.
+    context Perm(j, 1);
     context Perm(y[*], 1);
 
     // Ensure that class variable values remain unchanged after calling the function.
@@ -362,6 +369,7 @@ class SlcoStateMachineSM2InSlcoClassP {
 
     // Ensure that state machine variable values remain unchanged after calling the function.
     ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
+    ensures (j == \old(j));
 
     // Ensure that the statement's result is equivalent to the associated expression.
     ensures \result == (c.i >= 0 && c.i < 2);
@@ -408,6 +416,7 @@ class SlcoStateMachineSM2InSlcoClassP {
     context Perm(c.x[*], 1);
 
     // Require and ensure the permission of writing to all state machine variables.
+    context Perm(j, 1);
     context Perm(y[*], 1);
 
     // Declare the support variables.
@@ -433,16 +442,20 @@ class SlcoStateMachineSM2InSlcoClassP {
         // SLCO expression | i >= 0 and i < 2
         //@ ghost _guard = t_SMC0_0_s_0_n_2();
         if(!(t_SMC0_0_s_0_n_2())) {
+            //@ assert !(c.i >= 0 && c.i < 2);
             return false;
         }
+        //@ assert (c.i >= 0 && c.i < 2);
         // SLCO assignment | x[i] := 0
         //@ ghost _index_0 = c.i;
         //@ ghost _rhs_0 = 0;
         c.x[c.i] = 0;
+        //@ assert (c.x[c.i] == 0);
         // SLCO assignment | y[i] := 0
         //@ ghost _index_1 = c.i;
         //@ ghost _rhs_1 = 0;
         y[c.i] = 0;
+        //@ assert (y[c.i] == 0);
 
         // currentState = SM2Thread.States.SMC0;
         return true;

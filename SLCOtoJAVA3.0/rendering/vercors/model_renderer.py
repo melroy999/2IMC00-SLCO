@@ -132,6 +132,7 @@ def render_vercors_transition(model: Transition) -> str:
 
 def render_vercors_state_machine(model: StateMachine) -> str:
     """Render the SLCO state machine as Java code."""
+    # TODO: add verification for the constructor.
     return vercors_state_machine_template.render(
         model=model
     )
@@ -139,6 +140,7 @@ def render_vercors_state_machine(model: StateMachine) -> str:
 
 def render_vercors_class(model: Class) -> str:
     """Render the SLCO class as Java code."""
+    # TODO: add verification for the constructor.
     return vercors_class_template.render(
         model=model
     )

@@ -295,9 +295,14 @@ def render_vercors_root_expression(
         statement_prefix, i = create_statement_prefix(transition_prefix, i)
         in_line_expression = render_vercors_expression_component(model, sm, control_node_methods, statement_prefix)
 
+    # Verify that the original statement still holds.
+    original_statement = model.get_original_statement()
+    in_line_original = render_vercors_expression_component(original_statement, sm, create_control_nodes=False)
+
     # Render the expression as an if statement.
     result = vercors_expression_template.render(
         in_line_expression=in_line_expression,
+        in_line_original=in_line_original,
         statement_comment=get_root_expression_comment(is_superfluous, model),
         is_superfluous=is_superfluous
     )
@@ -329,11 +334,18 @@ def render_vercors_assignment(
     variable_writes.append(assignment_id)
     verification_targets[model.left.var] = variable_writes
 
+    # Verify that the original statement still holds.
+    original_statement = model.get_original_statement()
+    in_line_lhs_original = render_vercors_expression_component(original_statement.left, sm, create_control_nodes=False)
+    in_line_rhs_original = render_vercors_expression_component(original_statement.right, sm, create_control_nodes=False)
+
     # Render the assignment as Java code.
     result = vercors_assignment_template.render(
         in_line_lhs=in_line_lhs,
         in_line_rhs=in_line_rhs,
         in_line_index=in_line_index,
+        in_line_lhs_original=in_line_lhs_original,
+        in_line_rhs_original=in_line_rhs_original,
         statement_comment=get_assignment_comment(model),
         is_byte_typed=model.left.var.is_byte,
         assignment_number=assignment_id

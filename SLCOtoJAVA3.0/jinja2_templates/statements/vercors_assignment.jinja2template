@@ -8,3 +8,4 @@
 {% else %}
 {{ in_line_lhs }} = {{ in_line_rhs }};
 {% endif %}
+//@ assert ({{ in_line_lhs_original }} == {{ in_line_rhs_original }});
