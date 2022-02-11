@@ -6,6 +6,24 @@ class SlcoClassP {
     // The class variables.
     int i; // Lock id 0
     final int[] x; // Lock id 1, length 2
+
+    /*@
+    // Ensure full access to the class members.
+    ensures Perm(this.x, 1);
+    ensures Perm(this.i, 1);
+
+    // Require that the given values are not null.
+    requires x != null;
+
+    // Ensure that the right values are assigned.
+    ensures this.x == x;
+    ensures this.i == i;
+    @*/
+    SlcoClassP(int[] x, int i) {
+        // Instantiate global variables
+        this.x = x;
+        this.i = i;
+    }
 }
 
 // VerCors verification instructions for SLCO state machine SM1.
@@ -17,10 +35,30 @@ class SlcoStateMachineSM1InSlcoClassP {
     private final int[] lock_ids;
     private final int[] target_locks;
 
+    /*@
+    // Ensure full access to the class members.
+    ensures Perm(this.c, 1);
+    ensures Perm(this.lock_ids, 1);
+    ensures Perm(this.target_locks, 1);
+
+    // Require that the input class is a valid object.
+    requires c != null;
+
+    // Ensure that the appropriate starter values are assigned.
+    ensures this.c == c;
+    ensures this.lock_ids != null && this.lock_ids.length == 2;
+    ensures this.target_locks != null && this.target_locks.length == 2;
+    @*/
+    SlcoStateMachineSM1InSlcoClassP(SlcoClassP c) {
+        this.c = c;
+        this.lock_ids = new int[2];
+        this.target_locks = new int[2];
+    }
+
     // >> TRANSITION.START (Transition:SMC0.P0)
 
     /*@
-    // Require and ensure full access to the target class. Moreover, ensure that the target class remains unchanged.
+    // Require and ensure full access to the target class.
     context Perm(c, 1);
 
     // Require and ensure that the state machine has full access to the array variables within the target class.
@@ -51,7 +89,7 @@ class SlcoStateMachineSM1InSlcoClassP {
     }
 
     /*@
-    // Require and ensure full access to the target class. Moreover, ensure that the target class remains unchanged.
+    // Require and ensure full access to the target class.
     context Perm(c, 1);
 
     // Require and ensure that the state machine has full access to the array variables within the target class.
@@ -85,7 +123,7 @@ class SlcoStateMachineSM1InSlcoClassP {
     }
 
     /*@
-    // Require and ensure full access to the target class. Moreover, ensure that the target class remains unchanged.
+    // Require and ensure full access to the target class.
     context Perm(c, 1);
 
     // Require and ensure that the state machine has full access to the array variables within the target class.
@@ -122,7 +160,7 @@ class SlcoStateMachineSM1InSlcoClassP {
     }
 
     /*@
-    // Require and ensure full access to the target class. Moreover, ensure that the target class remains unchanged.
+    // Require and ensure full access to the target class.
     context Perm(c, 1);
 
     // Require and ensure that the state machine has full access to the array variables within the target class.
@@ -156,7 +194,7 @@ class SlcoStateMachineSM1InSlcoClassP {
     }
 
     /*@
-    // Require and ensure full access to the target class. Moreover, ensure that the target class remains unchanged.
+    // Require and ensure full access to the target class.
     context Perm(c, 1);
 
     // Require and ensure that the state machine has full access to the array variables within the target class.
@@ -193,7 +231,7 @@ class SlcoStateMachineSM1InSlcoClassP {
     }
 
     /*@
-    // Require and ensure full access to the target class. Moreover, ensure that the target class remains unchanged.
+    // Require and ensure full access to the target class.
     context Perm(c, 1);
 
     // Require and ensure that the state machine has full access to the array variables within the target class.
@@ -244,10 +282,34 @@ class SlcoStateMachineSM2InSlcoClassP {
     final int[] y; // length 2
     int j;
 
+    /*@
+    // Ensure full access to the class members.
+    ensures Perm(this.c, 1);
+    ensures Perm(this.lock_ids, 1);
+    ensures Perm(this.target_locks, 1);
+
+    // Require that the input class is a valid object.
+    requires c != null;
+
+    // Ensure that the appropriate starter values are assigned.
+    ensures this.c == c;
+    ensures this.lock_ids != null && this.lock_ids.length == 2;
+    ensures this.target_locks != null && this.target_locks.length == 2;
+    @*/
+    SlcoStateMachineSM2InSlcoClassP(SlcoClassP c) {
+        this.c = c;
+        this.lock_ids = new int[2];
+        this.target_locks = new int[2];
+
+        // Variable instantiations.
+        this.y = new int[] { 0, 0 };
+        this.j = 1;
+    }
+
     // >> TRANSITION.START (Transition:SMC0.P0)
 
     /*@
-    // Require and ensure full access to the target class. Moreover, ensure that the target class remains unchanged.
+    // Require and ensure full access to the target class.
     context Perm(c, 1);
 
     // Require and ensure that the state machine has full access to the array variables within the target class.
@@ -292,7 +354,7 @@ class SlcoStateMachineSM2InSlcoClassP {
     }
 
     /*@
-    // Require and ensure full access to the target class. Moreover, ensure that the target class remains unchanged.
+    // Require and ensure full access to the target class.
     context Perm(c, 1);
 
     // Require and ensure that the state machine has full access to the array variables within the target class.
@@ -340,7 +402,7 @@ class SlcoStateMachineSM2InSlcoClassP {
     }
 
     /*@
-    // Require and ensure full access to the target class. Moreover, ensure that the target class remains unchanged.
+    // Require and ensure full access to the target class.
     context Perm(c, 1);
 
     // Require and ensure that the state machine has full access to the array variables within the target class.
@@ -391,12 +453,111 @@ class SlcoStateMachineSM2InSlcoClassP {
     }
 
     /*@
+    // Require and ensure full access to the target class.
+    context Perm(c, 1);
+
+    // Require and ensure that the state machine has full access to the array variables within the target class.
+    context Perm(c.x, 1);
+
+    // Require and ensure that the state machine has full access to its own array variables.
+    context Perm(y, 1);
+
+    // Require and ensure that the class variable arrays are not null and of the appropriate size.
+    context c.x != null && c.x.length == 2;
+
+    // Require and ensure that the state machine variable arrays are not null and of the appropriate size.
+    context y != null && y.length == 2;
+
+    // Require and ensure the permission of writing to all class variables.
+    context Perm(c.i, 1);
+    context Perm(c.x[*], 1);
+
+    // Require and ensure the permission of writing to all state machine variables.
+    context Perm(j, 1);
+    context Perm(y[*], 1);
+
+    // Require and ensure validity of expressions that have been encountered earlier in the control flow.
+    context c.i >= 0 && c.i < 2;
+
+    // Ensure that class variable values remain unchanged after calling the function.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures (c.i == \old(c.i));
+
+    // Ensure that state machine variable values remain unchanged after calling the function.
+    ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
+    ensures (j == \old(j));
+
+    // Ensure that the statement's result is equivalent to the associated expression.
+    ensures \result == (c.x[c.i] != 0);
+    @*/
+    // SLCO expression wrapper | x[i] != 0
+    private boolean t_SMC0_0_s_0_n_3() {
+        if(c.x[c.i] != 0) {
+            //@ assert c.x[c.i] != 0;
+            return true;
+        }
+        //@ assert !(c.x[c.i] != 0);
+        return false;
+    }
+
+    /*@
+    // Require and ensure full access to the target class.
+    context Perm(c, 1);
+
+    // Require and ensure that the state machine has full access to the array variables within the target class.
+    context Perm(c.x, 1);
+
+    // Require and ensure that the state machine has full access to its own array variables.
+    context Perm(y, 1);
+
+    // Require and ensure that the class variable arrays are not null and of the appropriate size.
+    context c.x != null && c.x.length == 2;
+
+    // Require and ensure that the state machine variable arrays are not null and of the appropriate size.
+    context y != null && y.length == 2;
+
+    // Require and ensure the permission of writing to all class variables.
+    context Perm(c.i, 1);
+    context Perm(c.x[*], 1);
+
+    // Require and ensure the permission of writing to all state machine variables.
+    context Perm(j, 1);
+    context Perm(y[*], 1);
+
+    // Ensure that class variable values remain unchanged after calling the function.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures (c.i == \old(c.i));
+
+    // Ensure that state machine variable values remain unchanged after calling the function.
+    ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
+    ensures (j == \old(j));
+
+    // Ensure that the statement's result is equivalent to the associated expression.
+    ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
+    @*/
+    // SLCO expression wrapper | i >= 0 and i < 2 and x[i] != 0
+    private boolean t_SMC0_0_s_0_n_4() {
+        if(!(t_SMC0_0_s_0_n_2())) {
+            //@ assert !(c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
+            return false;
+        }
+        //@ assert c.i >= 0 && c.i < 2;
+        if(!(t_SMC0_0_s_0_n_3())) {
+            //@ assert !(c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
+            return false;
+        }
+        //@ assert c.x[c.i] != 0;
+        //@ assert c.i >= 0 && c.i < 2 && c.x[c.i] != 0;
+        return true;
+    }
+
+    /*@
     // Declare helper functions for the verification of value changes.
     pure int value_SMC0_0_x(int _i, int _index_0, int _rhs_0, int v_old) = (_i == _index_0) ? _rhs_0 : v_old;
     pure int value_SMC0_0_y(int _i, int _index_1, int _rhs_1, int v_old) = (_i == _index_1) ? _rhs_1 : v_old;
     @*/
     /*@
-    // Require and ensure full access to the target class. Moreover, ensure that the target class remains unchanged.
+    // Require and ensure full access to the target class.
     context Perm(c, 1);
 
     // Require and ensure that the state machine has full access to the array variables within the target class.
@@ -436,21 +597,21 @@ class SlcoStateMachineSM2InSlcoClassP {
     ensures _guard ==> (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == value_SMC0_0_y(_i, _index_1, _rhs_1, \old(y[_i])));
     ensures !_guard ==> (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
     @*/
-    // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | [i >= 0 and i < 2; x[i] := 0; y[i] := 0]
+    // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | [i >= 0 and i < 2 and x[i] != 0; x[i] := y[i]; y[i] := 0]
     private boolean execute_transition_SMC0_0() {
-        // SLCO composite | [i >= 0 and i < 2; x[i] := 0; y[i] := 0]
-        // SLCO expression | i >= 0 and i < 2
-        //@ ghost _guard = t_SMC0_0_s_0_n_2();
-        if(!(t_SMC0_0_s_0_n_2())) {
-            //@ assert !(c.i >= 0 && c.i < 2);
+        // SLCO composite | [i >= 0 and i < 2 and x[i] != 0; x[i] := y[i]; y[i] := 0]
+        // SLCO expression | i >= 0 and i < 2 and x[i] != 0
+        //@ ghost _guard = t_SMC0_0_s_0_n_4();
+        if(!(t_SMC0_0_s_0_n_4())) {
+            //@ assert !(c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
             return false;
         }
-        //@ assert (c.i >= 0 && c.i < 2);
-        // SLCO assignment | x[i] := 0
+        //@ assert (c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
+        // SLCO assignment | x[i] := y[i]
         //@ ghost _index_0 = c.i;
-        //@ ghost _rhs_0 = 0;
-        c.x[c.i] = 0;
-        //@ assert (c.x[c.i] == 0);
+        //@ ghost _rhs_0 = y[c.i];
+        c.x[c.i] = y[c.i];
+        //@ assert (c.x[c.i] == y[c.i]);
         // SLCO assignment | y[i] := 0
         //@ ghost _index_1 = c.i;
         //@ ghost _rhs_1 = 0;

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Dict, List, Tuple, Optional
 
 import settings
+from rendering.common.model_renderer import render_variable_default_value
 from rendering.java.model_renderer import render_type
 from rendering.vercors.environment_settings import env
 from objects.ast.models import Composite, Assignment, Expression, Primary
@@ -132,7 +133,6 @@ def render_vercors_transition(model: Transition) -> str:
 
 def render_vercors_state_machine(model: StateMachine) -> str:
     """Render the SLCO state machine as Java code."""
-    # TODO: add verification for the constructor.
     return vercors_state_machine_template.render(
         model=model
     )
@@ -140,7 +140,6 @@ def render_vercors_state_machine(model: StateMachine) -> str:
 
 def render_vercors_class(model: Class) -> str:
     """Render the SLCO class as Java code."""
-    # TODO: add verification for the constructor.
     return vercors_class_template.render(
         model=model
     )
@@ -158,6 +157,7 @@ env.filters["render_vercors_transition"] = render_vercors_transition
 env.filters["render_vercors_state_machine"] = render_vercors_state_machine
 env.filters["render_vercors_class"] = render_vercors_class
 env.filters["render_type"] = render_type
+env.filters["render_variable_default_value"] = render_variable_default_value
 
 # Import the appropriate templates.
 vercors_transition_template = env.get_template("vercors_transition.jinja2template")

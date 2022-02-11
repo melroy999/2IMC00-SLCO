@@ -9,7 +9,34 @@ class SlcoClass{{ model.name }} {
     {{ v | render_type }} {{ v.name }}; // Lock id {{ v.lock_id }}
     {% endif %}
     {% endfor %}
+
     {% endif %}
+    {% if model.variables | length > 0 %}
+    /*@
+    // Ensure full access to the class members.
+    {% for v in model.variables %}
+    ensures Perm(this.{{ v.name }}, 1);
+    {% endfor %}
+
+    // Require that the given values are not null.
+    {% for v in model.variables if v.is_array %}
+    requires {{ v.name }} != null;
+    {% endfor %}
+
+    // Ensure that the right values are assigned.
+    {% for v in model.variables %}
+    ensures this.{{ v.name }} == {{ v.name }};
+    {% endfor %}
+    @*/
+    {% endif %}
+    SlcoClass{{ model.name }}({% for v in model.variables %}{{ v | render_type }} {{ v.name }}{{ ", " if not loop.last }}{% endfor %}) {
+        {% if model.variables | length > 0 %}
+        // Instantiate global variables
+        {% for v in model.variables %}
+        this.{{ v.name }} = {{ v.name }};
+        {% endfor %}
+        {% endif %}
+    }
 }
 {% for sm in model.state_machines %}
 

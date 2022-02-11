@@ -1,4 +1,4 @@
-// Require and ensure full access to the target class. Moreover, ensure that the target class remains unchanged.
+// Require and ensure full access to the target class.
 context Perm(c, 1);
 {% if has_array_c_variables %}
 
