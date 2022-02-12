@@ -1,0 +1,20 @@
+{% if model.locks_to_acquire | length > 0 %}
+{% for locking_phase in model.locks_to_acquire_phases %}
+{% for lock_request in locking_phase %}
+lock_requests[{{ lock_request.id }}] = lock_requests[{{ lock_request.id }}] + 1; // Acquire {{ lock_request }}
+//@ assert lock_requests[{{ lock_request.id }}] == 1;
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% if model.unpacked_lock_requests | length > 0 %}
+{% for lock_request in model.unpacked_lock_requests %}
+lock_requests[{{ lock_request.id }}] = lock_requests[{{ lock_request.id }}] + 1; // Acquire {{ lock_request }}
+//@ assert lock_requests[{{ lock_request.id }}] == 1;
+{% endfor %}
+{% endif %}
+{% if model.locks_to_release | length > 0 %}
+{% for lock_request in model.locks_to_release %}
+lock_requests[{{ lock_request.id }}] = lock_requests[{{ lock_request.id }}] - 1; // Release {{ lock_request }}
+//@ assert lock_requests[{{ lock_request.id }}] == 0;
+{% endfor %}
+{% endif %}

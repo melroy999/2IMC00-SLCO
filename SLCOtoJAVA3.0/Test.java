@@ -135,16 +135,16 @@ public class Test {
             private boolean t_SMC0_0_s_0_n_2() {
                 lock_ids[0] = target_locks[1] = 1 + i; // Acquire x[i]
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(1 + i); // Check x[i]
                 lockManager.check_lock(0); // Check i
+                lockManager.check_lock(1 + i); // Check x[i]
                 if(x[i] == 0) {
-                    lock_ids[0] = target_locks[1]; // Release x[i]
-                    lock_ids[1] = target_locks[0]; // Release i
+                    lock_ids[0] = target_locks[0]; // Release i
+                    lock_ids[1] = target_locks[1]; // Release x[i]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release x[i]
-                lock_ids[1] = target_locks[0]; // Release i
+                lock_ids[0] = target_locks[0]; // Release i
+                lock_ids[1] = target_locks[1]; // Release x[i]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -262,13 +262,13 @@ public class Test {
             private boolean t_SMC0_0_s_0_n_2() {
                 lock_ids[0] = target_locks[1] = 1 + i; // Acquire x[i]
                 lockManager.acquire_locks(lock_ids, 1);
-                lockManager.check_lock(1 + i); // Check x[i]
                 lockManager.check_lock(0); // Check i
+                lockManager.check_lock(1 + i); // Check x[i]
                 if(x[i] != 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release x[i]
-                lock_ids[1] = target_locks[0]; // Release i
+                lock_ids[0] = target_locks[0]; // Release i
+                lock_ids[1] = target_locks[1]; // Release x[i]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -281,8 +281,8 @@ public class Test {
                     return false;
                 }
                 // SLCO assignment | x[i] := y[i]
-                lockManager.check_lock(1 + i); // Check x[i]
                 lockManager.check_lock(0); // Check i
+                lockManager.check_lock(1 + i); // Check x[i]
                 x[i] = y[i];
                 lock_ids[0] = target_locks[1]; // Release x[i]
                 lockManager.release_locks(lock_ids, 1);

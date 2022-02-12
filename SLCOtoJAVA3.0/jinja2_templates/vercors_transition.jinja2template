@@ -14,8 +14,12 @@
 {% endif %}
 /*@
 {{ c | render_vercors_permissions(sm) | trim }}
+{% if transition_value_verification != "" %}
 
-{{ transition_verification | trim }}
+{{ transition_value_verification | trim }}
+{% endif %}
+
+{{ transition_lock_verification | trim }}
 @*/
 // SLCO transition {{ model }}
 private boolean execute_transition_{{ model.source }}_{{ model.id }}() {

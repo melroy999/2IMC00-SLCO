@@ -536,9 +536,9 @@ def finalize_locking_structure(model: StateMachine, state: State):
         generate_dirty_lock_marks(n)
 
     # Create the locking instructions. Create a lock request instance provider for the state specifically.
-    model.lock_request_instance_provider = LockRequestInstanceProvider()
+    lock_request_instance_provider = LockRequestInstanceProvider()
     for n in target_atomic_nodes:
-        generate_locking_instructions(n, model.lock_request_instance_provider)
+        generate_locking_instructions(n, lock_request_instance_provider)
 
     # Move the lock releases to the appropriate location.
     for n in target_atomic_nodes:
@@ -550,7 +550,7 @@ def finalize_locking_structure(model: StateMachine, state: State):
 
     # Save allocation data for the locking parameters.
     model.lock_ids_list_size = max((get_max_list_size(n) for n in target_atomic_nodes), default=0)
-    model.target_locks_list_size = model.lock_request_instance_provider.counter
+    model.target_locks_list_size = max(model.target_locks_list_size, lock_request_instance_provider.counter)
 
     # Render the locking structure as an image.
     if settings.visualize_locking_graph:

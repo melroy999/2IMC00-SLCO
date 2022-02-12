@@ -1,20 +1,19 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Dict, List, Tuple, Optional
+from typing import TYPE_CHECKING, Dict, List, Tuple
 
-import settings
 from rendering.common.model_renderer import render_variable_default_value
 from rendering.java.model_renderer import render_type
 from rendering.vercors.environment_settings import env
 from objects.ast.models import Composite, Assignment, Expression, Primary
 from rendering.vercors.statement_renderer import render_vercors_composite, render_vercors_assignment, \
-    render_vercors_root_expression
+    render_vercors_root_expression, render_vercors_expression_wrapper_method_lock_verification_contract
 
 if TYPE_CHECKING:
     from objects.ast.models import StateMachine, Class, SlcoModel, Transition, Variable
 
 
-def render_vercors_transition_verification(
+def render_vercors_transition_value_verification_contract(
         model: Transition, verification_targets: Dict[Variable, List[int]]
 ) -> Tuple[str, List[str]]:
     """
@@ -35,7 +34,7 @@ def render_vercors_transition_verification(
         "!_guard ==> (\\result == false)"
     ]
 
-    # Create rules for the expected changes in variable types, including the support methods if necessary.
+    # Create rules for the expected changes in variable values, including the support methods if necessary.
     value_change_verification = []
     support_pure_functions = []
     for v, targets in verification_targets.items():
@@ -74,11 +73,20 @@ def render_vercors_transition_verification(
             value_change_verification.append(f"!_guard ==> ({v.name} == \\old({v.name}))")
 
     # Create the verification contract.
-    return vercors_transition_verification_statements_template.render(
+    return vercors_transition_value_verification_contract_statements_template.render(
         support_variables=support_variables,
         return_value_verification=return_value_verification,
         value_change_verification=value_change_verification
     ), support_pure_functions
+
+
+def render_vercors_transition_lock_verification_contract(model: Transition) -> str:
+    """
+    Render the VerCors statements that verify whether the locking structure is intact and valid.
+    """
+    # The locks required and ensured by the transition are stored in the latter's guard statement.
+    # Note that the true branch of a transition guard does not ensure any transitions.
+    return render_vercors_expression_wrapper_method_lock_verification_contract(model.guard, model.parent)
 
 
 def render_vercors_transition(model: Transition) -> str:
@@ -114,10 +122,11 @@ def render_vercors_transition(model: Transition) -> str:
             rendered_statements.append(result)
 
     # Render the transition verification statements.
-    transition_verification, support_pure_functions = render_vercors_transition_verification(
+    transition_value_verification, support_pure_functions = render_vercors_transition_value_verification_contract(
         model,
         verification_targets
     )
+    transition_lock_verification = render_vercors_transition_lock_verification_contract(model)
 
     # Render the transition and its statements.
     return vercors_transition_template.render(
@@ -126,8 +135,9 @@ def render_vercors_transition(model: Transition) -> str:
         rendered_statements=rendered_statements,
         c=model.parent.parent,
         sm=model.parent,
-        transition_verification=transition_verification,
-        support_pure_functions=support_pure_functions
+        transition_value_verification=transition_value_verification,
+        support_pure_functions=support_pure_functions,
+        transition_lock_verification=transition_lock_verification
     )
 
 
@@ -165,6 +175,6 @@ vercors_state_machine_template = env.get_template("vercors_state_machine.jinja2t
 vercors_class_template = env.get_template("vercors_class.jinja2template")
 vercors_model_template = env.get_template("vercors_model.jinja2template")
 
-vercors_transition_verification_statements_template = env.get_template(
-    "util/vercors_transition_verification_statements.jinja2template"
+vercors_transition_value_verification_contract_statements_template = env.get_template(
+    "util/vercors_transition_value_verification_contract_statements.jinja2template"
 )

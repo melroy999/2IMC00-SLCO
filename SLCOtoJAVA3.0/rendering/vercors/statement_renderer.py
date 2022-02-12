@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Tuple, Union, Dict, Optional
+from typing import TYPE_CHECKING, List, Tuple, Union, Dict, Optional, Set
 
 import settings
 from objects.ast.util import get_variables_to_be_locked
@@ -10,6 +10,7 @@ from rendering.vercors.environment_settings import env
 from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, StateMachine, Class, Variable
 
 if TYPE_CHECKING:
+    from objects.locking.models import LockingInstruction
     from objects.ast.interfaces import SlcoStatementNode
 
 
@@ -30,6 +31,68 @@ def render_vercors_permissions(c: Class, sm: StateMachine) -> str:
         sm=sm,
         has_array_c_variables=any(v.is_array for v in c.variables),
         has_array_sm_variables=any(v.is_array for v in sm.variables)
+    )
+
+
+def render_vercors_expression_wrapper_method_lock_verification_contract(
+        model: SlcoStatementNode, sm: StateMachine
+) -> str:
+    """
+    Render the VerCors statements that verify whether the locking structure is intact and valid.
+    """
+    # Find the lock requests present at the entry points and exit points of the given statement.
+    entry_node_lock_requests = sorted(
+        list(model.locking_atomic_node.entry_node.locking_instructions.requires_lock_requests), key=lambda x: x.id
+    )
+    success_exit_lock_requests = sorted(
+        list(model.locking_atomic_node.success_exit.locking_instructions.ensures_lock_requests), key=lambda x: x.id
+    )
+    failure_exit_lock_requests = sorted(
+        list(model.locking_atomic_node.failure_exit.locking_instructions.ensures_lock_requests), key=lambda x: x.id
+    )
+
+    # Create a disjunction of target ids for each of the nodes.
+    entry_node_disjunction = " || ".join([f"_i == {i.id}" for i in entry_node_lock_requests])
+    success_exit_disjunction = " || ".join([f"_i == {i.id}" for i in success_exit_lock_requests])
+    failure_exit_disjunction = " || ".join([f"_i == {i.id}" for i in failure_exit_lock_requests])
+
+    # Create human-readable comments for verification purposes.
+    entry_node_comment_string = ", ".join([f"{i.id}: {i}" for i in entry_node_lock_requests])
+    success_exit_comment_string = ", ".join([f"{i.id}: {i}" for i in success_exit_lock_requests])
+    failure_exit_comment_string = ", ".join([f"{i.id}: {i}" for i in failure_exit_lock_requests])
+
+    # Render the statement.
+    return vercors_lock_verification_contract_statements_template.render(
+        entry_node_disjunction=entry_node_disjunction,
+        success_exit_disjunction=success_exit_disjunction,
+        failure_exit_disjunction=failure_exit_disjunction,
+        entry_node_comment_string=entry_node_comment_string,
+        success_exit_comment_string=success_exit_comment_string,
+        failure_exit_comment_string=failure_exit_comment_string,
+        sm=sm
+    )
+
+
+def render_locking_check(class_variable_references: Set[VariableRef]) -> str:
+    """
+    Render code that checks if all of the locks used by the model have been acquired.
+    """
+    return vercors_locking_check_template.render(
+        class_variable_references=class_variable_references
+    )
+
+
+def render_locking_instruction(model: LockingInstruction) -> str:
+    """
+    Render the given lock instruction as Java code.
+    """
+    if not model.has_locks():
+        # Simply return an empty string if no locks need to be rendered.
+        return ""
+
+    # Render the appropriate lock acquisitions and releases through the appropriate template.
+    return vercors_locking_instruction_template.render(
+        model=model
     )
 
 
@@ -162,7 +225,8 @@ def render_vercors_expression_component(
                     in_line_statement=in_line_statement,
                     post_condition_body=post_condition_body,
                     post_condition=post_condition,
-                    invert_return_values=(model.op == "and")
+                    invert_return_values=(model.op == "and"),
+                    locking_control_node=model.locking_atomic_node
                 ))
 
                 # Add the outcome as an assumption to succeeding clauses in the conjunction/disjunction.
@@ -184,7 +248,8 @@ def render_vercors_expression_component(
                 in_line_statement=in_line_statement,
                 post_condition_body=post_condition_body,
                 post_condition=post_condition,
-                invert_return_values=False
+                invert_return_values=False,
+                locking_control_node=model.locking_atomic_node
             ))
 
             # Only add a post condition if the statement is a conjunction or disjunction.
@@ -192,6 +257,9 @@ def render_vercors_expression_component(
 
         # Give the node a name, render it as a separate method, and return a call to the method.
         method_name = f"{control_node_method_prefix}_n_{len(control_node_methods)}"
+
+        # Render the lock check.
+        expression_lock_verification = render_vercors_expression_wrapper_method_lock_verification_contract(model, sm)
 
         # Render the statement as a control node method and return the method name.
         control_node_methods.append(
@@ -205,12 +273,8 @@ def render_vercors_expression_component(
                 post_condition=post_condition,
                 c=sm.parent,
                 sm=sm,
-                # required_lock_requests=
-                # model.locking_atomic_node.entry_node.locking_instructions.requires_lock_requests,
-                # ensured_lock_requests_success=
-                # model.locking_atomic_node.success_exit.locking_instructions.ensures_lock_requests,
-                # ensured_lock_requests_failure=
-                # model.locking_atomic_node.failure_exit.locking_instructions.ensures_lock_requests,
+                locking_control_node=model.locking_atomic_node,
+                expression_lock_verification=expression_lock_verification
             )
         )
         return f"{method_name}()"
@@ -341,6 +405,7 @@ def render_vercors_assignment(
 
     # Render the assignment as Java code.
     result = vercors_assignment_template.render(
+        locking_control_node=model.locking_atomic_node,
         in_line_lhs=in_line_lhs,
         in_line_rhs=in_line_rhs,
         in_line_index=in_line_index,
@@ -386,12 +451,19 @@ def render_vercors_composite(
 # Add supportive filters.
 env.filters["render_statement"] = render_vercors_expression_component
 env.filters["render_vercors_permissions"] = render_vercors_permissions
+env.filters["render_locking_instruction"] = render_locking_instruction
+env.filters["render_locking_check"] = render_locking_check
 
 # Import the appropriate templates.
 vercors_control_node_method_template = env.get_template("statements/vercors_statement_wrapper_method.jinja2template")
+vercors_locking_instruction_template = env.get_template("locking/vercors_locking_instruction.jinja2template")
+vercors_locking_check_template = env.get_template("locking/vercors_locking_check.jinja2template")
 vercors_assignment_template = env.get_template("statements/vercors_assignment.jinja2template")
 vercors_expression_template = env.get_template("statements/vercors_expression.jinja2template")
 vercors_expression_if_statement_template = env.get_template("statements/vercors_expression_if_statement.jinja2template")
 vercors_composite_template = env.get_template("statements/vercors_composite.jinja2template")
 
 vercors_permissions_template = env.get_template("util/vercors_permissions.jinja2template")
+vercors_lock_verification_contract_statements_template = env.get_template(
+    "util/vercors_lock_verification_contract_statements.jinja2template"
+)
