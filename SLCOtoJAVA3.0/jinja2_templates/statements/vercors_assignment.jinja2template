@@ -2,6 +2,9 @@
 {% if locking_control_node.entry_node.has_locks() %}
 {{ locking_control_node.entry_node.locking_instructions | render_locking_instruction | trim }}
 {% endif %}
+{% if locking_check_statements != "" %}
+{{ locking_check_statements | trim }}
+{% endif %}
 {% if in_line_index is not none %}
 //@ ghost _index_{{ assignment_number }} = {{ in_line_index }};
 {% endif %}

@@ -49,6 +49,12 @@ class Lock:
         # The atomic node that the lock request originated from.
         self.parent: AtomicNode = original_locking_node.parent
 
+        # Add the lock to the original locks list of the original locking node.
+        original_locking_node.original_locks.add(self)
+
+        # The lock requests associated with this lock.
+        self.lock_requests: Set[LockRequest] = set()
+
     def prepend_rewrite_rule(self, rule: Tuple[VariableRef, Union[Expression, Primary]]):
         """
         Add the given rewrite rule to the start of the rewrite rule list and update the master dictionary.
@@ -155,13 +161,20 @@ class LockRequest:
         Get or create an unique lock request object for the given variable reference.
         """
         # Convert a lock to a variable ref when appropriate.
+        original_ref = ref
         if isinstance(ref, Lock):
             ref = ref.ref
 
         if ref not in provider.variable_ref_to_lock_request:
             provider.variable_ref_to_lock_request[ref] = LockRequest(ref, provider.counter)
             provider.counter += 1
-        return provider.variable_ref_to_lock_request[ref]
+
+        # Add the lock request to the target lock for traceability.
+        target: LockRequest = provider.variable_ref_to_lock_request[ref]
+        if isinstance(original_ref, Lock):
+            original_ref.lock_requests.add(target)
+
+        return target
 
     def __repr__(self) -> str:
         return str(self.ref) if not settings.lock_full_arrays else str(self.ref.var.name)
@@ -235,6 +248,9 @@ class LockingNode:
         # The locks that are requested and released by this locking node.
         self.locks_to_acquire: Set[Lock] = set()
         self.locks_to_release: Set[Lock] = set()
+
+        # The locks created by this node.
+        self.original_locks: Set[Lock] = set()
 
         # The finalized locking instructions.
         self.locking_instructions: LockingInstruction = LockingInstruction(self)

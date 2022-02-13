@@ -96,14 +96,15 @@ class SlcoStateMachineSM1InSlcoClassP {
     // SLCO expression wrapper | i >= 0
     private boolean t_SMC0_0_s_0_n_0() {
         lock_requests[0] = lock_requests[0] + 1; // Acquire i
-        //@ assert lock_requests[0] == 1;
+        //@ assert lock_requests[0] == 1; // Verify lock activity.
+        //@ assert lock_requests[0] == 1; // Check i
         if(c.i >= 0) {
             //@ assert c.i >= 0;
             return true;
         }
         //@ assert !(c.i >= 0);
         lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0;
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         return false;
     }
 
@@ -153,13 +154,14 @@ class SlcoStateMachineSM1InSlcoClassP {
     @*/
     // SLCO expression wrapper | i < 2
     private boolean t_SMC0_0_s_0_n_1() {
+        //@ assert lock_requests[0] == 1; // Check i
         if(c.i < 2) {
             //@ assert c.i < 2;
             return true;
         }
         //@ assert !(c.i < 2);
         lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0;
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         return false;
     }
 
@@ -265,20 +267,22 @@ class SlcoStateMachineSM1InSlcoClassP {
     // SLCO expression wrapper | x[i] = 0
     private boolean t_SMC0_0_s_0_n_3() {
         lock_requests[1] = lock_requests[1] + 1; // Acquire x[i]
-        //@ assert lock_requests[1] == 1;
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[0] == 1; // Check i
+        //@ assert lock_requests[1] == 1; // Check x[i]
         if(c.x[c.i] == 0) {
             //@ assert c.x[c.i] == 0;
             lock_requests[0] = lock_requests[0] - 1; // Release i
-                //@ assert lock_requests[0] == 0;
-                lock_requests[1] = lock_requests[1] - 1; // Release x[i]
-                //@ assert lock_requests[1] == 0;
+            //@ assert lock_requests[0] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release x[i]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
         //@ assert !(c.x[c.i] == 0);
         lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0;
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         lock_requests[1] = lock_requests[1] - 1; // Release x[i]
-        //@ assert lock_requests[1] == 0;
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
 
@@ -486,14 +490,15 @@ class SlcoStateMachineSM2InSlcoClassP {
     // SLCO expression wrapper | i >= 0
     private boolean t_SMC0_0_s_0_n_0() {
         lock_requests[0] = lock_requests[0] + 1; // Acquire i
-        //@ assert lock_requests[0] == 1;
+        //@ assert lock_requests[0] == 1; // Verify lock activity.
+        //@ assert lock_requests[0] == 1; // Check i
         if(c.i >= 0) {
             //@ assert c.i >= 0;
             return true;
         }
         //@ assert !(c.i >= 0);
         lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0;
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         return false;
     }
 
@@ -557,13 +562,14 @@ class SlcoStateMachineSM2InSlcoClassP {
     @*/
     // SLCO expression wrapper | i < 2
     private boolean t_SMC0_0_s_0_n_1() {
+        //@ assert lock_requests[0] == 1; // Check i
         if(c.i < 2) {
             //@ assert c.i < 2;
             return true;
         }
         //@ assert !(c.i < 2);
         lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0;
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         return false;
     }
 
@@ -698,16 +704,18 @@ class SlcoStateMachineSM2InSlcoClassP {
     // SLCO expression wrapper | x[i] != 0
     private boolean t_SMC0_0_s_0_n_3() {
         lock_requests[1] = lock_requests[1] + 1; // Acquire x[i]
-        //@ assert lock_requests[1] == 1;
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[0] == 1; // Check i
+        //@ assert lock_requests[1] == 1; // Check x[i]
         if(c.x[c.i] != 0) {
             //@ assert c.x[c.i] != 0;
             return true;
         }
         //@ assert !(c.x[c.i] != 0);
         lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0;
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         lock_requests[1] = lock_requests[1] - 1; // Release x[i]
-        //@ assert lock_requests[1] == 0;
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
 
@@ -856,19 +864,22 @@ class SlcoStateMachineSM2InSlcoClassP {
         }
         //@ assert (c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
         // SLCO assignment | x[i] := y[i]
+        //@ assert lock_requests[0] == 1; // Check i
+        //@ assert lock_requests[1] == 1; // Check x[i]
         //@ ghost _index_0 = c.i;
         //@ ghost _rhs_0 = y[c.i];
         c.x[c.i] = y[c.i];
         //@ assert (c.x[c.i] == y[c.i]);
         lock_requests[1] = lock_requests[1] - 1; // Release x[i]
-        //@ assert lock_requests[1] == 0;
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | y[i] := 0
+        //@ assert lock_requests[0] == 1; // Check i
         //@ ghost _index_1 = c.i;
         //@ ghost _rhs_1 = 0;
         y[c.i] = 0;
         //@ assert (y[c.i] == 0);
         lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0;
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
 
         // currentState = SM2Thread.States.SMC0;
         return true;

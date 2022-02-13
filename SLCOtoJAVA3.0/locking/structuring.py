@@ -719,6 +719,7 @@ def generate_locking_instructions(model: AtomicNode, provider: LockRequestInstan
             if i.is_location_sensitive:
                 # Strict unpacking. The entire array will need to stay locked until the violating lock is released.
                 instructions.locks_to_acquire.update(supplemental_lock_requests)
+                i.lock_requests.update(supplemental_lock_requests)
             else:
                 # Weak unpacking. Variable references used exclusively in unpacking can be let go of at the end.
                 # Note that the supplemental lock releases are moved by another algorithm to the appropriate spot.

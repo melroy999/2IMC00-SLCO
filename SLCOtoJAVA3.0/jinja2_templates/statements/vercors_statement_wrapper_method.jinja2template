@@ -40,6 +40,9 @@ private boolean {{ method_name }}() {
     {% if locking_control_node.entry_node.has_locks() %}
     {{ locking_control_node.entry_node.locking_instructions | render_locking_instruction | indent(4, False) | trim }}
     {% endif %}
+    {% if locking_check_statements != "" %}
+    {{ locking_check_statements | indent(4, False) | trim }}
+    {% endif %}
     {% for block in conditional_blocks %}
     {{ block | indent(4, False) | trim }}
     {% endfor %}
@@ -48,7 +51,7 @@ private boolean {{ method_name }}() {
     {% endif %}
     {% if invert_return_values %}
     {% if locking_control_node.success_exit.has_locks() %}
-    {{ locking_control_node.success_exit.locking_instructions | render_locking_instruction | indent(8, False) | trim }}
+    {{ locking_control_node.success_exit.locking_instructions | render_locking_instruction | indent(4, False) | trim }}
     {% endif %}
     {% else %}
     {% if locking_control_node.failure_exit.has_locks() %}

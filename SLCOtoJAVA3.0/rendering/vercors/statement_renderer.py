@@ -10,7 +10,7 @@ from rendering.vercors.environment_settings import env
 from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, StateMachine, Class, Variable
 
 if TYPE_CHECKING:
-    from objects.locking.models import LockingInstruction
+    from objects.locking.models import LockingInstruction, LockingNode
     from objects.ast.interfaces import SlcoStatementNode
 
 
@@ -73,13 +73,22 @@ def render_vercors_expression_wrapper_method_lock_verification_contract(
     )
 
 
-def render_locking_check(class_variable_references: Set[VariableRef]) -> str:
+def render_locking_check(model: LockingNode) -> str:
     """
     Render code that checks if all of the locks used by the model have been acquired.
     """
-    return vercors_locking_check_template.render(
-        class_variable_references=class_variable_references
-    )
+    # Create a list containing all of the lock requests associated with the node.
+    lock_requests = set()
+    for i in model.original_locks:
+        lock_requests.update(i.lock_requests)
+    lock_requests = sorted(lock_requests, key=lambda x: x.id)
+
+    if len(lock_requests) == 0:
+        return ""
+    else:
+        return vercors_locking_check_template.render(
+            lock_requests=lock_requests
+        )
 
 
 def render_locking_instruction(model: LockingInstruction) -> str:
@@ -258,8 +267,11 @@ def render_vercors_expression_component(
         # Give the node a name, render it as a separate method, and return a call to the method.
         method_name = f"{control_node_method_prefix}_n_{len(control_node_methods)}"
 
-        # Render the lock check.
+        # Render the method contract lock check.
         expression_lock_verification = render_vercors_expression_wrapper_method_lock_verification_contract(model, sm)
+
+        # Render a locking check to see if all lock requests that are needed are present at the statement.
+        locking_check_statements = render_locking_check(model.locking_atomic_node.entry_node)
 
         # Render the statement as a control node method and return the method name.
         control_node_methods.append(
@@ -274,7 +286,8 @@ def render_vercors_expression_component(
                 c=sm.parent,
                 sm=sm,
                 locking_control_node=model.locking_atomic_node,
-                expression_lock_verification=expression_lock_verification
+                expression_lock_verification=expression_lock_verification,
+                locking_check_statements=locking_check_statements
             )
         )
         return f"{method_name}()"
@@ -403,6 +416,9 @@ def render_vercors_assignment(
     in_line_lhs_original = render_vercors_expression_component(original_statement.left, sm, create_control_nodes=False)
     in_line_rhs_original = render_vercors_expression_component(original_statement.right, sm, create_control_nodes=False)
 
+    # Render a locking check to see if all lock requests that are needed are present at the statement.
+    locking_check_statements = render_locking_check(model.locking_atomic_node.entry_node)
+
     # Render the assignment as Java code.
     result = vercors_assignment_template.render(
         locking_control_node=model.locking_atomic_node,
@@ -413,7 +429,8 @@ def render_vercors_assignment(
         in_line_rhs_original=in_line_rhs_original,
         statement_comment=get_assignment_comment(model),
         is_byte_typed=model.left.var.is_byte,
-        assignment_number=assignment_id
+        assignment_number=assignment_id,
+        locking_check_statements=locking_check_statements
     )
     return result, i
 
@@ -452,7 +469,6 @@ def render_vercors_composite(
 env.filters["render_statement"] = render_vercors_expression_component
 env.filters["render_vercors_permissions"] = render_vercors_permissions
 env.filters["render_locking_instruction"] = render_locking_instruction
-env.filters["render_locking_check"] = render_locking_check
 
 # Import the appropriate templates.
 vercors_control_node_method_template = env.get_template("statements/vercors_statement_wrapper_method.jinja2template")
