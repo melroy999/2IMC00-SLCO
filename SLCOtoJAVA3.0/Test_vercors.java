@@ -31,24 +31,18 @@ class SlcoStateMachineSM1InSlcoClassP {
     // The class the state machine is a part of.
     private final SlcoClassP c;
 
-    // A list of lock requests. A value of 1 denotes that the associated index is locked, and 0 implies no lock.
-    private final int[] lock_requests;
-
     /*@
     // Ensure full access to the class members.
     ensures Perm(this.c, 1);
-    ensures Perm(this.lock_requests, 1);
 
     // Require that the input class is a valid object.
     requires c != null;
 
     // Ensure that the appropriate starter values are assigned.
     ensures this.c == c;
-    ensures this.lock_requests != null && this.lock_requests.length == 2;
     @*/
     SlcoStateMachineSM1InSlcoClassP(SlcoClassP c) {
         this.c = c;
-        this.lock_requests = new int[2];
     }
 
     // >> TRANSITION.START (Transition:SMC0.P0)
@@ -73,38 +67,14 @@ class SlcoStateMachineSM1InSlcoClassP {
 
     // Ensure that the statement's result is equivalent to the associated expression.
     ensures \result == (c.i >= 0);
-
-    // Require and ensure full permission over the lock request variable.
-    context Perm(lock_requests, 1);
-
-    // Require and ensure that the lock request array is of the correct length.
-    context lock_requests != null && lock_requests.length == 2;
-
-    // Require and ensure full permission over all lock request variable indices.
-    context Perm(lock_requests[*], 1);
-
-    // Require that that no lock requests are active prior to calling the function.
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
-
-    // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: i]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the failure exit of the function.
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     // SLCO expression wrapper | i >= 0
     private boolean t_SMC0_0_s_0_n_0() {
-        lock_requests[0] = lock_requests[0] + 1; // Acquire i
-        //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check i
         if(c.i >= 0) {
             //@ assert c.i >= 0;
             return true;
         }
         //@ assert !(c.i >= 0);
-        lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
         return false;
     }
 
@@ -131,37 +101,14 @@ class SlcoStateMachineSM1InSlcoClassP {
 
     // Ensure that the statement's result is equivalent to the associated expression.
     ensures \result == (c.i < 2);
-
-    // Require and ensure full permission over the lock request variable.
-    context Perm(lock_requests, 1);
-
-    // Require and ensure that the lock request array is of the correct length.
-    context lock_requests != null && lock_requests.length == 2;
-
-    // Require and ensure full permission over all lock request variable indices.
-    context Perm(lock_requests[*], 1);
-
-    // Require that that the following locks are active prior to calling the function:
-    // - [0: i]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
-
-    // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: i]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the failure exit of the function.
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     // SLCO expression wrapper | i < 2
     private boolean t_SMC0_0_s_0_n_1() {
-        //@ assert lock_requests[0] == 1; // Check i
         if(c.i < 2) {
             //@ assert c.i < 2;
             return true;
         }
         //@ assert !(c.i < 2);
-        lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
         return false;
     }
 
@@ -185,25 +132,6 @@ class SlcoStateMachineSM1InSlcoClassP {
 
     // Ensure that the statement's result is equivalent to the associated expression.
     ensures \result == (c.i >= 0 && c.i < 2);
-
-    // Require and ensure full permission over the lock request variable.
-    context Perm(lock_requests, 1);
-
-    // Require and ensure that the lock request array is of the correct length.
-    context lock_requests != null && lock_requests.length == 2;
-
-    // Require and ensure full permission over all lock request variable indices.
-    context Perm(lock_requests[*], 1);
-
-    // Require that that no lock requests are active prior to calling the function.
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
-
-    // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: i]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the failure exit of the function.
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     // SLCO expression wrapper | i >= 0 and i < 2
     private boolean t_SMC0_0_s_0_n_2() {
@@ -244,45 +172,14 @@ class SlcoStateMachineSM1InSlcoClassP {
 
     // Ensure that the statement's result is equivalent to the associated expression.
     ensures \result == (c.x[c.i] == 0);
-
-    // Require and ensure full permission over the lock request variable.
-    context Perm(lock_requests, 1);
-
-    // Require and ensure that the lock request array is of the correct length.
-    context lock_requests != null && lock_requests.length == 2;
-
-    // Require and ensure full permission over all lock request variable indices.
-    context Perm(lock_requests[*], 1);
-
-    // Require that that the following locks are active prior to calling the function:
-    // - [0: i]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the success exit of the function.
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the failure exit of the function.
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     // SLCO expression wrapper | x[i] = 0
     private boolean t_SMC0_0_s_0_n_3() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire x[i]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check i
-        //@ assert lock_requests[1] == 1; // Check x[i]
         if(c.x[c.i] == 0) {
             //@ assert c.x[c.i] == 0;
-            lock_requests[0] = lock_requests[0] - 1; // Release i
-            //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release x[i]
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
         //@ assert !(c.x[c.i] == 0);
-        lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release x[i]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
 
@@ -306,24 +203,6 @@ class SlcoStateMachineSM1InSlcoClassP {
 
     // Ensure that the statement's result is equivalent to the associated expression.
     ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
-
-    // Require and ensure full permission over the lock request variable.
-    context Perm(lock_requests, 1);
-
-    // Require and ensure that the lock request array is of the correct length.
-    context lock_requests != null && lock_requests.length == 2;
-
-    // Require and ensure full permission over all lock request variable indices.
-    context Perm(lock_requests[*], 1);
-
-    // Require that that no lock requests are active prior to calling the function.
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the success exit of the function.
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the failure exit of the function.
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     // SLCO expression wrapper | i >= 0 and i < 2 and x[i] = 0
     private boolean t_SMC0_0_s_0_n_4() {
@@ -361,24 +240,6 @@ class SlcoStateMachineSM1InSlcoClassP {
     // Ensure that the transition's return value is equivalent to the value of the guard.
     ensures _guard ==> (\result == true);
     ensures !_guard ==> (\result == false);
-
-    // Require and ensure full permission over the lock request variable.
-    context Perm(lock_requests, 1);
-
-    // Require and ensure that the lock request array is of the correct length.
-    context lock_requests != null && lock_requests.length == 2;
-
-    // Require and ensure full permission over all lock request variable indices.
-    context Perm(lock_requests[*], 1);
-
-    // Require that that no lock requests are active prior to calling the function.
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the success exit of the function.
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the failure exit of the function.
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | i >= 0 and i < 2 and x[i] = 0
     private boolean execute_transition_SMC0_0() {
@@ -403,9 +264,6 @@ class SlcoStateMachineSM2InSlcoClassP {
     // The class the state machine is a part of.
     private final SlcoClassP c;
 
-    // A list of lock requests. A value of 1 denotes that the associated index is locked, and 0 implies no lock.
-    private final int[] lock_requests;
-
     // State machine local variables.
     final int[] y; // length 2
     int j;
@@ -413,18 +271,15 @@ class SlcoStateMachineSM2InSlcoClassP {
     /*@
     // Ensure full access to the class members.
     ensures Perm(this.c, 1);
-    ensures Perm(this.lock_requests, 1);
 
     // Require that the input class is a valid object.
     requires c != null;
 
     // Ensure that the appropriate starter values are assigned.
     ensures this.c == c;
-    ensures this.lock_requests != null && this.lock_requests.length == 2;
     @*/
     SlcoStateMachineSM2InSlcoClassP(SlcoClassP c) {
         this.c = c;
-        this.lock_requests = new int[2];
 
         // Variable instantiations.
         this.y = new int[] { 0, 0 };
@@ -467,38 +322,14 @@ class SlcoStateMachineSM2InSlcoClassP {
 
     // Ensure that the statement's result is equivalent to the associated expression.
     ensures \result == (c.i >= 0);
-
-    // Require and ensure full permission over the lock request variable.
-    context Perm(lock_requests, 1);
-
-    // Require and ensure that the lock request array is of the correct length.
-    context lock_requests != null && lock_requests.length == 2;
-
-    // Require and ensure full permission over all lock request variable indices.
-    context Perm(lock_requests[*], 1);
-
-    // Require that that no lock requests are active prior to calling the function.
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
-
-    // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: i]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the failure exit of the function.
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     // SLCO expression wrapper | i >= 0
     private boolean t_SMC0_0_s_0_n_0() {
-        lock_requests[0] = lock_requests[0] + 1; // Acquire i
-        //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check i
         if(c.i >= 0) {
             //@ assert c.i >= 0;
             return true;
         }
         //@ assert !(c.i >= 0);
-        lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
         return false;
     }
 
@@ -539,37 +370,14 @@ class SlcoStateMachineSM2InSlcoClassP {
 
     // Ensure that the statement's result is equivalent to the associated expression.
     ensures \result == (c.i < 2);
-
-    // Require and ensure full permission over the lock request variable.
-    context Perm(lock_requests, 1);
-
-    // Require and ensure that the lock request array is of the correct length.
-    context lock_requests != null && lock_requests.length == 2;
-
-    // Require and ensure full permission over all lock request variable indices.
-    context Perm(lock_requests[*], 1);
-
-    // Require that that the following locks are active prior to calling the function:
-    // - [0: i]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
-
-    // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: i]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the failure exit of the function.
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     // SLCO expression wrapper | i < 2
     private boolean t_SMC0_0_s_0_n_1() {
-        //@ assert lock_requests[0] == 1; // Check i
         if(c.i < 2) {
             //@ assert c.i < 2;
             return true;
         }
         //@ assert !(c.i < 2);
-        lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
         return false;
     }
 
@@ -607,25 +415,6 @@ class SlcoStateMachineSM2InSlcoClassP {
 
     // Ensure that the statement's result is equivalent to the associated expression.
     ensures \result == (c.i >= 0 && c.i < 2);
-
-    // Require and ensure full permission over the lock request variable.
-    context Perm(lock_requests, 1);
-
-    // Require and ensure that the lock request array is of the correct length.
-    context lock_requests != null && lock_requests.length == 2;
-
-    // Require and ensure full permission over all lock request variable indices.
-    context Perm(lock_requests[*], 1);
-
-    // Require that that no lock requests are active prior to calling the function.
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
-
-    // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: i]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the failure exit of the function.
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     // SLCO expression wrapper | i >= 0 and i < 2
     private boolean t_SMC0_0_s_0_n_2() {
@@ -680,42 +469,14 @@ class SlcoStateMachineSM2InSlcoClassP {
 
     // Ensure that the statement's result is equivalent to the associated expression.
     ensures \result == (c.x[c.i] != 0);
-
-    // Require and ensure full permission over the lock request variable.
-    context Perm(lock_requests, 1);
-
-    // Require and ensure that the lock request array is of the correct length.
-    context lock_requests != null && lock_requests.length == 2;
-
-    // Require and ensure full permission over all lock request variable indices.
-    context Perm(lock_requests[*], 1);
-
-    // Require that that the following locks are active prior to calling the function:
-    // - [0: i]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
-
-    // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: i, 1: x[i]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the failure exit of the function.
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     // SLCO expression wrapper | x[i] != 0
     private boolean t_SMC0_0_s_0_n_3() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire x[i]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check i
-        //@ assert lock_requests[1] == 1; // Check x[i]
         if(c.x[c.i] != 0) {
             //@ assert c.x[c.i] != 0;
             return true;
         }
         //@ assert !(c.x[c.i] != 0);
-        lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release x[i]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
 
@@ -753,25 +514,6 @@ class SlcoStateMachineSM2InSlcoClassP {
 
     // Ensure that the statement's result is equivalent to the associated expression.
     ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
-
-    // Require and ensure full permission over the lock request variable.
-    context Perm(lock_requests, 1);
-
-    // Require and ensure that the lock request array is of the correct length.
-    context lock_requests != null && lock_requests.length == 2;
-
-    // Require and ensure full permission over all lock request variable indices.
-    context Perm(lock_requests[*], 1);
-
-    // Require that that no lock requests are active prior to calling the function.
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
-
-    // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: i, 1: x[i]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the failure exit of the function.
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     // SLCO expression wrapper | i >= 0 and i < 2 and x[i] != 0
     private boolean t_SMC0_0_s_0_n_4() {
@@ -834,24 +576,6 @@ class SlcoStateMachineSM2InSlcoClassP {
     ensures !_guard ==> (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
     ensures _guard ==> (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == value_SMC0_0_y(_i, _index_1, _rhs_1, \old(y[_i])));
     ensures !_guard ==> (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
-
-    // Require and ensure full permission over the lock request variable.
-    context Perm(lock_requests, 1);
-
-    // Require and ensure that the lock request array is of the correct length.
-    context lock_requests != null && lock_requests.length == 2;
-
-    // Require and ensure full permission over all lock request variable indices.
-    context Perm(lock_requests[*], 1);
-
-    // Require that that no lock requests are active prior to calling the function.
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the success exit of the function.
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
-
-    // Ensure that that no lock requests are active in the failure exit of the function.
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | [i >= 0 and i < 2 and x[i] != 0; x[i] := y[i]; y[i] := 0]
     private boolean execute_transition_SMC0_0() {
@@ -864,22 +588,15 @@ class SlcoStateMachineSM2InSlcoClassP {
         }
         //@ assert (c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
         // SLCO assignment | x[i] := y[i]
-        //@ assert lock_requests[0] == 1; // Check i
-        //@ assert lock_requests[1] == 1; // Check x[i]
         //@ ghost _index_0 = c.i;
         //@ ghost _rhs_0 = y[c.i];
         c.x[c.i] = y[c.i];
         //@ assert (c.x[c.i] == y[c.i]);
-        lock_requests[1] = lock_requests[1] - 1; // Release x[i]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | y[i] := 0
-        //@ assert lock_requests[0] == 1; // Check i
         //@ ghost _index_1 = c.i;
         //@ ghost _rhs_1 = 0;
         y[c.i] = 0;
         //@ assert (y[c.i] == 0);
-        lock_requests[0] = lock_requests[0] - 1; // Release i
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
 
         // currentState = SM2Thread.States.SMC0;
         return true;

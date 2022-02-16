@@ -1,0 +1,13 @@
+{% if decision_structure_contract != "" %}
+{{ decision_structure_contract | trim }}
+{% endif %}
+// Attempt to fire a transition starting in state {{ state }}.
+private void exec_{{ state }}() {
+    {% if decision_structure_opening_body != "" %}
+    {{ decision_structure_opening_body | indent(4, False) | trim }}
+    {% endif %}
+    {{ method_body | indent(4, False) | trim }}
+    {% if decision_structure_closing_body != "" %}
+    {{ decision_structure_closing_body | indent(4, False) | trim }}
+    {% endif %}
+}

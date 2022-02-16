@@ -1,0 +1,3 @@
+{% for locking_check in locking_check_entries %}
+lockManager.check_lock({{ locking_check[0] }}); // Check {{ locking_check[1] }}
+{% endfor %}

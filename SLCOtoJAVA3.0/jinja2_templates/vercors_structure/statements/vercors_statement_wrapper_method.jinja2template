@@ -1,0 +1,45 @@
+/*@
+{{ c | render_vercors_permissions(sm) | trim }}
+{% if assumptions is not none and assumptions | length > 0 %}
+
+// Require and ensure validity of expressions that have been encountered earlier in the control flow.
+{% for assumption in assumptions %}
+context {{ assumption }};
+{% endfor %}
+{% endif %}
+{% if c.variables | length > 0 %}
+
+// Ensure that class variable values remain unchanged after calling the function.
+{% for v in c.variables %}
+{% if v.is_array %}
+ensures (\forall* int _i; 0 <= _i && _i < c.{{ v.name }}.length; c.{{ v.name }}[_i] == \old(c.{{ v.name }}[_i]));
+{% else %}
+ensures (c.{{ v.name }} == \old(c.{{ v.name }}));
+{% endif %}
+{% endfor %}
+{% endif %}
+{% if sm.variables | length > 0 %}
+
+// Ensure that state machine variable values remain unchanged after calling the function.
+{% for v in sm.variables %}
+{% if v.is_array %}
+ensures (\forall* int _i; 0 <= _i && _i < {{ v.name }}.length; {{ v.name }}[_i] == \old({{ v.name }}[_i]));
+{% else %}
+ensures ({{ v.name }} == \old({{ v.name }}));
+{% endif %}
+{% endfor %}
+{% endif %}
+
+// Ensure that the statement's result is equivalent to the associated expression.
+ensures \result == ({{ target_result }});
+@*/
+{{ statement_comment }}
+private boolean {{ method_name }}() {
+    {% for block in conditional_blocks %}
+    {{ block | indent(4, False) | trim }}
+    {% endfor %}
+    {% if post_condition is not none %}
+    //@ assert {{ post_condition }};
+    {% endif %}
+    return {% if invert_return_values %}true{% else %}false{% endif %};
+}

@@ -1,0 +1,60 @@
+// Representation of the SLCO class {{ model_name }}.
+private static class {{ model_name }} implements SLCO_Class {
+    {% if state_machine_names | length > 0 %}
+    // The state machine threads.
+    {% for sm_name in state_machine_names %}
+    private final Thread T_{{ sm_name }};
+    {% endfor %}
+
+    {% endif %}
+    {% if variable_declarations | length > 0 %}
+    // Class variables.
+    {% for v in variable_declarations %}
+    private {{ v }};
+    {% endfor %}
+
+    {% endif %}
+    {% for sm in state_machines %}
+    {{ sm | indent(4, False) }}
+
+    {% endfor %}
+    {{ model_name }}({% for a in constructor_arguments %}{{ a }}{{ ", " if not loop.last }}{% endfor %}) {
+        // Create a lock manager.
+        LockManager lockManager = new LockManager({{ lock_array_size }});
+        {% if variable_names | length > 0 %}
+
+        // Instantiate the class variables.
+        {% for v_name in variable_names %}
+        this.{{ v_name }} = {{ v_name }};
+        {% endfor %}
+
+        {% endif %}
+        {% if state_machine_names | length > 0 %}
+        // Instantiate the state machine threads and pass on the class' lock manager.
+        {% for sm_name in state_machine_names %}
+        T_{{ sm_name }} = new {{ model_name }}_{{ sm_name }}Thread(lockManager);
+        {% endfor %}
+        {% endif %}
+    }
+
+    // Start all threads
+    public void startThreads() {
+        {% for sm_name in state_machine_names %}
+        T_{{ sm_name }}.start();
+        {% endfor %}
+    }
+
+    // Join all threads
+    public void joinThreads() {
+        while (true) {
+            try {
+                {% for sm_name in state_machine_names %}
+                T_{{ sm_name }}.join();
+                {% endfor %}
+                break;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}

@@ -1,16 +1,18 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, List, Tuple, Union, Dict, Optional, Set
+from typing import TYPE_CHECKING, List, Tuple, Union, Dict, Set
+
+import networkx as nx
 
 import settings
-from objects.ast.util import get_variables_to_be_locked
+from objects.ast.util import get_class_variable_references
 from rendering.common.statement_renderer import get_expression_wrapper_comment, get_root_expression_comment, \
     get_assignment_comment, get_composite_comment
-from rendering.vercors.environment_settings import env
+from rendering.vercors_structure.environment_settings import env
 from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, StateMachine, Class, Variable
 
 if TYPE_CHECKING:
-    from objects.locking.models import LockingInstruction, LockingNode
+    from objects.locking.models import LockingInstruction, LockingNode, Lock
     from objects.ast.interfaces import SlcoStatementNode
 
 
@@ -71,6 +73,37 @@ def render_vercors_expression_wrapper_method_lock_verification_contract(
         failure_exit_comment_string=failure_exit_comment_string,
         sm=sm
     )
+
+
+def create_locking_order(model: LockingNode) -> List[Lock]:
+    """
+    Create a locking order that ensures that no erroneous permission errors will pop up during verification.
+    """
+    # Link every lock to the associated variable reference.
+    variable_ref_to_lock: Dict[VariableRef, Lock] = {i.original_ref: i for i in model.original_locks}
+    if len(variable_ref_to_lock) != len(model.original_locks):
+        raise Exception("Unexpected duplicate elements in original locks list.")
+
+    # If a lock is used within another lock, then it needs to be precede the latter in the permission list.
+    # Create a directed graph for this purpose.
+    graph = nx.DiGraph()
+    references: Set[VariableRef] = get_class_variable_references(model.partner)
+    while len(references) > 0:
+        target = references.pop()
+        if target not in variable_ref_to_lock:
+            # Skip locks not in the dictionary.
+            continue
+        graph.add_node(variable_ref_to_lock[target])
+        if target.index is not None:
+            sub_references: Set[VariableRef] = get_class_variable_references(target.index)
+            for r in sub_references:
+                if r not in variable_ref_to_lock:
+                    # Skip locks not in the dictionary.
+                    continue
+                graph.add_edge(variable_ref_to_lock[target], variable_ref_to_lock[r])
+
+    # Return the list in topological order.
+    return list(nx.topological_sort(graph))
 
 
 def render_locking_check(model: LockingNode) -> str:
@@ -471,15 +504,30 @@ env.filters["render_vercors_permissions"] = render_vercors_permissions
 env.filters["render_locking_instruction"] = render_locking_instruction
 
 # Import the appropriate templates.
-vercors_control_node_method_template = env.get_template("statements/vercors_statement_wrapper_method.jinja2template")
-vercors_locking_instruction_template = env.get_template("locking/vercors_locking_instruction.jinja2template")
-vercors_locking_check_template = env.get_template("locking/vercors_locking_check.jinja2template")
-vercors_assignment_template = env.get_template("statements/vercors_assignment.jinja2template")
-vercors_expression_template = env.get_template("statements/vercors_expression.jinja2template")
-vercors_expression_if_statement_template = env.get_template("statements/vercors_expression_if_statement.jinja2template")
-vercors_composite_template = env.get_template("statements/vercors_composite.jinja2template")
-
-vercors_permissions_template = env.get_template("util/vercors_permissions.jinja2template")
+vercors_control_node_method_template = env.get_template(
+    "vercors_locking/statements/vercors_statement_wrapper_method.jinja2template"
+)
+vercors_locking_instruction_template = env.get_template(
+    "vercors_locking/locking/vercors_locking_instruction.jinja2template"
+)
+vercors_locking_check_template = env.get_template(
+    "vercors_locking/locking/vercors_locking_check.jinja2template"
+)
+vercors_assignment_template = env.get_template(
+    "vercors_locking/statements/vercors_assignment.jinja2template"
+)
+vercors_expression_template = env.get_template(
+    "vercors_locking/statements/vercors_expression.jinja2template"
+)
+vercors_expression_if_statement_template = env.get_template(
+    "vercors_locking/statements/vercors_expression_if_statement.jinja2template"
+)
+vercors_composite_template = env.get_template(
+    "vercors_locking/statements/vercors_composite.jinja2template"
+)
+vercors_permissions_template = env.get_template(
+    "vercors_locking/util/vercors_permissions.jinja2template"
+)
 vercors_lock_verification_contract_statements_template = env.get_template(
-    "util/vercors_lock_verification_contract_statements.jinja2template"
+    "vercors_locking/util/vercors_lock_verification_contract_statements.jinja2template"
 )

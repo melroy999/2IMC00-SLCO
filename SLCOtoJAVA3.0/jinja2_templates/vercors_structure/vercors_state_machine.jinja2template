@@ -1,0 +1,42 @@
+// VerCors verification instructions for SLCO state machine {{ model.name }}.
+class SlcoStateMachine{{ model.name }}InSlcoClass{{ model.parent.name }} {
+    // The class the state machine is a part of.
+    private final SlcoClass{{ model.parent.name }} c;
+
+    {% if model.variables | length > 0 %}
+    // State machine local variables.
+    {% for v in model.variables %}
+    {% if v.is_array %}
+    final {{ v | render_type }} {{ v.name }}; // length {{ v.type.size }}
+    {% else %}
+    {{ v | render_type }} {{ v.name }};
+    {% endif %}
+    {% endfor %}
+
+    {% endif %}
+    /*@
+    // Ensure full access to the class members.
+    ensures Perm(this.c, 1);
+
+    // Require that the input class is a valid object.
+    requires c != null;
+
+    // Ensure that the appropriate starter values are assigned.
+    ensures this.c == c;
+    @*/
+    SlcoStateMachine{{ model.name }}InSlcoClass{{ model.parent.name }}(SlcoClass{{ model.parent.name }} c) {
+        this.c = c;
+        {% if model.variables | length > 0 %}
+
+        // Variable instantiations.
+        {% for v in model.variables %}
+        this.{{ v.name }} = {{ v | render_variable_default_value }};
+        {% endfor %}
+        {% endif %}
+    }
+
+    {% for t in model.transitions %}
+    {{ t | render_vercors_transition | indent(4, False) | trim }}
+
+    {% endfor %}
+}

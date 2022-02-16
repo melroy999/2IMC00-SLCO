@@ -4,10 +4,10 @@ from typing import TYPE_CHECKING, Dict, List, Tuple
 
 from rendering.common.model_renderer import render_variable_default_value
 from rendering.java.model_renderer import render_type
-from rendering.vercors.environment_settings import env
+from rendering.vercors_structure.environment_settings import env
 from objects.ast.models import Composite, Assignment, Expression, Primary
-from rendering.vercors.statement_renderer import render_vercors_composite, render_vercors_assignment, \
-    render_vercors_root_expression, render_vercors_expression_wrapper_method_lock_verification_contract
+from rendering.vercors_structure.statement_renderer import render_vercors_composite, render_vercors_assignment, \
+    render_vercors_root_expression
 
 if TYPE_CHECKING:
     from objects.ast.models import StateMachine, Class, SlcoModel, Transition, Variable
@@ -80,15 +80,6 @@ def render_vercors_transition_value_verification_contract(
     ), support_pure_functions
 
 
-def render_vercors_transition_lock_verification_contract(model: Transition) -> str:
-    """
-    Render the VerCors statements that verify whether the locking structure is intact and valid.
-    """
-    # The locks required and ensured by the transition are stored in the latter's guard statement.
-    # Note that the true branch of a transition guard does not ensure any transitions.
-    return render_vercors_expression_wrapper_method_lock_verification_contract(model.guard, model.parent)
-
-
 def render_vercors_transition(model: Transition) -> str:
     """Render the SLCO state machine as Java code."""
 
@@ -126,7 +117,6 @@ def render_vercors_transition(model: Transition) -> str:
         model,
         verification_targets
     )
-    transition_lock_verification = render_vercors_transition_lock_verification_contract(model)
 
     # Render the transition and its statements.
     return vercors_transition_template.render(
@@ -136,8 +126,7 @@ def render_vercors_transition(model: Transition) -> str:
         c=model.parent.parent,
         sm=model.parent,
         transition_value_verification=transition_value_verification,
-        support_pure_functions=support_pure_functions,
-        transition_lock_verification=transition_lock_verification
+        support_pure_functions=support_pure_functions
     )
 
 
@@ -170,11 +159,11 @@ env.filters["render_type"] = render_type
 env.filters["render_variable_default_value"] = render_variable_default_value
 
 # Import the appropriate templates.
-vercors_transition_template = env.get_template("vercors_transition.jinja2template")
-vercors_state_machine_template = env.get_template("vercors_state_machine.jinja2template")
-vercors_class_template = env.get_template("vercors_class.jinja2template")
-vercors_model_template = env.get_template("vercors_model.jinja2template")
+vercors_transition_template = env.get_template("vercors_structure/vercors_transition.jinja2template")
+vercors_state_machine_template = env.get_template("vercors_structure/vercors_state_machine.jinja2template")
+vercors_class_template = env.get_template("vercors_structure/vercors_class.jinja2template")
+vercors_model_template = env.get_template("vercors_structure/vercors_model.jinja2template")
 
 vercors_transition_value_verification_contract_statements_template = env.get_template(
-    "util/vercors_transition_value_verification_contract_statements.jinja2template"
+    "vercors_structure/util/vercors_transition_value_verification_contract_statements.jinja2template"
 )

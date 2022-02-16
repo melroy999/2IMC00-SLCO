@@ -1,0 +1,21 @@
+{% for support_methods in control_node_methods %}
+{{ support_methods }}
+
+{% endfor %}
+{% if transition_contract != "" %}
+{{ transition_contract | trim }}
+{% endif %}
+// SLCO transition {{ human_readable_transition_identification }}
+private boolean execute_transition_{{ model_source }}_{{ model_id }}() {
+    {% if transition_opening_body != "" %}
+    {{ transition_opening_body | indent(4, False) | trim }}
+    {% endif %}
+    {% for s in rendered_statements if s != "" %}
+    {{ s | indent(4, False) | trim }}
+
+    {% endfor %}
+    {% if transition_closing_body != "" %}
+    {{ transition_closing_body | indent(4, False) | trim }}
+    {% endif %}
+    return true;
+}

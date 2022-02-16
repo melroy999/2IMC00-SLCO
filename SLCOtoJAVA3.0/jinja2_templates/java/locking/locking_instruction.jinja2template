@@ -1,0 +1,20 @@
+{% if locks_to_acquire_phases | length > 0 %}
+{% for locks_to_acquire_entries in locks_to_acquire_phases %}
+{% for lock_request in locks_to_acquire_entries %}
+lock_ids[{{ loop.index0 }}] = target_locks[{{ lock_request[0] }}] = {{ lock_request[1] }}; // Acquire {{ lock_request[2] }}
+{% endfor %}
+lockManager.acquire_locks(lock_ids, {{ locks_to_acquire_entries | length }});
+{% endfor %}
+{% endif %}
+{% if unpacked_lock_requests_entries | length > 0 %}
+{% for lock_request in unpacked_lock_requests_entries %}
+lock_ids[{{ loop.index0 }}] = target_locks[{{ lock_request[0] }}] = {{ lock_request[1] }}; // Acquire {{ lock_request[2] }}
+{% endfor %}
+lockManager.acquire_locks(lock_ids, {{ unpacked_lock_requests_entries | length }});
+{% endif %}
+{% if locks_to_release_entries | length > 0 %}
+{% for lock_request in locks_to_release_entries %}
+lock_ids[{{ loop.index0 }}] = target_locks[{{ lock_request[0] }}]; // Release {{ lock_request[1] }}
+{% endfor %}
+lockManager.release_locks(lock_ids, {{ locks_to_release_entries | length }});
+{% endif %}

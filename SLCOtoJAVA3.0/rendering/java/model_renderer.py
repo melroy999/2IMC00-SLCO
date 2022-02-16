@@ -197,23 +197,23 @@ env.filters["render_decision_structure"] = render_decision_structure
 
 
 # Import the appropriate templates.
-java_transition_template = env.get_template("java_transition.jinja2template")
-java_state_machine_template = env.get_template("java_state_machine.jinja2template")
-java_class_template = env.get_template("java_class.jinja2template")
-java_model_template = env.get_template("java_model.jinja2template")
+java_transition_template = env.get_template("java/java_transition.jinja2template")
+java_state_machine_template = env.get_template("java/java_state_machine.jinja2template")
+java_class_template = env.get_template("java/java_class.jinja2template")
+java_model_template = env.get_template("java/java_model.jinja2template")
 
-java_decision_structure_template = env.get_template("decision_structures/java_decision_structure.jinja2template")
-java_transition_wrapper_template = env.get_template("decision_structures/java_transition_wrapper.jinja2template")
+java_decision_structure_template = env.get_template("java/decision_structures/java_decision_structure.jinja2template")
+java_transition_wrapper_template = env.get_template("java/decision_structures/java_transition_wrapper.jinja2template")
 java_deterministic_decision_node_template = env.get_template(
-    "decision_structures/java_deterministic_decision_node.jinja2template"
+    "java/decision_structures/java_deterministic_decision_node.jinja2template"
 )
 java_sequential_decision_node_template = env.get_template(
-    "decision_structures/java_sequential_decision_node.jinja2template"
+    "java/decision_structures/java_sequential_decision_node.jinja2template"
 )
 java_non_deterministic_decision_node_template = env.get_template(
-    "decision_structures/java_non_deterministic_decision_node.jinja2template"
+    "java/decision_structures/java_non_deterministic_decision_node.jinja2template"
 )
 
-java_lock_manager_template = env.get_template("locking/java_lock_manager.jinja2template")
+java_lock_manager_template = env.get_template("java/locking/java_lock_manager.jinja2template")
 
-java_object_instantiation = env.get_template("util/java_object_instantiation.jinja2template")
+java_object_instantiation = env.get_template("java/util/java_object_instantiation.jinja2template")

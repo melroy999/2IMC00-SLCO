@@ -1,0 +1,4 @@
+{{ statement_comment }}
+{% for s in rendered_statements %}
+{{ s | trim }}
+{% endfor %}

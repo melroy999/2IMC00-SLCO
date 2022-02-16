@@ -23,7 +23,7 @@ class Lock:
     """
     def __init__(self, ref: VariableRef, original_locking_node: LockingNode):
         # The variable reference that the lock request is associated with.
-        self._original_ref: VariableRef = ref
+        self.original_ref: VariableRef = ref
 
         # Rewrite rules that have been applied to the request during movement operations.
         self.rewrite_rules_list: List[Tuple[VariableRef, Union[Expression, Primary]]] = []
@@ -60,7 +60,7 @@ class Lock:
         Add the given rewrite rule to the start of the rewrite rule list and update the master dictionary.
         """
         # Rewriting is only used for array type variables.
-        if self._original_ref.var.is_array:
+        if self.original_ref.var.is_array:
             # Add the rule to the start of the list.
             self.rewrite_rules_list.insert(0, rule)
 
@@ -79,17 +79,17 @@ class Lock:
 
             # Apply the rewrite rules to the index and create a new object.
             # Simplify the index to remove superfluous brackets.
-            self.ref = util.copy_node(self._original_ref, dict(), dict())
+            self.ref = util.copy_node(self.original_ref, dict(), dict())
             self.ref.index = simplify(util.copy_node(self.ref.index, dict(), rewrite_rules))
 
     def __hash__(self):
         # Use the hash function of the targeted variable reference.
-        return hash(self._original_ref)
+        return hash(self.original_ref)
 
     def __eq__(self, o: object) -> bool:
         # Besides the references variable, the parent needs to be equivalent too due to different graph localities.
         if isinstance(o, Lock):
-            return self.parent == o.parent and self._original_ref == o._original_ref
+            return self.parent == o.parent and self.original_ref == o.original_ref
         return False
 
     def __le__(self, o: object):
@@ -123,10 +123,10 @@ class Lock:
         return False
 
     def __repr__(self):
-        if self.ref == self._original_ref:
+        if self.ref == self.original_ref:
             return str(self.ref)
         else:
-            return f"{self.ref}({self._original_ref})"
+            return f"{self.ref}({self.original_ref})"
 
 
 class LockRequestInstanceProvider:

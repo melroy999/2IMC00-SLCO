@@ -258,18 +258,15 @@ def render_composite(
     return result, i
 
 
-
-
-
 # Add supportive filters.
 env.filters["render_statement"] = render_expression_component
 env.filters["render_locking_instruction"] = render_locking_instruction
 env.filters["render_locking_check"] = render_locking_check
 
 # Import the appropriate templates.
-java_control_node_method_template = env.get_template("statements/java_statement_wrapper_method.jinja2template")
-java_locking_instruction_template = env.get_template("locking/java_locking_instruction.jinja2template")
-java_locking_check_template = env.get_template("locking/java_locking_check.jinja2template")
-java_assignment_template = env.get_template("statements/java_assignment.jinja2template")
-java_expression_template = env.get_template("statements/java_expression.jinja2template")
-java_composite_template = env.get_template("statements/java_composite.jinja2template")
+java_control_node_method_template = env.get_template("java/statements/java_statement_wrapper_method.jinja2template")
+java_locking_instruction_template = env.get_template("java/locking/java_locking_instruction.jinja2template")
+java_locking_check_template = env.get_template("java/locking/java_locking_check.jinja2template")
+java_assignment_template = env.get_template("java/statements/java_assignment.jinja2template")
+java_expression_template = env.get_template("java/statements/java_expression.jinja2template")
+java_composite_template = env.get_template("java/statements/java_composite.jinja2template")

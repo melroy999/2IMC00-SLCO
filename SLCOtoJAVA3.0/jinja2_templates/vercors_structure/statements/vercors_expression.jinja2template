@@ -1,0 +1,12 @@
+{{ statement_comment }}
+//@ ghost _guard = {{ in_line_original }};
+{% if not is_superfluous %}
+if(!({{ in_line_expression }})) {
+    //@ assert !({{ in_line_original }});
+    return false;
+}
+//@ assert ({{ in_line_original }});
+{% else %}
+//@ refute !({{ in_line_expression }});
+//@ refute !({{ in_line_original }});
+{% endif %}

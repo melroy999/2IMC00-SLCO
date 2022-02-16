@@ -1,0 +1,52 @@
+import java.util.*;
+import java.util.concurrent.locks.ReentrantLock;
+
+// SLCO model class.
+public class {{ model_name }} {
+    // The objects in the model
+    private final SLCO_Class[] objects;
+
+    // Template for SLCO classes
+    interface SLCO_Class {
+        void startThreads();
+        void joinThreads();
+    }
+
+    {{ lock_manager | indent(4, False) | trim }}
+
+    {% if classes | length > 0 %}
+    {% for c in classes %}
+    {{ c | indent(4, False) | trim }}
+
+    {% endfor %}
+    {% endif %}
+    {{ model_name }}() {
+        // Instantiate the objects
+        objects = new SLCO_Class[] {
+            {% for i in object_instantiations %}
+            {{ i | indent(12, False) | trim }}{{"," if not loop.last}}
+            {% endfor %}
+        };
+    }
+
+    // Start all threads
+    private void startThreads() {
+        for(SLCO_Class object : objects) {
+            object.startThreads();
+        }
+    }
+
+    // Join all threads
+    private void joinThreads() {
+        for(SLCO_Class object : objects) {
+            object.joinThreads();
+        }
+    }
+
+    // Run application
+    public static void main(String[] args) {
+        {{ model_name }} model = new {{ model_name }}();
+        model.startThreads();
+        model.joinThreads();
+    }
+}

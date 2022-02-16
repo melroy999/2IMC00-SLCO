@@ -1,0 +1,78 @@
+// Define the states fot the state machine {{ model_name }}
+interface {{ class_name }}_{{ model_name }}Thread_States {
+    enum States {
+        {% for s in states %}
+        {{ s }}{{ ", " if not loop.last }}
+        {% endfor %}
+    }
+}
+
+// Representation of the SLCO state machine {{ model_name }}
+class {{ class_name }}_{{ model_name }}Thread extends Thread implements {{ class_name }}_{{ model_name }}Thread_States {
+    // Current state
+    private {{ class_name }}_{{ model_name }}Thread.States currentState;
+
+    // Random number generator to handle non-determinism
+    private final Random random;
+
+    {% if variable_declarations | length > 0 %}
+    // Thread local variables
+    {% for v in variable_declarations %}
+    private {{ v }};
+    {% endfor %}
+
+    {% endif %}
+    // The lock manager
+    private final LockManager lockManager;
+
+    // A list of lock ids and target locks that can be reused
+    private final int[] lock_ids;
+    private final int[] target_locks;
+
+    {{ class_name }}_{{ model_name }}Thread(LockManager lockManagerInstance) {
+        currentState = {{ class_name }}_{{ model_name }}Thread.States.{{ initial_state }};
+        lockManager = lockManagerInstance;
+        lock_ids = new int[{{ lock_ids_array_size }}];
+        target_locks = new int[{{ target_locks_array_size }}];
+        random = new Random();
+        {% if variable_instantiations | length > 0 %}
+
+        // Variable instantiations.
+        {% for i in variable_instantiations %}
+        {{ i }};
+        {% endfor %}
+        {% endif %}
+    }
+
+    {% for t in transitions %}
+    {{ t | indent(4, False) }}
+
+    {% endfor %}
+    {% for decision_structure in decision_structures %}
+    {{ decision_structure | indent(4, False) | trim }}
+
+    {% endfor %}
+    // Execute method
+    private void exec() {
+        while(true) {
+            {% if settings.verify_locks %}
+            lockManager.check_no_locks();
+            {% endif %}
+            switch(currentState) {
+                {% for s in states %}
+                case {{ s }} -> exec_{{ s }}();
+                {% endfor %}
+            }
+        }
+    }
+
+    // Run method
+    public void run() {
+        try {
+            exec();
+        } catch(Exception e) {
+            lockManager.exception_unlock();
+            throw e;
+        }
+    }
+}

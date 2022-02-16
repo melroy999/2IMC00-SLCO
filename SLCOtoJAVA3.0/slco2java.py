@@ -12,7 +12,8 @@ from preprocessing.ast.restructuring import restructure
 from preprocessing.ast.simplification import simplify
 from preprocessing.ast.finalization import finalize
 from rendering.java.model_renderer import render_model
-from rendering.vercors.model_renderer import render_vercors_model
+from rendering.java.model_renderer_class import JavaModelRenderer
+from rendering.vercors_structure.model_renderer import render_vercors_model
 
 
 def preprocess(model):
@@ -38,7 +39,7 @@ def render(model, model_folder):
     file_name = os.path.join(model_folder, model.name + ".java")
     logging.info(f">>> Rendering model \"{model}\" to file \"{file_name}\"")
     with open(file_name, 'w') as out_file:
-        out_file.write(render_model(model))
+        out_file.write(JavaModelRenderer().render_model(model))
 
     # Write the program to the desired output file.
     file_name = os.path.join(model_folder, model.name + "_vercors.java")

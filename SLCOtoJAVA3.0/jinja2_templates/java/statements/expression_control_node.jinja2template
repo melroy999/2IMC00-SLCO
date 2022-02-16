@@ -1,0 +1,37 @@
+{{ human_readable_expression_identification }}
+{% if expression_control_node_contract != "" %}
+{{ expression_control_node_contract | trim }}
+{% endif %}
+private boolean {{ control_node_name }}() {
+    {% if expression_control_node_opening_body != "" %}
+    {{ expression_control_node_opening_body | indent(4, False) | trim }}
+    {% endif %}
+    {% if has_lock_operations_in_exit_nodes %}
+    {% if has_single_exit_path %}
+    {% if condition_is_true %}
+    {% if expression_control_node_success_closing_body != "" %}
+    {{ expression_control_node_success_closing_body | indent(8, False) | trim }}
+    {% endif %}
+    return true;
+    {% else %}
+    {% if expression_control_node_failure_closing_body != "" %}
+    {{ expression_control_node_failure_closing_body | indent(8, False) | trim }}
+    {% endif %}
+    return false;
+    {% endif %}
+    {% else %}
+    if({{ in_line_statement }}) {
+        {% if expression_control_node_success_closing_body != "" %}
+        {{ expression_control_node_success_closing_body | indent(8, False) | trim }}
+        {% endif %}
+        return true;
+    }
+    {% if expression_control_node_failure_closing_body != "" %}
+    {{ expression_control_node_failure_closing_body | indent(4, False) | trim }}
+    {% endif %}
+    return false;
+    {% endif %}
+    {% else %}
+    return {{ in_line_statement }};
+    {% endif %}
+}

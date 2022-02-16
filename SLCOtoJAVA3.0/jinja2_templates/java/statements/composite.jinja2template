@@ -1,0 +1,10 @@
+{{ human_readable_composite_identification }}
+{% if composite_opening_body != "" %}
+{{ composite_opening_body | trim }}
+{% endif %}
+{% for s in rendered_statements if s != "" %}
+{{ s | trim }}
+{% endfor %}
+{% if composite_closing_body != "" %}
+{{ composite_closing_body | trim }}
+{% endif %}
