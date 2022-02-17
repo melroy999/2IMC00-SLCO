@@ -11,9 +11,8 @@ from preprocessing.simplification import simplify_slco_model
 from preprocessing.ast.restructuring import restructure
 from preprocessing.ast.simplification import simplify
 from preprocessing.ast.finalization import finalize
-from rendering.java.model_renderer import render_model
-from rendering.java.model_renderer_class import JavaModelRenderer
-from rendering.vercors_structure.model_renderer import render_vercors_model
+from rendering.java.model_renderer import JavaModelRenderer
+from rendering.vercors_structure.model_renderer_class import VercorsModelRenderer
 
 
 def preprocess(model):
@@ -45,7 +44,7 @@ def render(model, model_folder):
     file_name = os.path.join(model_folder, model.name + "_vercors.java")
     logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
     with open(file_name, 'w') as out_file:
-        out_file.write(render_vercors_model(model))
+        out_file.write(VercorsModelRenderer().render_model(model))
 
 
 def get_argument_parser():

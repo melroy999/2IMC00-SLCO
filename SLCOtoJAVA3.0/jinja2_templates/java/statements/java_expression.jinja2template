@@ -1,6 +1,0 @@
-{{ statement_comment }}
-{% if not is_superfluous %}
-if(!({{ in_line_expression }})) {
-    return false;
-}
-{% endif %}

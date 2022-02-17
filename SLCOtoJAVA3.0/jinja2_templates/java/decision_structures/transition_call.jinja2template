@@ -1,4 +1,4 @@
-// SLCO transition {{ human_readable_transition_identification }}
+// SLCO transition {{ human_readable_transition_identification }}.
 if(execute_transition_{{ model_source }}_{{ model_id }}()) {
     return;
 }

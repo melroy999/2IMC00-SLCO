@@ -1,8 +1,0 @@
-{% if arguments | length < 2 %}
-new {{ name }}({{ arguments | join(", ") }})
-{% else %}
-new {{ name }}(
-    {% for v in arguments %}
-    {{ v }}{{ "," if not loop.last }}
-    {% endfor %}
-){% endif %}

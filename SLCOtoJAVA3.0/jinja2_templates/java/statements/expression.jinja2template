@@ -1,4 +1,4 @@
-{{ statement_comment }}
+{{ human_readable_expression_identification }}.
 {% if not is_superfluous %}
 if(!({{ in_line_expression }})) {
     return false;

@@ -160,9 +160,9 @@ env.filters["render_variable_default_value"] = render_variable_default_value
 
 # Import the appropriate templates.
 vercors_transition_template = env.get_template("vercors_structure/vercors_transition.jinja2template")
-vercors_state_machine_template = env.get_template("vercors_structure/vercors_state_machine.jinja2template")
-vercors_class_template = env.get_template("vercors_structure/vercors_class.jinja2template")
-vercors_model_template = env.get_template("vercors_structure/vercors_model.jinja2template")
+vercors_state_machine_template = env.get_template("vercors_structure/state_machine.jinja2template")
+vercors_class_template = env.get_template("vercors_structure/class.jinja2template")
+vercors_model_template = env.get_template("vercors_structure/model.jinja2template")
 
 vercors_transition_value_verification_contract_statements_template = env.get_template(
     "vercors_structure/util/vercors_transition_value_verification_contract_statements.jinja2template"

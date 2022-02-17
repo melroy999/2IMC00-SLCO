@@ -1,0 +1,29 @@
+// > CLASS.START ({{ model_name }})
+
+// VerCors verification instructions for SLCO class {{ model_name }}.
+class {{ model_name }} implements SLCO_Class {
+    {% if variable_declarations | length > 0 %}
+    // Class variables.
+    {% for v in variable_declarations %}
+    private {{ v }};
+    {% endfor %}
+
+    {% endif %}
+    {% if constructor_contract != "" %}
+    {{ constructor_contract | indent(4, False) | trim }}
+    {% endif %}
+    {{ model_name }}({% for a in constructor_arguments %}{{ a }}{{ ", " if not loop.last }}{% endfor %}) {
+        {% if variable_names | length > 0 %}
+        // Instantiate the class variables.
+        {% for v_name in variable_names %}
+        this.{{ v_name }} = {{ v_name }};
+        {% endfor %}
+        {% endif %}
+    }
+}
+
+{% for sm in state_machines %}
+{{ sm | indent(4, False) }}
+
+{% endfor %}
+// < CLASS.END ({{ model_name }})

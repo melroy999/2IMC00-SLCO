@@ -1,4 +1,4 @@
-{{ human_readable_composite_identification }}
+{{ human_readable_composite_identification }}.
 {% if composite_opening_body != "" %}
 {{ composite_opening_body | trim }}
 {% endif %}

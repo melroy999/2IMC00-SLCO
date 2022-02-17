@@ -1,0 +1,10 @@
+/*@
+// Ensure full access to the class members.
+ensures Perm(this.c, 1);
+
+// Require that the input class is a valid object.
+requires c != null;
+
+// Ensure that the appropriate starter values are assigned.
+ensures this.c == c;
+@*/

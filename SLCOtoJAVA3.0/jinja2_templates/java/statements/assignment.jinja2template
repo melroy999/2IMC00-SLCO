@@ -1,4 +1,4 @@
-{{ human_readable_assignment_identification }}
+{{ human_readable_assignment_identification }}.
 {% if assignment_opening_body != "" %}
 {{ assignment_opening_body | trim }}
 {% endif %}

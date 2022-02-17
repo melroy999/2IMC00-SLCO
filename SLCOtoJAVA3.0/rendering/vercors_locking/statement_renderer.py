@@ -526,7 +526,7 @@ vercors_composite_template = env.get_template(
     "vercors_locking/statements/vercors_composite.jinja2template"
 )
 vercors_permissions_template = env.get_template(
-    "vercors_locking/util/vercors_permissions.jinja2template"
+    "vercors_locking/util/vercors_contract.jinja2template"
 )
 vercors_lock_verification_contract_statements_template = env.get_template(
     "vercors_locking/util/vercors_lock_verification_contract_statements.jinja2template"

@@ -1,0 +1,12 @@
+{% if pure_functions | length > 0 %}
+/*@
+{% for f in pure_functions %}
+{{ f | trim }}
+{% endfor %}
+@*/
+{% endif %}
+{% if contract_body != "" %}
+/*@
+{{ contract_body | trim }}
+@*/
+{% endif %}

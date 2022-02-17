@@ -1,3 +1,0 @@
-{% for variable_ref in class_variable_references %}
-lockManager.check_lock({{ variable_ref.var.lock_id }}{% if variable_ref.index %} + {{ variable_ref.index | render_statement }}{% endif %}); // Check {{ variable_ref }}
-{% endfor %}

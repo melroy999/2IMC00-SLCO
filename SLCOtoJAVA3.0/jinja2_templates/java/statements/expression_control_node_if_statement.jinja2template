@@ -1,0 +1,12 @@
+{% if if_statement_opening_body != "" %}
+{{ if_statement_opening_body | trim }}
+{% endif %}
+if({{ in_line_statement }}) {
+    {% if if_statement_success_closing_body != "" %}
+    {{ if_statement_success_closing_body | indent(8, False) | trim }}
+    {% endif %}
+    return true;
+}
+{% if if_statement_failure_closing_body != "" %}
+{{ if_statement_failure_closing_body | trim }}
+{% endif %}

@@ -1,0 +1,34 @@
+// VerCors verification instructions for SLCO state machine {{ model_name }}.
+class {{ class_name }}_{{ model_name }}Thread extends Thread {
+    // The class the state machine is a part of.
+    private final {{ class_name }} c;
+
+    {% if variable_declarations | length > 0 %}
+    // Thread local variables.
+    {% for v in variable_declarations %}
+    private {{ v }};
+    {% endfor %}
+
+    {% endif %}
+    {% if constructor_contract != "" %}
+    {{ constructor_contract | indent(4, False) | trim }}
+    {% endif %}
+    {{ class_name }}_{{ model_name }}Thread({{ class_name }} c) {
+        this.c = c;
+        {% if variable_instantiations | length > 0 %}
+
+        // Variable instantiations.
+        {% for i in variable_instantiations %}
+        {{ i }};
+        {% endfor %}
+        {% endif %}
+    }
+    {% for t in transitions %}
+
+    {{ t | indent(4, False) }}
+    {% endfor %}
+    {% for decision_structure in decision_structures %}
+
+    {{ decision_structure | indent(4, False) | trim }}
+    {% endfor %}
+}
