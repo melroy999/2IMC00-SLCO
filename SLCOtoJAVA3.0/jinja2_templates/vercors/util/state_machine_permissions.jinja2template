@@ -1,7 +1,4 @@
-// Require and ensure full access to the target class.
-context Perm(c, 1);
 {% if state_machine_array_variable_permissions | length > 0 %}
-
 // Require and ensure that the state machine has full access to its own array variables.
 {% for v in state_machine_array_variable_permissions %}
 context Perm({{ v[0] }}, 1);
@@ -11,9 +8,9 @@ context Perm({{ v[0] }}, 1);
 {% for v in state_machine_array_variable_permissions %}
 context {{ v[0] }} != null && {{ v[0] }}.length == {{ v[1] }};
 {% endfor %}
+
 {% endif %}
 {% if state_machine_variable_permissions | length > 0 %}
-
 // Require and ensure the permission of writing to all state machine variables.
 {% for v in state_machine_variable_permissions %}
 context Perm({{ v }}, 1);

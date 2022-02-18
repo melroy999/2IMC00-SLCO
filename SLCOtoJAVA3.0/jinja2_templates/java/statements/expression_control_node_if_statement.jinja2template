@@ -3,9 +3,16 @@
 {% endif %}
 if({{ in_line_statement }}) {
     {% if if_statement_success_closing_body != "" %}
-    {{ if_statement_success_closing_body | indent(8, False) | trim }}
+    {{ if_statement_success_closing_body | indent(4, False) | trim }}
+    {% endif %}
+    {% if nested_statement != "" %}
+    {{ nested_statement | indent(4, False) | trim }}
+    {% else %}
+    {% if expression_control_node_success_closing_body != "" %}
+    {{ expression_control_node_success_closing_body | indent(4, False) | trim }}
     {% endif %}
     return true;
+    {% endif %}
 }
 {% if if_statement_failure_closing_body != "" %}
 {{ if_statement_failure_closing_body | trim }}

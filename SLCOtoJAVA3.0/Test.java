@@ -201,6 +201,7 @@ public class Test {
                 }
                 lock_ids[0] = target_locks[0]; // Release i
                 lockManager.release_locks(lock_ids, 1);
+                return false;
             }
 
             // SLCO expression wrapper | i < 2.
@@ -211,6 +212,7 @@ public class Test {
                 }
                 lock_ids[0] = target_locks[0]; // Release i
                 lockManager.release_locks(lock_ids, 1);
+                return false;
             }
 
             // SLCO expression wrapper | x[i] = 0.
@@ -228,6 +230,7 @@ public class Test {
                 lock_ids[0] = target_locks[0]; // Release i
                 lock_ids[1] = target_locks[1]; // Release x[i]
                 lockManager.release_locks(lock_ids, 2);
+                return false;
             }
 
             // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | i >= 0 and i < 2 and x[i] = 0.
@@ -327,6 +330,7 @@ public class Test {
                 }
                 lock_ids[0] = target_locks[0]; // Release i
                 lockManager.release_locks(lock_ids, 1);
+                return false;
             }
 
             // SLCO expression wrapper | i < 2.
@@ -337,6 +341,7 @@ public class Test {
                 }
                 lock_ids[0] = target_locks[0]; // Release i
                 lockManager.release_locks(lock_ids, 1);
+                return false;
             }
 
             // SLCO expression wrapper | x[i] != 0.
@@ -351,6 +356,7 @@ public class Test {
                 lock_ids[0] = target_locks[0]; // Release i
                 lock_ids[1] = target_locks[1]; // Release x[i]
                 lockManager.release_locks(lock_ids, 2);
+                return false;
             }
 
             // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | [i >= 0 and i < 2 and x[i] != 0; x[i] := y[i]; y[i] := 0].

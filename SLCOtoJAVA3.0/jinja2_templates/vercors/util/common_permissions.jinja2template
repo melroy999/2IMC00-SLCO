@@ -1,0 +1,2 @@
+// Require and ensure full access to the target class.
+context Perm(c, 1);

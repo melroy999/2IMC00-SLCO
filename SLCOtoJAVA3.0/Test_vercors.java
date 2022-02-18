@@ -72,48 +72,102 @@ class P implements SLCO_Class {
         /*@
         // Require and ensure full access to the target class.
         context Perm(c, 1);
+
+        // Require and ensure that the state machine has full access to the array variables within the target class.
+        context Perm(c.x, 1);
+
+        // Require and ensure that the class variable arrays are not null and of the appropriate size.
+        context c.x != null && c.x.length == 2;
+
+        // Require and ensure the permission of writing to all class variables.
+        context Perm(c.x[*], 1);
+        context Perm(c.i, 1);
         @*/
         private boolean t_SMC0_0_s_0_n_0() {
             lock_ids[0] = target_locks[0] = 0; // Acquire c.i
             lockManager.acquire_locks(lock_ids, 1);
             lockManager.check_lock(0); // Check c.i
             if(c.i >= 0) {
+                //@ assert c.i >= 0;
+                //@ node_success_closing_body
                 return true;
             }
-            lock_ids[0] = target_locks[0]; // Release c.i
-            lockManager.release_locks(lock_ids, 1);
+            //@ assert !(c.i >= 0);
+            //@ node_failure_closing_body
+            return false;
         }
 
         // SLCO expression wrapper | i < 2.
         /*@
         // Require and ensure full access to the target class.
         context Perm(c, 1);
+
+        // Require and ensure that the state machine has full access to the array variables within the target class.
+        context Perm(c.x, 1);
+
+        // Require and ensure that the class variable arrays are not null and of the appropriate size.
+        context c.x != null && c.x.length == 2;
+
+        // Require and ensure the permission of writing to all class variables.
+        context Perm(c.x[*], 1);
+        context Perm(c.i, 1);
         @*/
         private boolean t_SMC0_0_s_0_n_1() {
             lockManager.check_lock(0); // Check c.i
             if(c.i < 2) {
+                //@ assert c.i < 2;
+                //@ node_success_closing_body
                 return true;
             }
-            lock_ids[0] = target_locks[0]; // Release c.i
-            lockManager.release_locks(lock_ids, 1);
+            //@ assert !(c.i < 2);
+            //@ node_failure_closing_body
+            return false;
         }
 
         // SLCO expression wrapper | i >= 0 and i < 2.
         /*@
         // Require and ensure full access to the target class.
         context Perm(c, 1);
+
+        // Require and ensure that the state machine has full access to the array variables within the target class.
+        context Perm(c.x, 1);
+
+        // Require and ensure that the class variable arrays are not null and of the appropriate size.
+        context c.x != null && c.x.length == 2;
+
+        // Require and ensure the permission of writing to all class variables.
+        context Perm(c.x[*], 1);
+        context Perm(c.i, 1);
         @*/
         private boolean t_SMC0_0_s_0_n_2() {
-            lockManager.check_lock(0); // Check c.i
-            if(t_SMC0_0_s_0_n_0() && t_SMC0_0_s_0_n_1()) {
-                return true;
+            if(t_SMC0_0_s_0_n_0()) {
+                //@ assert c.i >= 0;
+                if(t_SMC0_0_s_0_n_1()) {
+                    //@ assert c.i < 2;
+                    //@ node_success_closing_body
+                    return true;
+                }
+                //@ assert !(c.i < 2);
             }
+            //@ assert !(c.i >= 0);
+            //@ node_failure_closing_body
+            return false;
         }
 
         // SLCO expression wrapper | x[i] = 0.
         /*@
         // Require and ensure full access to the target class.
         context Perm(c, 1);
+
+        // Require and ensure that the state machine has full access to the array variables within the target class.
+        context Perm(c.x, 1);
+
+        // Require and ensure that the class variable arrays are not null and of the appropriate size.
+        context c.x != null && c.x.length == 2;
+
+        // Require and ensure the permission of writing to all class variables.
+        context Perm(c.x[*], 1);
+        context Perm(c.i, 1);
         @*/
         private boolean t_SMC0_0_s_0_n_3() {
             lock_ids[0] = target_locks[1] = 1 + c.i; // Acquire c.x[c.i]
@@ -121,32 +175,58 @@ class P implements SLCO_Class {
             lockManager.check_lock(0); // Check c.i
             lockManager.check_lock(1 + c.i); // Check c.x[c.i]
             if(c.x[c.i] == 0) {
-                lock_ids[0] = target_locks[0]; // Release c.i
-                lock_ids[1] = target_locks[1]; // Release c.x[c.i]
-                lockManager.release_locks(lock_ids, 2);
+                //@ assert c.x[c.i] == 0;
+                //@ node_success_closing_body
                 return true;
             }
-            lock_ids[0] = target_locks[0]; // Release c.i
-            lock_ids[1] = target_locks[1]; // Release c.x[c.i]
-            lockManager.release_locks(lock_ids, 2);
+            //@ assert !(c.x[c.i] == 0);
+            //@ node_failure_closing_body
+            return false;
         }
 
         // SLCO expression wrapper | i >= 0 and i < 2 and x[i] = 0.
         /*@
         // Require and ensure full access to the target class.
         context Perm(c, 1);
+
+        // Require and ensure that the state machine has full access to the array variables within the target class.
+        context Perm(c.x, 1);
+
+        // Require and ensure that the class variable arrays are not null and of the appropriate size.
+        context c.x != null && c.x.length == 2;
+
+        // Require and ensure the permission of writing to all class variables.
+        context Perm(c.x[*], 1);
+        context Perm(c.i, 1);
         @*/
         private boolean t_SMC0_0_s_0_n_4() {
-            lockManager.check_lock(0); // Check c.i
-            lockManager.check_lock(1 + c.i); // Check c.x[c.i]
-            if(t_SMC0_0_s_0_n_2() && t_SMC0_0_s_0_n_3()) {
-                return true;
+            if(t_SMC0_0_s_0_n_2()) {
+                //@ assert c.i >= 0 && c.i < 2;
+                if(t_SMC0_0_s_0_n_3()) {
+                    //@ assert c.x[c.i] == 0;
+                    //@ node_success_closing_body
+                    return true;
+                }
+                //@ assert !(c.x[c.i] == 0);
             }
+            //@ assert !(c.i >= 0 && c.i < 2);
+            //@ node_failure_closing_body
+            return false;
         }
 
         /*@
         // Require and ensure full access to the target class.
         context Perm(c, 1);
+
+        // Require and ensure that the state machine has full access to the array variables within the target class.
+        context Perm(c.x, 1);
+
+        // Require and ensure that the class variable arrays are not null and of the appropriate size.
+        context c.x != null && c.x.length == 2;
+
+        // Require and ensure the permission of writing to all class variables.
+        context Perm(c.x[*], 1);
+        context Perm(c.i, 1);
         @*/
         // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | i >= 0 and i < 2 and x[i] = 0.
         private boolean execute_transition_SMC0_0() {
@@ -215,16 +295,29 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all state machine variables.
         context Perm(y[*], 1);
         context Perm(j, 1);
+
+        // Require and ensure that the state machine has full access to the array variables within the target class.
+        context Perm(c.x, 1);
+
+        // Require and ensure that the class variable arrays are not null and of the appropriate size.
+        context c.x != null && c.x.length == 2;
+
+        // Require and ensure the permission of writing to all class variables.
+        context Perm(c.x[*], 1);
+        context Perm(c.i, 1);
         @*/
         private boolean t_SMC0_0_s_0_n_0() {
             lock_ids[0] = target_locks[0] = 0; // Acquire c.i
             lockManager.acquire_locks(lock_ids, 1);
             lockManager.check_lock(0); // Check c.i
             if(c.i >= 0) {
+                //@ assert c.i >= 0;
+                //@ node_success_closing_body
                 return true;
             }
-            lock_ids[0] = target_locks[0]; // Release c.i
-            lockManager.release_locks(lock_ids, 1);
+            //@ assert !(c.i >= 0);
+            //@ node_failure_closing_body
+            return false;
         }
 
         // SLCO expression wrapper | i < 2.
@@ -241,14 +334,27 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all state machine variables.
         context Perm(y[*], 1);
         context Perm(j, 1);
+
+        // Require and ensure that the state machine has full access to the array variables within the target class.
+        context Perm(c.x, 1);
+
+        // Require and ensure that the class variable arrays are not null and of the appropriate size.
+        context c.x != null && c.x.length == 2;
+
+        // Require and ensure the permission of writing to all class variables.
+        context Perm(c.x[*], 1);
+        context Perm(c.i, 1);
         @*/
         private boolean t_SMC0_0_s_0_n_1() {
             lockManager.check_lock(0); // Check c.i
             if(c.i < 2) {
+                //@ assert c.i < 2;
+                //@ node_success_closing_body
                 return true;
             }
-            lock_ids[0] = target_locks[0]; // Release c.i
-            lockManager.release_locks(lock_ids, 1);
+            //@ assert !(c.i < 2);
+            //@ node_failure_closing_body
+            return false;
         }
 
         // SLCO expression wrapper | i >= 0 and i < 2.
@@ -265,12 +371,30 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all state machine variables.
         context Perm(y[*], 1);
         context Perm(j, 1);
+
+        // Require and ensure that the state machine has full access to the array variables within the target class.
+        context Perm(c.x, 1);
+
+        // Require and ensure that the class variable arrays are not null and of the appropriate size.
+        context c.x != null && c.x.length == 2;
+
+        // Require and ensure the permission of writing to all class variables.
+        context Perm(c.x[*], 1);
+        context Perm(c.i, 1);
         @*/
         private boolean t_SMC0_0_s_0_n_2() {
-            lockManager.check_lock(0); // Check c.i
-            if(t_SMC0_0_s_0_n_0() && t_SMC0_0_s_0_n_1()) {
-                return true;
+            if(t_SMC0_0_s_0_n_0()) {
+                //@ assert c.i >= 0;
+                if(t_SMC0_0_s_0_n_1()) {
+                    //@ assert c.i < 2;
+                    //@ node_success_closing_body
+                    return true;
+                }
+                //@ assert !(c.i < 2);
             }
+            //@ assert !(c.i >= 0);
+            //@ node_failure_closing_body
+            return false;
         }
 
         // SLCO expression wrapper | x[i] != 0.
@@ -287,6 +411,16 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all state machine variables.
         context Perm(y[*], 1);
         context Perm(j, 1);
+
+        // Require and ensure that the state machine has full access to the array variables within the target class.
+        context Perm(c.x, 1);
+
+        // Require and ensure that the class variable arrays are not null and of the appropriate size.
+        context c.x != null && c.x.length == 2;
+
+        // Require and ensure the permission of writing to all class variables.
+        context Perm(c.x[*], 1);
+        context Perm(c.i, 1);
         @*/
         private boolean t_SMC0_0_s_0_n_3() {
             lock_ids[0] = target_locks[1] = 1 + c.i; // Acquire c.x[c.i]
@@ -294,11 +428,13 @@ class P implements SLCO_Class {
             lockManager.check_lock(0); // Check c.i
             lockManager.check_lock(1 + c.i); // Check c.x[c.i]
             if(c.x[c.i] != 0) {
+                //@ assert c.x[c.i] != 0;
+                //@ node_success_closing_body
                 return true;
             }
-            lock_ids[0] = target_locks[0]; // Release c.i
-            lock_ids[1] = target_locks[1]; // Release c.x[c.i]
-            lockManager.release_locks(lock_ids, 2);
+            //@ assert !(c.x[c.i] != 0);
+            //@ node_failure_closing_body
+            return false;
         }
 
         // SLCO expression wrapper | i >= 0 and i < 2 and x[i] != 0.
@@ -315,17 +451,30 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all state machine variables.
         context Perm(y[*], 1);
         context Perm(j, 1);
+
+        // Require and ensure that the state machine has full access to the array variables within the target class.
+        context Perm(c.x, 1);
+
+        // Require and ensure that the class variable arrays are not null and of the appropriate size.
+        context c.x != null && c.x.length == 2;
+
+        // Require and ensure the permission of writing to all class variables.
+        context Perm(c.x[*], 1);
+        context Perm(c.i, 1);
         @*/
         private boolean t_SMC0_0_s_0_n_4() {
-            lockManager.check_lock(0); // Check c.i
-            lockManager.check_lock(1 + c.i); // Check c.x[c.i]
-            if(!t_SMC0_0_s_0_n_2()) {
-                return false;
+            if(t_SMC0_0_s_0_n_2()) {
+                //@ assert c.i >= 0 && c.i < 2;
+                if(t_SMC0_0_s_0_n_3()) {
+                    //@ assert c.x[c.i] != 0;
+                    //@ node_success_closing_body
+                    return true;
+                }
+                //@ assert !(c.x[c.i] != 0);
             }
-            if(!t_SMC0_0_s_0_n_3()) {
-                return false;
-            }
-            return true;
+            //@ assert !(c.i >= 0 && c.i < 2);
+            //@ node_failure_closing_body
+            return false;
         }
 
         /*@
@@ -341,6 +490,16 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all state machine variables.
         context Perm(y[*], 1);
         context Perm(j, 1);
+
+        // Require and ensure that the state machine has full access to the array variables within the target class.
+        context Perm(c.x, 1);
+
+        // Require and ensure that the class variable arrays are not null and of the appropriate size.
+        context c.x != null && c.x.length == 2;
+
+        // Require and ensure the permission of writing to all class variables.
+        context Perm(c.x[*], 1);
+        context Perm(c.i, 1);
         @*/
         // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | [i >= 0 and i < 2 and x[i] != 0; x[i] := y[i]; y[i] := 0].
         private boolean execute_transition_SMC0_0() {

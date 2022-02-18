@@ -65,6 +65,9 @@ class JavaModelRenderer:
         self.expression_control_node_if_statement_template = self.env.get_template(
             "java/statements/expression_control_node_if_statement.jinja2template"
         )
+        self.expression_control_node_body_template = self.env.get_template(
+            "java/statements/expression_control_node_body.jinja2template"
+        )
         self.expression_control_node_template = self.env.get_template(
             "java/statements/expression_control_node.jinja2template"
         )
@@ -154,6 +157,11 @@ class JavaModelRenderer:
             target_variable_references: Set[VariableRef] = get_variables_to_be_locked(model.left)
             if len(model.locking_atomic_node.child_atomic_nodes) == 0:
                 target_variable_references.update(get_variables_to_be_locked(model.right))
+        elif len(model.locking_atomic_node.child_atomic_nodes) > 0:
+            # TODO: Certain configurations may have intermediate control nodes too, for which the locks are not present.
+            #   - Say, a && b becomes a control node, then a and b will not be locked prior to reaching a && b.
+            #   - Note: currently, this is resolved by needing the lock to have only a single child node.
+            target_variable_references: Set[VariableRef] = set()
         else:
             # Find which variables are used by the object in question.
             target_variable_references: Set[VariableRef] = get_variables_to_be_locked(model)
@@ -221,6 +229,21 @@ class JavaModelRenderer:
         """Get an unique name for the control node."""
         return f"{self.current_statement_prefix}_n_{len(self.current_control_node_methods)}"
 
+    # noinspection PyMethodMayBeStatic
+    def get_expression_control_node_if_statement_opening_body(self, model: SlcoStatementNode) -> str:
+        """Get the opening statements of the expression control node object."""
+        return ""
+
+    # noinspection PyMethodMayBeStatic
+    def get_expression_control_node_if_statement_success_closing_body(self, model: SlcoStatementNode) -> str:
+        """Get the closing statements of the expression control node object's success branch."""
+        return ""
+
+    # noinspection PyMethodMayBeStatic
+    def get_expression_control_node_if_statement_failure_closing_body(self, model: SlcoStatementNode) -> str:
+        """Get the closing statements of the expression control node object's failure branch."""
+        return ""
+
     @staticmethod
     def get_expression_control_node_comment(model: SlcoStatementNode):
         """Create an easily identifiable comment for expression wrapper methods."""
@@ -278,40 +301,125 @@ class JavaModelRenderer:
         return in_line_statement
 
     def render_expression_control_node_if_statement(
-            self, model: SlcoStatementNode, enforce_no_method_creation: bool
+            self,
+            model: Union[Expression, Primary, VariableRef],
+            enforce_no_method_creation: bool,
+            expression_control_node_success_closing_body: str = "",
+            nested_statement: str = "",
+            in_line_statement: str = None
     ) -> str:
         """Render the if statement within the expression control node."""
-        # Get the in-line statement.
-        in_line_statement = self.get_expression_control_node_in_line_statement(model, enforce_no_method_creation)
+        # Get the in-line statement or use the already existing one if given.
+        if in_line_statement is None:
+            in_line_statement = self.get_expression_control_node_in_line_statement(model, enforce_no_method_creation)
 
-        # TODO: get the pre and post bodies.
-        #   - How to handle and in VerCors? the return values need to be changeable.
+        # Pre-render when possible.
+        if_statement_opening_body = self.get_expression_control_node_if_statement_opening_body(model)
+        if_statement_success_closing_body = self.get_expression_control_node_if_statement_success_closing_body(model)
+        if_statement_failure_closing_body = self.get_expression_control_node_if_statement_failure_closing_body(model)
+
         # Render the expression control node if statement template.
         return self.expression_control_node_if_statement_template.render(
             in_line_statement=in_line_statement,
-            if_statement_opening_body="",
-            if_statement_success_closing_body="",
-            if_statement_failure_closing_body=""
+            if_statement_opening_body=if_statement_opening_body,
+            if_statement_success_closing_body=if_statement_success_closing_body,
+            if_statement_failure_closing_body=if_statement_failure_closing_body,
+            expression_control_node_success_closing_body=expression_control_node_success_closing_body,
+            nested_statement=nested_statement
         )
 
-    def render_expression_control_node_conditional_body(
-            self, model: SlcoStatementNode, enforce_no_method_creation: bool
+    def render_expression_control_node_body_expression(
+            self,
+            model: Expression,
+            enforce_no_method_creation: bool,
+            expression_control_node_success_closing_body: str
     ) -> str:
-        """Render the if statement within the expression control node."""
+        """Render the desired expression body of the control node."""
+        return self.render_expression_control_node_body_default(
+            model, enforce_no_method_creation, expression_control_node_success_closing_body
+        )
 
+    def render_expression_control_node_body_default(
+            self,
+            model: Union[Primary, VariableRef, Expression],
+            enforce_no_method_creation: bool,
+            expression_control_node_success_closing_body: str
+    ) -> str:
+        """Render the desired primary/variable reference body of the control node."""
+        return self.render_expression_control_node_if_statement(
+            model, enforce_no_method_creation, expression_control_node_success_closing_body
+        )
 
-        return ""
+    def render_expression_control_node_body(
+            self, model: Union[Expression, Primary, VariableRef], enforce_no_method_creation: bool
+    ) -> str:
+        """Render the desired body of the control node."""
+        # Pre-render data when possible.
+        expression_control_node_opening_body = self.get_expression_control_node_opening_body(model)
+        expression_control_node_success_closing_body = self.get_expression_control_node_success_closing_body(model)
+        expression_control_node_failure_closing_body = self.get_expression_control_node_failure_closing_body(model)
 
+        # Control the manner in which the body is rendered.
+        contains_closing_body = \
+            expression_control_node_success_closing_body != "" or expression_control_node_failure_closing_body != ""
+        equivalent_to_true = model.is_true() and expression_control_node_failure_closing_body == ""
+        equivalent_to_false = model.is_false() and expression_control_node_success_closing_body == ""
 
-    def render_expression_control_node_revised(
-            self, model: SlcoStatementNode, enforce_no_method_creation: bool = False
+        # Render the conditional body.
+        if not contains_closing_body or equivalent_to_true or equivalent_to_false:
+            # The conditional body can be in-line.
+            conditional_body = self.get_expression_control_node_in_line_statement(model, enforce_no_method_creation)
+        elif isinstance(model, Expression):
+            # Use the expression control node body renderer (needed due to VerCors short-circuit evaluation issues).
+            conditional_body = self.render_expression_control_node_body_expression(
+                model, enforce_no_method_creation, expression_control_node_success_closing_body
+            )
+        else:
+            # Use the default control node body renderer.
+            conditional_body = self.render_expression_control_node_body_default(
+                model, enforce_no_method_creation, expression_control_node_success_closing_body
+            )
+
+        # Render the control node body.
+        return self.expression_control_node_body_template.render(
+            conditional_body=conditional_body,
+            expression_control_node_opening_body=expression_control_node_opening_body,
+            expression_control_node_success_closing_body=expression_control_node_success_closing_body,
+            expression_control_node_failure_closing_body=expression_control_node_failure_closing_body,
+            contains_closing_body=contains_closing_body,
+            equivalent_to_true=equivalent_to_true,
+            equivalent_to_false=equivalent_to_false
+        )
+
+    def render_expression_control_node(
+            self, model: Union[Expression, Primary, VariableRef], enforce_no_method_creation: bool = False
     ) -> str:
         """Render the given statement object as in-line Java code and create supportive methods if necessary."""
         # Determine if the control node can be in-line or not--if not, generate a new function and refer to it.
         if not enforce_no_method_creation and self.requires_atomic_node_method(model):
+            # Render the body of the expression control node.
+            control_node_body = self.render_expression_control_node_body(model, enforce_no_method_creation)
+
             # Give the node a name, render it as a separate method, and return a call to the method.
             control_node_name = self.get_control_node_name()
 
+            # Pre-render applicable information and data.
+            human_readable_expression_identification = self.get_expression_control_node_comment(model)
+
+            # Render the following sections at the last moment to ensure that all recursive steps have finished.
+            expression_control_node_contract = self.get_expression_control_node_contract(model)
+
+            # Render the statement as a control node method using the control node template.
+            self.current_control_node_methods.append(
+                self.expression_control_node_template.render(
+                    human_readable_expression_identification=human_readable_expression_identification,
+                    control_node_name=control_node_name,
+                    control_node_body=control_node_body,
+                    expression_control_node_contract=expression_control_node_contract
+                )
+            )
+
+            # Return a call to the generated method.
             return f"{control_node_name}()"
         else:
             # Get the in-line statement and return it outright.
@@ -321,63 +429,61 @@ class JavaModelRenderer:
             return in_line_statement
 
 
-
-
-    def render_expression_control_node(self, model: SlcoStatementNode, enforce_no_method_creation: bool = False) -> str:
-        """Render the given statement object as in-line Java code and create supportive methods if necessary."""
-        # Construct the in-line statement.
-        if isinstance(model, Expression):
-            in_line_statement = self.render_expression(model, enforce_no_method_creation)
-        elif isinstance(model, Primary):
-            in_line_statement = self.render_primary(model, enforce_no_method_creation)
-        elif isinstance(model, VariableRef):
-            in_line_statement = self.render_variable_ref(model)
-        else:
-            raise Exception(f"No function exists to turn objects of type {type(model)} into in-line Java statements.")
-
-        # Determine if the control node can be in-line or not--if not, generate a new function and refer to it.
-        if not enforce_no_method_creation and self.requires_atomic_node_method(model):
-            # Give the node a name, render it as a separate method, and return a call to the method.
-            control_node_name = self.get_control_node_name()
-
-            # Determine if the internal if-statement can be simplified.
-            condition_is_true = model.is_true()
-            condition_is_false = not condition_is_true and model.is_false()
-
-            # Pre-render applicable information and data.
-            human_readable_expression_identification = self.get_expression_control_node_comment(model)
-            has_lock_operations_in_exit_nodes = \
-                model.locking_atomic_node.success_exit.has_locks() or model.locking_atomic_node.failure_exit.has_locks()
-            has_single_exit_path = condition_is_true or condition_is_false
-
-            # Render the following sections at the last moment to ensure that all recursive steps have finished.
-            expression_control_node_contract = self.get_expression_control_node_contract(model)
-            expression_control_node_opening_body = self.get_expression_control_node_opening_body(model)
-            expression_control_node_success_closing_body = self.get_expression_control_node_success_closing_body(model)
-            expression_control_node_failure_closing_body = self.get_expression_control_node_failure_closing_body(model)
-
-            # Render the statement as a control node method using the control node template.
-            self.current_control_node_methods.append(
-                self.expression_control_node_template.render(
-                    control_node_name=control_node_name,
-                    in_line_statement=in_line_statement,
-                    condition_is_true=condition_is_true,
-                    condition_is_false=condition_is_false,
-                    human_readable_expression_identification=human_readable_expression_identification,
-                    expression_control_node_contract=expression_control_node_contract,
-                    expression_control_node_opening_body=expression_control_node_opening_body,
-                    expression_control_node_success_closing_body=expression_control_node_success_closing_body,
-                    expression_control_node_failure_closing_body=expression_control_node_failure_closing_body,
-                    has_lock_operations_in_exit_nodes=has_lock_operations_in_exit_nodes,
-                    has_single_exit_path=has_single_exit_path
-                )
-            )
-
-            # Have the in-line statement call the control node method instead.
-            in_line_statement = f"{control_node_name}()"
-
-        # Return the statement as an in-line Java statement.
-        return in_line_statement
+    # def render_expression_control_node_old(self, model: SlcoStatementNode, enforce_no_method_creation: bool = False) -> str:
+    #     """Render the given statement object as in-line Java code and create supportive methods if necessary."""
+    #     # Construct the in-line statement.
+    #     if isinstance(model, Expression):
+    #         in_line_statement = self.render_expression(model, enforce_no_method_creation)
+    #     elif isinstance(model, Primary):
+    #         in_line_statement = self.render_primary(model, enforce_no_method_creation)
+    #     elif isinstance(model, VariableRef):
+    #         in_line_statement = self.render_variable_ref(model)
+    #     else:
+    #         raise Exception(f"No function exists to turn objects of type {type(model)} into in-line Java statements.")
+    #
+    #     # Determine if the control node can be in-line or not--if not, generate a new function and refer to it.
+    #     if not enforce_no_method_creation and self.requires_atomic_node_method(model):
+    #         # Give the node a name, render it as a separate method, and return a call to the method.
+    #         control_node_name = self.get_control_node_name()
+    #
+    #         # Determine if the internal if-statement can be simplified.
+    #         condition_is_true = model.is_true()
+    #         condition_is_false = not condition_is_true and model.is_false()
+    #
+    #         # Pre-render applicable information and data.
+    #         human_readable_expression_identification = self.get_expression_control_node_comment(model)
+    #         has_lock_operations_in_exit_nodes = \
+    #             model.locking_atomic_node.success_exit.has_locks() or model.locking_atomic_node.failure_exit.has_locks()
+    #         has_single_exit_path = condition_is_true or condition_is_false
+    #
+    #         # Render the following sections at the last moment to ensure that all recursive steps have finished.
+    #         expression_control_node_contract = self.get_expression_control_node_contract(model)
+    #         expression_control_node_opening_body = self.get_expression_control_node_opening_body(model)
+    #         expression_control_node_success_closing_body = self.get_expression_control_node_success_closing_body(model)
+    #         expression_control_node_failure_closing_body = self.get_expression_control_node_failure_closing_body(model)
+    #
+    #         # Render the statement as a control node method using the control node template.
+    #         self.current_control_node_methods.append(
+    #             self.expression_control_node_template.render(
+    #                 control_node_name=control_node_name,
+    #                 in_line_statement=in_line_statement,
+    #                 condition_is_true=condition_is_true,
+    #                 condition_is_false=condition_is_false,
+    #                 human_readable_expression_identification=human_readable_expression_identification,
+    #                 expression_control_node_contract=expression_control_node_contract,
+    #                 expression_control_node_opening_body=expression_control_node_opening_body,
+    #                 expression_control_node_success_closing_body=expression_control_node_success_closing_body,
+    #                 expression_control_node_failure_closing_body=expression_control_node_failure_closing_body,
+    #                 has_lock_operations_in_exit_nodes=has_lock_operations_in_exit_nodes,
+    #                 has_single_exit_path=has_single_exit_path
+    #             )
+    #         )
+    #
+    #         # Have the in-line statement call the control node method instead.
+    #         in_line_statement = f"{control_node_name}()"
+    #
+    #     # Return the statement as an in-line Java statement.
+    #     return in_line_statement
 
     def get_statement_prefix(self) -> str:
         """Get an unique prefix for the statement."""
