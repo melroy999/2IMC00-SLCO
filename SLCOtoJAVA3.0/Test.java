@@ -244,6 +244,7 @@ public class Test {
                 return true;
             }
 
+            ('', [])
             // Attempt to fire a transition starting in state SMC0.
             private void exec_SMC0() {
                 // [SEQ.START]
@@ -254,6 +255,7 @@ public class Test {
                 // [SEQ.END]
             }
 
+            ('', [])
             // Attempt to fire a transition starting in state SMC1.
             private void exec_SMC1() {
                 // There are no transitions starting in state SMC1.
@@ -382,6 +384,7 @@ public class Test {
                 return true;
             }
 
+            ('', [])
             // Attempt to fire a transition starting in state SMC0.
             private void exec_SMC0() {
                 // [SEQ.START]
@@ -392,6 +395,7 @@ public class Test {
                 // [SEQ.END]
             }
 
+            ('', [])
             // Attempt to fire a transition starting in state SMC1.
             private void exec_SMC1() {
                 // There are no transitions starting in state SMC1.

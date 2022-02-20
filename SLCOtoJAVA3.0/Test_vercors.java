@@ -82,6 +82,9 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all class variables.
         context Perm(c.x[*], 1);
         context Perm(c.i, 1);
+
+        // Ensure that the statement's result is equivalent to the associated expression.
+        ensures \result == (c.i >= 0);
         @*/
         private boolean t_SMC0_0_s_0_n_0() {
             lock_ids[0] = target_locks[0] = 0; // Acquire c.i
@@ -89,11 +92,11 @@ class P implements SLCO_Class {
             lockManager.check_lock(0); // Check c.i
             if(c.i >= 0) {
                 //@ assert c.i >= 0;
-                //@ node_success_closing_body
                 return true;
             }
             //@ assert !(c.i >= 0);
-            //@ node_failure_closing_body
+            lock_ids[0] = target_locks[0]; // Release c.i
+            lockManager.release_locks(lock_ids, 1);
             return false;
         }
 
@@ -111,16 +114,22 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all class variables.
         context Perm(c.x[*], 1);
         context Perm(c.i, 1);
+
+        // Ensure that class variable values remain unchanged after calling the function.
+        context c.i >= 0;
+
+        // Ensure that the statement's result is equivalent to the associated expression.
+        ensures \result == (c.i < 2);
         @*/
         private boolean t_SMC0_0_s_0_n_1() {
             lockManager.check_lock(0); // Check c.i
             if(c.i < 2) {
                 //@ assert c.i < 2;
-                //@ node_success_closing_body
                 return true;
             }
             //@ assert !(c.i < 2);
-            //@ node_failure_closing_body
+            lock_ids[0] = target_locks[0]; // Release c.i
+            lockManager.release_locks(lock_ids, 1);
             return false;
         }
 
@@ -138,19 +147,22 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all class variables.
         context Perm(c.x[*], 1);
         context Perm(c.i, 1);
+
+        // Ensure that the statement's result is equivalent to the associated expression.
+        ensures \result == (c.i >= 0 && c.i < 2);
         @*/
         private boolean t_SMC0_0_s_0_n_2() {
             if(t_SMC0_0_s_0_n_0()) {
                 //@ assert c.i >= 0;
                 if(t_SMC0_0_s_0_n_1()) {
                     //@ assert c.i < 2;
-                    //@ node_success_closing_body
+                    //@ assert c.i >= 0 && c.i < 2;
                     return true;
                 }
                 //@ assert !(c.i < 2);
             }
             //@ assert !(c.i >= 0);
-            //@ node_failure_closing_body
+            //@ assert c.i >= 0 && c.i < 2;
             return false;
         }
 
@@ -168,6 +180,12 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all class variables.
         context Perm(c.x[*], 1);
         context Perm(c.i, 1);
+
+        // Ensure that class variable values remain unchanged after calling the function.
+        context c.i >= 0 && c.i < 2;
+
+        // Ensure that the statement's result is equivalent to the associated expression.
+        ensures \result == (c.x[c.i] == 0);
         @*/
         private boolean t_SMC0_0_s_0_n_3() {
             lock_ids[0] = target_locks[1] = 1 + c.i; // Acquire c.x[c.i]
@@ -176,11 +194,15 @@ class P implements SLCO_Class {
             lockManager.check_lock(1 + c.i); // Check c.x[c.i]
             if(c.x[c.i] == 0) {
                 //@ assert c.x[c.i] == 0;
-                //@ node_success_closing_body
+                lock_ids[0] = target_locks[0]; // Release c.i
+                lock_ids[1] = target_locks[1]; // Release c.x[c.i]
+                lockManager.release_locks(lock_ids, 2);
                 return true;
             }
             //@ assert !(c.x[c.i] == 0);
-            //@ node_failure_closing_body
+            lock_ids[0] = target_locks[0]; // Release c.i
+            lock_ids[1] = target_locks[1]; // Release c.x[c.i]
+            lockManager.release_locks(lock_ids, 2);
             return false;
         }
 
@@ -198,19 +220,22 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all class variables.
         context Perm(c.x[*], 1);
         context Perm(c.i, 1);
+
+        // Ensure that the statement's result is equivalent to the associated expression.
+        ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
         @*/
         private boolean t_SMC0_0_s_0_n_4() {
             if(t_SMC0_0_s_0_n_2()) {
                 //@ assert c.i >= 0 && c.i < 2;
                 if(t_SMC0_0_s_0_n_3()) {
                     //@ assert c.x[c.i] == 0;
-                    //@ node_success_closing_body
+                    //@ assert c.i >= 0 && c.i < 2 && c.x[c.i] == 0;
                     return true;
                 }
                 //@ assert !(c.x[c.i] == 0);
             }
             //@ assert !(c.i >= 0 && c.i < 2);
-            //@ node_failure_closing_body
+            //@ assert c.i >= 0 && c.i < 2 && c.x[c.i] == 0;
             return false;
         }
 
@@ -305,6 +330,9 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all class variables.
         context Perm(c.x[*], 1);
         context Perm(c.i, 1);
+
+        // Ensure that the statement's result is equivalent to the associated expression.
+        ensures \result == (c.i >= 0);
         @*/
         private boolean t_SMC0_0_s_0_n_0() {
             lock_ids[0] = target_locks[0] = 0; // Acquire c.i
@@ -312,11 +340,11 @@ class P implements SLCO_Class {
             lockManager.check_lock(0); // Check c.i
             if(c.i >= 0) {
                 //@ assert c.i >= 0;
-                //@ node_success_closing_body
                 return true;
             }
             //@ assert !(c.i >= 0);
-            //@ node_failure_closing_body
+            lock_ids[0] = target_locks[0]; // Release c.i
+            lockManager.release_locks(lock_ids, 1);
             return false;
         }
 
@@ -344,16 +372,22 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all class variables.
         context Perm(c.x[*], 1);
         context Perm(c.i, 1);
+
+        // Ensure that class variable values remain unchanged after calling the function.
+        context c.i >= 0;
+
+        // Ensure that the statement's result is equivalent to the associated expression.
+        ensures \result == (c.i < 2);
         @*/
         private boolean t_SMC0_0_s_0_n_1() {
             lockManager.check_lock(0); // Check c.i
             if(c.i < 2) {
                 //@ assert c.i < 2;
-                //@ node_success_closing_body
                 return true;
             }
             //@ assert !(c.i < 2);
-            //@ node_failure_closing_body
+            lock_ids[0] = target_locks[0]; // Release c.i
+            lockManager.release_locks(lock_ids, 1);
             return false;
         }
 
@@ -381,19 +415,22 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all class variables.
         context Perm(c.x[*], 1);
         context Perm(c.i, 1);
+
+        // Ensure that the statement's result is equivalent to the associated expression.
+        ensures \result == (c.i >= 0 && c.i < 2);
         @*/
         private boolean t_SMC0_0_s_0_n_2() {
             if(t_SMC0_0_s_0_n_0()) {
                 //@ assert c.i >= 0;
                 if(t_SMC0_0_s_0_n_1()) {
                     //@ assert c.i < 2;
-                    //@ node_success_closing_body
+                    //@ assert c.i >= 0 && c.i < 2;
                     return true;
                 }
                 //@ assert !(c.i < 2);
             }
             //@ assert !(c.i >= 0);
-            //@ node_failure_closing_body
+            //@ assert c.i >= 0 && c.i < 2;
             return false;
         }
 
@@ -421,6 +458,12 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all class variables.
         context Perm(c.x[*], 1);
         context Perm(c.i, 1);
+
+        // Ensure that class variable values remain unchanged after calling the function.
+        context c.i >= 0 && c.i < 2;
+
+        // Ensure that the statement's result is equivalent to the associated expression.
+        ensures \result == (c.x[c.i] != 0);
         @*/
         private boolean t_SMC0_0_s_0_n_3() {
             lock_ids[0] = target_locks[1] = 1 + c.i; // Acquire c.x[c.i]
@@ -429,11 +472,12 @@ class P implements SLCO_Class {
             lockManager.check_lock(1 + c.i); // Check c.x[c.i]
             if(c.x[c.i] != 0) {
                 //@ assert c.x[c.i] != 0;
-                //@ node_success_closing_body
                 return true;
             }
             //@ assert !(c.x[c.i] != 0);
-            //@ node_failure_closing_body
+            lock_ids[0] = target_locks[0]; // Release c.i
+            lock_ids[1] = target_locks[1]; // Release c.x[c.i]
+            lockManager.release_locks(lock_ids, 2);
             return false;
         }
 
@@ -461,19 +505,22 @@ class P implements SLCO_Class {
         // Require and ensure the permission of writing to all class variables.
         context Perm(c.x[*], 1);
         context Perm(c.i, 1);
+
+        // Ensure that the statement's result is equivalent to the associated expression.
+        ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
         @*/
         private boolean t_SMC0_0_s_0_n_4() {
             if(t_SMC0_0_s_0_n_2()) {
                 //@ assert c.i >= 0 && c.i < 2;
                 if(t_SMC0_0_s_0_n_3()) {
                     //@ assert c.x[c.i] != 0;
-                    //@ node_success_closing_body
+                    //@ assert c.i >= 0 && c.i < 2 && c.x[c.i] != 0;
                     return true;
                 }
                 //@ assert !(c.x[c.i] != 0);
             }
             //@ assert !(c.i >= 0 && c.i < 2);
-            //@ node_failure_closing_body
+            //@ assert c.i >= 0 && c.i < 2 && c.x[c.i] != 0;
             return false;
         }
 

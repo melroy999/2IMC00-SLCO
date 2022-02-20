@@ -1,0 +1,6 @@
+{% if vercors_assumptions | length > 0 %}
+// Require and ensure validity of expressions that have been encountered earlier in the control flow.
+{% for assumption in vercors_assumptions %}
+context {{ assumption | trim }};
+{% endfor %}
+{% endif %}

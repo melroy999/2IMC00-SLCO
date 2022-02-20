@@ -1,0 +1,14 @@
+// Declare the support variables.
+{% for declaration in support_variables %}
+yields {{ declaration }};
+{% endfor %}
+
+// Ensure that the transition's return value is equivalent to the value of the guard.
+ensures {{ return_value_verification }};
+{% if value_change_verification_rules | length > 0 %}
+
+// Ensure that the appropriate values are changed, and if so, only when the guard holds true.
+{% for declaration in value_change_verification_rules %}
+ensures {{ declaration }};
+{% endfor %}
+{% endif %}

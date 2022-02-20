@@ -1,6 +1,15 @@
 {{ human_readable_expression_identification }}.
+{% if root_expression_opening_body != "" %}
+{{ root_expression_opening_body | trim }}
+{% endif %}
 {% if not is_superfluous %}
 if(!({{ in_line_expression }})) {
+    {% if root_expression_failure_closing_body != "" %}
+    {{ root_expression_failure_closing_body | trim }}
+    {% endif %}
     return false;
 }
+{% if root_expression_success_closing_body != "" %}
+{{ root_expression_success_closing_body | trim }}
+{% endif %}
 {% endif %}

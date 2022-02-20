@@ -1,0 +1,14 @@
+{% if class_value_change_restrictions | length > 0 %}
+// Ensure that class variable values remain unchanged after calling the function.
+{% for restriction in class_value_change_restrictions %}
+ensures {{ restriction | trim }};
+{% endfor %}
+
+{% endif %}
+{% if state_machine_value_change_restrictions | length > 0 %}
+// Ensure that state machine variable values remain unchanged after calling the function.
+{% for restriction in state_machine_value_change_restrictions %}
+ensures {{ restriction | trim }};
+{% endfor %}
+
+{% endif %}

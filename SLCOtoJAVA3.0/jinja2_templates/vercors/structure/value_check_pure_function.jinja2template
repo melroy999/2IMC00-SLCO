@@ -1,0 +1,1 @@
+pure {{ pure_function_type }} {{ pure_function_name }}(int _i, {{ pure_function_target_parameters }}, {{ pure_function_type }} v_old) = {{ pure_function_body }};

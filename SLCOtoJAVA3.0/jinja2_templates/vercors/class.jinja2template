@@ -1,7 +1,7 @@
-// > CLASS.START ({{ model_name }})
+// >> CLASS.START ({{ model_name }})
 
 // VerCors verification instructions for SLCO class {{ model_name }}.
-class {{ model_name }} implements SLCO_Class {
+class {{ model_name }} {
     {% if variable_declarations | length > 0 %}
     // Class variables.
     {% for v in variable_declarations %}
@@ -23,7 +23,7 @@ class {{ model_name }} implements SLCO_Class {
 }
 
 {% for sm in state_machines %}
-{{ sm | indent(4, False) }}
+{{ sm | trim }}
 
 {% endfor %}
-// < CLASS.END ({{ model_name }})
+// << CLASS.END ({{ model_name }})

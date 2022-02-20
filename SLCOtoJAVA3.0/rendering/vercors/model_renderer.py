@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import List, Dict, Tuple
+from typing import List, Tuple
 
 from objects.ast.interfaces import SlcoStatementNode
-from objects.ast.models import SlcoModel, Class, StateMachine, Transition, Variable, VariableRef, Expression
+from objects.ast.models import SlcoModel, Class, StateMachine, Transition, VariableRef, Expression, State
 from rendering.java.model_renderer import JavaModelRenderer
 
 
@@ -16,7 +16,7 @@ class VercorsModelRenderer(JavaModelRenderer):
         super().__init__()
 
         # Create additional supportive variables.
-        self.verification_targets: Dict[Variable, List[int]] = dict()
+        self.current_assumptions: List[str] = []
 
         # Overwrite the model, class and state machine templates to completely stripped down versions without nesting.
         self.state_machine_template = self.env.get_template("vercors/state_machine.jinja2template")
@@ -33,6 +33,12 @@ class VercorsModelRenderer(JavaModelRenderer):
         )
         self.common_permissions_template = self.env.get_template(
             "vercors/util/common_permissions.jinja2template"
+        )
+        self.vercors_assumptions_template = self.env.get_template(
+            "vercors/util/vercors_assumptions.jinja2template"
+        )
+        self.vercors_expression_control_node_contract_body_template = self.env.get_template(
+            "vercors/util/vercors_expression_control_node_contract_body.jinja2template"
         )
         self.state_machine_constructor_contract_template = self.env.get_template(
             "vercors/state_machine_constructor_contract.jinja2template"
@@ -72,9 +78,18 @@ class VercorsModelRenderer(JavaModelRenderer):
     ) -> str:
         """Render a conjunction statement as nested if-statements to circumvent the lack of short-circuit evaluation."""
         # Render a control node for each of the values.
-        value_in_line_statements = [
-            (v, self.render_expression_control_node(v, enforce_no_method_creation)) for v in model.values
-        ]
+        value_in_line_statements = []
+        for v in model.values:
+            value_in_line_statements.append((v, self.render_expression_control_node(v, enforce_no_method_creation)))
+
+            # Add v as an assumption, since it is guaranteed to hold from this point on due to atomicity.
+            in_line_statement = self.get_expression_control_node_in_line_statement(
+                v, enforce_no_method_creation=True
+            )
+            self.current_assumptions.append(in_line_statement)
+
+        # Remove all assumptions associated to this conjunction, since they can only be used locally.
+        self.current_assumptions = self.current_assumptions[:-len(model.values)]
 
         # Render the if-statements with the given in-line statement and combine them through a nested if-structure.
         conditional_body = self.render_expression_control_node_if_statement(
@@ -94,9 +109,18 @@ class VercorsModelRenderer(JavaModelRenderer):
     ) -> str:
         """Render a disjunction statement as if-statements to circumvent the lack of short-circuit evaluation."""
         # Render a control node for each of the values.
-        value_in_line_statements = [
-            (v, self.render_expression_control_node(v, enforce_no_method_creation)) for v in model.values
-        ]
+        value_in_line_statements = []
+        for v in model.values:
+            value_in_line_statements.append((v, self.render_expression_control_node(v, enforce_no_method_creation)))
+
+            # Add !(v) as an assumption, since it is guaranteed not to hold from this point on due to atomicity.
+            in_line_statement = self.get_expression_control_node_in_line_statement(
+                v, enforce_no_method_creation=True
+            )
+            self.current_assumptions.append(f"!({in_line_statement})")
+
+        # Remove all assumptions associated to this disjunction, since they can only be used locally.
+        self.current_assumptions = self.current_assumptions[:-len(model.values)]
 
         # Render the if-statements with the given in-line statement and combine them in succession.
         value_if_statements = [
@@ -174,19 +198,37 @@ class VercorsModelRenderer(JavaModelRenderer):
         # Render the common permissions template.
         return self.common_permissions_template.render()
 
+    def render_vercors_expression_control_node_contract_requirements(
+            self, model: SlcoStatementNode
+    ) -> Tuple[str, List[str]]:
+        """
+        Render additional requirements that should be included in the contract.
+        """
+        # Gather the appropriate data.
+        vercors_assumptions = self.current_assumptions
+
+        # Render the vercors assumptions template.
+        return self.vercors_assumptions_template.render(
+            vercors_assumptions=vercors_assumptions
+        ), []
+
     def render_vercors_expression_control_node_contract_body(self, model: SlcoStatementNode) -> Tuple[str, List[str]]:
         """Render the body of the vercors contract of the given transition, including potential pure functions."""
         # Pre-render data.
-        vercors_common_contract_permissions = self.render_vercors_contract_common_permissions().strip()
-        vercors_state_machine_contract_permissions = self.render_vercors_contract_state_machine_permissions().strip()
-        vercors_class_contract_permissions = self.render_vercors_contract_class_permissions().strip()
-        vercors_contract_permissions = "\n\n".join(v for v in [
-            vercors_common_contract_permissions,
-            vercors_state_machine_contract_permissions,
-            vercors_class_contract_permissions
-        ] if v != "")
+        in_line_statement = self.get_expression_control_node_in_line_statement(model, enforce_no_method_creation=True)
+        vercors_common_contract_permissions = self.render_vercors_contract_common_permissions()
+        vercors_state_machine_contract_permissions = self.render_vercors_contract_state_machine_permissions()
+        vercors_class_contract_permissions = self.render_vercors_contract_class_permissions()
+        vercors_requirements, pure_functions = self.render_vercors_expression_control_node_contract_requirements(model)
 
-        return vercors_contract_permissions, []
+        # Render the vercors expression control node contract body template.
+        return self.vercors_expression_control_node_contract_body_template.render(
+            in_line_statement=in_line_statement,
+            vercors_common_contract_permissions=vercors_common_contract_permissions,
+            vercors_state_machine_contract_permissions=vercors_state_machine_contract_permissions,
+            vercors_class_contract_permissions=vercors_class_contract_permissions,
+            vercors_requirements=vercors_requirements
+        ), pure_functions
 
     def render_vercors_expression_control_node_contract(self, model: SlcoStatementNode) -> str:
         """Render the vercors contract of the given transition."""
@@ -209,27 +251,27 @@ class VercorsModelRenderer(JavaModelRenderer):
         return model.locking_atomic_node is not None
 
     # noinspection PyMethodMayBeStatic
-    def get_expression_control_node_opening_body(self, model: SlcoStatementNode) -> str:
-        # TODO
-        return super().get_expression_control_node_opening_body(model)
-
-    # noinspection PyMethodMayBeStatic
     def get_expression_control_node_success_closing_body(self, model: SlcoStatementNode) -> str:
-        # TODO
-        # Get the in-line statement.
-        in_line_statement = self.get_expression_control_node_in_line_statement(
-            model.get_original_statement(), enforce_no_method_creation=True
-        )
-        return f"//@ node_success_closing_body"
+        # Render the in-line statement as an assertion but only if a conjunction or disjunction.
+        result = super().get_expression_control_node_success_closing_body(model)
+        if isinstance(model, Expression) and model.op in ["and", "or"]:
+            in_line_statement = self.get_expression_control_node_in_line_statement(
+                model, enforce_no_method_creation=True
+            )
+            return "\n".join(v for v in [f"//@ assert {in_line_statement};", result] if v != "")
+        else:
+            return result
 
     # noinspection PyMethodMayBeStatic
     def get_expression_control_node_failure_closing_body(self, model: SlcoStatementNode) -> str:
-        # TODO
-        # Get the in-line statement.
-        in_line_statement = self.get_expression_control_node_in_line_statement(
-            model.get_original_statement(), enforce_no_method_creation=True
-        )
-        return f"//@ node_failure_closing_body"
+        result = super().get_expression_control_node_failure_closing_body(model)
+        if isinstance(model, Expression) and model.op in ["and", "or"]:
+            in_line_statement = self.get_expression_control_node_in_line_statement(
+                model, enforce_no_method_creation=True
+            )
+            return "\n".join(v for v in [f"//@ assert {in_line_statement};", result] if v != "")
+        else:
+            return result
 
     def render_vercors_transition_contract_body(self, model: Transition) -> Tuple[str, List[str]]:
         """Render the body of the vercors contract of the given transition, including potential pure functions."""
@@ -263,11 +305,31 @@ class VercorsModelRenderer(JavaModelRenderer):
         # Do not render the state change, since enums are not supported by VerCors.
         return ""
 
-    def render_transition(self, model: Transition) -> str:
-        # Keep a dictionary of assignment operations that need to be verified by the transition's contract.
-        # This variable is used later in the transition's contract.
-        self.verification_targets: Dict[Variable, List[int]] = dict()
-        return super().render_transition(model)
+    def get_decision_structure_contract_body(self, model: StateMachine, state: State) -> Tuple[str, List[str]]:
+        """
+        Render the body of the vercors contract of the given decision structure, including potential pure functions.
+        """
+        # Pre-render data.
+        vercors_common_contract_permissions = self.render_vercors_contract_common_permissions().strip()
+        vercors_state_machine_contract_permissions = self.render_vercors_contract_state_machine_permissions().strip()
+        vercors_class_contract_permissions = self.render_vercors_contract_class_permissions().strip()
+        vercors_contract_permissions = "\n\n".join(v for v in [
+            vercors_common_contract_permissions,
+            vercors_state_machine_contract_permissions,
+            vercors_class_contract_permissions
+        ] if v != "")
+
+        return vercors_contract_permissions, []
+
+    def get_decision_structure_contract(self, model: StateMachine, state: State) -> str:
+        # Pre-render data.
+        contract_body, pure_functions = self.get_decision_structure_contract_body(model, state)
+
+        # Render the vercors contract template.
+        return self.vercors_contract_template.render(
+            pure_functions=pure_functions,
+            contract_body=contract_body
+        )
 
     def render_state_machine_constructor_contract(self, model: StateMachine) -> str:
         return self.state_machine_constructor_contract_template.render()

@@ -428,63 +428,6 @@ class JavaModelRenderer:
             # Return the statement as an in-line Java statement.
             return in_line_statement
 
-
-    # def render_expression_control_node_old(self, model: SlcoStatementNode, enforce_no_method_creation: bool = False) -> str:
-    #     """Render the given statement object as in-line Java code and create supportive methods if necessary."""
-    #     # Construct the in-line statement.
-    #     if isinstance(model, Expression):
-    #         in_line_statement = self.render_expression(model, enforce_no_method_creation)
-    #     elif isinstance(model, Primary):
-    #         in_line_statement = self.render_primary(model, enforce_no_method_creation)
-    #     elif isinstance(model, VariableRef):
-    #         in_line_statement = self.render_variable_ref(model)
-    #     else:
-    #         raise Exception(f"No function exists to turn objects of type {type(model)} into in-line Java statements.")
-    #
-    #     # Determine if the control node can be in-line or not--if not, generate a new function and refer to it.
-    #     if not enforce_no_method_creation and self.requires_atomic_node_method(model):
-    #         # Give the node a name, render it as a separate method, and return a call to the method.
-    #         control_node_name = self.get_control_node_name()
-    #
-    #         # Determine if the internal if-statement can be simplified.
-    #         condition_is_true = model.is_true()
-    #         condition_is_false = not condition_is_true and model.is_false()
-    #
-    #         # Pre-render applicable information and data.
-    #         human_readable_expression_identification = self.get_expression_control_node_comment(model)
-    #         has_lock_operations_in_exit_nodes = \
-    #             model.locking_atomic_node.success_exit.has_locks() or model.locking_atomic_node.failure_exit.has_locks()
-    #         has_single_exit_path = condition_is_true or condition_is_false
-    #
-    #         # Render the following sections at the last moment to ensure that all recursive steps have finished.
-    #         expression_control_node_contract = self.get_expression_control_node_contract(model)
-    #         expression_control_node_opening_body = self.get_expression_control_node_opening_body(model)
-    #         expression_control_node_success_closing_body = self.get_expression_control_node_success_closing_body(model)
-    #         expression_control_node_failure_closing_body = self.get_expression_control_node_failure_closing_body(model)
-    #
-    #         # Render the statement as a control node method using the control node template.
-    #         self.current_control_node_methods.append(
-    #             self.expression_control_node_template.render(
-    #                 control_node_name=control_node_name,
-    #                 in_line_statement=in_line_statement,
-    #                 condition_is_true=condition_is_true,
-    #                 condition_is_false=condition_is_false,
-    #                 human_readable_expression_identification=human_readable_expression_identification,
-    #                 expression_control_node_contract=expression_control_node_contract,
-    #                 expression_control_node_opening_body=expression_control_node_opening_body,
-    #                 expression_control_node_success_closing_body=expression_control_node_success_closing_body,
-    #                 expression_control_node_failure_closing_body=expression_control_node_failure_closing_body,
-    #                 has_lock_operations_in_exit_nodes=has_lock_operations_in_exit_nodes,
-    #                 has_single_exit_path=has_single_exit_path
-    #             )
-    #         )
-    #
-    #         # Have the in-line statement call the control node method instead.
-    #         in_line_statement = f"{control_node_name}()"
-    #
-    #     # Return the statement as an in-line Java statement.
-    #     return in_line_statement
-
     def get_statement_prefix(self) -> str:
         """Get an unique prefix for the statement."""
         i = self.current_control_node_id
@@ -513,8 +456,13 @@ class JavaModelRenderer:
         return ""
 
     # noinspection PyMethodMayBeStatic
-    def get_root_expression_closing_body(self, model: Union[Expression, Primary]) -> str:
-        """Get the closing statements of the root expression object."""
+    def get_root_expression_success_closing_body(self, model: Union[Expression, Primary]) -> str:
+        """Get the closing statements in the success branch of the root expression object."""
+        return ""
+
+    # noinspection PyMethodMayBeStatic
+    def get_root_expression_failure_closing_body(self, model: Union[Expression, Primary]) -> str:
+        """Get the closing statements in the failure branch of the root expression object."""
         return ""
 
     def render_root_expression(self, model: Union[Expression, Primary]) -> str:
@@ -535,14 +483,16 @@ class JavaModelRenderer:
 
         # Render the following sections at the last moment to ensure that all recursive steps have finished.
         root_expression_opening_body = self.get_root_expression_opening_body(model)
-        root_expression_closing_body = self.get_root_expression_closing_body(model)
+        root_expression_success_closing_body = self.get_root_expression_success_closing_body(model)
+        root_expression_failure_closing_body = self.get_root_expression_failure_closing_body(model)
 
         # Render the assignment template.
         return self.expression_template.render(
             in_line_expression=in_line_expression,
             human_readable_expression_identification=human_readable_expression_identification,
             root_expression_opening_body=root_expression_opening_body,
-            root_expression_closing_body=root_expression_closing_body,
+            root_expression_success_closing_body=root_expression_success_closing_body,
+            root_expression_failure_closing_body=root_expression_failure_closing_body,
             is_superfluous=is_superfluous
         )
 
@@ -790,9 +740,9 @@ class JavaModelRenderer:
         return rendered_decisions, rendered_excluded_transitions
 
     # noinspection PyMethodMayBeStatic
-    def get_decision_structure_contract(self, model: StateMachine, state: State) -> str:
+    def get_decision_structure_contract(self, model: StateMachine, state: State) -> Tuple[str, List[str]]:
         """Get the contract of the decision structure method."""
-        return ""
+        return "", []
 
     # noinspection PyMethodMayBeStatic
     def get_decision_structure_opening_body(self, model: StateMachine, state: State) -> str:
