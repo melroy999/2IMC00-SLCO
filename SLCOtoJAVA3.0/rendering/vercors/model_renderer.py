@@ -269,7 +269,7 @@ class VercorsModelRenderer(JavaModelRenderer):
             in_line_statement = self.get_expression_control_node_in_line_statement(
                 model, enforce_no_method_creation=True
             )
-            return "\n".join(v for v in [f"//@ assert {in_line_statement};", result] if v != "")
+            return "\n".join(v for v in [f"//@ assert !({in_line_statement});", result] if v != "")
         else:
             return result
 

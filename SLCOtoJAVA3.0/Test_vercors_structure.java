@@ -134,9 +134,10 @@ class P_SM1Thread {
                 return true;
             }
             //@ assert !(c.i < 2);
+        } else {
+            //@ assert !(c.i >= 0);
         }
-        //@ assert !(c.i >= 0);
-        //@ assert c.i >= 0 && c.i < 2;
+        //@ assert !(c.i >= 0 && c.i < 2);
         return false;
     }
 
@@ -200,9 +201,10 @@ class P_SM1Thread {
                 return true;
             }
             //@ assert !(c.x[c.i] == 0);
+        } else {
+            //@ assert !(c.i >= 0 && c.i < 2);
         }
-        //@ assert !(c.i >= 0 && c.i < 2);
-        //@ assert c.i >= 0 && c.i < 2 && c.x[c.i] == 0;
+        //@ assert !(c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
         return false;
     }
 
@@ -446,9 +448,10 @@ class P_SM2Thread {
                 return true;
             }
             //@ assert !(c.i < 2);
+        } else {
+            //@ assert !(c.i >= 0);
         }
-        //@ assert !(c.i >= 0);
-        //@ assert c.i >= 0 && c.i < 2;
+        //@ assert !(c.i >= 0 && c.i < 2);
         return false;
     }
 
@@ -540,9 +543,10 @@ class P_SM2Thread {
                 return true;
             }
             //@ assert !(c.x[c.i] != 0);
+        } else {
+            //@ assert !(c.i >= 0 && c.i < 2);
         }
-        //@ assert !(c.i >= 0 && c.i < 2);
-        //@ assert c.i >= 0 && c.i < 2 && c.x[c.i] != 0;
+        //@ assert !(c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
         return false;
     }
 

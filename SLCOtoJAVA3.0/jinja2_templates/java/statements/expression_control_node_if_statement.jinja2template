@@ -13,7 +13,14 @@ if({{ in_line_statement }}) {
     {% endif %}
     return true;
     {% endif %}
+}{% if nested_statement != "" %} else {
+    {% if if_statement_failure_closing_body != "" %}
+    {{ if_statement_failure_closing_body | indent(4, False) | trim }}
+    {% endif %}
 }
+{% else %}
 {% if if_statement_failure_closing_body != "" %}
+
 {{ if_statement_failure_closing_body | trim }}
+{% endif %}
 {% endif %}
