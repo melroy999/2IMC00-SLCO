@@ -746,9 +746,9 @@ class JavaModelRenderer:
         return rendered_decisions, rendered_excluded_transitions
 
     # noinspection PyMethodMayBeStatic
-    def get_decision_structure_contract(self, model: StateMachine, state: State) -> Tuple[str, List[str]]:
+    def get_decision_structure_contract(self, model: StateMachine, state: State) -> str:
         """Get the contract of the decision structure method."""
-        return "", []
+        return ""
 
     # noinspection PyMethodMayBeStatic
     def get_decision_structure_opening_body(self, model: StateMachine, state: State) -> str:
