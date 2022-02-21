@@ -711,7 +711,7 @@ class JavaModelRenderer:
 
     def render_non_deterministic_decision_node(self, model: DecisionNode) -> str:
         """Render the given non-deterministic decision node as Java code."""
-        if settings.non_determinism:
+        if settings.use_random_pick:
             return self.render_non_deterministic_decision_node(model)
         else:
             return self.render_sequential_decision_node(model)
@@ -943,5 +943,6 @@ class JavaModelRenderer:
             lock_manager=lock_manager,
             classes=classes,
             object_instantiations=object_instantiations,
-            constructor_contract=constructor_contract
+            constructor_contract=constructor_contract,
+            settings=settings
         )

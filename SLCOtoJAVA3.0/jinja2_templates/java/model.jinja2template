@@ -1,5 +1,9 @@
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
+{% if settings.running_time != 0 %}
+import java.time.Duration;
+import java.time.Instant;
+{% endif %}
 
 // SLCO model {{ model_name }}.
 public class {{ model_name }} {
@@ -24,6 +28,14 @@ public class {{ model_name }} {
         };
     }
 
+    {% if lock_manager != "" %}
+    {{ lock_manager | indent(4, False) | trim }}
+
+    {% endif %}
+    {% for c in classes %}
+    {{ c | indent(4, False) | trim }}
+
+    {% endfor %}
     // Start all threads.
     private void startThreads() {
         for(SLCO_Class object : objects) {
@@ -44,12 +56,4 @@ public class {{ model_name }} {
         model.startThreads();
         model.joinThreads();
     }
-    {% if lock_manager != "" %}
-
-    {{ lock_manager | indent(4, False) | trim }}
-    {% endif %}
-    {% for c in classes %}
-
-    {{ c | indent(4, False) | trim }}
-    {% endfor %}
 }

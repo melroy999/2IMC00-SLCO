@@ -36,6 +36,10 @@ private static class {{ model_name }} implements SLCO_Class {
         {% endif %}
     }
 
+    {% for sm in state_machines %}
+    {{ sm | indent(4, False) }}
+
+    {% endfor %}
     // Start all threads.
     public void startThreads() {
         {% for sm_name in state_machine_names %}
@@ -56,8 +60,4 @@ private static class {{ model_name }} implements SLCO_Class {
             }
         }
     }
-    {% for sm in state_machines %}
-
-    {{ sm | indent(4, False) }}
-    {% endfor %}
 }

@@ -22,27 +22,6 @@ public class Test {
         };
     }
 
-    // Start all threads.
-    private void startThreads() {
-        for(SLCO_Class object : objects) {
-            object.startThreads();
-        }
-    }
-
-    // Join all threads.
-    private void joinThreads() {
-        for(SLCO_Class object : objects) {
-            object.joinThreads();
-        }
-    }
-
-    // Run the application.
-    public static void main(String[] args) {
-        Test model = new Test();
-        model.startThreads();
-        model.joinThreads();
-    }
-
     // Lock class to handle locks of global variables
     private static class LockManager {
         // The locks
@@ -120,25 +99,6 @@ public class Test {
             T_SM2 = new P_SM2Thread(lockManager);
         }
 
-        // Start all threads.
-        public void startThreads() {
-            T_SM1.start();
-            T_SM2.start();
-        }
-
-        // Join all threads.
-        public void joinThreads() {
-            while (true) {
-                try {
-                    T_SM1.join();
-                    T_SM2.join();
-                    break;
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
         // Define the states fot the state machine SM1.
         interface P_SM1Thread_States {
             enum States {
@@ -168,27 +128,6 @@ public class Test {
                 lock_ids = new int[2];
                 target_locks = new int[2];
                 random = new Random();
-            }
-
-            // Main state machine loop.
-            private void exec() {
-                while(true) {
-                    lockManager.check_no_locks();
-                    switch(currentState) {
-                        case SMC0 -> exec_SMC0();
-                        case SMC1 -> exec_SMC1();
-                    }
-                }
-            }
-
-            // The thread's run method.
-            public void run() {
-                try {
-                    exec();
-                } catch(Exception e) {
-                    lockManager.exception_unlock();
-                    throw e;
-                }
             }
 
             // SLCO expression wrapper | i >= 0.
@@ -258,6 +197,29 @@ public class Test {
             private void exec_SMC1() {
                 // There are no transitions starting in state SMC1.
             }
+
+            // Main state machine loop.
+            private void exec() {
+                int i = 0;
+                while(i < 10) {
+                    lockManager.check_no_locks();
+                    switch(currentState) {
+                        case SMC0 -> exec_SMC0();
+                        case SMC1 -> exec_SMC1();
+                    }
+                    i++;
+                }
+            }
+
+            // The thread's run method.
+            public void run() {
+                try {
+                    exec();
+                } catch(Exception e) {
+                    lockManager.exception_unlock();
+                    throw e;
+                }
+            }
         }
 
         // Define the states fot the state machine SM2.
@@ -297,27 +259,6 @@ public class Test {
                 // Variable instantiations.
                 y = new int[] { 0, 0 };
                 j = 1;
-            }
-
-            // Main state machine loop.
-            private void exec() {
-                while(true) {
-                    lockManager.check_no_locks();
-                    switch(currentState) {
-                        case SMC0 -> exec_SMC0();
-                        case SMC1 -> exec_SMC1();
-                    }
-                }
-            }
-
-            // The thread's run method.
-            public void run() {
-                try {
-                    exec();
-                } catch(Exception e) {
-                    lockManager.exception_unlock();
-                    throw e;
-                }
             }
 
             // SLCO expression wrapper | i >= 0.
@@ -396,6 +337,69 @@ public class Test {
             private void exec_SMC1() {
                 // There are no transitions starting in state SMC1.
             }
+
+            // Main state machine loop.
+            private void exec() {
+                int i = 0;
+                while(i < 10) {
+                    lockManager.check_no_locks();
+                    switch(currentState) {
+                        case SMC0 -> exec_SMC0();
+                        case SMC1 -> exec_SMC1();
+                    }
+                    i++;
+                }
+            }
+
+            // The thread's run method.
+            public void run() {
+                try {
+                    exec();
+                } catch(Exception e) {
+                    lockManager.exception_unlock();
+                    throw e;
+                }
+            }
         }
+
+        // Start all threads.
+        public void startThreads() {
+            T_SM1.start();
+            T_SM2.start();
+        }
+
+        // Join all threads.
+        public void joinThreads() {
+            while (true) {
+                try {
+                    T_SM1.join();
+                    T_SM2.join();
+                    break;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // Start all threads.
+    private void startThreads() {
+        for(SLCO_Class object : objects) {
+            object.startThreads();
+        }
+    }
+
+    // Join all threads.
+    private void joinThreads() {
+        for(SLCO_Class object : objects) {
+            object.joinThreads();
+        }
+    }
+
+    // Run the application.
+    public static void main(String[] args) {
+        Test model = new Test();
+        model.startThreads();
+        model.joinThreads();
     }
 }

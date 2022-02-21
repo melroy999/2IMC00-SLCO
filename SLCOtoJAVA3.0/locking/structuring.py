@@ -480,7 +480,7 @@ def create_main_locking_structure(model) -> AtomicNode:
         # The structure depends on the type of decision made.
         if model.is_deterministic:
             construct_deterministic_decision_node(model, result)
-        elif settings.non_determinism:
+        elif settings.use_random_pick:
             construct_non_deterministic_decision_node(model, result)
         else:
             if settings.atomic_sequential:

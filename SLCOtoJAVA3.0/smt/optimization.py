@@ -365,47 +365,23 @@ def add_grouping_dependant_unavoidable_location_conflict_marks(node: DecisionNod
                         )
 
 
-def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
-    """
-    Use z3 optimization to create a minimally sized collections of groups of transitions in which the guard statements'
-    active regions do not overlap.
-    """
-    # Give all transitions an unique identity.
-    for i, t in enumerate(transitions):
-        t.id = i
-
-    # Filter out all transitions that are invariably true.
-    trivially_satisfiable_transitions = []
-    remaining_transitions = []
-    excluded_transitions = []
-    for t in transitions:
-        if t.guard.is_true():
-            trivially_satisfiable_transitions.append(t)
-        elif t.guard.is_false():
-            excluded_transitions.append(t)
-        else:
-            remaining_transitions.append(t)
-
+def create_deterministic_decision_structures(remaining_transitions: List[Transition]) -> List[Transition, DecisionNode]:
+    """Find and create deterministic structures for the provided list of transitions."""
     # Save the current state of the solver.
     s.push()
-
     # Create variables for each transition that will indicate whether they are part of the group or not.
     alias_variables = {f"g{t.id}": z3.Int(f"g{t.id}") for t in remaining_transitions}
-
     # Create support variables for the priorities assigned to the transitions.
     for t in remaining_transitions:
         v = alias_variables[f"p{t.id}"] = z3.Int(f"p{t.id}")
         s.add(v == t.priority)
-
     # Create the appropriate truth tables for the target transitions.
     create_and_truth_table(remaining_transitions, alias_variables)
     create_is_equal_table(remaining_transitions, alias_variables)
-
     # Ensure that the part of the group variable of each transition can only be zero or one.
     for t in remaining_transitions:
         v = alias_variables[f"g{t.id}"]
         s.add(z3.And(v >= 0, v < 2))
-
     # Calculate truth matrices for the transitions that still need to be assigned to a group.
     non_deterministic_choices: List[Union[DecisionNode, Transition]] = []
     while len(remaining_transitions) > 0:
@@ -473,7 +449,7 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
         for d in distinct_guard_groups:
             d.sort(key=lambda x: (x.priority, x.id))
             if len(d) > 1:
-                if not settings.non_determinism:
+                if not settings.use_random_pick:
                     # Given that all transitions have the same guard, only the first will be reachable. Exclude others.
                     decision_node = DecisionNode(False, d[:1], d[1:])
                 else:
@@ -496,9 +472,39 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
 
         # Restore the state of the solver.
         s.pop()
-
     # Restore the state of the solver.
     s.pop()
+    return non_deterministic_choices
+
+
+def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
+    """
+    Use z3 optimization to create a minimally sized collections of groups of transitions in which the guard statements'
+    active regions do not overlap.
+    """
+    # Give all transitions an unique identity.
+    for i, t in enumerate(transitions):
+        t.id = i
+
+    # Filter out all transitions that are invariably true.
+    trivially_satisfiable_transitions = []
+    remaining_transitions = []
+    excluded_transitions = []
+    for t in transitions:
+        if t.guard.is_true():
+            trivially_satisfiable_transitions.append(t)
+        elif t.guard.is_false():
+            excluded_transitions.append(t)
+        else:
+            remaining_transitions.append(t)
+
+    if settings.no_deterministic_structures:
+        # Do not create deterministic structures when the no determinism flag is provided.
+        non_deterministic_choices: List[Transition, DecisionNode] = remaining_transitions
+    else:
+        non_deterministic_choices: List[Transition, DecisionNode] = create_deterministic_decision_structures(
+            remaining_transitions
+        )
 
     # TODO: decisions following a true expression in the outer non deterministic group are superfluous if sequential.
     # TODO: potentially have transitions with location sensitive locking targets be earlier in the list?
