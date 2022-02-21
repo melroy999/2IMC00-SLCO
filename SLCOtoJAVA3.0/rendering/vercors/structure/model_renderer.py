@@ -104,7 +104,7 @@ class VercorsStructureModelRenderer(VercorsModelRenderer):
         return "\n".join(v for v in [f"//@ assert !({in_line_statement});", result] if v != "")
 
     def get_assignment_opening_body(self, model: Assignment) -> str:
-        result = super().get_assignment_closing_body(model)
+        result = super().get_assignment_opening_body(model)
 
         # Statements that should be added in the opening body.
         statements = []

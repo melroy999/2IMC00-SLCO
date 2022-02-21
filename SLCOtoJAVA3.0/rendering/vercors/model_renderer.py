@@ -2,8 +2,10 @@ from __future__ import annotations
 
 from typing import List, Tuple
 
+import settings
 from objects.ast.interfaces import SlcoStatementNode
-from objects.ast.models import SlcoModel, Class, StateMachine, Transition, VariableRef, Expression, State
+from objects.ast.models import SlcoModel, Class, StateMachine, Transition, VariableRef, Expression, State, Assignment
+from objects.ast.util import get_variable_references
 from rendering.java.model_renderer import JavaModelRenderer
 
 
@@ -53,6 +55,26 @@ class VercorsModelRenderer(JavaModelRenderer):
             "vercors/class_constructor_contract.jinja2template"
         )
 
+    def render_range_assumptions(self, model: SlcoStatementNode) -> str:
+        """Render the assumptions needed to avoid index out of bounds permission issues."""
+        assumptions = set()
+        if not settings.remove_index_range_assumptions:
+            # Find all the variables used in the statement.
+            array_variable_references = [r for r in get_variable_references(model) if r.var.is_array]
+
+            # Put bounds on all non-constant expressions used in the indices.
+            for r in array_variable_references:
+                in_line_statement = self.get_expression_control_node_in_line_statement(
+                    r.index, enforce_no_method_creation=True
+                )
+                try:
+                    _ = int(in_line_statement)
+                except ValueError:
+                    assumptions.add(
+                        f"//@ assume 0 <= {in_line_statement} && {in_line_statement} <= {r.var.type.size};"
+                    )
+        return "\n".join(assumptions)
+
     def render_variable_ref(self, model: VariableRef) -> str:
         result = super().render_variable_ref(model)
         if model.var.is_class_variable:
@@ -61,23 +83,22 @@ class VercorsModelRenderer(JavaModelRenderer):
         return result
 
     # noinspection PyMethodMayBeStatic
-    def get_expression_control_node_if_statement_opening_body(self, model: SlcoStatementNode) -> str:
-        # TODO
-        return super().get_expression_control_node_if_statement_opening_body(model)
-
-    # noinspection PyMethodMayBeStatic
     def get_expression_control_node_if_statement_success_closing_body(self, model: SlcoStatementNode) -> str:
-        # TODO
         # Get the in-line statement.
         in_line_statement = self.get_expression_control_node_in_line_statement(model, enforce_no_method_creation=True)
         return f"//@ assert {in_line_statement};"
 
     # noinspection PyMethodMayBeStatic
     def get_expression_control_node_if_statement_failure_closing_body(self, model: SlcoStatementNode) -> str:
-        # TODO
         # Get the in-line statement.
         in_line_statement = self.get_expression_control_node_in_line_statement(model, enforce_no_method_creation=True)
         return f"//@ assert !({in_line_statement});"
+
+    def get_expression_control_node_opening_body(self, model: SlcoStatementNode) -> str:
+        """Get the opening statements of the expression control node object."""
+        result = super().get_expression_control_node_opening_body(model).strip()
+        range_assumptions = self.render_range_assumptions(model)
+        return "\n".join(v for v in [result, range_assumptions] if v != "")
 
     def render_expression_control_node_body_expression_conjunction(
             self, model: Expression, enforce_no_method_creation: bool, expression_control_node_success_closing_body: str
@@ -278,6 +299,12 @@ class VercorsModelRenderer(JavaModelRenderer):
             return "\n".join(v for v in [f"//@ assert !({in_line_statement});", result] if v != "")
         else:
             return result
+
+    def get_assignment_opening_body(self, model: Assignment) -> str:
+        """Get the opening statements of the assignment object."""
+        result = super().get_assignment_opening_body(model).strip()
+        range_assumptions = self.render_range_assumptions(model)
+        return "\n".join(v for v in [result, range_assumptions] if v != "")
 
     def render_vercors_transition_contract_body(self, model: Transition) -> Tuple[str, List[str]]:
         """Render the body of the vercors contract of the given transition, including potential pure functions."""

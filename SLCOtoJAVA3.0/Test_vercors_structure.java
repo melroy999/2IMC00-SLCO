@@ -168,6 +168,7 @@ class P_SM1Thread {
     ensures \result == (c.x[c.i] == 0);
     @*/
     private boolean t_SMC0_0_s_0_n_3() {
+        //@ assume 0 <= c.i && c.i <= 2;
         return c.x[c.i] == 0;
     }
 
@@ -194,6 +195,7 @@ class P_SM1Thread {
     ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
     @*/
     private boolean t_SMC0_0_s_0_n_4() {
+        //@ assume 0 <= c.i && c.i <= 2;
         if(t_SMC0_0_s_0_n_2()) {
             //@ assert c.i >= 0 && c.i < 2;
             if(t_SMC0_0_s_0_n_3()) {
@@ -497,6 +499,7 @@ class P_SM2Thread {
     ensures \result == (c.x[c.i] != 0);
     @*/
     private boolean t_SMC0_0_s_0_n_3() {
+        //@ assume 0 <= c.i && c.i <= 2;
         return c.x[c.i] != 0;
     }
 
@@ -537,6 +540,7 @@ class P_SM2Thread {
     ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
     @*/
     private boolean t_SMC0_0_s_0_n_4() {
+        //@ assume 0 <= c.i && c.i <= 2;
         if(t_SMC0_0_s_0_n_2()) {
             //@ assert c.i >= 0 && c.i < 2;
             if(t_SMC0_0_s_0_n_3()) {
@@ -609,11 +613,13 @@ class P_SM2Thread {
         }
         //@ assert c.i >= 0 && c.i < 2 && c.x[c.i] != 0;
         // SLCO assignment | x[i] := y[i].
+        //@ assume 0 <= c.i && c.i <= 2;
         //@ ghost _rhs_0 = y[c.i];
         //@ ghost _index_0 = c.i;
         c.x[c.i] = y[c.i];
         //@ assert c.x[_index_0] == _rhs_0;
         // SLCO assignment | y[i] := 0.
+        //@ assume 0 <= c.i && c.i <= 2;
         //@ ghost _rhs_1 = 0;
         //@ ghost _index_1 = c.i;
         y[c.i] = 0;

@@ -258,6 +258,7 @@ class P_SM1Thread {
         //@ assert lock_requests[1] == 1; // Verify lock activity.
         //@ assert lock_requests[0] == 1; // Check c.i.
         //@ assert lock_requests[1] == 1; // Check c.x[c.i].
+        //@ assume 0 <= c.i && c.i <= 2;
         if(c.x[c.i] == 0) {
             //@ assert c.x[c.i] == 0;
             lock_requests[0] = lock_requests[0] - 1; // Release c.i
@@ -311,6 +312,7 @@ class P_SM1Thread {
     ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
     @*/
     private boolean t_SMC0_0_s_0_n_4() {
+        //@ assume 0 <= c.i && c.i <= 2;
         if(t_SMC0_0_s_0_n_2()) {
             //@ assert c.i >= 0 && c.i < 2;
             if(t_SMC0_0_s_0_n_3()) {
@@ -723,6 +725,7 @@ class P_SM2Thread {
         //@ assert lock_requests[1] == 1; // Verify lock activity.
         //@ assert lock_requests[0] == 1; // Check c.i.
         //@ assert lock_requests[1] == 1; // Check c.x[c.i].
+        //@ assume 0 <= c.i && c.i <= 2;
         if(c.x[c.i] != 0) {
             //@ assert c.x[c.i] != 0;
             return true;
@@ -783,6 +786,7 @@ class P_SM2Thread {
     ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
     @*/
     private boolean t_SMC0_0_s_0_n_4() {
+        //@ assume 0 <= c.i && c.i <= 2;
         if(t_SMC0_0_s_0_n_2()) {
             //@ assert c.i >= 0 && c.i < 2;
             if(t_SMC0_0_s_0_n_3()) {
@@ -850,11 +854,13 @@ class P_SM2Thread {
         // SLCO assignment | x[i] := y[i].
         //@ assert lock_requests[0] == 1; // Check c.i.
         //@ assert lock_requests[1] == 1; // Check c.x[c.i].
+        //@ assume 0 <= c.i && c.i <= 2;
         c.x[c.i] = y[c.i];
         lock_requests[1] = lock_requests[1] - 1; // Release c.x[c.i]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | y[i] := 0.
         //@ assert lock_requests[0] == 1; // Check c.i.
+        //@ assume 0 <= c.i && c.i <= 2;
         y[c.i] = 0;
         lock_requests[0] = lock_requests[0] - 1; // Release c.i
         //@ assert lock_requests[0] == 0; // Verify lock activity.

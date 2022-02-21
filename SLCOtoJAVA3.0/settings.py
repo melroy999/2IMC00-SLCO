@@ -33,11 +33,15 @@ iteration_limit = 0
 # Set the number of seconds the state machines within the model run.
 running_time = 0
 
+# TODO: Remove the array index range assumptions in the VerCors verification.
+remove_index_range_assumptions = False
+
 
 def init(parameters):
     """Initialize the global variables, defining the settings of the program"""
     global model_folder, model_name, use_random_pick, no_deterministic_structures, atomic_sequential, lock_full_arrays,\
-        statement_locks, visualize_locking_graph, verify_locks, iteration_limit, running_time
+        statement_locks, visualize_locking_graph, verify_locks, iteration_limit, running_time, \
+        remove_index_range_assumptions
 
     # Add the name of the model and the location.
     model_folder, model_name = os.path.split(parameters.model)
@@ -54,3 +58,4 @@ def init(parameters):
     verify_locks = parameters.verify_locks
     iteration_limit = parameters.iteration_limit
     running_time = parameters.running_time
+    remove_index_range_assumptions = parameters.remove_index_range_assumptions

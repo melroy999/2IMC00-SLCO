@@ -85,6 +85,11 @@ def get_argument_parser():
                              "(default: 10000 iterations).")
     parser.add_argument("-running_time", nargs="?", type=int, const=60, default=0, required=False,
                         help="Add a timer to the code, to make program executions finite (in seconds, default: 60s).")
+    parser.add_argument("-remove_index_range_assumptions", action='store_true', help="Remove the VerCors statements "
+                                                                                     "that verify whether the values "
+                                                                                     "used to index array variables "
+                                                                                     "are within the bounds of the "
+                                                                                     "aforementioned array.")
     return parser
 
 

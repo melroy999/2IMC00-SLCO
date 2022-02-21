@@ -257,25 +257,21 @@ class JavaModelRenderer:
         statement_comment = f"// SLCO expression wrapper | {model}"
         return statement_comment
 
-    # noinspection PyMethodMayBeStatic
     def get_expression_control_node_contract(self, model: SlcoStatementNode) -> str:
         """Get the contract of the expression control node method."""
         return ""
 
-    # noinspection PyMethodMayBeStatic
     def get_expression_control_node_opening_body(self, model: SlcoStatementNode) -> str:
         """Get the opening statements of the expression control node object."""
         entry_locking_instruction = self.render_locking_instruction(model.locking_atomic_node.entry_node).strip()
         locking_check = self.render_locking_check(model)
         return "\n".join(v for v in [entry_locking_instruction, locking_check] if v != "")
 
-    # noinspection PyMethodMayBeStatic
     def get_expression_control_node_success_closing_body(self, model: SlcoStatementNode) -> str:
         """Get the closing statements of the expression control node object's success branch."""
         success_exit_locking_instruction = self.render_locking_instruction(model.locking_atomic_node.success_exit)
         return success_exit_locking_instruction
 
-    # noinspection PyMethodMayBeStatic
     def get_expression_control_node_failure_closing_body(self, model: SlcoStatementNode) -> str:
         """Get the closing statements of the expression control node object's failure branch."""
         failure_exit_locking_instruction = self.render_locking_instruction(model.locking_atomic_node.failure_exit)
@@ -513,14 +509,12 @@ class JavaModelRenderer:
             statement_comment += f" -> {preprocessed_slco_statement_string}"
         return statement_comment
 
-    # noinspection PyMethodMayBeStatic
     def get_assignment_opening_body(self, model: Assignment) -> str:
         """Get the opening statements of the assignment object."""
         entry_locking_instruction = self.render_locking_instruction(model.locking_atomic_node.entry_node)
         locking_check = self.render_locking_check(model)
         return "\n".join(v for v in [entry_locking_instruction, locking_check] if v != "")
 
-    # noinspection PyMethodMayBeStatic
     def get_assignment_closing_body(self, model: Assignment) -> str:
         """Get the closing statements of the assignment object."""
         success_exit_locking_instruction = self.render_locking_instruction(model.locking_atomic_node.success_exit)
