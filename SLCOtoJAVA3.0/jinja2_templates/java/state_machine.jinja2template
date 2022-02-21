@@ -9,42 +9,13 @@ interface {{ class_name }}_{{ model_name }}Thread_States {
 
 // Representation of the SLCO state machine {{ model_name }}.
 class {{ class_name }}_{{ model_name }}Thread extends Thread implements {{ class_name }}_{{ model_name }}Thread_States {
-    // Current state
-    private {{ class_name }}_{{ model_name }}Thread.States currentState;
-
-    // Random number generator to handle non-determinism.
-    private final Random random;
-
-    {% if variable_declarations | length > 0 %}
-    // Thread local variables.
-    {% for v in variable_declarations %}
-    private {{ v }};
-    {% endfor %}
-
-    {% endif %}
-    // The lock manager of the parent class.
-    private final LockManager lockManager;
-
-    // A list of lock ids and target locks that can be reused.
-    private final int[] lock_ids;
-    private final int[] target_locks;
+    {{ constructor_variable_declarations | indent(4, False) | trim }}
 
     {% if constructor_contract != "" %}
     {{ constructor_contract | indent(4, False) | trim }}
     {% endif %}
     {{ class_name }}_{{ model_name }}Thread(LockManager lockManagerInstance) {
-        currentState = {{ class_name }}_{{ model_name }}Thread.States.{{ initial_state }};
-        lockManager = lockManagerInstance;
-        lock_ids = new int[{{ lock_ids_array_size }}];
-        target_locks = new int[{{ target_locks_array_size }}];
-        random = new Random();
-        {% if variable_instantiations | length > 0 %}
-
-        // Variable instantiations.
-        {% for i in variable_instantiations %}
-        {{ i }};
-        {% endfor %}
-        {% endif %}
+        {{ constructor_body | indent(8, False) | trim }}
     }
 
     // Main state machine loop.

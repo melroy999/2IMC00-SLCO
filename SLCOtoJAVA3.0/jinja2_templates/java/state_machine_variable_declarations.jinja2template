@@ -1,0 +1,19 @@
+// Current state
+private {{ class_name }}_{{ model_name }}Thread.States currentState;
+
+// Random number generator to handle non-determinism.
+private final Random random;
+
+{% if variable_declarations | length > 0 %}
+// Thread local variables.
+{% for v in variable_declarations %}
+private {{ v }};
+{% endfor %}
+
+{% endif %}
+// The lock manager of the parent class.
+private final LockManager lockManager;
+
+// A list of lock ids and target locks that can be reused.
+private final int[] lock_ids;
+private final int[] target_locks;

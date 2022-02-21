@@ -86,6 +86,12 @@ class JavaModelRenderer:
         self.decision_structure_template = self.env.get_template(
             "java/decision_structures/decision_structure.jinja2template"
         )
+        self.state_machine_constructor_body_template = self.env.get_template(
+            "java/state_machine_constructor_body.jinja2template"
+        )
+        self.state_machine_variable_declarations_template = self.env.get_template(
+            "java/state_machine_variable_declarations.jinja2template"
+        )
 
         self.locking_check_template = self.env.get_template("java/locking/locking_check.jinja2template")
         self.locking_instruction_template = self.env.get_template("java/locking/locking_instruction.jinja2template")
@@ -802,6 +808,35 @@ class JavaModelRenderer:
         """Get the contract of the state machine's constructor."""
         return ""
 
+    def render_state_machine_variable_declarations(self, model: StateMachine) -> str:
+        """Get the state machine's variable declarations."""
+        # Pre-render the state machine components.
+        variable_declarations = [f"{self.render_variable_type(v)} {v.name}" for v in model.variables]
+
+        # Render the state machine variable declarations template.
+        return self.state_machine_variable_declarations_template.render(
+            model_name=model.name,
+            class_name=model.parent.name,
+            variable_declarations=variable_declarations
+        )
+
+    def render_state_machine_constructor_body(self, model: StateMachine) -> str:
+        """Get the state machine's constructor."""
+        variable_instantiations = [f"{v.name} = {self.render_variable_default_value(v)}" for v in model.variables]
+        initial_state = str(model.initial_state)
+        lock_ids_array_size = model.lock_ids_list_size
+        target_locks_array_size = model.target_locks_list_size
+
+        # Render the state machine constructor template.
+        return self.state_machine_constructor_body_template.render(
+            model_name=model.name,
+            class_name=model.parent.name,
+            initial_state=initial_state,
+            lock_ids_array_size=lock_ids_array_size,
+            target_locks_array_size=target_locks_array_size,
+            variable_instantiations=variable_instantiations
+        )
+
     def render_state_machine(self, model: StateMachine) -> str:
         """Render the SLCO state machine as Java code."""
         # Set the current state machine.
@@ -810,14 +845,12 @@ class JavaModelRenderer:
         # Pre-render the state machine components.
         states = [str(s) for s in model.states]
         variable_declarations = [f"{self.render_variable_type(v)} {v.name}" for v in model.variables]
-        initial_state = str(model.initial_state)
-        lock_ids_array_size = model.lock_ids_list_size
-        target_locks_array_size = model.target_locks_list_size
-        variable_instantiations = [f"{v.name} = {self.render_variable_default_value(v)}" for v in model.variables]
         transitions = [self.render_transition(t) for t in model.transitions]
         decision_structures = [self.render_decision_structure(model, s) for s in model.states]
 
         # Render the following sections at the last moment to ensure that all recursive steps have finished.
+        constructor_variable_declarations = self.render_state_machine_variable_declarations(model)
+        constructor_body = self.render_state_machine_constructor_body(model)
         constructor_contract = self.render_state_machine_constructor_contract(model)
 
         # Render the state machine template.
@@ -825,14 +858,11 @@ class JavaModelRenderer:
             model_name=model.name,
             class_name=model.parent.name,
             states=states,
-            initial_state=initial_state,
-            variable_declarations=variable_declarations,
-            lock_ids_array_size=lock_ids_array_size,
-            target_locks_array_size=target_locks_array_size,
-            variable_instantiations=variable_instantiations,
             transitions=transitions,
             decision_structures=decision_structures,
             settings=settings,
+            constructor_variable_declarations=constructor_variable_declarations,
+            constructor_body=constructor_body,
             constructor_contract=constructor_contract
         )
 

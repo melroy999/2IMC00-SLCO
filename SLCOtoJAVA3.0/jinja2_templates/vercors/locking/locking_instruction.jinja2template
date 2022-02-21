@@ -1,0 +1,20 @@
+{% if locks_to_acquire_phases | length > 0 %}
+{% for locks_to_acquire_entries in locks_to_acquire_phases %}
+{% for lock_request in locks_to_acquire_entries %}
+lock_requests[{{ lock_request[0] }}] = lock_requests[{{ lock_request[0] }}] + 1; // Acquire {{ lock_request[2] }}
+//@ assert lock_requests[{{ lock_request[0] }}] == 1; // Verify lock activity.
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% if unpacked_lock_requests_entries | length > 0 %}
+{% for lock_request in unpacked_lock_requests_entries %}
+lock_requests[{{ lock_request[0] }}] = lock_requests[{{ lock_request[0] }}] + 1; // Acquire {{ lock_request[2] }}
+//@ assert lock_requests[{{ lock_request[0] }}] == 1; // Verify lock activity.
+{% endfor %}
+{% endif %}
+{% if locks_to_release_entries | length > 0 %}
+{% for lock_request in locks_to_release_entries %}
+lock_requests[{{ lock_request[0] }}] = lock_requests[{{ lock_request[0] }}] - 1; // Release {{ lock_request[1] }}
+//@ assert lock_requests[{{ lock_request[0] }}] == 0; // Verify lock activity.
+{% endfor %}
+{% endif %}

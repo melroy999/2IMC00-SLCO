@@ -26,8 +26,8 @@ class VercorsStructureModelRenderer(VercorsModelRenderer):
         self.value_check_pure_function_template = self.env.get_template(
             "vercors/structure/value_check_pure_function.jinja2template"
         )
-        self.vercors_transition_value_change_check_template = self.env.get_template(
-            "vercors/structure/vercors_transition_value_change_check.jinja2template"
+        self.transition_value_change_check_template = self.env.get_template(
+            "vercors/structure/transition_value_change_check.jinja2template"
         )
 
     def render_locking_instruction(self, model: LockingNode) -> str:
@@ -236,7 +236,7 @@ class VercorsStructureModelRenderer(VercorsModelRenderer):
                     value_change_verification_rules.append(f"!_guard ==> ({variable_name} == \\old({variable_name}))")
 
         # Render the value check pure function template.
-        return self.vercors_transition_value_change_check_template.render(
+        return self.transition_value_change_check_template.render(
             support_variables=support_variables,
             return_value_verification=return_value_verification,
             value_change_verification_rules=value_change_verification_rules

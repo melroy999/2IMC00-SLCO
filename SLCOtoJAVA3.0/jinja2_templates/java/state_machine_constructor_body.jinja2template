@@ -1,0 +1,12 @@
+currentState = {{ class_name }}_{{ model_name }}Thread.States.{{ initial_state }};
+lockManager = lockManagerInstance;
+lock_ids = new int[{{ lock_ids_array_size }}];
+target_locks = new int[{{ target_locks_array_size }}];
+random = new Random();
+{% if variable_instantiations | length > 0 %}
+
+// Variable instantiations.
+{% for i in variable_instantiations %}
+{{ i }};
+{% endfor %}
+{% endif %}

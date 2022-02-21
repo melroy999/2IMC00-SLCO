@@ -1,0 +1,3 @@
+{% for entry in lock_request_entries %}
+//@ assert lock_requests[{{ entry[0] }}] == 1; // Check {{ entry[1] }}.
+{% endfor %}

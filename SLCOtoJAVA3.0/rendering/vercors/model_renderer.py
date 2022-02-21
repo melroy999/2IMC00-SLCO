@@ -19,6 +19,12 @@ class VercorsModelRenderer(JavaModelRenderer):
         self.current_assumptions: List[str] = []
 
         # Overwrite the model, class and state machine templates to completely stripped down versions without nesting.
+        self.state_machine_constructor_body_template = self.env.get_template(
+            "vercors/state_machine_constructor_body.jinja2template"
+        )
+        self.state_machine_variable_declarations_template = self.env.get_template(
+            "vercors/state_machine_variable_declarations.jinja2template"
+        )
         self.state_machine_template = self.env.get_template("vercors/state_machine.jinja2template")
         self.class_template = self.env.get_template("vercors/class.jinja2template")
         self.model_template = self.env.get_template("vercors/model.jinja2template")

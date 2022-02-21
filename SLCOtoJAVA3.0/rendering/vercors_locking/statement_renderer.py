@@ -529,5 +529,5 @@ vercors_permissions_template = env.get_template(
     "vercors_locking/util/vercors_contract.jinja2template"
 )
 vercors_lock_verification_contract_statements_template = env.get_template(
-    "vercors_locking/util/vercors_lock_verification_contract_statements.jinja2template"
+    "vercors_locking/util/lock_id_presence_contract.jinja2template"
 )

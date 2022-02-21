@@ -1,0 +1,9 @@
+// The class the state machine is a part of.
+private final {{ class_name }} c;
+
+{% if variable_declarations | length > 0 %}
+// Thread local variables.
+{% for v in variable_declarations %}
+private {{ v }};
+{% endfor %}
+{% endif %}

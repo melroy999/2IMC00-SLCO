@@ -1,0 +1,14 @@
+// Require and ensure full permission over the lock request variable.
+context Perm(lock_requests, 1);
+
+// Require and ensure that the lock request array is of the correct length.
+context lock_requests != null && lock_requests.length == {{ target_locks_list_size }};
+
+// Require and ensure full permission over all lock request variable indices.
+context Perm(lock_requests[*], 1);
+
+// Require that that no lock requests are active prior to calling the function.
+requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
+
+// Ensure that that no lock requests are active when the function terminates.
+ensures (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);

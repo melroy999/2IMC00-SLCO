@@ -1,0 +1,35 @@
+// Require and ensure full permission over the lock request variable.
+context Perm(lock_requests, 1);
+
+// Require and ensure that the lock request array is of the correct length.
+context lock_requests != null && lock_requests.length == {{ target_locks_list_size }};
+
+// Require and ensure full permission over all lock request variable indices.
+context Perm(lock_requests[*], 1);
+
+{% if entry_node_disjunction == "" %}
+// Require that that no lock requests are active prior to calling the function.
+requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
+{% else %}
+// Require that that the following locks are active prior to calling the function:
+// - [{{ entry_node_comment_string }}]
+requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; ({{ entry_node_disjunction }}) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+{% endif %}
+
+{% if success_exit_disjunction == "" %}
+// Ensure that that no lock requests are active in the success exit of the function.
+ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
+{% else %}
+// Ensure that that the following locks are active in the success exit of the the function:
+// - [{{ success_exit_comment_string }}]
+ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; ({{ success_exit_disjunction }}) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+{% endif %}
+
+{% if failure_exit_disjunction == "" %}
+// Ensure that that no lock requests are active in the failure exit of the function.
+ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
+{% else %}
+// Ensure that that the following locks are active in the failure exit of the the function:
+// - [{{ failure_exit_comment_string }}]
+ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; ({{ failure_exit_disjunction }}) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+{% endif %}

@@ -85,7 +85,7 @@ def render_vercors_transition_lock_verification_contract(model: Transition) -> s
     Render the VerCors statements that verify whether the locking structure is intact and valid.
     """
     # The locks required and ensured by the transition are stored in the latter's guard statement.
-    # Note that the true branch of a transition guard does not ensure any transitions.
+    # Note that the true branch of a transition guard should have no active locks remaining.
     return render_vercors_expression_wrapper_method_lock_verification_contract(model.guard, model.parent)
 
 
