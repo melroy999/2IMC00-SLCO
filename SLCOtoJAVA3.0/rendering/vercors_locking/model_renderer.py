@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Dict, List, Tuple
 
 from rendering.common.model_renderer import render_variable_default_value
-from rendering.java.model_renderer import render_type
+from rendering.java.renderer import render_type
 from rendering.vercors_structure.environment_settings import env
 from objects.ast.models import Composite, Assignment, Expression, Primary
 from rendering.vercors_structure.statement_renderer import render_vercors_composite, render_vercors_assignment, \

@@ -6,7 +6,7 @@ import settings
 from objects.ast.interfaces import SlcoStatementNode
 from objects.ast.models import SlcoModel, Class, StateMachine, Transition, VariableRef, Expression, State, Assignment
 from objects.ast.util import get_variable_references
-from rendering.java.model_renderer import JavaModelRenderer
+from rendering.java.renderer import JavaModelRenderer
 
 
 class VercorsModelRenderer(JavaModelRenderer):
@@ -42,8 +42,8 @@ class VercorsModelRenderer(JavaModelRenderer):
         self.common_permissions_template = self.env.get_template(
             "vercors/util/common_permissions.jinja2template"
         )
-        self.vercors_assumptions_template = self.env.get_template(
-            "vercors/util/vercors_assumptions.jinja2template"
+        self.vercors_requirements_template = self.env.get_template(
+            "vercors/util/vercors_requirements.jinja2template"
         )
         self.vercors_expression_control_node_contract_body_template = self.env.get_template(
             "vercors/util/vercors_expression_control_node_contract_body.jinja2template"
@@ -57,6 +57,7 @@ class VercorsModelRenderer(JavaModelRenderer):
 
     def render_range_assumptions(self, model: SlcoStatementNode) -> str:
         """Render the assumptions needed to avoid index out of bounds permission issues."""
+        # TODO: does this handle
         assumptions = set()
         if not settings.remove_index_range_assumptions:
             # Find all the variables used in the statement.
@@ -67,12 +68,7 @@ class VercorsModelRenderer(JavaModelRenderer):
                 in_line_statement = self.get_expression_control_node_in_line_statement(
                     r.index, enforce_no_method_creation=True
                 )
-                try:
-                    _ = int(in_line_statement)
-                except ValueError:
-                    assumptions.add(
-                        f"//@ assume 0 <= {in_line_statement} && {in_line_statement} <= {r.var.type.size};"
-                    )
+                assumptions.add(f"//@ assume 0 <= {in_line_statement} && {in_line_statement} <= {r.var.type.size};")
         return "\n".join(assumptions)
 
     def render_variable_ref(self, model: VariableRef) -> str:
@@ -232,17 +228,18 @@ class VercorsModelRenderer(JavaModelRenderer):
         Render additional requirements that should be included in the contract.
         """
         # Gather the appropriate data.
+        in_line_statement = self.get_expression_control_node_in_line_statement(model, enforce_no_method_creation=True)
         vercors_assumptions = self.current_assumptions
 
         # Render the vercors assumptions template.
-        return self.vercors_assumptions_template.render(
-            vercors_assumptions=vercors_assumptions
+        return self.vercors_requirements_template.render(
+            vercors_assumptions=vercors_assumptions,
+            in_line_statement=in_line_statement
         ), []
 
     def render_vercors_expression_control_node_contract_body(self, model: SlcoStatementNode) -> Tuple[str, List[str]]:
         """Render the body of the vercors contract of the given transition, including potential pure functions."""
         # Pre-render data.
-        in_line_statement = self.get_expression_control_node_in_line_statement(model, enforce_no_method_creation=True)
         vercors_common_contract_permissions = self.render_vercors_contract_common_permissions()
         vercors_state_machine_contract_permissions = self.render_vercors_contract_state_machine_permissions()
         vercors_class_contract_permissions = self.render_vercors_contract_class_permissions()
@@ -250,7 +247,6 @@ class VercorsModelRenderer(JavaModelRenderer):
 
         # Render the vercors expression control node contract body template.
         return self.vercors_expression_control_node_contract_body_template.render(
-            in_line_statement=in_line_statement,
             vercors_common_contract_permissions=vercors_common_contract_permissions,
             vercors_state_machine_contract_permissions=vercors_state_machine_contract_permissions,
             vercors_class_contract_permissions=vercors_class_contract_permissions,

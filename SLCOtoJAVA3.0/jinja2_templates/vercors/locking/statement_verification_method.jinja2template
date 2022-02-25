@@ -1,0 +1,6 @@
+{% if statement_verification_method_contract != "" %}
+{{ statement_verification_method_contract | trim }}
+{% endif %}
+private boolean {{ statement_verification_method_name }}() {
+    {{ statement_verification_method_body | indent(4, False) | trim }}
+}

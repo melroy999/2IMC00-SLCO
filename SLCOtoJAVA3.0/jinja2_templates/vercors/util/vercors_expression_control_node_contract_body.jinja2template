@@ -12,7 +12,4 @@
 {% endif %}
 {% if vercors_requirements != "" %}
 {{ vercors_requirements | trim }}
-
 {% endif %}
-// Ensure that the statement's result is equivalent to the associated expression.
-ensures \result == ({{ in_line_statement }});

@@ -3,7 +3,7 @@ from typing import Tuple, List, Union, Dict
 from objects.ast.interfaces import SlcoStatementNode
 from objects.ast.models import Variable, Expression, Primary, Assignment, Transition
 from objects.locking.models import LockingNode
-from rendering.vercors.model_renderer import VercorsModelRenderer
+from rendering.vercors.renderer import VercorsModelRenderer
 
 
 class VercorsStructureModelRenderer(VercorsModelRenderer):

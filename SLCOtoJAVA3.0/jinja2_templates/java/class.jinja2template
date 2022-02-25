@@ -37,7 +37,7 @@ private static class {{ model_name }} implements SLCO_Class {
     }
 
     {% for sm in state_machines %}
-    {{ sm | indent(4, False) }}
+    {{ sm | indent(4, False) | trim }}
 
     {% endfor %}
     // Start all threads.
