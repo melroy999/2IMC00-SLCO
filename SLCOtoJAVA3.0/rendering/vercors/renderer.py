@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import List, Tuple
+from typing import List, Tuple, Set
 
-import settings
+import networkx as nx
+
 from objects.ast.interfaces import SlcoStatementNode
 from objects.ast.models import SlcoModel, Class, StateMachine, Transition, VariableRef, Expression, State, Assignment
 from objects.ast.util import get_variable_references
@@ -55,20 +56,41 @@ class VercorsModelRenderer(JavaModelRenderer):
             "vercors/class_constructor_contract.jinja2template"
         )
 
-    def render_range_assumptions(self, model: SlcoStatementNode) -> str:
-        """Render the assumptions needed to avoid index out of bounds permission issues."""
-        # TODO: does this handle
-        assumptions = set()
-        if not settings.remove_index_range_assumptions:
-            # Find all the variables used in the statement.
-            array_variable_references = [r for r in get_variable_references(model) if r.var.is_array]
+    @staticmethod
+    def get_topologically_ordered_variable_references(variable_references: Set[VariableRef]) -> List[VariableRef]:
+        """Order the given variable references in topological order in regards to the variables used within indices."""
+        # return variable_references
+        graph = nx.DiGraph()
+        while len(variable_references) > 0:
+            source = variable_references.pop()
+            graph.add_node(source)
+            if source.index is not None:
+                sub_references: Set[VariableRef] = get_variable_references(source.index)
+                for target in sub_references:
+                    # The edges are in reverse order, since inner variable references need to have priority.
+                    graph.add_edge(target, source)
+        # Create a topological ordering using the graph to avoid order sensitive permission errors.
+        ordered_references: List[VariableRef] = list(nx.topological_sort(graph))
+        return ordered_references
 
-            # Put bounds on all non-constant expressions used in the indices.
-            for r in array_variable_references:
-                in_line_statement = self.get_expression_control_node_in_line_statement(
-                    r.index, enforce_no_method_creation=True
-                )
-                assumptions.add(f"//@ assume 0 <= {in_line_statement} && {in_line_statement} <= {r.var.type.size};")
+    def render_range_assumptions(self, model: SlcoStatementNode, prefix="//@ assume") -> str:
+        """Render the assumptions needed to avoid index out of bounds permission issues."""
+        # TODO: rendering these assumptions may influence the evaluation itself if the bounds are being checked.
+        #   - Review all uses of assumptions and use them only at positions where the result will not be influenced.
+        assumptions = set()
+        # Find all the variables used in the statement.
+        variable_references = get_variable_references(model)
+        array_variable_references = [
+            r for r in self.get_topologically_ordered_variable_references(variable_references) if r.var.is_array
+        ]
+
+        # Put bounds on all non-constant expressions used in the indices.
+        for r in array_variable_references:
+            in_line_statement = self.get_expression_control_node_in_line_statement(
+                r.index, enforce_no_method_creation=True
+            )
+            var_name = f"c.{r.var.name}" if r.var.is_class_variable else f"{r.var.name}"
+            assumptions.add(f"{prefix} 0 <= {in_line_statement} && {in_line_statement} <= {var_name}.length;")
         return "\n".join(assumptions)
 
     def render_variable_ref(self, model: VariableRef) -> str:
@@ -175,9 +197,7 @@ class VercorsModelRenderer(JavaModelRenderer):
             )
 
     def render_vercors_contract_class_permissions(self) -> str:
-        """
-        Render the class variable permissions that need to be included in all statement containing contracts.
-        """
+        """Render the class variable permissions that need to be included in all statement containing contracts."""
         # Pre-render data.
         class_array_variable_names = [v.name for v in self.current_class.variables if v.is_array]
         class_array_variable_lengths = [v.type.size for v in self.current_class.variables if v.is_array]
@@ -215,21 +235,25 @@ class VercorsModelRenderer(JavaModelRenderer):
         )
 
     def render_vercors_contract_common_permissions(self) -> str:
-        """
-        Render the base variable permissions that need to be included in all statement containing contracts.
-        """
+        """Render the base variable permissions that need to be included in all statement containing contracts."""
         # Render the common permissions template.
         return self.common_permissions_template.render()
 
     def render_vercors_expression_control_node_contract_requirements(
             self, model: SlcoStatementNode
     ) -> Tuple[str, List[str]]:
-        """
-        Render additional requirements that should be included in the contract.
-        """
+        """Render additional requirements that should be included in the contract."""
         # Gather the appropriate data.
         in_line_statement = self.get_expression_control_node_in_line_statement(model, enforce_no_method_creation=True)
-        vercors_assumptions = self.current_assumptions
+        vercors_assumptions = "\n".join([f"context {a};" for a in self.current_assumptions])
+        # FIXME: refrain from rendering the current assumptions as requirements, since they do not have added value
+        #  currently due to the fact that range assumptions are added--they are hence completely superfluous.
+        #   - This chance has been made to simplify the code--it removed an additional source of errors.
+        # FIXME: Removing the assumptions causes new errors--the result statement might have out-of-bound elements.
+        #   - This needs to be resolved by adding additional ensures statements that function as assumptions.
+        #   - This however also means that these assumptions need to be included in the method body.
+        #   - For now, the original assumptions are added back.
+        # vercors_assumptions = self.render_range_assumptions(model, "context")
 
         # Render the vercors assumptions template.
         return self.vercors_requirements_template.render(
@@ -375,7 +399,6 @@ class VercorsModelRenderer(JavaModelRenderer):
         )
 
     def render_model_constructor_contract(self, model: SlcoModel) -> str:
-        # TODO: render the appropriate permission statements and validations.
         return super().render_model_constructor_contract(model)
 
 

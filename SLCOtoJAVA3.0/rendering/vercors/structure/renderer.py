@@ -74,7 +74,7 @@ class VercorsStructureModelRenderer(VercorsModelRenderer):
         # Add variable change restrictions to the contract as defined by the SLCO semantics.
         requirements, pure_functions = super().render_vercors_expression_control_node_contract_requirements(model)
         change_restrictions = self.render_vercors_expression_control_node_no_values_changed_requirements(model)
-        return "\n\n".join(v.strip() for v in [requirements, change_restrictions] if v != ""), pure_functions
+        return "\n\n".join(v.strip() for v in [change_restrictions, requirements] if v != ""), pure_functions
 
     def get_root_expression_opening_body(self, model: Union[Expression, Primary]) -> str:
         result = super().get_root_expression_opening_body(model)
