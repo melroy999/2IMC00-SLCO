@@ -12,7 +12,8 @@ from preprocessing.ast.restructuring import restructure
 from preprocessing.ast.simplification import simplify
 from preprocessing.ast.finalization import finalize
 from rendering.java.renderer import JavaModelRenderer
-from rendering.vercors.locking.renderer import VercorsLockingStructureModelRenderer, VercorsLockingCoverageModelRenderer
+from rendering.vercors.locking.renderer import VercorsLockingStructureModelRenderer, \
+    VercorsLockingCoverageModelRenderer, VercorsLockingRewriteRulesModelRenderer
 from rendering.vercors.structure.renderer import VercorsStructureModelRenderer
 
 
@@ -59,6 +60,12 @@ def render(model, model_folder):
     with open(file_name, 'w') as out_file:
         out_file.write(VercorsLockingCoverageModelRenderer().render_model(model))
 
+    # Write the program to the desired output file.
+    file_name = os.path.join(model_folder, model.name + "_vercors_locking_p3_rewrite_rules.java")
+    logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
+    with open(file_name, 'w') as out_file:
+        out_file.write(VercorsLockingRewriteRulesModelRenderer().render_model(model))
+
 
 def get_argument_parser():
     """Get a parser for the input arguments."""
@@ -91,11 +98,6 @@ def get_argument_parser():
                              "(default: 10000 iterations).")
     parser.add_argument("-running_time", nargs="?", type=int, const=60, default=0, required=False,
                         help="Add a timer to the code, to make program executions finite (in seconds, default: 60s).")
-    parser.add_argument("-remove_index_range_assumptions", action='store_true', help="Remove the VerCors statements "
-                                                                                     "that verify whether the values "
-                                                                                     "used to index array variables "
-                                                                                     "are within the bounds of the "
-                                                                                     "aforementioned array.")
     return parser
 
 

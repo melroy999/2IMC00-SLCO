@@ -1,5 +1,4 @@
 # Add a limit on the number of iterations.
-import logging
 import os
 
 # The target model and folder.
@@ -33,9 +32,6 @@ iteration_limit = 0
 # Set the number of seconds the state machines within the model run.
 running_time = 0
 
-# TODO: Remove the array index range assumptions in the VerCors verification.
-remove_index_range_assumptions = False
-
 
 def init(parameters):
     """Initialize the global variables, defining the settings of the program"""
@@ -58,4 +54,3 @@ def init(parameters):
     verify_locks = parameters.verify_locks
     iteration_limit = parameters.iteration_limit
     running_time = parameters.running_time
-    remove_index_range_assumptions = parameters.remove_index_range_assumptions

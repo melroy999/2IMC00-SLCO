@@ -262,6 +262,9 @@ def get_bound_checked_variable_references(model: SlcoStatementNode) -> Set[Varia
         # Moreover, boolean types cannot be bound checked, since they cannot be used in the index of a variable.
         if not model.var.is_boolean:
             result.add(model)
+    elif isinstance(model, Assignment) and not model.left.var.is_boolean:
+        # Bound checking cannot take place in assignments with a non-boolean value.
+        pass
     else:
         for v in model:
             result.update(get_bound_checked_variable_references(v))
@@ -294,6 +297,10 @@ def generate_location_sensitivity_checks(model: AtomicNode, aggregate_variable_r
     """
     Add verification pointers to locks that depend upon the control flow for a successful/error prone evaluation.
     """
+    # FIXME: assignments are somehow also considered to do bound checks.
+    #   - Assignments themselves can perform bound checks--only in a local scope, specifically in boolean statements.
+    #   - Partial fix: variables in assignments to non-boolean assignments are excluded from bound checked variables.
+    #   - Preferably, bound checking in assignments should remain local--i.e., it only pertains to elements used within.
     # Check which locks have been encountered so far.
     if aggregate_variable_references is None:
         aggregate_variable_references: Set[Lock] = set()

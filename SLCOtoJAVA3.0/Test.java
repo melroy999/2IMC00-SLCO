@@ -81,6 +81,7 @@ public class Test {
         // The state machine threads.
         private final Thread T_SM1;
         private final Thread T_SM2;
+        private final Thread T_SM3;
 
         // Class variables.
         private final int[] x;
@@ -97,6 +98,7 @@ public class Test {
             // Instantiate the state machine threads and pass on the class' lock manager.
             T_SM1 = new P_SM1Thread(lockManager);
             T_SM2 = new P_SM2Thread(lockManager);
+            T_SM3 = new P_SM3Thread(lockManager);
         }
 
         // Define the states fot the state machine SM1.
@@ -362,10 +364,158 @@ public class Test {
             }
         }
 
+        // Define the states fot the state machine SM3.
+        interface P_SM3Thread_States {
+            enum States {
+                SMC0, 
+                SMC1
+            }
+        }
+
+        // Representation of the SLCO state machine SM3.
+        class P_SM3Thread extends Thread implements P_SM3Thread_States {
+            // Current state
+            private P_SM3Thread.States currentState;
+
+            // Random number generator to handle non-determinism.
+            private final Random random;
+
+            // Thread local variables.
+            private int[] y;
+            private int j;
+
+            // The lock manager of the parent class.
+            private final LockManager lockManager;
+
+            // A list of lock ids and target locks that can be reused.
+            private final int[] lock_ids;
+            private final int[] target_locks;
+
+            P_SM3Thread(LockManager lockManagerInstance) {
+                currentState = P_SM3Thread.States.SMC0;
+                lockManager = lockManagerInstance;
+                lock_ids = new int[3];
+                target_locks = new int[3];
+                random = new Random();
+
+                // Variable instantiations.
+                y = new int[] { 0, 0 };
+                j = 1;
+            }
+
+            // SLCO expression wrapper | i >= 0.
+            private boolean t_SMC0_0_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 0; // Acquire i
+                lockManager.acquire_locks(lock_ids, 1);
+                lockManager.check_lock(0); // Check i
+                if(i >= 0) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | i < 1.
+            private boolean t_SMC0_0_s_0_n_1() {
+                lockManager.check_lock(0); // Check i
+                if(i < 1) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | x[i] != 0.
+            private boolean t_SMC0_0_s_0_n_2() {
+                lock_ids[0] = target_locks[1] = 1 + i; // Acquire x[i]
+                lock_ids[1] = target_locks[2] = 1 + (i + 1); // Acquire x[(i + 1)]
+                lockManager.acquire_locks(lock_ids, 2);
+                lockManager.check_lock(0); // Check i
+                lockManager.check_lock(1 + i); // Check x[i]
+                if(x[i] != 0) {
+                    lock_ids[0] = target_locks[1]; // Release x[i]
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release i
+                lock_ids[1] = target_locks[1]; // Release x[i]
+                lock_ids[2] = target_locks[2]; // Release x[(i + 1)]
+                lockManager.release_locks(lock_ids, 3);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | [i >= 0 and i < 1 and x[i] != 0; i := i + 1; x[i] := y[i]; y[i] := 0].
+            private boolean execute_transition_SMC0_0() {
+                // SLCO composite | [i >= 0 and i < 1 and x[i] != 0; i := i + 1; x[i] := y[i]; y[i] := 0].
+                // SLCO expression | i >= 0 and i < 1 and x[i] != 0.
+                if(!(t_SMC0_0_s_0_n_0() && t_SMC0_0_s_0_n_1() && t_SMC0_0_s_0_n_2())) {
+                    return false;
+                }
+                // SLCO assignment | i := i + 1.
+                lockManager.check_lock(0); // Check i
+                i = i + 1;
+                // SLCO assignment | x[i] := y[i].
+                lockManager.check_lock(0); // Check i
+                lockManager.check_lock(1 + i); // Check x[i]
+                x[i] = y[i];
+                lock_ids[0] = target_locks[2]; // Release x[(i + 1)]
+                lockManager.release_locks(lock_ids, 1);
+                // SLCO assignment | y[i] := 0.
+                lockManager.check_lock(0); // Check i
+                y[i] = 0;
+                lock_ids[0] = target_locks[0]; // Release i
+                lockManager.release_locks(lock_ids, 1);
+
+                currentState = P_SM3Thread.States.SMC0;
+                return true;
+            }
+
+            // Attempt to fire a transition starting in state SMC0.
+            private void exec_SMC0() {
+                // [SEQ.START]
+                // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | [i >= 0 and i < 1 and x[i] != 0; i := i + 1; x[i] := y[i]; y[i] := 0].
+                if(execute_transition_SMC0_0()) {
+                    return;
+                }
+                // [SEQ.END]
+            }
+
+            // Attempt to fire a transition starting in state SMC1.
+            private void exec_SMC1() {
+                // There are no transitions starting in state SMC1.
+            }
+
+            // Main state machine loop.
+            private void exec() {
+                int i = 0;
+                while(i < 10) {
+                    lockManager.check_no_locks();
+                    switch(currentState) {
+                        case SMC0 -> exec_SMC0();
+                        case SMC1 -> exec_SMC1();
+                    }
+                    i++;
+                }
+            }
+
+            // The thread's run method.
+            public void run() {
+                try {
+                    exec();
+                } catch(Exception e) {
+                    lockManager.exception_unlock();
+                    throw e;
+                }
+            }
+        }
+
         // Start all threads.
         public void startThreads() {
             T_SM1.start();
             T_SM2.start();
+            T_SM3.start();
         }
 
         // Join all threads.
@@ -374,6 +524,7 @@ public class Test {
                 try {
                     T_SM1.join();
                     T_SM2.join();
+                    T_SM3.join();
                     break;
                 } catch (InterruptedException e) {
                     e.printStackTrace();

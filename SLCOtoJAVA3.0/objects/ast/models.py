@@ -752,7 +752,7 @@ class DecisionNode(SlcoLockableNode):
             self.location_sensitive_locks.extend(d.location_sensitive_locks)
 
     def __repr__(self) -> str:
-        return f"DecisionNode:{'DET' if self.is_deterministic else 'N_DET' if settings.non_determinism else 'SEQ'}"
+        return f"DecisionNode:{'DET' if self.is_deterministic else 'N_DET' if settings.use_random_pick else 'SEQ'}"
 
     @property
     def priority(self) -> int:
