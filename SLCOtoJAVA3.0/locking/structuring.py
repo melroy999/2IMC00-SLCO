@@ -35,26 +35,6 @@ def initialize_transition_locking_structure(model: Transition):
         restructure_lock_acquisitions(s.locking_atomic_node, nr_of_passes=2)
 
 
-def is_boolean_statement(model) -> bool:
-    """
-    Determine whether the given statement yields a boolean result or not.
-    """
-    if isinstance(model, Primary):
-        if model.sign == "not" and model.value is None:
-            # Values with a negation that are non-constant are boolean statements.
-            return True
-        elif model.ref is not None and model.ref.var.is_boolean:
-            # Primaries referencing to boolean variables are boolean statements.
-            return True
-        elif model.body is not None:
-            # Determine if the nested object is a boolean statement or not.
-            return is_boolean_statement(model.body)
-    elif isinstance(model, Expression) and model.op not in ["+", "-", "*", "/", "%", "**"]:
-        # Expressions not using mathematical operators are boolean statements.
-        return True
-    return False
-
-
 def construct_composite_node(model: Composite, result: AtomicNode) -> None:
     """
     Add components to the DAG of locking nodes for the given composite node.
@@ -77,8 +57,8 @@ def construct_assignment_node(model: Assignment, result: AtomicNode) -> None:
     Add components to the DAG of locking nodes for the given assignment node.
     """
     # The left hand side of the assignment cannot be locked locally, and hence will not get an atomic node.
-    # The right side will only get an atomic node if it is a boolean expression or primary.
-    if is_boolean_statement(model.right):
+    # The right side will only get an atomic node if the left variable's type is boolean.
+    if model.left.var.is_boolean:
         # Create an atomic node and include it.
         right_atomic_node = create_transition_locking_structure(model.right)
 
@@ -262,9 +242,6 @@ def get_bound_checked_variable_references(model: SlcoStatementNode) -> Set[Varia
         # Moreover, boolean types cannot be bound checked, since they cannot be used in the index of a variable.
         if not model.var.is_boolean:
             result.add(model)
-    elif isinstance(model, Assignment) and not model.left.var.is_boolean:
-        # Bound checking cannot take place in assignments with a non-boolean value.
-        pass
     else:
         for v in model:
             result.update(get_bound_checked_variable_references(v))
@@ -297,10 +274,6 @@ def generate_location_sensitivity_checks(model: AtomicNode, aggregate_variable_r
     """
     Add verification pointers to locks that depend upon the control flow for a successful/error prone evaluation.
     """
-    # FIXME: assignments are somehow also considered to do bound checks.
-    #   - Assignments themselves can perform bound checks--only in a local scope, specifically in boolean statements.
-    #   - Partial fix: variables in assignments to non-boolean assignments are excluded from bound checked variables.
-    #   - Preferably, bound checking in assignments should remain local--i.e., it only pertains to elements used within.
     # Check which locks have been encountered so far.
     if aggregate_variable_references is None:
         aggregate_variable_references: Set[Lock] = set()
@@ -308,9 +281,16 @@ def generate_location_sensitivity_checks(model: AtomicNode, aggregate_variable_r
     # Perform a DFS on the objects atomic nodes.
     if len(model.child_atomic_nodes) > 0:
         # Generate the checks for all children.
-        for n in model.child_atomic_nodes:
-            generate_location_sensitivity_checks(n, aggregate_variable_references)
+        if isinstance(model.partner, Assignment):
+            # The bound checks in assignments are local--hence, create a copy of the aggregate list.
+            # Note that assignments will have at most one child atomic node by construction.
+            n = model.child_atomic_nodes[0]
+            generate_location_sensitivity_checks(n, set(aggregate_variable_references))
             model.location_sensitive_locks.extend(n.location_sensitive_locks)
+        else:
+            for n in model.child_atomic_nodes:
+                generate_location_sensitivity_checks(n, aggregate_variable_references)
+                model.location_sensitive_locks.extend(n.location_sensitive_locks)
     else:
         # The node is a base-level lockable component. Check if the node uses variables that have been encountered
         # previously in the index of class array variables.
@@ -341,7 +321,9 @@ def generate_location_sensitivity_checks(model: AtomicNode, aggregate_variable_r
                 )
 
         # Add all the used variables to the aggregate variables list.
-        aggregate_variable_references.update(get_bound_checked_variables(model))
+        # Note that assignments only have local bound checking--hence, exclude them from the aggregate list.
+        if not isinstance(model.partner, Assignment):
+            aggregate_variable_references.update(get_bound_checked_variables(model))
 
 
 def generate_unavoidable_location_sensitivity_violation_marks(model: AtomicNode, encountered_locks: Set[Lock] = None):

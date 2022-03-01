@@ -613,8 +613,8 @@ class P_SM2Thread {
         }
         //@ assert c.i >= 0 && c.i < 2 && c.x[c.i] != 0;
         // SLCO assignment | x[i] := y[i].
-        //@ assume 0 <= c.i && c.i <= c.x.length;
         //@ assume 0 <= c.i && c.i <= y.length;
+        //@ assume 0 <= c.i && c.i <= c.x.length;
         //@ ghost _rhs_0 = y[c.i];
         //@ ghost _index_0 = c.i;
         c.x[c.i] = y[c.i];
@@ -1020,8 +1020,8 @@ class P_SM3Thread {
         c.i = c.i + 1;
         //@ assert c.i == _rhs_0;
         // SLCO assignment | x[i] := y[i].
-        //@ assume 0 <= c.i && c.i <= c.x.length;
         //@ assume 0 <= c.i && c.i <= y.length;
+        //@ assume 0 <= c.i && c.i <= c.x.length;
         //@ ghost _rhs_1 = y[c.i];
         //@ ghost _index_1 = c.i;
         c.x[c.i] = y[c.i];
