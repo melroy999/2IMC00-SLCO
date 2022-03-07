@@ -11,6 +11,9 @@ use_random_pick = False
 # Should the program generate Java code without deterministic structures?
 no_deterministic_structures = False
 
+# Should the program use the alternative algorithm (using only a single SMT model) to find deterministic structures?
+use_full_smt_dsc = False
+
 # Should the sequential decision grouping be considered an atomic operation?
 atomic_sequential = False
 
@@ -35,9 +38,8 @@ running_time = 0
 
 def init(parameters):
     """Initialize the global variables, defining the settings of the program"""
-    global model_folder, model_name, use_random_pick, no_deterministic_structures, atomic_sequential, lock_full_arrays,\
-        statement_locks, visualize_locking_graph, verify_locks, iteration_limit, running_time, \
-        remove_index_range_assumptions
+    global model_folder, model_name, use_random_pick, no_deterministic_structures, use_full_smt_dsc, atomic_sequential,\
+        lock_full_arrays, statement_locks, visualize_locking_graph, verify_locks, iteration_limit, running_time
 
     # Add the name of the model and the location.
     model_folder, model_name = os.path.split(parameters.model)
@@ -45,6 +47,7 @@ def init(parameters):
     # Store all of the desired settings.
     use_random_pick = parameters.use_random_pick
     no_deterministic_structures = parameters.no_deterministic_structures
+    use_full_smt_dsc = parameters.use_full_smt_dsc
 
     atomic_sequential = parameters.atomic_sequential
     lock_full_arrays = parameters.lock_full_arrays

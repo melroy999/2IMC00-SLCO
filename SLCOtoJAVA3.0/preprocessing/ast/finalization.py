@@ -8,6 +8,7 @@ from objects.ast.models import Class, SlcoModel
 
 
 def finalize_class(e: Class):
+    """Finalize the given SLCO class object."""
     logging.info(f">> Finalizing {e}.")
 
     # Start by initializing the locking structures of the individual transitions.
@@ -39,10 +40,12 @@ def finalize_class(e: Class):
 
 
 def finalize_model(e: SlcoModel):
+    """Finalize the given SLCO model object."""
     for c in e.classes:
         finalize_class(c)
 
 
 def finalize(e: SlcoModel):
+    """Finalize the given model."""
     logging.info(f"> Finalizing {e}.")
     finalize_model(e)

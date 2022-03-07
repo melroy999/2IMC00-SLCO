@@ -2,7 +2,6 @@ from typing import Dict
 
 from networkx.drawing.nx_pydot import graphviz_layout
 
-from locking.ordering import get_variable_ordering_graph
 from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, Class
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -100,13 +99,6 @@ def visualize_weighted_variable_dependency_graph(e: Class):
     graph = get_weighted_variable_dependency_graph(e)
     labels = {k: k.name + "'" if k.is_class_variable else k.name for k in graph.nodes}
     render_graph(graph, str(e) + " (WVDG)", labels, layout="neato")
-
-
-def visualize_variable_ordering_graph(e):
-    """Visualize the dependency graph of the given expression."""
-    graph = get_variable_ordering_graph(e)
-    labels = {k: k.name for k in graph.nodes}
-    render_graph(graph, str(e) + " (VOG)", labels)
 
 
 def render_graph(graph: nx.DiGraph, title: str = "", labels: Dict = None, layout="dot"):

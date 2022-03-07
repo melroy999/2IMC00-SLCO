@@ -4,7 +4,7 @@ slco2slco = importlib.import_module("SLCOtoSLCO.python-textx-jinja2.slco2slco")
 
 
 # Hotfixes.
-def RepresentsInt(s):
+def represents_int(s):
     try:
         int(s)
         return True
@@ -12,10 +12,11 @@ def RepresentsInt(s):
         return False
 
 
-# Overwrite functions with hotfixed versions.
-slco2slco.RepresentsInt = RepresentsInt
+# Overwrite functions with corrected versions.
+slco2slco.RepresentsInt = represents_int
 
 
+# noinspection PyUnresolvedReferences
 def simplify_slco_model(model):
     """Use the SLCO2SLCO module to convert the slco model to a simplified model."""
     slco2slco.model = model

@@ -79,6 +79,10 @@ def get_argument_parser():
                                                                                   "deterministic structures and force "
                                                                                   "the decision structure to choose a "
                                                                                   "transition arbitrarily.")
+    parser.add_argument("-use_full_smt_dsc", action='store_true', help="(EXPERIMENTAL) Use the alternative algorithm "
+                                                                       "for constructing decision structures that uses "
+                                                                       "only a single SMT model to assign all "
+                                                                       "transitions to groups.")
 
     # Parameters that control the locking mechanism.
     parser.add_argument("-atomic_sequential", action='store_true', help="Make the sequential decision structures an "

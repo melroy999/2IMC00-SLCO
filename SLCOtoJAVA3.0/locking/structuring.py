@@ -14,9 +14,7 @@ from objects.locking.visualization import render_locking_structure_instructions
 
 
 def initialize_transition_locking_structure(model: Transition):
-    """
-    Construct a locking structure for the targeted transition.
-    """
+    """Construct a locking structure for the targeted transition."""
     # Construct the locking structure for the transition.
     create_transition_locking_structure(model)
 
@@ -36,9 +34,7 @@ def initialize_transition_locking_structure(model: Transition):
 
 
 def construct_composite_node(model: Composite, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given composite node.
-    """
+    """Add components to the DAG of locking nodes for the given composite node."""
     # Create atomic nodes for each of the components, including the guard.
     atomic_nodes = [create_transition_locking_structure(v) for v in [model.guard] + model.assignments]
     for n in atomic_nodes:
@@ -53,9 +49,7 @@ def construct_composite_node(model: Composite, result: AtomicNode) -> None:
 
 
 def construct_assignment_node(model: Assignment, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given assignment node.
-    """
+    """Add components to the DAG of locking nodes for the given assignment node."""
     # The left hand side of the assignment cannot be locked locally, and hence will not get an atomic node.
     # The right side will only get an atomic node if the left variable's type is boolean.
     if model.left.var.is_boolean:
@@ -80,9 +74,7 @@ def construct_assignment_node(model: Assignment, result: AtomicNode) -> None:
 
 
 def construct_expression_node(model: Expression, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given expression node.
-    """
+    """Add components to the DAG of locking nodes for the given expression node."""
     # Conjunction and disjunction statements need special treatment due to their control flow characteristics.
     # Additionally, exclusive disjunction needs different treatment too, since it can have nested aggregates.
     if model.op in ["and", "or"]:
@@ -131,9 +123,7 @@ def construct_expression_node(model: Expression, result: AtomicNode) -> None:
 
 
 def construct_primary_node(model: Primary, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given primary node.
-    """
+    """Add components to the DAG of locking nodes for the given primary node."""
     if model.body is not None:
         # Add a child relationship to the body.
         child_node = create_transition_locking_structure(model.body)
@@ -192,9 +182,7 @@ def create_transition_locking_structure(model: Union[Transition, SlcoStatementNo
 
 
 def generate_base_level_locking_entries(model: AtomicNode):
-    """
-    Add the requested lock objects to the base-level lockable components.
-    """
+    """Add the requested lock objects to the base-level lockable components."""
     if isinstance(model.partner, Assignment):
         # Find the variables that are targeted by the assignment's atomic node.
         class_variable_references = get_variables_to_be_locked(model.partner.left)
@@ -230,9 +218,7 @@ def generate_base_level_locking_entries(model: AtomicNode):
 
 
 def get_bound_checked_variable_references(model: SlcoStatementNode) -> Set[VariableRef]:
-    """
-    Get the referenced variables that are potentially bound checked by the given statement.
-    """
+    """Get the referenced variables that are potentially bound checked by the given statement."""
     # This function should only be called for base-level lockable components.
     assert(model.locking_atomic_node is None or len(model.locking_atomic_node.child_atomic_nodes) == 0)
 
@@ -251,9 +237,7 @@ def get_bound_checked_variable_references(model: SlcoStatementNode) -> Set[Varia
 
 
 def get_bound_checked_variables(model: AtomicNode) -> Set[Lock]:
-    """
-    Get the referenced variables that are potentially bound checked by the given statement.
-    """
+    """Get the referenced variables that are potentially bound checked by the given statement."""
     # This function should only be called for base-level lockable components.
     assert(len(model.child_atomic_nodes) == 0)
 
@@ -327,6 +311,7 @@ def generate_location_sensitivity_checks(model: AtomicNode, aggregate_variable_r
 
 
 def generate_unavoidable_location_sensitivity_violation_marks(model: AtomicNode, encountered_locks: Set[Lock] = None):
+    """Mark locks that will always lead to location sensitivity violations."""
     # Check which locks have been encountered so far.
     if encountered_locks is None:
         encountered_locks: Set[Lock] = set()
@@ -361,9 +346,7 @@ def generate_unavoidable_location_sensitivity_violation_marks(model: AtomicNode,
 
 
 def initialize_main_locking_structure(model: StateMachine, state: State):
-    """
-    Construct a locking structure for the targeted decision structure.
-    """
+    """Construct a locking structure for the targeted decision structure."""
     # Assert that no locking identities have been assigned yet.
     _class: Class = model.parent
     assert(len(_class.variables) == 0 or all(v.lock_id == -1 for v in _class.variables))
@@ -385,9 +368,7 @@ def initialize_main_locking_structure(model: StateMachine, state: State):
 
 
 def get_max_list_size(model: AtomicNode) -> int:
-    """
-    Get the maximum number of locks that will be targeted at any time by the acquire/release locks methods.
-    """
+    """Get the maximum number of locks that will be targeted at any time by the acquire/release locks methods."""
     max_size: int = 0
     n: LockingNode
     for n in nx.topological_sort(model.graph):
@@ -404,9 +385,7 @@ def get_max_list_size(model: AtomicNode) -> int:
 
 
 def construct_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given deterministic decision node.
-    """
+    """Add components to the DAG of locking nodes for the given deterministic decision node."""
     # Get an atomic node for all of the options.
     atomic_nodes = [create_main_locking_structure(v) for v in model.decisions]
     for n in atomic_nodes:
@@ -420,9 +399,7 @@ def construct_deterministic_decision_node(model: DecisionNode, result: AtomicNod
 
 
 def construct_non_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given non-deterministic decision node.
-    """
+    """Add components to the DAG of locking nodes for the given non-deterministic decision node."""
     # Get an atomic node for all of the options.
     atomic_nodes = [create_main_locking_structure(v) for v in model.decisions]
     for n in atomic_nodes:
@@ -436,9 +413,7 @@ def construct_non_deterministic_decision_node(model: DecisionNode, result: Atomi
 
 
 def construct_sequential_decision_node(model: DecisionNode, result: AtomicNode) -> None:
-    """
-    Add components to the DAG of locking nodes for the given sequential decision node.
-    """
+    """Add components to the DAG of locking nodes for the given sequential decision node."""
     # Get an atomic node for all of the options.
     atomic_nodes = [create_main_locking_structure(v) for v in model.decisions]
     for n in atomic_nodes:
@@ -489,9 +464,7 @@ def create_main_locking_structure(model) -> AtomicNode:
 
 
 def assign_locking_node_ids(model: AtomicNode):
-    """
-    Assign numbers to the locking nodes such that the node's predecessors always have a lower id.
-    """
+    """Assign numbers to the locking nodes such that the node's predecessors always have a lower id."""
     n: LockingNode
     for n in nx.topological_sort(model.graph):
         # Get the maximum id of the node's predecessors.
@@ -499,9 +472,7 @@ def assign_locking_node_ids(model: AtomicNode):
 
 
 def finalize_locking_structure(model: StateMachine, state: State):
-    """
-    Finalize the locking structure for the given decision structure based on the given lock priorities.
-    """
+    """Finalize the locking structure for the given decision structure based on the given lock priorities."""
     # Assert that the locking identities have been assigned.
     _class: Class = model.parent
     assert(len(_class.variables) == 0 or any(v.lock_id != -1 for v in _class.variables))
@@ -609,9 +580,7 @@ def restructure_lock_acquisitions(model: AtomicNode, nr_of_passes=2):
 
 
 def generate_dirty_lock_marks(model: AtomicNode):
-    """
-    Mark the locks that violate the desired lock ordering or structural behavior as dirty.
-    """
+    """Mark the locks that violate the desired lock ordering or structural behavior as dirty."""
     # Check for location sensitivity issues.
     mark_location_sensitivity_violations(model)
 
@@ -620,9 +589,7 @@ def generate_dirty_lock_marks(model: AtomicNode):
 
 
 def mark_location_sensitivity_violations(model: AtomicNode):
-    """
-    Find location sensitive locks that have been moved and mark them as dirty.
-    """
+    """Find location sensitive locks that have been moved and mark them as dirty."""
     # Iterate over all the locking nodes and search for locks in the acquisition list that are location sensitive and
     # are no longer part of their original locking node.
     n: LockingNode
@@ -641,9 +608,7 @@ def mark_location_sensitivity_violations(model: AtomicNode):
 
 
 def mark_lock_ordering_violations(model: AtomicNode):
-    """
-    Find array class variables that use variables in the index that have not been locked prior to reading.
-    """
+    """Find array class variables that use variables in the index that have not been locked prior to reading."""
     # Check for every array variable that is acquired for lock ordering violations in the index.
     n: LockingNode
     for n in model.graph.nodes:
@@ -665,9 +630,7 @@ def get_unpacked_lock_requests(i: Lock, provider: LockRequestInstanceProvider) -
 
 
 def generate_locking_phases(lock_requests: Set[LockRequest]) -> List[List[LockRequest]]:
-    """
-    Split the given list of lock requests into the appropriate locking phases.
-    """
+    """Split the given list of lock requests into the appropriate locking phases."""
     # TODO: Simplified to having a phase for each individual variable. Certain phases can be merged.
     # Each variable gets a separate phase, with the phases being ordered by lock identity.
     variable_groupings: Dict[Variable, List[LockRequest]] = dict()
@@ -685,9 +648,7 @@ def generate_locking_phases(lock_requests: Set[LockRequest]) -> List[List[LockRe
 
 
 def generate_locking_instructions(model: AtomicNode, provider: LockRequestInstanceProvider):
-    """
-    Add the appropriate entries in the locking instruction objects referenced with the locking nodes.
-    """
+    """Add the appropriate entries in the locking instruction objects referenced with the locking nodes."""
     # Check for every array variable that is acquired for lock ordering violations in the index.
     n: LockingNode
     for n in nx.topological_sort(model.graph):
@@ -734,9 +695,7 @@ def generate_locking_instructions(model: AtomicNode, provider: LockRequestInstan
 
 
 def restructure_lock_releases(model: AtomicNode):
-    """
-    Move lock requests downwards to the appropriate level in the locking graph's locking instructions.
-    """
+    """Move lock requests downwards to the appropriate level in the locking graph's locking instructions."""
     # Gather the lock requests that have already been released by the nodes coming after the target node.
     locks_released_afterwards: Dict[LockingNode, Set[LockRequest]] = dict()
     n: LockingNode

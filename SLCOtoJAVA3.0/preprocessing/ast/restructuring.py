@@ -6,6 +6,7 @@ from objects.ast.util import copy_node
 
 
 def restructure_expression(e: Expression):
+    """Restructure the given SLCO expression object."""
     e.values = [restructure(v) for v in e.values]
     if len(e.values) == 1:
         # Skip superfluous expressions that only contain one element.
@@ -16,6 +17,7 @@ def restructure_expression(e: Expression):
 
 
 def restructure_primary(e: Primary):
+    """Restructure the given SLCO primary object."""
     if e.body is not None:
         e.body = restructure(e.body)
     elif e.ref is not None:
@@ -24,12 +26,14 @@ def restructure_primary(e: Primary):
 
 
 def restructure_variable_ref(e: VariableRef):
+    """Restructure the given SLCO variable reference object."""
     if e.index is not None:
         e.index = restructure(e.index)
     return e
 
 
 def restructure_composite(e: Composite):
+    """Restructure the given SLCO composite object."""
     # Ensure that the transition always has a guard statement.
     if e.guard is None:
         logging.debug(f" - Adding a default true guard to composite \"{e}\" (missing guard)")
@@ -44,12 +48,14 @@ def restructure_composite(e: Composite):
 
 
 def restructure_assignment(e: Assignment):
+    """Restructure the given SLCO assignment object."""
     e.left = restructure(e.left)
     e.right = restructure(e.right)
     return e
 
 
 def restructure_transition(e: Transition):
+    """Restructure the given SLCO transition object."""
     # Create copies of the original statements and restructure the copy.
     restructured_statements = []
     for i, s in enumerate(e.statements):
@@ -76,18 +82,21 @@ def restructure_transition(e: Transition):
 
 
 def restructure_state_machine(e: StateMachine):
+    """Restructure the given SLCO state machine object."""
     for t in e.transitions:
         restructure(t)
     return e
 
 
 def restructure_class(e: Class):
+    """Restructure the given SLCO class object."""
     for sm in e.state_machines:
         restructure(sm)
     return e
 
 
 def restructure_model(e: SlcoModel):
+    """Restructure the given SLCO model object."""
     for c in e.classes:
         restructure(c)
     return e

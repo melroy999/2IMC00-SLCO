@@ -2,8 +2,8 @@ import logging
 from typing import Union
 
 from objects.ast.interfaces import SlcoEvaluableNode
-from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, Transition, StateMachine, Class, \
-    SlcoModel, Object
+from objects.ast.models import Expression, Primary, VariableRef, Composite, Assignment, Transition, StateMachine, \
+    Class, SlcoModel, Object
 from objects.ast.util import copy_node
 
 
@@ -12,6 +12,7 @@ boolean_operators = {"and", "or", "xor", ">", "<", ">=", "<=", "=", "!="}
 
 
 def simplify_expression(e: Expression):
+    """Simplify the given SLCO expression object."""
     if e.op in boolean_operators and e.is_true():
         # Replace the statement with a True primary if it always holds true.
         true_primary = Primary(target=True)
@@ -39,6 +40,7 @@ negation_table = {
 
 
 def simplify_primary(e: Primary, recursion=True):
+    """Simplify the given SLCO primary object."""
     if e.body is not None:
         if recursion:
             e.body = simplify(e.body)
@@ -69,12 +71,14 @@ def simplify_primary(e: Primary, recursion=True):
 
 
 def simplify_variable_ref(e: VariableRef):
+    """Simplify the given SLCO variable reference object."""
     if e.index is not None:
         e.index = simplify(e.index)
     return e
 
 
 def simplify_composite(e: Composite):
+    """Simplify the given SLCO composite object."""
     e.guard = simplify(e.guard)
     e.assignments = [simplify(v) for v in e.assignments]
 
@@ -92,12 +96,14 @@ def simplify_composite(e: Composite):
 
 
 def simplify_assignment(e: Assignment):
+    """Simplify the given SLCO assignment object."""
     e.left = simplify(e.left)
     e.right = simplify(e.right)
     return e
 
 
 def simplify_transition(e: Transition):
+    """Simplify the given SLCO transition object."""
     # Create copies of the original statements and simplify the copy.
     restructured_statements = []
     for i, s in enumerate(e.statements):
@@ -144,6 +150,7 @@ def assign_missing_default_values(e: Union[StateMachine, Class]) -> None:
 
 
 def simplify_state_machine(e: StateMachine):
+    """Simplify the given SLCO state machine object."""
     for t in e.transitions:
         simplify(t)
 
@@ -154,6 +161,7 @@ def simplify_state_machine(e: StateMachine):
 
 
 def simplify_class(e: Class):
+    """Simplify the given SLCO class object."""
     for sm in e.state_machines:
         simplify(sm)
 
@@ -164,6 +172,7 @@ def simplify_class(e: Class):
 
 
 def simplify_object(e: Object):
+    """Simplify the given SLCO object object."""
     # Ensure that all of variables of the objects have initial values.
     value_assignments = {e.left: e.rights if e.right is None else e.right for e in e.assignments}
     e.initial_values = []
@@ -178,6 +187,7 @@ def simplify_object(e: Object):
 
 
 def simplify_model(e: SlcoModel):
+    """Simplify the given SLCO model object."""
     for c in e.classes:
         simplify(c)
     for c in e.objects:

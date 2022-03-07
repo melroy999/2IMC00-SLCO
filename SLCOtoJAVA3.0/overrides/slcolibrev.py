@@ -114,7 +114,7 @@ def read_SLCO_model(m):
     """Read, post process, and type check an SLCO model"""
     # create meta-model
     slco_mm = libraries.slcolib.metamodel_from_file(
-        join(libraries.slcolib.this_folder, '../textx_grammars/slco2_left_associative.tx'),
+        join(libraries.slcolib.this_folder, "../textx_grammars/slco2_left_associative.tx"),
         autokwd=True,
         classes=[
             libraries.slcolib.Assignment,

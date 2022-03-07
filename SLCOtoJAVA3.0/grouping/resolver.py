@@ -1,14 +1,12 @@
 import logging
 from typing import Union
 
-from objects.ast.models import StateMachine, DecisionNode, Transition, State
+from objects.ast.models import StateMachine, DecisionNode, Transition
 from smt.optimization import create_decision_groupings
 
 
 def set_groupings(model: StateMachine):
-    """
-    Assign groupings of transitions to the given state machine.
-    """
+    """Assign groupings of transitions to the given state machine."""
     # Create a mapping between starting state and the transitions starting therein.
     for t in model.transitions:
         model.state_to_transitions[t.source].append(t)
@@ -23,9 +21,7 @@ def set_groupings(model: StateMachine):
 
 
 def print_decision_structure(model: Union[Transition, DecisionNode], indents=0) -> None:
-    """
-    Write the decision structure to the log in a human readable format.
-    """
+    """Write the decision structure to the log in a human readable format."""
     if isinstance(model, DecisionNode):
         if model.is_deterministic:
             logging.info(f"{' ' * indents} - DET:")

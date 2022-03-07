@@ -74,10 +74,13 @@ def create_is_equal_table(transitions, alias_variables) -> None:
                 s.add(alias_variables[f"ieq{t2.id}_{t1.id}"] == alias_variables[f"ieq{t1.id}_{t2.id}"])
 
 
-def create_optimal_ordering(decisions: List[Union[Transition, DecisionNode]]):
+def optimize_lock_ordering_smt_full(decisions: List[Union[Transition, DecisionNode]]):
     """
     Re-order the transitions in an attempt to preemptively minimize the number of location sensitivity conflicts.
     """
+    # FIXME: This code remains unused due to it being too slow in practice. One of two attempted solutions.
+    #   - This solution attempts to keep the transitions in the original order.
+    #   - Moreover, it attempts to minimize the potential number of lock position sensitivity violations.
     # Save the current state of the solver.
     s2.push()
 
@@ -169,7 +172,10 @@ def create_optimal_ordering(decisions: List[Union[Transition, DecisionNode]]):
     s2.pop()
 
 
-def optimize_lock_ordering_smt(node: DecisionNode) -> None:
+def optimize_lock_ordering_smt_partial(node: DecisionNode) -> None:
+    """Optimize the ordering of transitions to minimize the time locks remain active."""
+    # FIXME: This code remains unused due to it being too slow in practice. One of two attempted solutions.
+    #   - This solution does not consider potential lock ordering violations or original positions of transitions.
     # Save the current state of the solver.
     s2.push()
 
@@ -208,7 +214,7 @@ def optimize_lock_ordering_smt(node: DecisionNode) -> None:
             if i > 0:
                 # Increment the value in the previous row if the variable in question is present in the target object.
                 s2.add(
-                    variable_count_table[i][j] == variable_count_table[i - 1][j] + variable_presence[index_table[i - 1]][j]
+                    variable_count_table[i][j] == variable_count_table[i-1][j] + variable_presence[index_table[i-1]][j]
                 )
             else:
                 # Set the cell of the first row to one if the variable is present, zero otherwise.
@@ -248,9 +254,7 @@ def optimize_lock_ordering_smt(node: DecisionNode) -> None:
 
 
 def get_heuristic_cost(o: Union[Transition, DecisionNode], active_variables: Set[Variable]) -> float:
-    """
-    Get a heuristic score for the given object.
-    """
+    """Get a heuristic score for the given object."""
     # Use heuristics to find and select an object that is deemed the best follow-up.
     # Calculate the differences and base the score on these differences.
     #   - -1 for every variable that is already active.
@@ -269,74 +273,6 @@ def get_heuristic_cost(o: Union[Transition, DecisionNode], active_variables: Set
     ))
 
     return common_variables_score + new_variables_score + missing_variables_score - 1.1 * modifier
-
-
-def optimize_lock_ordering(node: DecisionNode) -> None:
-    """
-    Reorder the decisions within the decision node in an attempt to improve the performance of the locking mechanism.
-    """
-    # Order optimization is only required for deterministic or atomic sequential structures.
-    if not (node.is_deterministic or settings.atomic_sequential):
-        return
-
-    # Ensure that additional unavoidable location conflict situations are detected prior to creating the ordering.
-    add_grouping_dependant_unavoidable_location_conflict_marks(node)
-
-    # Track which transitions use which variables.
-    used_variables = list(node.used_variables)
-    variable_to_transitions: Dict[Variable, Set[int]] = {
-        v: set() for v in used_variables
-    }
-    for i, d in enumerate(node.decisions):
-        for v in d.used_variables:
-            variable_to_transitions[v].add(i)
-
-    # Track which variables are currently active.
-    active_variables: Set[Variable] = set()
-
-    # Ideally a variable is opened by a object with location sensitive locks to prevent unavoidable strict unpacking.
-    remaining_objects = list((d, i) for i, d in enumerate(node.decisions))
-    reordered_objects = []
-    print(" ", " ".join(v.name for v in used_variables))
-    while len(remaining_objects) > 0:
-        # Sort according to the heuristic and pick the lowest valued element.
-        # Draws are resolved by looking at the original ordering.
-        remaining_objects.sort(key=lambda e: (e[0].priority, get_heuristic_cost(e[0], active_variables), e[1]))
-        target_object, i = remaining_objects.pop(0)
-        reordered_objects.append(target_object)
-
-        # DEBUG START
-        # Check which variables are position sensitive locks.
-        location_sensitive_variables = set(
-            i.ref.var for i in target_object.location_sensitive_locks if not i.unavoidable_location_conflict
-        )
-
-        # Print the active transitions.
-        print(i, " ".join(("o" if v in location_sensitive_variables else "+") if v in target_object.used_variables else "-" for v in used_variables), f"p={target_object.priority}")
-        # DEBUG END
-
-        # Update the unavoidable location conflict tags depending on which variables are active.
-        for x in target_object.location_sensitive_locks:
-            if x.ref.var in active_variables and not x.unavoidable_location_conflict:
-                x.unavoidable_location_conflict = True
-                logging.info(
-                    f"Flagging lock {x} in '{target_object}' due to the occurrence of an unavoidable location "
-                    f"sensitivity violation caused by the chosen order of the decisions."
-                )
-
-        # Update the active variables set based on the variables active within the extracted object.
-        active_variables.update(target_object.used_variables)
-
-        # Remove the transition from the variable-to-transition dictionary.
-        for v, entries in variable_to_transitions.items():
-            entries.discard(i)
-
-            # Remove the variable from the active list if there are no remaining transitions left using it.
-            if len(entries) == 0:
-                active_variables.discard(v)
-
-    # Set the new order.
-    node.decisions = reordered_objects
 
 
 def add_grouping_dependant_unavoidable_location_conflict_marks(node: DecisionNode) -> None:
@@ -365,23 +301,137 @@ def add_grouping_dependant_unavoidable_location_conflict_marks(node: DecisionNod
                         )
 
 
-def create_deterministic_decision_structures(remaining_transitions: List[Transition]) -> List[Transition, DecisionNode]:
-    """Find and create deterministic structures for the provided list of transitions."""
-    # Save the current state of the solver.
-    s.push()
-    # Create variables for each transition that will indicate whether they are part of the group or not.
+def optimize_lock_ordering_greedy(node: DecisionNode) -> None:
+    """
+    Reorder the decisions within the decision node in an attempt to improve the performance of the locking mechanism.
+    """
+    # Order optimization is only required for deterministic or atomic sequential structures.
+    if not (node.is_deterministic or settings.atomic_sequential):
+        return
+
+    # Ensure that additional unavoidable location conflict situations are detected prior to creating the ordering.
+    add_grouping_dependant_unavoidable_location_conflict_marks(node)
+
+    # Track which transitions use which variables.
+    used_variables = list(node.used_variables)
+    variable_to_transitions: Dict[Variable, Set[int]] = {
+        v: set() for v in used_variables
+    }
+    for i, d in enumerate(node.decisions):
+        for v in d.used_variables:
+            variable_to_transitions[v].add(i)
+
+    # Track which variables are currently active.
+    active_variables: Set[Variable] = set()
+
+    # Ideally a variable is opened by a object with location sensitive locks to prevent unavoidable strict unpacking.
+    remaining_objects = list((d, i) for i, d in enumerate(node.decisions))
+    reordered_objects = []
+    while len(remaining_objects) > 0:
+        # Sort according to the heuristic and pick the lowest valued element.
+        # Draws are resolved by looking at the original ordering.
+        remaining_objects.sort(key=lambda e: (e[0].priority, get_heuristic_cost(e[0], active_variables), e[1]))
+        target_object, i = remaining_objects.pop(0)
+        reordered_objects.append(target_object)
+
+        # Update the unavoidable location conflict tags depending on which variables are active.
+        for x in target_object.location_sensitive_locks:
+            if x.ref.var in active_variables and not x.unavoidable_location_conflict:
+                x.unavoidable_location_conflict = True
+                logging.info(
+                    f"Flagging lock {x} in '{target_object}' due to the occurrence of an unavoidable location "
+                    f"sensitivity violation caused by the chosen order of the decisions."
+                )
+
+        # Update the active variables set based on the variables active within the extracted object.
+        active_variables.update(target_object.used_variables)
+
+        # Remove the transition from the variable-to-transition dictionary.
+        for v, entries in variable_to_transitions.items():
+            entries.discard(i)
+
+            # Remove the variable from the active list if there are no remaining transitions left using it.
+            if len(entries) == 0:
+                active_variables.discard(v)
+
+    # Set the new order.
+    node.decisions = reordered_objects
+
+
+def create_smt_support_variables(remaining_transitions: List[Transition]) -> Dict[str, z3.ArithRef]:
+    """Create a dictionary of SMT variables that are used in all implemented solutions."""
+    # Create variables for each transition that will indicate the number of the group they are in.
     alias_variables = {f"g{t.id}": z3.Int(f"g{t.id}") for t in remaining_transitions}
+
     # Create support variables for the priorities assigned to the transitions.
     for t in remaining_transitions:
         v = alias_variables[f"p{t.id}"] = z3.Int(f"p{t.id}")
         s.add(v == t.priority)
+
     # Create the appropriate truth tables for the target transitions.
     create_and_truth_table(remaining_transitions, alias_variables)
     create_is_equal_table(remaining_transitions, alias_variables)
+
+    return alias_variables
+
+
+def insert_deterministic_group(
+        alias_variables: Dict[str, z3.ArithRef],
+        grouped_transitions: List[Transition],
+        model: z3.ModelRef,
+        non_deterministic_choices: List[Union[DecisionNode, Transition]]
+) -> None:
+    """Convert the given list of grouped transitions to a deterministic group."""
+    # Ensure that duplicates in the group are handled appropriately.
+    distinct_guard_groups: List[List[Transition]] = []
+    for t in grouped_transitions:
+        d: List[Transition]
+        # Warning: syntax is correct. The else will only be executed if the loop isn't stopped prematurely.
+        for d in distinct_guard_groups:
+            if model.evaluate(alias_variables[f"ieq{t.id}_{d[0].id}"], model_completion=True):
+                d.append(t)
+                break
+        else:
+            distinct_guard_groups.append([t])
+    # Sort the guard groups by priority and index and make non-deterministic groups if appropriate.
+    deterministic_choices: List[Union[DecisionNode, Transition]] = []
+    for d in distinct_guard_groups:
+        d.sort(key=lambda x: (x.priority, x.id))
+        if len(d) > 1:
+            if not settings.use_random_pick:
+                # Given that all transitions have the same guard, only the first will be reachable. Exclude others.
+                decision_node = DecisionNode(False, d[:1], d[1:])
+            else:
+                # Create a non-deterministic block.
+                decision_node = DecisionNode(False, d, [])
+            optimize_lock_ordering_greedy(decision_node)
+            deterministic_choices.append(decision_node)
+        else:
+            deterministic_choices.append(d[0])
+    # Create a deterministic decision node for the current grouping and add it to the list of groupings.
+    if len(deterministic_choices) == 1:
+        non_deterministic_choices.append(deterministic_choices[0])
+    else:
+        # Sort the decisions based on the priority.
+        deterministic_choices.sort(key=lambda x: (x.priority, x.id))
+        decision_node = DecisionNode(True, deterministic_choices, [])
+        optimize_lock_ordering_greedy(decision_node)
+        non_deterministic_choices.append(decision_node)
+
+
+def create_deterministic_decision_structures(remaining_transitions: List[Transition]) -> List[Transition, DecisionNode]:
+    """Find and create deterministic structures for the provided list of transitions."""
+    # Save the current state of the solver.
+    s.push()
+
+    # Create all common variables needed within the SMT solution.
+    alias_variables = create_smt_support_variables(remaining_transitions)
+
     # Ensure that the part of the group variable of each transition can only be zero or one.
     for t in remaining_transitions:
         v = alias_variables[f"g{t.id}"]
         s.add(z3.And(v >= 0, v < 2))
+
     # Calculate truth matrices for the transitions that still need to be assigned to a group.
     non_deterministic_choices: List[Union[DecisionNode, Transition]] = []
     while len(remaining_transitions) > 0:
@@ -432,48 +482,102 @@ def create_deterministic_decision_structures(remaining_transitions: List[Transit
         for t in grouped_transitions:
             remaining_transitions.remove(t)
 
-        # Ensure that duplicates in the group are handled appropriately.
-        distinct_guard_groups: List[List[Transition]] = []
-        for t in grouped_transitions:
-            d: List[Transition]
-            # Warning: syntax is correct. The else will only be executed if the loop isn't stopped prematurely.
-            for d in distinct_guard_groups:
-                if model.evaluate(alias_variables[f"ieq{t.id}_{d[0].id}"], model_completion=True):
-                    d.append(t)
-                    break
-            else:
-                distinct_guard_groups.append([t])
-
-        # Sort the guard groups by priority and index and make non-deterministic groups if appropriate.
-        deterministic_choices: List[Union[DecisionNode, Transition]] = []
-        for d in distinct_guard_groups:
-            d.sort(key=lambda x: (x.priority, x.id))
-            if len(d) > 1:
-                if not settings.use_random_pick:
-                    # Given that all transitions have the same guard, only the first will be reachable. Exclude others.
-                    decision_node = DecisionNode(False, d[:1], d[1:])
-                else:
-                    # Create a non-deterministic block.
-                    decision_node = DecisionNode(False, d, [])
-                optimize_lock_ordering(decision_node)
-                deterministic_choices.append(decision_node)
-            else:
-                deterministic_choices.append(d[0])
-
-        # Create a deterministic decision node for the current grouping and add it to the list of groupings.
-        if len(deterministic_choices) == 1:
-            non_deterministic_choices.append(deterministic_choices[0])
-        else:
-            # Sort the decisions based on the priority.
-            deterministic_choices.sort(key=lambda x: (x.priority, x.id))
-            decision_node = DecisionNode(True, deterministic_choices, [])
-            optimize_lock_ordering(decision_node)
-            non_deterministic_choices.append(decision_node)
+        # Insert a deterministic group into the list of non-deterministic choices containing the selected transitions.
+        insert_deterministic_group(alias_variables, grouped_transitions, model, non_deterministic_choices)
 
         # Restore the state of the solver.
         s.pop()
+
     # Restore the state of the solver.
     s.pop()
+    return non_deterministic_choices
+
+
+# FIXME: Old, too slow and unmaintained code that could be useful still for the document.
+#   - Code has been rewritten, but it has not been fully tested. The performance has somewhat increased.
+def create_deterministic_decision_structures_full_smt(
+    remaining_transitions: List[Transition]
+) -> List[Transition, DecisionNode]:
+    """
+    Use z3 optimization to create a minimally sized list of groups of transitions in which the guard statements'
+    active regions do not overlap.
+    """
+    # No elements to process if an empty list is given.
+    if len(remaining_transitions) == 0:
+        return []
+
+    # Give all of the transitions within the list an unique ID.
+    # This id can be used to find the original ordering.
+    for i, t in enumerate(remaining_transitions):
+        t.id = i
+
+    # Save the current state of the solver.
+    s.push()
+
+    # Create all common variables needed within the SMT solution.
+    alias_variables = create_smt_support_variables(remaining_transitions)
+
+    # Put bounds on the group variables such that they are always within a range between zero and the list's size.
+    for t in remaining_transitions:
+        v = alias_variables[f"g{t.id}"]
+        s.add(z3.And(v >= 0, v < len(remaining_transitions)))
+
+    # Ensure that a transition can only be assigned to a group if it does not overlap with others in the same group.
+    # However, make the following exception: allow transitions to be in the same group if they are exactly equal.
+    for t1 in remaining_transitions:
+        v = alias_variables[f"g{t1.id}"]
+
+        for k in range(len(remaining_transitions)):
+            # It must hold that the transition has no overlap with any of the members in the same group.
+            inner_or = z3.Or([
+                z3.And(
+                    alias_variables[f"g{t2.id}"] == k,
+                    alias_variables[f"and{t1.id}_{t2.id}"],
+                    z3.Not(alias_variables[f"ieq{t1.id}_{t2.id}"])
+                ) for t2 in remaining_transitions if t1.id != t2.id
+            ])
+            s.add(z3.Implies(v == k, z3.Not(inner_or)))
+
+            # It must hold that the priority of each member in the group is the same.
+            inner_or = z3.Or([
+                z3.And(
+                    alias_variables[f"g{t2.id}"] == k,
+                    alias_variables[f"p{t2.id}"] != alias_variables[f"p{t1.id}"]
+                ) for t2 in remaining_transitions if t1.id != t2.id
+            ])
+            s.add(z3.Implies(v == k, z3.Not(inner_or)))
+
+    # Minimize the sum of all groups such that the least number of groups are generated with maximum size.
+    s.minimize(sum(alias_variables[f"g{t.id}"] for t in remaining_transitions))
+
+    # Get the model solution and extract the selected transitions.
+    result, model = s.check(), s.model()
+    if result.r == z3.Z3_L_UNDEF:
+        print(result, model)
+        raise Exception("Unknown result.")
+    if result.r == z3.Z3_L_FALSE:
+        print(result, model)
+        raise Exception("Unsatisfiable result.")
+
+    # Find the groupings. Elements within the same group assigned should be added to the same group.
+    non_deterministic_choices: List[Union[DecisionNode, Transition]] = []
+    for k, _ in enumerate(remaining_transitions):
+        grouped_transitions: List[Transition] = []
+        for t in remaining_transitions:
+            if model.evaluate(alias_variables[f"g{t.id}"], model_completion=True) == k:
+                grouped_transitions.append(t)
+
+        # Skip if no transitions.
+        if len(grouped_transitions) == 0:
+            continue
+
+        # Insert a deterministic group into the list of non-deterministic choices containing the selected transitions.
+        insert_deterministic_group(alias_variables, grouped_transitions, model, non_deterministic_choices)
+
+    # Restore the state of the solver.
+    s.pop()
+
+    # Create and return a non-deterministic decision node for the given decisions.
     return non_deterministic_choices
 
 
@@ -502,14 +606,10 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
         # Do not create deterministic structures when the no determinism flag is provided.
         non_deterministic_choices: List[Transition, DecisionNode] = remaining_transitions
     else:
-        non_deterministic_choices: List[Transition, DecisionNode] = create_deterministic_decision_structures(
-            remaining_transitions
-        )
-
-    # TODO: decisions following a true expression in the outer non deterministic group are superfluous if sequential.
-    # TODO: potentially have transitions with location sensitive locking targets be earlier in the list?
-    #   - The order of statements can have a large effect on the performance of the locking structure.
-    #   - This would need to be done before the full locking structure is generated.
+        if settings.use_full_smt_dsc:
+            non_deterministic_choices = create_deterministic_decision_structures_full_smt(remaining_transitions)
+        else:
+            non_deterministic_choices = create_deterministic_decision_structures(remaining_transitions)
 
     # Sort the decisions based on the priority.
     non_deterministic_choices += trivially_satisfiable_transitions
@@ -517,5 +617,5 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
 
     # Create and return a non-deterministic decision node for the given decisions.
     decision_node = DecisionNode(False, non_deterministic_choices, excluded_transitions)
-    optimize_lock_ordering(decision_node)
+    optimize_lock_ordering_greedy(decision_node)
     return decision_node

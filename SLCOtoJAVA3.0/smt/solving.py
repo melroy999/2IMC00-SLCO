@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from cachetools import cached, LRUCache
+from cachetools import cached
 from typing import TYPE_CHECKING, Iterable
 from smt.util import z3_always_holds, z3_never_holds, z3_is_equivalent, z3_is_negation_equivalent
 
