@@ -1,0 +1,22 @@
+{% if vercors_common_contract_permissions != "" %}
+{{ vercors_common_contract_permissions | trim }}
+
+{% endif %}
+{% if vercors_state_machine_contract_permissions != "" %}
+{{ vercors_state_machine_contract_permissions | trim }}
+
+{% endif %}
+{% if vercors_class_contract_permissions != "" %}
+{{ vercors_class_contract_permissions | trim }}
+
+{% endif %}
+{% if requires_permissions_list != "" %}
+// Require that the appropriate targets are locked upon entry.
+requires {{ requires_permissions_list }};
+
+{% endif %}
+{% if ensures_permissions_list != "" %}
+// Ensure that the appropriate targets are locked upon exit.
+ensures {{ ensures_permissions_list }};
+
+{% endif %}

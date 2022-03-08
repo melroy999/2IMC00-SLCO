@@ -1,0 +1,13 @@
+/*@
+{% if locking_method_contract != "" %}
+{{ locking_method_contract | trim }}
+{% endif %}
+@*/
+private void {{ locking_method_name }}() {
+    {% for target in assumption_targets %}
+    //@ assume {{ target | trim }};
+    {% endfor %}
+    {% for target in lock_releases %}
+    // Release {{ target | trim }}.
+    {% endfor %}
+}

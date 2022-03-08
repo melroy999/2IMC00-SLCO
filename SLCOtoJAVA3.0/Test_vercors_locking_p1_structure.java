@@ -1233,32 +1233,32 @@ class P_SM3Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: i, 1: x[(i + 1)]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: i, 2: x[(i + 1)]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_SMC0_0_s_0_n_3() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.x[(c.i + 1)]
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.x[c.i]
         //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.x[c.i]
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.x[(c.i + 1)]
         //@ assert lock_requests[2] == 1; // Verify lock activity.
         //@ assert lock_requests[0] == 1; // Check c.i.
-        //@ assert lock_requests[2] == 1; // Check c.x[c.i].
+        //@ assert lock_requests[1] == 1; // Check c.x[c.i].
         //@ assume 0 <= c.i && c.i <= c.x.length;
         if(c.x[c.i] != 0) {
             //@ assert c.x[c.i] != 0;
-            lock_requests[2] = lock_requests[2] - 1; // Release c.x[c.i]
-            //@ assert lock_requests[2] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.x[c.i]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
         //@ assert !(c.x[c.i] != 0);
         lock_requests[0] = lock_requests[0] - 1; // Release c.i
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.x[(c.i + 1)]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.x[c.i]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.x[c.i]
+        lock_requests[2] = lock_requests[2] - 1; // Release c.x[(c.i + 1)]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
         return false;
     }
@@ -1304,8 +1304,8 @@ class P_SM3Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: i, 1: x[(i + 1)]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: i, 2: x[(i + 1)]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -1381,12 +1381,12 @@ class P_SM3Thread {
         c.i = c.i + 1;
         // SLCO assignment | x[i] := y[i].
         //@ assert lock_requests[0] == 1; // Check c.i.
-        //@ assert lock_requests[1] == 1; // Check c.x[(c.i + 1)].
+        //@ assert lock_requests[2] == 1; // Check c.x[(c.i + 1)].
         //@ assume 0 <= c.i && c.i <= y.length;
         //@ assume 0 <= c.i && c.i <= c.x.length;
         c.x[c.i] = y[c.i];
-        lock_requests[1] = lock_requests[1] - 1; // Release c.x[(c.i + 1)]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.x[(c.i + 1)]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
         // SLCO assignment | y[i] := 0.
         //@ assert lock_requests[0] == 1; // Check c.i.
         //@ assume 0 <= c.i && c.i <= y.length;
