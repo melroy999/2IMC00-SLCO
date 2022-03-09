@@ -566,7 +566,9 @@ class P_SM2Thread {
         //@ assume 0 <= c.i && c.i < 2;
         //@ assert Perm(c.x[c.i], 1\2);
         //@ assume Perm(c.x[c.i], 1);
-        c.x[c.i] = y[c.i];
+        // Render assignments as if statements to test permissions--actual execution has been achieved through rewrite rules.
+        if(c.x[c.i] == 0) {}
+        if(y[c.i] == 0) {}
         locking_operation_4();
     }
 
@@ -625,7 +627,9 @@ class P_SM2Thread {
         //@ assume 0 <= c.i && c.i < 2;
         //@ assert Perm(y[c.i], 1\2);
         //@ assume Perm(y[c.i], 1);
-        y[c.i] = 0;
+        // Render assignments as if statements to test permissions--actual execution has been achieved through rewrite rules.
+        if(y[c.i] == 0) {}
+        if(0 == 0) {}
         locking_operation_5();
     }
 
@@ -1004,7 +1008,9 @@ class P_SM3Thread {
         // SLCO assignment | i := i + 1.
         //@ assert Perm(c.i, 1\3);
         //@ assume Perm(c.i, 1);
-        c.i = c.i + 1;
+        // Render assignments as if statements to test permissions--actual execution has been achieved through rewrite rules.
+        if(c.i == 0) {}
+        if(c.i + 1 == 0) {}
     }
 
     /*@
@@ -1064,11 +1070,13 @@ class P_SM3Thread {
     ensures Perm(c.i, 1\3);
     @*/
     private void assignment_3() {
-        // SLCO assignment | x[i] := y[i].
-        //@ assume 0 <= c.i && c.i < 2;
-        //@ assert Perm(c.x[c.i], 1\3);
-        //@ assume Perm(c.x[c.i], 1);
-        c.x[c.i] = y[c.i];
+        // SLCO assignment | x[(i + 1)] := y[(i + 1)].
+        //@ assume 0 <= (c.i + 1) && (c.i + 1) < 2;
+        //@ assert Perm(c.x[(c.i + 1)], 1\3);
+        //@ assume Perm(c.x[(c.i + 1)], 1);
+        // Render assignments as if statements to test permissions--actual execution has been achieved through rewrite rules.
+        if(c.x[(c.i + 1)] == 0) {}
+        if(y[(c.i + 1)] == 0) {}
         locking_operation_8();
     }
 
@@ -1123,11 +1131,13 @@ class P_SM3Thread {
     requires Perm(c.i, 1\3);
     @*/
     private void assignment_4() {
-        // SLCO assignment | y[i] := 0.
-        //@ assume 0 <= c.i && c.i < 2;
-        //@ assert Perm(y[c.i], 1\3);
-        //@ assume Perm(y[c.i], 1);
-        y[c.i] = 0;
+        // SLCO assignment | y[(i + 1)] := 0.
+        //@ assume 0 <= (c.i + 1) && (c.i + 1) < 2;
+        //@ assert Perm(y[(c.i + 1)], 1\3);
+        //@ assume Perm(y[(c.i + 1)], 1);
+        // Render assignments as if statements to test permissions--actual execution has been achieved through rewrite rules.
+        if(y[(c.i + 1)] == 0) {}
+        if(0 == 0) {}
         locking_operation_9();
     }
 

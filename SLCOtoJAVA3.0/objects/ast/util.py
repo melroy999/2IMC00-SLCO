@@ -172,6 +172,7 @@ def copy_node(model, lookup_table: dict, rewrite_rules: dict, parent=None):
         if model.guard is not None:
             result.guard = copy_node(model.guard, lookup_table, rewrite_rules)
         result.assignments = [copy_node(a, lookup_table, rewrite_rules) for a in model.assignments]
+        result.locking_atomic_node = model.locking_atomic_node
         return result
     elif isinstance(model, Assignment):
         result = Assignment()
@@ -180,6 +181,7 @@ def copy_node(model, lookup_table: dict, rewrite_rules: dict, parent=None):
         result.original_statement = copy_node(model.original_statement, lookup_table, rewrite_rules)
         result.left = copy_node(model.left, lookup_table, rewrite_rules)
         result.right = copy_node(model.right, lookup_table, rewrite_rules)
+        result.locking_atomic_node = model.locking_atomic_node
         return result
     elif isinstance(model, Expression):
         result = Expression(model.op)
@@ -187,6 +189,7 @@ def copy_node(model, lookup_table: dict, rewrite_rules: dict, parent=None):
         result.produced_statement = model.produced_statement
         result.original_statement = copy_node(model.original_statement, lookup_table, rewrite_rules)
         result.values = [copy_node(v, lookup_table, rewrite_rules) for v in model.values]
+        result.locking_atomic_node = model.locking_atomic_node
         return result
     elif isinstance(model, Primary):
         result = Primary(model.sign, model.value)
@@ -201,11 +204,13 @@ def copy_node(model, lookup_table: dict, rewrite_rules: dict, parent=None):
                 result.ref = copy_node(model.ref, lookup_table, rewrite_rules)
         if model.body is not None:
             result.body = copy_node(model.body, lookup_table, rewrite_rules)
+        result.locking_atomic_node = model.locking_atomic_node
         return result
     elif isinstance(model, VariableRef):
         result = VariableRef(lookup_table.get(model.var, model.var))
         if model.index is not None:
             result.index = copy_node(model.index, lookup_table, rewrite_rules)
+        result.locking_atomic_node = model.locking_atomic_node
         return result
     elif isinstance(model, ActionRef):
         result = ActionRef(lookup_table.get(model.act, model.act))

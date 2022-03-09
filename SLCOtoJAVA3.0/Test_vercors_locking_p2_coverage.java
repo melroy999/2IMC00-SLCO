@@ -359,9 +359,9 @@ class P_SM2Thread {
     private boolean t_SMC0_0_s_1() {
         // SLCO assignment | x[i] := y[i].
         //@ assume Perm(c.i, 1);
+        //@ assume 0 <= c.i && c.i < y.length;
         //@ assume 0 <= c.i && c.i < c.x.length;
         //@ assume Perm(c.x[c.i], 1);
-        //@ assume 0 <= c.i && c.i < y.length;
         c.x[c.i] = y[c.i];
     }
 
@@ -631,9 +631,9 @@ class P_SM3Thread {
     private boolean t_SMC0_0_s_2() {
         // SLCO assignment | x[i] := y[i].
         //@ assume Perm(c.i, 1);
+        //@ assume 0 <= c.i && c.i < y.length;
         //@ assume 0 <= c.i && c.i < c.x.length;
         //@ assume Perm(c.x[c.i], 1);
-        //@ assume 0 <= c.i && c.i < y.length;
         c.x[c.i] = y[c.i];
     }
 

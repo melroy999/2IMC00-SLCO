@@ -1,9 +1,11 @@
 from typing import List, Dict, Set, Tuple, Union
 
+from objects.ast import util
 from objects.ast.interfaces import SlcoStatementNode, SlcoLockableNode
 from objects.ast.models import Transition, StateMachine, State, Assignment, Expression, Primary, VariableRef
 from objects.ast.util import get_variable_references
 from objects.locking.models import LockingNode, Lock, LockRequest
+from preprocessing.ast.simplification import simplify
 from rendering.vercors.renderer import VercorsModelRenderer
 
 
@@ -21,6 +23,18 @@ class VercorsLockingModelRenderer(VercorsModelRenderer):
     #   - Major issue: The use of rewritten variable references in method contracts causes issues causes errors.
     #       - This is due to the fact that the assignment applies the rewrite rule--the original variable is altered,
     #       and hence, all permissions will need to be adjusted to fit this new variable value.
+    #       - Creative solution: do not actually apply the assignments.
+
+
+
+
+    # TODO: Current plan:
+    #   - Rewrite the required/ensured lists in the locking instructions to use localized rewritten versions.
+    #       - (x) Or, rewrite the expressions to already have the assignments applied--this way, locks remain unchanged.
+    #   - Find a way to check if any permissions remain at the end of the execution--there shouldn't be.
+
+    # TODO: This part is also affected by the range assumption problem.
+    #   - (x) Added a stronger range check generator that does include checks for local array variables.
 
     def __init__(self):
         super().__init__()
@@ -28,7 +42,12 @@ class VercorsLockingModelRenderer(VercorsModelRenderer):
         # Add support variables.
         self.current_locking_method_number = 0
         self.current_assignment_number = 0
+        self.current_rewrite_rules: List[Tuple[VariableRef, Union[Expression, Primary]]] = []
 
+        # Overwrite the assignment template, since they are applied as rewrite rules instead.
+        self.assignment_template = self.env.get_template(
+            "vercors/locking/revised/assignment.jinja2template"
+        )
         # Add additional templates.
         self.class_variable_permissions_template = self.env.get_template(
             "vercors/locking/revised/class_variable_permissions.jinja2template"
@@ -70,6 +89,38 @@ class VercorsLockingModelRenderer(VercorsModelRenderer):
             ensures_permissions_list=ensures_permissions_list
         )
 
+    def insert_permission_range_check_statements(
+            self, i: VariableRef, target_list: List[str], root_only: bool = False, operator: str = "&&"
+    ) -> None:
+        """
+        Add statements to the given list that adds the appropriate range checks statements for the target statement.
+        """
+        if root_only:
+            # Only add a range check for the root statement.
+            if i.var.is_array:
+                in_line_index_statement = self.get_expression_control_node_in_line_statement(
+                    i.index, enforce_no_method_creation=True
+                )
+                target_list.append(
+                    f"0 <= {in_line_index_statement} {operator} {in_line_index_statement} < {i.var.type.size}"
+                )
+        else:
+            # Add the appropriate (potentially nested) range assumptions.
+            range_check_targets = [v for v in self.get_topologically_ordered_variable_references({i}) if v.var.is_array]
+            for target in range_check_targets:
+                self.insert_permission_range_check_statements(target, target_list, root_only=True)
+
+    def insert_permission_statements(
+            self, i: VariableRef, target_list: List[str], write_permission: bool = False
+    ) -> None:
+        """Add statements to the given list that adds the appropriate range checks and permission statements."""
+        # Add a permission statement for the main variable.
+        in_line_statement = self.get_expression_control_node_in_line_statement(i, enforce_no_method_creation=True)
+        if write_permission:
+            target_list.append(f"Perm({in_line_statement}, 1)")
+        else:
+            target_list.append(f"Perm({in_line_statement}, 1\\{self.current_state_machine.target_locks_list_size})")
+
     def render_locking_method(self, model: LockingNode) -> str:
         """Insert a dummy method that simulates the locking mechanism through assumptions and permissions leaks."""
         # Generate a method that performs the locking instruction.
@@ -80,35 +131,11 @@ class VercorsLockingModelRenderer(VercorsModelRenderer):
         assumption_targets = []
         for phase in model.locking_instructions.locks_to_acquire_phases:
             for i in phase:
-                if i.var.is_array:
-                    in_line_index_statement = self.get_expression_control_node_in_line_statement(
-                        i.index, enforce_no_method_creation=True
-                    )
-                    assumption_targets.append(
-                        f"0 <= {in_line_index_statement} && {in_line_index_statement} < {i.var.type.size}"
-                    )
-
-                in_line_statement = self.get_expression_control_node_in_line_statement(
-                    i.ref, enforce_no_method_creation=True
-                )
-                assumption_targets.append(
-                    f"Perm({in_line_statement}, 1\\{self.current_state_machine.target_locks_list_size})"
-                )
+                self.insert_permission_range_check_statements(i.ref, assumption_targets)
+                self.insert_permission_statements(i.ref, assumption_targets)
         for i in model.locking_instructions.unpacked_lock_requests:
-            if i.var.is_array:
-                in_line_index_statement = self.get_expression_control_node_in_line_statement(
-                    i.index, enforce_no_method_creation=True
-                )
-                assumption_targets.append(
-                    f"0 <= {in_line_index_statement} && {in_line_index_statement} < {i.var.type.size}"
-                )
-
-            in_line_statement = self.get_expression_control_node_in_line_statement(
-                i.ref, enforce_no_method_creation=True
-            )
-            assumption_targets.append(
-                f"Perm({in_line_statement}, 1\\{self.current_state_machine.target_locks_list_size})"
-            )
+            self.insert_permission_range_check_statements(i.ref, assumption_targets)
+            self.insert_permission_statements(i.ref, assumption_targets)
 
         # Render strings for lock releases to avoid confusion.
         lock_releases = [
@@ -117,6 +144,7 @@ class VercorsLockingModelRenderer(VercorsModelRenderer):
             ) for i in model.locking_instructions.locks_to_release
         ]
 
+        # Add the locking method to the control nodes list.
         self.current_control_node_methods.append(
             self.locking_method_template.render(
                 locking_method_contract=locking_method_contract,
@@ -147,26 +175,16 @@ class VercorsLockingModelRenderer(VercorsModelRenderer):
         # Create a dependency graph for the variable references, including both the class and local variables.
         ordered_references = self.get_topologically_ordered_variable_references(variable_references)
 
-        # Filter out all non-class variables.
-        ordered_references = [i for i in ordered_references if i.var.is_class_variable]
-
         permission_targets = []
         for i in ordered_references:
             # Perform a bound check on the index of the target is an array.
-            if i.var.is_array:
-                in_line_index_statement = self.get_expression_control_node_in_line_statement(
-                    i.index, enforce_no_method_creation=True
-                )
-                permission_targets.append(
-                    f"0 <= {in_line_index_statement} ** {in_line_index_statement} < {i.var.type.size}"
-                )
+            # Local variables are included too, since range checking is still necessary for these.
+            self.insert_permission_range_check_statements(i, permission_targets, root_only=True, operator="**")
 
-            in_line_statement = self.get_expression_control_node_in_line_statement(
-                i, enforce_no_method_creation=True
-            )
-            permission_targets.append(
-                f"Perm({in_line_statement}, 1\\{self.current_state_machine.target_locks_list_size})"
-            )
+            # Only add a permission entry if the variable is a class variable.
+            if i.var.is_class_variable:
+                self.insert_permission_statements(i, permission_targets)
+
         return " ** ".join(permission_targets)
 
     def render_class_variable_permissions(self, model: SlcoStatementNode) -> str:
@@ -249,76 +267,104 @@ class VercorsLockingModelRenderer(VercorsModelRenderer):
         # Add a write assumption for the target variable.
         result = super().get_assignment_opening_body(model)
 
+        # Perform the appropriate range checks.
         statements = []
-        if model.left.var.is_array:
-            # Add a range check.
-            in_line_index_statement = self.get_expression_control_node_in_line_statement(
-                model.left.index, enforce_no_method_creation=True
-            )
-            statements.append(
-                f"//@ assume 0 <= {in_line_index_statement} && {in_line_index_statement} < {model.left.var.type.size};"
-            )
-        in_line_statement = self.get_expression_control_node_in_line_statement(
-            model.left, enforce_no_method_creation=True
-        )
+        range_check_statements = []
+        self.insert_permission_range_check_statements(model.left, range_check_statements)
+        statements.extend([f"//@ assume {v};" for v in range_check_statements])
+
         # Also assert that permission is present over the element before elevation.
-        statements.append(
-            f"//@ assert Perm({in_line_statement}, 1\\{self.current_state_machine.target_locks_list_size});"
-        )
-        statements.append(
-            f"//@ assume Perm({in_line_statement}, 1);"
-        )
+        permission_statements = []
+        self.insert_permission_statements(model.left, permission_statements)
+        self.insert_permission_statements(model.left, permission_statements, write_permission=True)
+        statements.append(f"//@ assert {permission_statements[0]};")
+        statements.append(f"//@ assume {permission_statements[1]};")
 
         return "\n".join(v for v in [result] + statements if v != "")
 
-    # def get_assignment_method_contract_body(self, model: Assignment) -> str:
-    #     """Get the method contract of the given assignment with all required permissions."""
-    #     # Pre-render data.
-    #     vercors_common_contract_permissions = self.render_vercors_contract_common_permissions()
-    #     vercors_state_machine_contract_permissions = self.render_vercors_contract_state_machine_permissions()
-    #     vercors_class_contract_permissions = self.render_vercors_contract_class_permissions()
-    #
-    #     # Gather the contract class variable permission entries.
-    #     requires_permissions_list = self.render_permission_list(
-    #         model.locking_atomic_node.entry_node.locking_instructions.requires_lock_requests
-    #     )
-    #     ensures_permissions_list = self.render_permission_list(
-    #         model.locking_atomic_node.success_exit.locking_instructions.ensures_lock_requests
-    #     )
-    #
-    #     # Render the vercors expression control node contract body template.
-    #     return self.assignment_method_contract_body_template.render(
-    #         vercors_common_contract_permissions=vercors_common_contract_permissions,
-    #         vercors_state_machine_contract_permissions=vercors_state_machine_contract_permissions,
-    #         vercors_class_contract_permissions=vercors_class_contract_permissions,
-    #         requires_permissions_list=requires_permissions_list,
-    #         ensures_permissions_list=ensures_permissions_list
-    #     )
-    #
-    # def render_assignment_method(self, model: Assignment) -> str:
-    #     """Insert a wrapper method for a given assignment such that the write permission stays local."""
-    #     # Generate a method that performs the locking instruction.
-    #     assignment_method_name = f"assignment_{self.current_assignment_number}"
-    #     assignment_method_contract = self.get_assignment_method_contract_body(model)
-    #     assignment_method_body = super().render_assignment(model)
-    #
-    #     self.current_control_node_methods.append(
-    #         self.assignment_method_template.render(
-    #             assignment_method_contract=assignment_method_contract,
-    #             assignment_method_name=assignment_method_name,
-    #             assignment_method_body=assignment_method_body
-    #         )
-    #     )
-    #
-    #     # Increment the assignment node counter.
-    #     self.current_assignment_number += 1
-    #
-    #     # Return a call to the method.
-    #     return f"{assignment_method_name}();"
-    #
-    # def render_assignment(self, model: Assignment) -> str:
-    #     # Isolate the assignment such that the write assumption only holds for a limited scope.
-    #     return self.render_assignment_method(model)
+    def get_assignment_method_contract_body(self, model: Assignment) -> str:
+        """Get the method contract of the given assignment with all required permissions."""
+        # Pre-render data.
+        vercors_common_contract_permissions = self.render_vercors_contract_common_permissions()
+        vercors_state_machine_contract_permissions = self.render_vercors_contract_state_machine_permissions()
+        vercors_class_contract_permissions = self.render_vercors_contract_class_permissions()
+
+        # Gather the contract class variable permission entries.
+        requires_permissions_list = self.render_permission_list(
+            model.locking_atomic_node.entry_node.locking_instructions.requires_lock_requests
+        )
+        ensures_permissions_list = self.render_permission_list(
+            model.locking_atomic_node.success_exit.locking_instructions.ensures_lock_requests
+        )
+
+        # Render the vercors expression control node contract body template.
+        return self.assignment_method_contract_body_template.render(
+            vercors_common_contract_permissions=vercors_common_contract_permissions,
+            vercors_state_machine_contract_permissions=vercors_state_machine_contract_permissions,
+            vercors_class_contract_permissions=vercors_class_contract_permissions,
+            requires_permissions_list=requires_permissions_list,
+            ensures_permissions_list=ensures_permissions_list
+        )
+
+    def render_assignment_method(self, model: Assignment) -> str:
+        """Insert a wrapper method for a given assignment such that the write permission stays local."""
+        # Generate a method that performs the locking instruction.
+        assignment_method_name = f"assignment_{self.current_assignment_number}"
+        assignment_method_contract = self.get_assignment_method_contract_body(model)
+        assignment_method_body = super().render_assignment(model)
+
+        self.current_control_node_methods.append(
+            self.assignment_method_template.render(
+                assignment_method_contract=assignment_method_contract,
+                assignment_method_name=assignment_method_name,
+                assignment_method_body=assignment_method_body
+            )
+        )
+
+        # Increment the assignment node counter.
+        self.current_assignment_number += 1
+
+        # Return a call to the method.
+        return f"{assignment_method_name}();"
+
+    def render_assignment(self, model: Assignment) -> str:
+        # Assignments are rewritten to no longer change the value of the target variable--this is done since it is too
+        # difficult to add the appropriate verification data to the locking system.
+        #   - Hence, instead of trying to restore the lock targets to pre-rewritten form, the assignment are applied as
+        #   rewrite rules instead to all succeeding statements. This ensures that the lock requests and the statements
+        #   that are being checked are over the same original variable values.
+        #   - Note that this adds an additional point of failure in the verification process--this unfortunately cannot
+        #   be avoided, due to time constraints and complexity issues encountered during the Thesis.
+
+        # Generate the dictionary.
+        rewrite_rules: Dict[VariableRef, Union[Expression, Primary]] = dict()
+        for variable, replacement in self.current_rewrite_rules:
+            target_variable = variable
+            if variable.var.is_array:
+                # Rewrite target_variable appropriately if it has an index.
+                target_variable = util.copy_node(variable, dict(), dict())
+                target_variable.index = util.copy_node(target_variable.index, dict(), rewrite_rules)
+
+            # Apply the rewrite rule to the replacement statement and note down the change of value.
+            rewrite_rules[target_variable] = util.copy_node(replacement, dict(), rewrite_rules)
+
+        rewritten_model = util.copy_node(model, dict(), dict())
+        rewritten_model.right = simplify(util.copy_node(model.right, dict(), rewrite_rules))
+        if model.left.var.is_array:
+            rewritten_model.left.index = simplify(util.copy_node(model.left.index, dict(), rewrite_rules))
+
+        # Isolate the assignment such that the write assumption only holds for a limited scope.
+        method_call = self.render_assignment_method(rewritten_model)
+
+        # Add the assignment as a rewrite rule.
+        self.current_rewrite_rules.append((model.left, model.right))
+
+        return method_call
+
+    def render_transition(self, model: Transition) -> str:
+        # Reset the current rewrite rules.
+        self.current_rewrite_rules: List[Tuple[VariableRef, Union[Expression, Primary]]] = []
+        return super().render_transition(model)
 
 
 class VercorsLockingStructureModelRenderer(VercorsModelRenderer):

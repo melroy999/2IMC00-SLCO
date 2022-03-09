@@ -854,8 +854,8 @@ class P_SM2Thread {
         // SLCO assignment | x[i] := y[i].
         //@ assert lock_requests[0] == 1; // Check c.i.
         //@ assert lock_requests[1] == 1; // Check c.x[c.i].
-        //@ assume 0 <= c.i && c.i <= y.length;
         //@ assume 0 <= c.i && c.i <= c.x.length;
+        //@ assume 0 <= c.i && c.i <= y.length;
         c.x[c.i] = y[c.i];
         lock_requests[1] = lock_requests[1] - 1; // Release c.x[c.i]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
@@ -1382,8 +1382,8 @@ class P_SM3Thread {
         // SLCO assignment | x[i] := y[i].
         //@ assert lock_requests[0] == 1; // Check c.i.
         //@ assert lock_requests[2] == 1; // Check c.x[(c.i + 1)].
-        //@ assume 0 <= c.i && c.i <= y.length;
         //@ assume 0 <= c.i && c.i <= c.x.length;
+        //@ assume 0 <= c.i && c.i <= y.length;
         c.x[c.i] = y[c.i];
         lock_requests[2] = lock_requests[2] - 1; // Release c.x[(c.i + 1)]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
