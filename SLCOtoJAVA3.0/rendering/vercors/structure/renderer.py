@@ -12,6 +12,16 @@ class VercorsStructureModelRenderer(VercorsModelRenderer):
     of the rendered models from a structural point of view.
     """
 
+    # TODO:
+    #   - Have the result of expression used in control flow nodes be saved in a temporary variable such that the return
+    #   value of the method is covered by the assumptions within the method body.
+    #       - Add a yield variable of boolean type to the method's contract.
+    #       - Ensure that the result is equivalent to the yielded variable.
+    #           - This will not work--it hides crucial information needed in verification; assertions no longer work.
+    #       - Assign the value of the statement contained within the control node to the yielded variable.
+    #       - Include the appropriate range checks.
+    #   - Remove the assumption system designed for conjunctions and disjunctions.
+
     def __init__(self):
         super().__init__()
 
@@ -41,14 +51,13 @@ class VercorsStructureModelRenderer(VercorsModelRenderer):
     @staticmethod
     def render_vercors_no_values_changed_statement(model: Variable) -> str:
         """Render a statement for the given variable that ensures that the old value is equivalent to the new."""
-        variable_name = model.name
+        v_name = model.name
         if model.is_class_variable:
-            variable_name = f"c.{variable_name}"
+            v_name = f"c.{v_name}"
         if model.is_array:
-            return f"(\\forall* int _i; 0 <= _i && _i < {variable_name}.length; " \
-                   f"{variable_name}[_i] == \\old({variable_name}[_i]))"
+            return f"(\\forall* int _i; 0 <= _i && _i < {v_name}.length; {v_name}[_i] == \\old({v_name}[_i]))"
         else:
-            return f"{variable_name} == \\old({variable_name})"
+            return f"{v_name} == \\old({v_name})"
 
     def render_vercors_expression_control_node_no_values_changed_requirements(
             self, model: SlcoStatementNode

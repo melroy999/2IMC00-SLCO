@@ -1,0 +1,26 @@
+model Test {
+	classes
+	P {
+        variables Integer[2] x Integer i := 0
+        state machines
+        SM1 {
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC1 {
+                x[i] = 0;
+            }
+        }
+	}
+	Q {
+        variables Integer[2] x Integer i := 0
+        state machines
+        SM1 {
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC1 {
+                i >= 0 && i < 2 && x[i] = 0;
+            }
+        }
+	}
+	objects p: P(), q: Q()
+}

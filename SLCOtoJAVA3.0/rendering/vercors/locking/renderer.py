@@ -15,19 +15,6 @@ class VercorsLockingModelRenderer(VercorsModelRenderer):
     mechanism's integrity.
     """
 
-    # TODO:
-    #   - Control access to variables through read permissions (1\n, n=target_locks_list_size) in the contract. This
-    #   will ensure that the permission of values that occur multiple times will never exceed one.
-    #   - Potentially assume that the target of assignments has full write access--potentially needs another approach.
-    #   - Find a way to check if any permissions remain at the end of the execution--there shouldn't be.
-    #   - Major issue: The use of rewritten variable references in method contracts causes issues causes errors.
-    #       - This is due to the fact that the assignment applies the rewrite rule--the original variable is altered,
-    #       and hence, all permissions will need to be adjusted to fit this new variable value.
-    #       - Creative solution: do not actually apply the assignments.
-
-
-
-
     # TODO: Current plan:
     #   - Rewrite the required/ensured lists in the locking instructions to use localized rewritten versions.
     #       - (x) Or, rewrite the expressions to already have the assignments applied--this way, locks remain unchanged.
@@ -35,6 +22,24 @@ class VercorsLockingModelRenderer(VercorsModelRenderer):
 
     # TODO: This part is also affected by the range assumption problem.
     #   - (x) Added a stronger range check generator that does include checks for local array variables.
+
+    # FIXME: A primary concern at this moment is that the rewrite rules applied to the lock requests might not have the
+    #  same effect as those applied to the assignments.
+    #   - Applying the rewrite rules could result in variables disappearing.
+    #   - Applying the rewrite rules could result in variables remaining active for longer.
+    #   - It is not guaranteed that the lock requests will use the earliest assigned value--disparity can still exist.
+    #   - This would result that this approach will always be faulty in more complex models, which is undesirable.
+
+    # The issue mentioned above reveals an additional concern--can rewrites introduce additional variables that need to
+    # be locked? Would this be handled appropriately?
+    #   - [i != 0; x[i] := 0; i := k; x[i] := 0], suppose all are variables are class variables.
+    #   - In this instance, the lock request for the second x[i] would become x[k]--would k still be locked?
+    #   - The code does seem to handle this situation appropriately--even with a higher lock id for k, it is placed at
+    #   the correct position.
+
+    # TODO: The main conclusion is that this code is never going to work as desired. The original idea of having a list
+    #  that holds all locked targets is still the most robust solution, but too slow to have any practical meaning.
+    #   - This solution will work appropriately for models without at most one assignment per transition.
 
     def __init__(self):
         super().__init__()

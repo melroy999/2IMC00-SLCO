@@ -668,15 +668,36 @@ class JavaModelRenderer:
         else:
             return self.render_included_transition(model)
 
+    # noinspection PyMethodMayBeStatic
+    def get_transition_call_opening_body(self, model: Transition) -> str:
+        """Get the opening statements of the transition call object."""
+        return ""
+
+    # noinspection PyMethodMayBeStatic
+    def get_transition_call_success_closing_body(self, model: Transition) -> str:
+        """Get the closing statements in the success branch of the transition call object."""
+        return ""
+
+    # noinspection PyMethodMayBeStatic
+    def get_transition_call_failure_closing_body(self, model: Transition) -> str:
+        """Get the closing statements in the failure branch of the transition call object."""
+        return ""
+
     def render_transition_call(self, model: Transition) -> str:
         """Render a call to the given transition as Java code."""
         human_readable_transition_identification = str(model)
+        transition_call_opening_body = self.get_transition_call_opening_body(model)
+        transition_call_success_closing_body = self.get_transition_call_success_closing_body(model)
+        transition_call_failure_closing_body = self.get_transition_call_failure_closing_body(model)
 
         # Render a call to the specified transition.
         return self.transition_call_template.render(
             human_readable_transition_identification=human_readable_transition_identification,
             model_source=model.source,
             model_id=model.id,
+            transition_call_opening_body=transition_call_opening_body,
+            transition_call_success_closing_body=transition_call_success_closing_body,
+            transition_call_failure_closing_body=transition_call_failure_closing_body
         )
 
     def render_deterministic_decision_node(self, model: DecisionNode) -> str:

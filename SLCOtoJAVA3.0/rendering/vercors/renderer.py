@@ -89,8 +89,7 @@ class VercorsModelRenderer(JavaModelRenderer):
             in_line_statement = self.get_expression_control_node_in_line_statement(
                 r.index, enforce_no_method_creation=True
             )
-            var_name = f"c.{r.var.name}" if r.var.is_class_variable else f"{r.var.name}"
-            assumptions.add(f"{prefix} 0 <= {in_line_statement} && {in_line_statement} <= {var_name}.length;")
+            assumptions.add(f"{prefix} 0 <= {in_line_statement} && {in_line_statement} <= {r.var.type.size};")
         return "\n".join(assumptions)
 
     def render_variable_ref(self, model: VariableRef) -> str:

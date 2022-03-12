@@ -15,6 +15,7 @@ from rendering.java.renderer import JavaModelRenderer
 from rendering.vercors.locking.renderer import VercorsLockingStructureModelRenderer, \
     VercorsLockingCoverageModelRenderer, VercorsLockingRewriteRulesModelRenderer, VercorsLockingModelRenderer
 from rendering.vercors.structure.renderer import VercorsStructureModelRenderer
+from rendering.vercors_revised.renderer import VercorsModelRendererRevised
 
 
 def preprocess(model):
@@ -71,6 +72,13 @@ def render(model, model_folder):
     logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
     with open(file_name, 'w') as out_file:
         out_file.write(VercorsLockingModelRenderer().render_model(model))
+
+    # Write the program to the desired output file.
+    file_name = os.path.join(model_folder, model.name + "_vercors_revised.java")
+    logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
+    with open(file_name, 'w') as out_file:
+        out_file.write(VercorsModelRendererRevised().render_model(model))
+
 
 def get_argument_parser():
     """Get a parser for the input arguments."""

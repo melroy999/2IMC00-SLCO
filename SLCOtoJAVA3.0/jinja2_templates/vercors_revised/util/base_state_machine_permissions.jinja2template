@@ -1,0 +1,9 @@
+// Require and ensure that the state machine has full access to its own array variables.
+{% for v in target_entries %}
+context Perm({{ v[0] }}, 1);
+{% endfor %}
+
+// Require and ensure that the state machine variable arrays are not null and of the appropriate size.
+{% for v in target_entries %}
+context {{ v[0] }} != null && {{ v[0] }}.length == {{ v[1] }};
+{% endfor %}

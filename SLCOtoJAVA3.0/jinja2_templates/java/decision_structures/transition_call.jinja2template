@@ -1,4 +1,13 @@
 // SLCO transition {{ human_readable_transition_identification }}.
+{% if transition_call_opening_body != "" %}
+{{ transition_call_opening_body | trim }}
+{% endif %}
 if(execute_transition_{{ model_source }}_{{ model_id }}()) {
+    {% if transition_call_success_closing_body != "" %}
+    {{ transition_call_success_closing_body | trim }}
+    {% endif %}
     return;
 }
+{% if transition_call_failure_closing_body != "" %}
+{{ transition_call_failure_closing_body | trim }}
+{% endif %}

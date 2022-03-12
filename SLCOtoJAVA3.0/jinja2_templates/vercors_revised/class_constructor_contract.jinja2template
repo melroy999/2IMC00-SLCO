@@ -1,0 +1,20 @@
+{% if variable_names | length > 0 %}
+/*@
+// Ensure full access to the class members.
+{% for v_name in variable_names %}
+ensures Perm(this.{{ v_name }}, 1);
+{% endfor %}
+
+{% if array_variable_names | length > 0 %}
+// Require that the given values are not null.
+{% for v_name in array_variable_names %}
+requires {{ v_name }} != null;
+{% endfor %}
+
+{% endif %}
+// Ensure that the right values are assigned.
+{% for v_name in variable_names %}
+ensures this.{{ v_name }} == {{ v_name }};
+{% endfor %}
+@*/
+{% endif %}
