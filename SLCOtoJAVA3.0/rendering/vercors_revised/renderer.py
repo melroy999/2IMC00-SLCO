@@ -135,12 +135,10 @@ class VercorsModelRendererRevised(JavaModelRenderer):
         """Render the appropriate range check assumptions for the given statement within a method to make them local."""
         range_check_assumption_body = self.render_range_check_body_statements(model)
         range_check_assumption_contract = self.render_range_check_assumption_method_contract(model)
-        if transition_call:
+        range_check_assumption_name = f"range_check_assumption_t_{self.current_transition.id}"
+        if not transition_call:
             # The range check assumption is rendered by the transition, and hence the name needs to be easy to trace.
-            range_check_assumption_name = f"range_check_assumption_t_{self.current_transition.id}"
-        else:
-            # TODO: create a proper name.
-            range_check_assumption_name = ""
+            range_check_assumption_name = f"{range_check_assumption_name}_s_{self.current_control_node_id}"
 
         # Render the range check assumption method template.
         self.current_control_node_methods.append(
@@ -158,6 +156,7 @@ class VercorsModelRendererRevised(JavaModelRenderer):
     #     - Overwrite the control node body expression rendering function to include a fix for short-circuit evaluation.
     #     - Render conjunctions as a nested if-structure.
     #     - Render disjunctions as a collection of if-structures.
+    # TODO: Short-circuit fix might not be necessary for all models.
     def render_expression_control_node_body_expression_conjunction(
             self, model: Expression, enforce_no_method_creation: bool, expression_control_node_success_closing_body: str
     ) -> str:
@@ -357,9 +356,16 @@ class VercorsModelRendererRevised(JavaModelRenderer):
     # TODO: comments
     def get_expression_control_node_success_closing_body(self, model: SlcoStatementNode) -> str:
         result = super().get_expression_control_node_success_closing_body(model)
-        if isinstance(model, Expression) and model.op in ["or", "and"]:
-            result = "\n".join(v.strip() for v in [result, "// Short-circuit fix trigger."] if v.strip() != "")
+        # TODO: Short-circuit fix might not be necessary for all models.
+        # if isinstance(model, Expression) and model.op in ["or", "and"]:
+        #     result = "\n".join(v.strip() for v in [result, "// Short-circuit fix trigger."] if v.strip() != "")
         return result
+
+    def get_assignment_opening_body(self, model: Assignment) -> str:
+        # Add the appropriate assumptions needed for the assignment.
+        result = super().get_assignment_opening_body(model)
+        range_check_assumption_method_name = self.insert_range_check_assumption_method(model)
+        return "\n".join(v.strip() for v in [result, range_check_assumption_method_name] if v.strip() != "")
 
     def get_transition_closing_body(self, model: Transition) -> str:
         # Do not render the state change, since enums are not supported by VerCors.
