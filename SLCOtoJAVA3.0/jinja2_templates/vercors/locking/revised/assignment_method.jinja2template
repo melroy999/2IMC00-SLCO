@@ -1,8 +1,0 @@
-/*@
-{% if assignment_method_contract != "" %}
-{{ assignment_method_contract | trim }}
-{% endif %}
-@*/
-private void {{ assignment_method_name }}() {
-    {{ assignment_method_body | indent(4, False) | trim }}
-}

@@ -78,7 +78,7 @@ class VercorsModelRenderer(JavaModelRenderer):
     #         - Provides a method that renders a range check statement for a particular element.
     @staticmethod
     def get_topologically_ordered_variable_references(
-            model: SlcoStatementNode, variable_references: Set[VariableRef] = None
+            model: SlcoStatementNode = None, variable_references: Set[VariableRef] = None
     ) -> List[VariableRef]:
         """
         Order the given variable references and the variables used within their indices in topological order with

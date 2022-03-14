@@ -1,7 +1,0 @@
-{% if vercors_assumptions != "" %}
-// Require and ensure validity of expressions that have been encountered earlier in the control flow.
-{{ vercors_assumptions | trim }}
-
-{% endif %}
-// Ensure that the statement's result is equivalent to the associated expression.
-ensures \result == ({{ in_line_statement }});

@@ -1,9 +1,0 @@
-// Reference to the parent SLCO class.
-this.c = c;
-{% if variable_instantiations | length > 0 %}
-
-// Variable instantiations.
-{% for i in variable_instantiations %}
-{{ i }};
-{% endfor %}
-{% endif %}

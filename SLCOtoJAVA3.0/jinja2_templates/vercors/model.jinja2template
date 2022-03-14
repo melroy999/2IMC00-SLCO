@@ -1,7 +1,0 @@
-// > MODEL.START ({{ model_name }})
-
-{% for c in classes %}
-{{ c | trim }}
-
-{% endfor %}
-// < MODEL.END ({{ model_name }})
