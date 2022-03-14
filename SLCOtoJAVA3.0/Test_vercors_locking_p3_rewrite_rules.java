@@ -144,7 +144,7 @@ class P_SM3Thread {
     context Perm(c.i, 1);
     @*/
     private boolean t_SMC0_0_s_2_lock_rewrite_check_0() {
-        int _index = (c.i + 1);
+        //@ ghost int _index = (c.i + 1); // Lock x[(i + 1)](x[i])
         c.i = c.i + 1;
         //@ assert _index == c.i;
     }

@@ -64,12 +64,12 @@ class P_SM1Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.i >= 0);
+
+    // Ensure that all class variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
     ensures c.i == \old(c.i);
-
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.i >= 0);
     @*/
     private boolean t_SMC0_0_s_0_n_0() {
         return c.i >= 0;
@@ -90,15 +90,12 @@ class P_SM1Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.i < 2);
+
+    // Ensure that all class variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
     ensures c.i == \old(c.i);
-
-    // Require and ensure validity of expressions that have been encountered earlier in the control flow.
-    context c.i >= 0;
-
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.i < 2);
     @*/
     private boolean t_SMC0_0_s_0_n_1() {
         return c.i < 2;
@@ -119,27 +116,15 @@ class P_SM1Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.i >= 0 && c.i < 2);
+
+    // Ensure that all class variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
     ensures c.i == \old(c.i);
-
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.i >= 0 && c.i < 2);
     @*/
     private boolean t_SMC0_0_s_0_n_2() {
-        if(t_SMC0_0_s_0_n_0()) {
-            //@ assert c.i >= 0;
-            if(t_SMC0_0_s_0_n_1()) {
-                //@ assert c.i < 2;
-                //@ assert c.i >= 0 && c.i < 2;
-                return true;
-            }
-            //@ assert !(c.i < 2);
-        } else {
-            //@ assert !(c.i >= 0);
-        }
-        //@ assert !(c.i >= 0 && c.i < 2);
-        return false;
+        return t_SMC0_0_s_0_n_0() && t_SMC0_0_s_0_n_1();
     }
 
     // SLCO expression wrapper | x[i] = 0.
@@ -157,18 +142,17 @@ class P_SM1Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
+    // Require and ensure that all of the accessed indices are within range.
+    context 0 <= c.i && c.i < 2;
+
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.x[c.i] == 0);
+
+    // Ensure that all class variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
     ensures c.i == \old(c.i);
-
-    // Require and ensure validity of expressions that have been encountered earlier in the control flow.
-    context c.i >= 0 && c.i < 2;
-
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.x[c.i] == 0);
     @*/
     private boolean t_SMC0_0_s_0_n_3() {
-        //@ assume 0 <= c.i && c.i <= 2;
         return c.x[c.i] == 0;
     }
 
@@ -187,28 +171,18 @@ class P_SM1Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
+    // Require and ensure that all of the accessed indices are within range.
+    context 0 <= c.i && c.i < 2;
+
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
+
+    // Ensure that all class variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
     ensures c.i == \old(c.i);
-
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
     @*/
     private boolean t_SMC0_0_s_0_n_4() {
-        //@ assume 0 <= c.i && c.i <= 2;
-        if(t_SMC0_0_s_0_n_2()) {
-            //@ assert c.i >= 0 && c.i < 2;
-            if(t_SMC0_0_s_0_n_3()) {
-                //@ assert c.x[c.i] == 0;
-                //@ assert c.i >= 0 && c.i < 2 && c.x[c.i] == 0;
-                return true;
-            }
-            //@ assert !(c.x[c.i] == 0);
-        } else {
-            //@ assert !(c.i >= 0 && c.i < 2);
-        }
-        //@ assert !(c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
-        return false;
+        return t_SMC0_0_s_0_n_2() && t_SMC0_0_s_0_n_3();
     }
 
     /*@
@@ -225,6 +199,38 @@ class P_SM1Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
+    // Require and ensure that all of the accessed indices are within range.
+    ensures 0 <= c.i && c.i < 2;
+
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
+    @*/
+    private void range_check_assumption_t_0() {
+        // Assume that all of the accessed indices are within range.
+        //@ assume 0 <= c.i && c.i < 2;
+    }
+
+    /*@
+    // Require and ensure full access to the target class.
+    context Perm(c, 1);
+
+    // Require and ensure that the state machine has full access to the array variables within the target class.
+    context Perm(c.x, 1);
+
+    // Require and ensure that the class variable arrays are not null and of the appropriate size.
+    context c.x != null && c.x.length == 2;
+
+    // Require and ensure the permission of writing to all class variables.
+    context Perm(c.x[*], 1);
+    context Perm(c.i, 1);
+
+    // Require and ensure that all of the accessed indices are within range.
+    requires 0 <= c.i && c.i < 2;
+
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == \old(c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
+
     // Declare the support variables.
     yields boolean _guard;
 
@@ -238,7 +244,7 @@ class P_SM1Thread {
     // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | i >= 0 and i < 2 and x[i] = 0.
     private boolean execute_transition_SMC0_0() {
         // SLCO expression | i >= 0 and i < 2 and x[i] = 0.
-        //@ ghost _guard = (c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
+        //@ ghost _guard = c.i >= 0 && c.i < 2 && c.x[c.i] == 0;
         if(!(t_SMC0_0_s_0_n_4())) {
             //@ assert !(c.i >= 0 && c.i < 2 && c.x[c.i] == 0);
             return false;
@@ -266,6 +272,7 @@ class P_SM1Thread {
     private void exec_SMC0() {
         // [SEQ.START]
         // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | i >= 0 and i < 2 and x[i] = 0.
+        //@ ghost range_check_assumption_t_0();
         if(execute_transition_SMC0_0()) {
             return;
         }
@@ -349,16 +356,16 @@ class P_SM2Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
-    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
-    ensures c.i == \old(c.i);
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.i >= 0);
 
-    // Ensure that state machine variable values remain unchanged after calling the function.
+    // Ensure that all state machine variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
     ensures j == \old(j);
 
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.i >= 0);
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
     @*/
     private boolean t_SMC0_0_s_0_n_0() {
         return c.i >= 0;
@@ -389,19 +396,16 @@ class P_SM2Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
-    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
-    ensures c.i == \old(c.i);
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.i < 2);
 
-    // Ensure that state machine variable values remain unchanged after calling the function.
+    // Ensure that all state machine variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
     ensures j == \old(j);
 
-    // Require and ensure validity of expressions that have been encountered earlier in the control flow.
-    context c.i >= 0;
-
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.i < 2);
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
     @*/
     private boolean t_SMC0_0_s_0_n_1() {
         return c.i < 2;
@@ -432,31 +436,19 @@ class P_SM2Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
-    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
-    ensures c.i == \old(c.i);
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.i >= 0 && c.i < 2);
 
-    // Ensure that state machine variable values remain unchanged after calling the function.
+    // Ensure that all state machine variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
     ensures j == \old(j);
 
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.i >= 0 && c.i < 2);
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
     @*/
     private boolean t_SMC0_0_s_0_n_2() {
-        if(t_SMC0_0_s_0_n_0()) {
-            //@ assert c.i >= 0;
-            if(t_SMC0_0_s_0_n_1()) {
-                //@ assert c.i < 2;
-                //@ assert c.i >= 0 && c.i < 2;
-                return true;
-            }
-            //@ assert !(c.i < 2);
-        } else {
-            //@ assert !(c.i >= 0);
-        }
-        //@ assert !(c.i >= 0 && c.i < 2);
-        return false;
+        return t_SMC0_0_s_0_n_0() && t_SMC0_0_s_0_n_1();
     }
 
     // SLCO expression wrapper | x[i] != 0.
@@ -484,22 +476,21 @@ class P_SM2Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
-    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
-    ensures c.i == \old(c.i);
+    // Require and ensure that all of the accessed indices are within range.
+    context 0 <= c.i && c.i < 2;
 
-    // Ensure that state machine variable values remain unchanged after calling the function.
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.x[c.i] != 0);
+
+    // Ensure that all state machine variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
     ensures j == \old(j);
 
-    // Require and ensure validity of expressions that have been encountered earlier in the control flow.
-    context c.i >= 0 && c.i < 2;
-
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.x[c.i] != 0);
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
     @*/
     private boolean t_SMC0_0_s_0_n_3() {
-        //@ assume 0 <= c.i && c.i <= 2;
         return c.x[c.i] != 0;
     }
 
@@ -528,32 +519,142 @@ class P_SM2Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
-    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
-    ensures c.i == \old(c.i);
+    // Require and ensure that all of the accessed indices are within range.
+    context 0 <= c.i && c.i < 2;
 
-    // Ensure that state machine variable values remain unchanged after calling the function.
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
+
+    // Ensure that all state machine variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
     ensures j == \old(j);
 
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
     @*/
     private boolean t_SMC0_0_s_0_n_4() {
-        //@ assume 0 <= c.i && c.i <= 2;
-        if(t_SMC0_0_s_0_n_2()) {
-            //@ assert c.i >= 0 && c.i < 2;
-            if(t_SMC0_0_s_0_n_3()) {
-                //@ assert c.x[c.i] != 0;
-                //@ assert c.i >= 0 && c.i < 2 && c.x[c.i] != 0;
-                return true;
-            }
-            //@ assert !(c.x[c.i] != 0);
-        } else {
-            //@ assert !(c.i >= 0 && c.i < 2);
-        }
-        //@ assert !(c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
-        return false;
+        return t_SMC0_0_s_0_n_2() && t_SMC0_0_s_0_n_3();
+    }
+
+    /*@
+    // Require and ensure full access to the target class.
+    context Perm(c, 1);
+
+    // Require and ensure that the state machine has full access to its own array variables.
+    context Perm(y, 1);
+
+    // Require and ensure that the state machine variable arrays are not null and of the appropriate size.
+    context y != null && y.length == 2;
+
+    // Require and ensure the permission of writing to all state machine variables.
+    context Perm(y[*], 1);
+    context Perm(j, 1);
+
+    // Require and ensure that the state machine has full access to the array variables within the target class.
+    context Perm(c.x, 1);
+
+    // Require and ensure that the class variable arrays are not null and of the appropriate size.
+    context c.x != null && c.x.length == 2;
+
+    // Require and ensure the permission of writing to all class variables.
+    context Perm(c.x[*], 1);
+    context Perm(c.i, 1);
+
+    // Require and ensure that all of the accessed indices are within range.
+    ensures 0 <= c.i && c.i < 2;
+
+    // Ensure that all state machine variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
+    ensures j == \old(j);
+
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
+    @*/
+    private void range_check_assumption_t_0_s_2() {
+        // Assume that all of the accessed indices are within range.
+        //@ assume 0 <= c.i && c.i < 2;
+    }
+
+    /*@
+    // Require and ensure full access to the target class.
+    context Perm(c, 1);
+
+    // Require and ensure that the state machine has full access to its own array variables.
+    context Perm(y, 1);
+
+    // Require and ensure that the state machine variable arrays are not null and of the appropriate size.
+    context y != null && y.length == 2;
+
+    // Require and ensure the permission of writing to all state machine variables.
+    context Perm(y[*], 1);
+    context Perm(j, 1);
+
+    // Require and ensure that the state machine has full access to the array variables within the target class.
+    context Perm(c.x, 1);
+
+    // Require and ensure that the class variable arrays are not null and of the appropriate size.
+    context c.x != null && c.x.length == 2;
+
+    // Require and ensure the permission of writing to all class variables.
+    context Perm(c.x[*], 1);
+    context Perm(c.i, 1);
+
+    // Require and ensure that all of the accessed indices are within range.
+    ensures 0 <= c.i && c.i < 2;
+
+    // Ensure that all state machine variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
+    ensures j == \old(j);
+
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
+    @*/
+    private void range_check_assumption_t_0_s_3() {
+        // Assume that all of the accessed indices are within range.
+        //@ assume 0 <= c.i && c.i < 2;
+    }
+
+    /*@
+    // Require and ensure full access to the target class.
+    context Perm(c, 1);
+
+    // Require and ensure that the state machine has full access to its own array variables.
+    context Perm(y, 1);
+
+    // Require and ensure that the state machine variable arrays are not null and of the appropriate size.
+    context y != null && y.length == 2;
+
+    // Require and ensure the permission of writing to all state machine variables.
+    context Perm(y[*], 1);
+    context Perm(j, 1);
+
+    // Require and ensure that the state machine has full access to the array variables within the target class.
+    context Perm(c.x, 1);
+
+    // Require and ensure that the class variable arrays are not null and of the appropriate size.
+    context c.x != null && c.x.length == 2;
+
+    // Require and ensure the permission of writing to all class variables.
+    context Perm(c.x[*], 1);
+    context Perm(c.i, 1);
+
+    // Require and ensure that all of the accessed indices are within range.
+    ensures 0 <= c.i && c.i < 2;
+
+    // Ensure that all state machine variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
+    ensures j == \old(j);
+
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
+    @*/
+    private void range_check_assumption_t_0() {
+        // Assume that all of the accessed indices are within range.
+        //@ assume 0 <= c.i && c.i < 2;
     }
 
     /*@
@@ -584,6 +685,12 @@ class P_SM2Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
+    // Require and ensure that all of the accessed indices are within range.
+    requires 0 <= c.i && c.i < 2;
+
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == \old(c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
+
     // Declare the support variables.
     yields boolean _guard;
     yields int _rhs_0;
@@ -606,20 +713,20 @@ class P_SM2Thread {
     private boolean execute_transition_SMC0_0() {
         // SLCO composite | [i >= 0 and i < 2 and x[i] != 0; x[i] := y[i]; y[i] := 0].
         // SLCO expression | i >= 0 and i < 2 and x[i] != 0.
-        //@ ghost _guard = (c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
+        //@ ghost _guard = c.i >= 0 && c.i < 2 && c.x[c.i] != 0;
         if(!(t_SMC0_0_s_0_n_4())) {
             //@ assert !(c.i >= 0 && c.i < 2 && c.x[c.i] != 0);
             return false;
         }
         //@ assert c.i >= 0 && c.i < 2 && c.x[c.i] != 0;
         // SLCO assignment | x[i] := y[i].
-        //@ assume 0 <= c.i && c.i <= 2;
+        range_check_assumption_t_0_s_2();
         //@ ghost _rhs_0 = y[c.i];
         //@ ghost _index_0 = c.i;
         c.x[c.i] = y[c.i];
         //@ assert c.x[_index_0] == _rhs_0;
         // SLCO assignment | y[i] := 0.
-        //@ assume 0 <= c.i && c.i <= 2;
+        range_check_assumption_t_0_s_3();
         //@ ghost _rhs_1 = 0;
         //@ ghost _index_1 = c.i;
         y[c.i] = 0;
@@ -656,6 +763,7 @@ class P_SM2Thread {
     private void exec_SMC0() {
         // [SEQ.START]
         // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | [i >= 0 and i < 2 and x[i] != 0; x[i] := y[i]; y[i] := 0].
+        //@ ghost range_check_assumption_t_0();
         if(execute_transition_SMC0_0()) {
             return;
         }
@@ -749,16 +857,16 @@ class P_SM3Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
-    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
-    ensures c.i == \old(c.i);
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.i >= 0);
 
-    // Ensure that state machine variable values remain unchanged after calling the function.
+    // Ensure that all state machine variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
     ensures j == \old(j);
 
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.i >= 0);
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
     @*/
     private boolean t_SMC0_0_s_0_n_0() {
         return c.i >= 0;
@@ -789,19 +897,16 @@ class P_SM3Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
-    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
-    ensures c.i == \old(c.i);
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.i < 1);
 
-    // Ensure that state machine variable values remain unchanged after calling the function.
+    // Ensure that all state machine variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
     ensures j == \old(j);
 
-    // Require and ensure validity of expressions that have been encountered earlier in the control flow.
-    context c.i >= 0;
-
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.i < 1);
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
     @*/
     private boolean t_SMC0_0_s_0_n_1() {
         return c.i < 1;
@@ -832,31 +937,19 @@ class P_SM3Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
-    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
-    ensures c.i == \old(c.i);
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.i >= 0 && c.i < 1);
 
-    // Ensure that state machine variable values remain unchanged after calling the function.
+    // Ensure that all state machine variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
     ensures j == \old(j);
 
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.i >= 0 && c.i < 1);
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
     @*/
     private boolean t_SMC0_0_s_0_n_2() {
-        if(t_SMC0_0_s_0_n_0()) {
-            //@ assert c.i >= 0;
-            if(t_SMC0_0_s_0_n_1()) {
-                //@ assert c.i < 1;
-                //@ assert c.i >= 0 && c.i < 1;
-                return true;
-            }
-            //@ assert !(c.i < 1);
-        } else {
-            //@ assert !(c.i >= 0);
-        }
-        //@ assert !(c.i >= 0 && c.i < 1);
-        return false;
+        return t_SMC0_0_s_0_n_0() && t_SMC0_0_s_0_n_1();
     }
 
     // SLCO expression wrapper | x[i] != 0.
@@ -884,22 +977,21 @@ class P_SM3Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
-    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
-    ensures c.i == \old(c.i);
+    // Require and ensure that all of the accessed indices are within range.
+    context 0 <= c.i && c.i < 2;
 
-    // Ensure that state machine variable values remain unchanged after calling the function.
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.x[c.i] != 0);
+
+    // Ensure that all state machine variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
     ensures j == \old(j);
 
-    // Require and ensure validity of expressions that have been encountered earlier in the control flow.
-    context c.i >= 0 && c.i < 1;
-
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.x[c.i] != 0);
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
     @*/
     private boolean t_SMC0_0_s_0_n_3() {
-        //@ assume 0 <= c.i && c.i <= 2;
         return c.x[c.i] != 0;
     }
 
@@ -928,32 +1020,178 @@ class P_SM3Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
-    // Ensure that class variable values remain unchanged after calling the function.
-    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
-    ensures c.i == \old(c.i);
+    // Require and ensure that all of the accessed indices are within range.
+    context 0 <= c.i && c.i < 2;
 
-    // Ensure that state machine variable values remain unchanged after calling the function.
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == (c.i >= 0 && c.i < 1 && c.x[c.i] != 0);
+
+    // Ensure that all state machine variable values remain unchanged.
     ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
     ensures j == \old(j);
 
-    // Ensure that the statement's result is equivalent to the associated expression.
-    ensures \result == (c.i >= 0 && c.i < 1 && c.x[c.i] != 0);
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
     @*/
     private boolean t_SMC0_0_s_0_n_4() {
-        //@ assume 0 <= c.i && c.i <= 2;
-        if(t_SMC0_0_s_0_n_2()) {
-            //@ assert c.i >= 0 && c.i < 1;
-            if(t_SMC0_0_s_0_n_3()) {
-                //@ assert c.x[c.i] != 0;
-                //@ assert c.i >= 0 && c.i < 1 && c.x[c.i] != 0;
-                return true;
-            }
-            //@ assert !(c.x[c.i] != 0);
-        } else {
-            //@ assert !(c.i >= 0 && c.i < 1);
-        }
-        //@ assert !(c.i >= 0 && c.i < 1 && c.x[c.i] != 0);
-        return false;
+        return t_SMC0_0_s_0_n_2() && t_SMC0_0_s_0_n_3();
+    }
+
+    /*@
+    // Require and ensure full access to the target class.
+    context Perm(c, 1);
+
+    // Require and ensure that the state machine has full access to its own array variables.
+    context Perm(y, 1);
+
+    // Require and ensure that the state machine variable arrays are not null and of the appropriate size.
+    context y != null && y.length == 2;
+
+    // Require and ensure the permission of writing to all state machine variables.
+    context Perm(y[*], 1);
+    context Perm(j, 1);
+
+    // Require and ensure that the state machine has full access to the array variables within the target class.
+    context Perm(c.x, 1);
+
+    // Require and ensure that the class variable arrays are not null and of the appropriate size.
+    context c.x != null && c.x.length == 2;
+
+    // Require and ensure the permission of writing to all class variables.
+    context Perm(c.x[*], 1);
+    context Perm(c.i, 1);
+
+    // Ensure that all state machine variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
+    ensures j == \old(j);
+
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
+    @*/
+    private void range_check_assumption_t_0_s_2() {
+        
+    }
+
+    /*@
+    // Require and ensure full access to the target class.
+    context Perm(c, 1);
+
+    // Require and ensure that the state machine has full access to its own array variables.
+    context Perm(y, 1);
+
+    // Require and ensure that the state machine variable arrays are not null and of the appropriate size.
+    context y != null && y.length == 2;
+
+    // Require and ensure the permission of writing to all state machine variables.
+    context Perm(y[*], 1);
+    context Perm(j, 1);
+
+    // Require and ensure that the state machine has full access to the array variables within the target class.
+    context Perm(c.x, 1);
+
+    // Require and ensure that the class variable arrays are not null and of the appropriate size.
+    context c.x != null && c.x.length == 2;
+
+    // Require and ensure the permission of writing to all class variables.
+    context Perm(c.x[*], 1);
+    context Perm(c.i, 1);
+
+    // Require and ensure that all of the accessed indices are within range.
+    ensures 0 <= c.i && c.i < 2;
+
+    // Ensure that all state machine variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
+    ensures j == \old(j);
+
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
+    @*/
+    private void range_check_assumption_t_0_s_3() {
+        // Assume that all of the accessed indices are within range.
+        //@ assume 0 <= c.i && c.i < 2;
+    }
+
+    /*@
+    // Require and ensure full access to the target class.
+    context Perm(c, 1);
+
+    // Require and ensure that the state machine has full access to its own array variables.
+    context Perm(y, 1);
+
+    // Require and ensure that the state machine variable arrays are not null and of the appropriate size.
+    context y != null && y.length == 2;
+
+    // Require and ensure the permission of writing to all state machine variables.
+    context Perm(y[*], 1);
+    context Perm(j, 1);
+
+    // Require and ensure that the state machine has full access to the array variables within the target class.
+    context Perm(c.x, 1);
+
+    // Require and ensure that the class variable arrays are not null and of the appropriate size.
+    context c.x != null && c.x.length == 2;
+
+    // Require and ensure the permission of writing to all class variables.
+    context Perm(c.x[*], 1);
+    context Perm(c.i, 1);
+
+    // Require and ensure that all of the accessed indices are within range.
+    ensures 0 <= c.i && c.i < 2;
+
+    // Ensure that all state machine variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
+    ensures j == \old(j);
+
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
+    @*/
+    private void range_check_assumption_t_0_s_4() {
+        // Assume that all of the accessed indices are within range.
+        //@ assume 0 <= c.i && c.i < 2;
+    }
+
+    /*@
+    // Require and ensure full access to the target class.
+    context Perm(c, 1);
+
+    // Require and ensure that the state machine has full access to its own array variables.
+    context Perm(y, 1);
+
+    // Require and ensure that the state machine variable arrays are not null and of the appropriate size.
+    context y != null && y.length == 2;
+
+    // Require and ensure the permission of writing to all state machine variables.
+    context Perm(y[*], 1);
+    context Perm(j, 1);
+
+    // Require and ensure that the state machine has full access to the array variables within the target class.
+    context Perm(c.x, 1);
+
+    // Require and ensure that the class variable arrays are not null and of the appropriate size.
+    context c.x != null && c.x.length == 2;
+
+    // Require and ensure the permission of writing to all class variables.
+    context Perm(c.x[*], 1);
+    context Perm(c.i, 1);
+
+    // Require and ensure that all of the accessed indices are within range.
+    ensures 0 <= c.i && c.i < 2;
+
+    // Ensure that all state machine variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < y.length; y[_i] == \old(y[_i]));
+    ensures j == \old(j);
+
+    // Ensure that all class variable values remain unchanged.
+    ensures (\forall* int _i; 0 <= _i && _i < c.x.length; c.x[_i] == \old(c.x[_i]));
+    ensures c.i == \old(c.i);
+    @*/
+    private void range_check_assumption_t_0() {
+        // Assume that all of the accessed indices are within range.
+        //@ assume 0 <= c.i && c.i < 2;
     }
 
     /*@
@@ -984,6 +1222,12 @@ class P_SM3Thread {
     context Perm(c.x[*], 1);
     context Perm(c.i, 1);
 
+    // Require and ensure that all of the accessed indices are within range.
+    requires 0 <= c.i && c.i < 2;
+
+    // Ensure that the result of the function is equivalent to the target statement.
+    ensures \result == \old(c.i >= 0 && c.i < 1 && c.x[c.i] != 0);
+
     // Declare the support variables.
     yields boolean _guard;
     yields int _rhs_1;
@@ -1008,24 +1252,25 @@ class P_SM3Thread {
     private boolean execute_transition_SMC0_0() {
         // SLCO composite | [i >= 0 and i < 1 and x[i] != 0; i := i + 1; x[i] := y[i]; y[i] := 0].
         // SLCO expression | i >= 0 and i < 1 and x[i] != 0.
-        //@ ghost _guard = (c.i >= 0 && c.i < 1 && c.x[c.i] != 0);
+        //@ ghost _guard = c.i >= 0 && c.i < 1 && c.x[c.i] != 0;
         if(!(t_SMC0_0_s_0_n_4())) {
             //@ assert !(c.i >= 0 && c.i < 1 && c.x[c.i] != 0);
             return false;
         }
         //@ assert c.i >= 0 && c.i < 1 && c.x[c.i] != 0;
         // SLCO assignment | i := i + 1.
+        range_check_assumption_t_0_s_2();
         //@ ghost _rhs_0 = c.i + 1;
         c.i = c.i + 1;
         //@ assert c.i == _rhs_0;
         // SLCO assignment | x[i] := y[i].
-        //@ assume 0 <= c.i && c.i <= 2;
+        range_check_assumption_t_0_s_3();
         //@ ghost _rhs_1 = y[c.i];
         //@ ghost _index_1 = c.i;
         c.x[c.i] = y[c.i];
         //@ assert c.x[_index_1] == _rhs_1;
         // SLCO assignment | y[i] := 0.
-        //@ assume 0 <= c.i && c.i <= 2;
+        range_check_assumption_t_0_s_4();
         //@ ghost _rhs_2 = 0;
         //@ ghost _index_2 = c.i;
         y[c.i] = 0;
@@ -1062,6 +1307,7 @@ class P_SM3Thread {
     private void exec_SMC0() {
         // [SEQ.START]
         // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | [i >= 0 and i < 1 and x[i] != 0; i := i + 1; x[i] := y[i]; y[i] := 0].
+        //@ ghost range_check_assumption_t_0();
         if(execute_transition_SMC0_0()) {
             return;
         }

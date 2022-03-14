@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from typing import List, Dict, Set, Tuple, Union
 
 from objects.ast import util
@@ -418,7 +419,7 @@ class VercorsLockingStructureModelRenderer(VercorsModelRenderer):
                 lock_request_entries=lock_request_entries
             )
 
-    def render_vercors_lock_id_presence_contract(self, model: SlcoLockableNode) -> str:
+    def render_lock_id_presence_contract_statements(self, model: SlcoLockableNode) -> str:
         """
         Render the VerCors statements that verify whether the locking structure is intact and behaving as expected.
         """
@@ -454,21 +455,26 @@ class VercorsLockingStructureModelRenderer(VercorsModelRenderer):
             target_locks_list_size=self.current_state_machine.target_locks_list_size
         )
 
-    def render_vercors_expression_control_node_contract_requirements(
-            self, model: SlcoStatementNode
-    ) -> Tuple[str, List[str]]:
-        # Add the lock request id check to the expression control node contract.
-        requirements, pure_functions = super().render_vercors_expression_control_node_contract_requirements(model)
-        lock_request_id_check = self.render_vercors_lock_id_presence_contract(model)
-        return "\n\n".join(v.strip() for v in [requirements, lock_request_id_check] if v != ""), pure_functions
+    def get_expression_control_node_success_closing_body(self, model: SlcoStatementNode) -> str:
+        # Add a statement that triggers short-circuit evaluations.
+        result = super().get_expression_control_node_success_closing_body(model)
+        if isinstance(model, Expression) and model.op in ["or", "and"]:
+            result = "\n".join(v.strip() for v in [result, "// Short-circuit fix trigger."] if v.strip() != "")
+        return result
 
-    def render_vercors_transition_contract_body(self, model: Transition) -> Tuple[str, List[str]]:
-        # Add the lock request id check to the transition contract.
-        result, pure_functions = super().render_vercors_transition_contract_body(model)
-        lock_request_id_check = self.render_vercors_lock_id_presence_contract(model.guard)
-        return "\n\n".join(v for v in [result, lock_request_id_check] if v != ""), pure_functions
+    def get_expression_control_node_contract_entries(self, model: SlcoStatementNode) -> Tuple[List[str], List[str]]:
+        # Add the lock id presence check to the contract.
+        result_statements, result_pure_functions = super().get_expression_control_node_contract_entries(model)
+        statement = self.render_lock_id_presence_contract_statements(model)
+        return result_statements + [statement], result_pure_functions
 
-    def render_vercors_decision_structure_lock_id_absence_contract(self) -> str:
+    def get_transition_contract_entries(self, model: Transition) -> Tuple[List[str], List[str]]:
+        # Add the lock id presence check to the contract.
+        result_statements, result_pure_functions = super().get_transition_contract_entries(model)
+        statement = self.render_lock_id_presence_contract_statements(model.guard)
+        return result_statements + [statement], result_pure_functions
+
+    def render_decision_structure_lock_id_absence_contract_statements(self) -> str:
         """
         Render the VerCors statements that verify that the decision structure starts and ends with no locks active.
         """
@@ -477,17 +483,16 @@ class VercorsLockingStructureModelRenderer(VercorsModelRenderer):
             target_locks_list_size=self.current_state_machine.target_locks_list_size
         )
 
-    def get_decision_structure_contract_body(self, model: StateMachine, state: State) -> Tuple[str, List[str]]:
-        # Add the lock request id check to the decision node contract.
-        result, pure_functions = super().get_decision_structure_contract_body(model, state)
-        lock_request_id_check = self.render_vercors_decision_structure_lock_id_absence_contract()
-        return "\n\n".join(v for v in [result, lock_request_id_check] if v != ""), pure_functions
+    def get_decision_structure_contract_entries(self, model: StateMachine, state: State) -> Tuple[List[str], List[str]]:
+        # Add the lock id presence check to the contract.
+        result_statements, result_pure_functions = super().get_decision_structure_contract_entries(model, state)
+        statement = self.render_decision_structure_lock_id_absence_contract_statements()
+        return result_statements + [statement], result_pure_functions
 
     def render_state_machine_variable_declarations(self, model: StateMachine) -> str:
         # Add an instantiation for the lock_requests list.
         result = super().render_state_machine_variable_declarations(model)
-
-        return "\n".join([
+        return self.join_with_strip([
             result,
             "// A list of lock requests. A value of 1 denotes that the given target is locked, and 0 implies no lock.",
             "private final int[] lock_requests;"
@@ -496,8 +501,7 @@ class VercorsLockingStructureModelRenderer(VercorsModelRenderer):
     def render_state_machine_constructor_body(self, model: StateMachine) -> str:
         # Add an instantiation for the lock_requests list.
         result = super().render_state_machine_constructor_body(model)
-
-        return "\n".join([
+        return self.join_with_strip([
             result,
             "// Instantiate the lock requests array.",
             f"lock_requests = new int[{model.target_locks_list_size}];"
@@ -557,7 +561,9 @@ class VercorsLockingCoverageModelRenderer(VercorsModelRenderer):
             variable_references: Set[VariableRef] = get_variable_references(model)
 
         # Create a dependency graph for the variable references, including both the class and local variables.
-        ordered_references = self.get_topologically_ordered_variable_references(variable_references)
+        ordered_references = self.get_topologically_ordered_variable_references(
+            model, variable_references=variable_references
+        )
 
         # Render assumptions based on the type of variable encountered.
         vercors_statements: List[str] = []
@@ -565,16 +571,11 @@ class VercorsLockingCoverageModelRenderer(VercorsModelRenderer):
             # Add a range assumption if the variable is an array.
             if i.var.is_array:
                 # Assume that the index is within range.
-                index_in_line_statement = self.get_expression_control_node_in_line_statement(
-                    i.index, enforce_no_method_creation=True
-                )
-                var = i.var
-                var_name = f"c.{var.name}" if var.is_class_variable else f"{var.name}"
-                vercors_statements.append(
-                    f"//@ assume 0 <= {index_in_line_statement} && {index_in_line_statement} < {var_name}.length;"
-                )
+                vercors_statements.append(f"//@ assume {self.render_range_check_statement(i)};")
 
             # Render a permission assumption if the reference is to a class variable.
+            # Note that the function will error out if there is no lock for the target class variable--hence, only
+            # variables associated to locks will get permissions assigned.
             if i.var.is_class_variable:
                 # Find the associated lock object.
                 lock: Lock = variable_ref_to_lock[i]
@@ -582,20 +583,17 @@ class VercorsLockingCoverageModelRenderer(VercorsModelRenderer):
                 if lock.unavoidable_location_conflict:
                     # Use the unpacked lock requests instead, since the original target is completely replaced.
                     for v in lock.lock_requests:
-                        in_line_statement = self.get_expression_control_node_in_line_statement(
-                            v.ref, enforce_no_method_creation=True
-                        )
-                        vercors_statements.append(
-                            f"//@ assume Perm({in_line_statement}, 1); // Lock ids {v.id}"
-                        )
+                        in_line_statement = self.get_plain_text_in_line_statement(v.ref)
+                        vercors_statements.append(f"//@ assume Perm({in_line_statement}, 1); // Lock ids {v.id}")
                 else:
                     # Render the original reference--the effect of rewrite rules will be verified in another step.
-                    in_line_statement = self.get_expression_control_node_in_line_statement(
-                        i, enforce_no_method_creation=True
-                    )
+                    in_line_statement = self.get_plain_text_in_line_statement(i)
                     vercors_statements.append(
                         f"//@ assume Perm({in_line_statement}, 1);"
                     )
+
+        # Remove duplicates but preserve order.
+        vercors_statements = list(OrderedDict.fromkeys(vercors_statements))
 
         # Combine the statements with new lines.
         return "\n".join(vercors_statements)
@@ -612,20 +610,17 @@ class VercorsLockingCoverageModelRenderer(VercorsModelRenderer):
         # Do not include assertions, since the locks may not be acquired. Structural checks are done in p1.
         return ""
 
-    def render_range_assumptions(self, model: SlcoStatementNode, prefix="//@ assume") -> str:
-        # The assumptions are instead generated by the locking check method.
-        return ""
-
-    def render_vercors_expression_control_node_contract_requirements(
+    def get_statement_verification_method_contract_entries(
             self, model: SlcoStatementNode
-    ) -> Tuple[str, List[str]]:
-        # Exclude the rendering of assumptions based on the control flow structure.
-        return "", []
+    ) -> Tuple[List[str], List[str]]:
+        """Get the statements that need to be included in the lock verification's contract."""
+        # Use the statements included in the control node contract, since it is assumed to be identical.
+        return self.get_expression_control_node_contract_entries(model)
 
     def get_statement_verification_method_contract(self, model: SlcoStatementNode) -> str:
         """Render the statement lock verification's contract."""
-        # Use the expression control node contract since it is assumed to be identical.
-        return self.render_vercors_expression_control_node_contract(model)
+        target_statements, pure_functions = self.get_statement_verification_method_contract_entries(model)
+        return self.render_method_contract(target_statements, pure_functions)
 
     def include_statement_verification_method(
             self, model: SlcoStatementNode, statement_verification_method_body: str
@@ -657,19 +652,29 @@ class VercorsLockingCoverageModelRenderer(VercorsModelRenderer):
         # The decision structure is not needed to verify the coverage of the locks.
         return ""
 
-    def render_vercors_contract_class_permissions(self) -> str:
-        # Override the method to not include variable permissions for classes.
-        class_array_variable_names = [v.name for v in self.current_class.variables if v.is_array]
-        class_array_variable_lengths = [v.type.size for v in self.current_class.variables if v.is_array]
-        class_array_variable_permissions = list(
-            zip(class_array_variable_names, class_array_variable_lengths)
-        )
+    def render_full_class_contract_permissions(self) -> str:
+        # Override such that full variable permissions for class variables are no longer given.
+        return ""
 
-        # Render the class permissions template.
-        return self.class_permissions_template.render(
-            class_array_variable_permissions=class_array_variable_permissions,
-            class_variable_permissions=[]
-        )
+    def render_result_contract_statement(self, model: SlcoStatementNode, use_old_values: bool = False):
+        # Override such that a result check is no longer performed.
+        return ""
+
+    def render_range_check_contract_statements(self, model: SlcoStatementNode, scope: str = "context") -> str:
+        # Overwrite such that range checks are no longer performed.
+        return ""
+
+    def insert_range_check_assumption_method(self, model: SlcoStatementNode, transition_call: bool = False) -> str:
+        # Overwrite such that range checks are no longer performed.
+        return ""
+
+    def render_class_contract_values_unaltered_statements(self) -> str:
+        # Overwrite such that contract value change checks are no longer performed.
+        return ""
+
+    def render_state_machine_contract_values_unaltered_statements(self) -> str:
+        # Overwrite such that contract value change checks are no longer performed.
+        return ""
 
 
 class VercorsLockingRewriteRulesModelRenderer(VercorsModelRenderer):
@@ -695,30 +700,28 @@ class VercorsLockingRewriteRulesModelRenderer(VercorsModelRenderer):
         # Disable the rendering of locking instructions, since the original program components will not be rendered.
         return ""
 
-    def get_lock_rewrite_check_method_contract_body(self) -> str:
-        """Get a permission contract for the lock rewrite check method."""
-        # Pre-render data.
-        vercors_common_contract_permissions = self.render_vercors_contract_common_permissions().strip()
-        vercors_state_machine_contract_permissions = self.render_vercors_contract_state_machine_permissions().strip()
-        vercors_class_contract_permissions = self.render_vercors_contract_class_permissions().strip()
-        vercors_contract_permissions = "\n\n".join(v for v in [
-            vercors_common_contract_permissions,
-            vercors_state_machine_contract_permissions,
-            vercors_class_contract_permissions
-        ] if v != "")
-
-        return vercors_contract_permissions
+    def get_lock_rewrite_check_method_contract_entries(self) -> Tuple[List[str], List[str]]:
+        """Get the contract statements that are needed the lock rewrite check methods."""
+        return [
+            self.render_common_contract_permissions(),
+            self.render_base_state_machine_contract_permissions(),
+            self.render_full_state_machine_contract_permissions(),
+            self.render_base_class_contract_permissions(),
+            self.render_full_class_contract_permissions()
+        ], []
 
     def get_lock_rewrite_check_method_contract(self) -> str:
         """Get a permission contract for the lock rewrite check method."""
         # Pre-render data.
-        contract_body = self.get_lock_rewrite_check_method_contract_body()
+        target_statements, pure_functions = self.get_lock_rewrite_check_method_contract_entries()
+        return self.render_method_contract(target_statements, pure_functions)
 
-        # Render the vercors contract template.
-        return self.vercors_contract_template.render(
-            pure_functions=[],
-            contract_body=contract_body
-        )
+    def render_range_check_assumptions(self, model: SlcoStatementNode) -> List[str]:
+        """Render the range check assumptions required to access the given variable reference as a list."""
+        # Find all variables that need to be range checked.
+        range_check_targets = self.get_range_check_variable_references(model)
+        range_check_statements = [f"//@ assume {self.render_range_check_statement(s)};" for s in range_check_targets]
+        return list(OrderedDict.fromkeys(range_check_statements))
 
     def add_lock_rewrite_check_method(self, model: Lock) -> None:
         """Add a method to the control node list that checks if the rewrite rules are applied correctly to the lock."""
@@ -731,30 +734,22 @@ class VercorsLockingRewriteRulesModelRenderer(VercorsModelRenderer):
         rendered_statements = []
 
         # Save the value of the rewritten reference.
-        rendered_statements.extend(self.render_range_assumptions(model.ref.index))
-        rewritten_reference = self.get_expression_control_node_in_line_statement(
-            model.ref.index, enforce_no_method_creation=True
-        )
-        rendered_statements.append(f"int _index = {rewritten_reference};")
+        rendered_statements.extend(self.render_range_check_assumptions(model.ref.index))
+        rewritten_reference = self.get_plain_text_in_line_statement(model.ref.index)
+        rendered_statements.append(f"//@ ghost int _index = {rewritten_reference}; // Lock {model}")
 
         # Render the rewrite rules.
         for target, value in model.rewrite_rules_list:
             # Make sure range assumptions are generated for the rewrite rules.
-            rendered_statements.extend(self.render_range_assumptions(target))
-            rendered_statements.extend(self.render_range_assumptions(value))
-            target_statement = self.get_expression_control_node_in_line_statement(
-                target, enforce_no_method_creation=True
-            )
-            value_statement = self.get_expression_control_node_in_line_statement(
-                value, enforce_no_method_creation=True
-            )
+            rendered_statements.extend(self.render_range_check_assumptions(target))
+            rendered_statements.extend(self.render_range_check_assumptions(value))
+            target_statement = self.get_plain_text_in_line_statement(target)
+            value_statement = self.get_plain_text_in_line_statement(value)
             rendered_statements.append(f"{target_statement} = {value_statement};")
 
         # Check if the rewritten and original values are equivalent.
-        rendered_statements.extend(self.render_range_assumptions(model.ref.index))
-        original_reference = self.get_expression_control_node_in_line_statement(
-            model.original_ref.index, enforce_no_method_creation=True
-        )
+        rendered_statements.extend(self.render_range_check_assumptions(model.ref.index))
+        original_reference = self.get_plain_text_in_line_statement(model.original_ref.index)
         rendered_statements.append(f"//@ assert _index == {original_reference};")
 
         # Render the statement with the lock rewrite check method template and add it to the control nodes list.
@@ -787,5 +782,25 @@ class VercorsLockingRewriteRulesModelRenderer(VercorsModelRenderer):
 
     def render_decision_structure(self, model: StateMachine, state: State) -> str:
         # The decision structure is not needed to verify the coverage of the locks.
+        return ""
+
+    def render_result_contract_statement(self, model: SlcoStatementNode, use_old_values: bool = False):
+        # Override such that a result check is no longer performed.
+        return ""
+
+    def render_range_check_contract_statements(self, model: SlcoStatementNode, scope: str = "context") -> str:
+        # Overwrite such that range checks are no longer performed.
+        return ""
+
+    def insert_range_check_assumption_method(self, model: SlcoStatementNode, transition_call: bool = False) -> str:
+        # Overwrite such that range checks are no longer performed.
+        return ""
+
+    def render_class_contract_values_unaltered_statements(self) -> str:
+        # Overwrite such that contract value change checks are no longer performed.
+        return ""
+
+    def render_state_machine_contract_values_unaltered_statements(self) -> str:
+        # Overwrite such that contract value change checks are no longer performed.
         return ""
 

@@ -109,7 +109,7 @@ class P_SM1Thread {
     @*/
     private boolean t_SMC0_0_s_0_n_3() {
         //@ assume Perm(c.i, 1);
-        //@ assume 0 <= c.i && c.i < c.x.length;
+        //@ assume 0 <= c.i && c.i < 2;
         //@ assume Perm(c.x[c.i], 1);
         return c.x[c.i] == 0;
     }
@@ -279,7 +279,7 @@ class P_SM2Thread {
     @*/
     private boolean t_SMC0_0_s_0_n_3() {
         //@ assume Perm(c.i, 1);
-        //@ assume 0 <= c.i && c.i < c.x.length;
+        //@ assume 0 <= c.i && c.i < 2;
         //@ assume Perm(c.x[c.i], 1);
         return c.x[c.i] != 0;
     }
@@ -359,8 +359,7 @@ class P_SM2Thread {
     private boolean t_SMC0_0_s_1() {
         // SLCO assignment | x[i] := y[i].
         //@ assume Perm(c.i, 1);
-        //@ assume 0 <= c.i && c.i < y.length;
-        //@ assume 0 <= c.i && c.i < c.x.length;
+        //@ assume 0 <= c.i && c.i < 2;
         //@ assume Perm(c.x[c.i], 1);
         c.x[c.i] = y[c.i];
     }
@@ -388,7 +387,7 @@ class P_SM2Thread {
     private boolean t_SMC0_0_s_2() {
         // SLCO assignment | y[i] := 0.
         //@ assume Perm(c.i, 1);
-        //@ assume 0 <= c.i && c.i < y.length;
+        //@ assume 0 <= c.i && c.i < 2;
         y[c.i] = 0;
     }
 }
@@ -525,7 +524,7 @@ class P_SM3Thread {
     @*/
     private boolean t_SMC0_0_s_0_n_3() {
         //@ assume Perm(c.i, 1);
-        //@ assume 0 <= c.i && c.i < c.x.length;
+        //@ assume 0 <= c.i && c.i < 2;
         //@ assume Perm(c.x[c.i], 1);
         return c.x[c.i] != 0;
     }
@@ -631,8 +630,7 @@ class P_SM3Thread {
     private boolean t_SMC0_0_s_2() {
         // SLCO assignment | x[i] := y[i].
         //@ assume Perm(c.i, 1);
-        //@ assume 0 <= c.i && c.i < y.length;
-        //@ assume 0 <= c.i && c.i < c.x.length;
+        //@ assume 0 <= c.i && c.i < 2;
         //@ assume Perm(c.x[c.i], 1);
         c.x[c.i] = y[c.i];
     }
@@ -660,7 +658,7 @@ class P_SM3Thread {
     private boolean t_SMC0_0_s_3() {
         // SLCO assignment | y[i] := 0.
         //@ assume Perm(c.i, 1);
-        //@ assume 0 <= c.i && c.i < y.length;
+        //@ assume 0 <= c.i && c.i < 2;
         y[c.i] = 0;
     }
 }
