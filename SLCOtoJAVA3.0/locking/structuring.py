@@ -379,8 +379,6 @@ def get_max_list_size(model: AtomicNode) -> int:
             len(instructions.unpacked_lock_requests),
             len(instructions.locks_to_release)
         )
-        pass
-
     return max_size
 
 
@@ -509,7 +507,10 @@ def finalize_locking_structure(model: StateMachine, state: State):
         validate_locking_structure_integrity(n)
 
     # Save allocation data for the locking parameters.
-    model.lock_ids_list_size = max((get_max_list_size(n) for n in target_atomic_nodes), default=0)
+    model.lock_ids_list_size = max(
+        max((get_max_list_size(n) for n in target_atomic_nodes), default=0),
+        model.lock_ids_list_size
+    )
     model.target_locks_list_size = max(model.target_locks_list_size, lock_request_instance_provider.counter)
 
     # Render the locking structure as an image.

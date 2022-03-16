@@ -82,5 +82,6 @@ class LogMeasurementsModelRenderer(JavaModelRenderer):
             "import org.apache.logging.log4j.Logger;",
             "import org.apache.logging.log4j.core.lookup.MainMapLookup;",
             "import java.time.format.DateTimeFormatter;",
+            "import java.time.Instant;",
         ])
         return result
