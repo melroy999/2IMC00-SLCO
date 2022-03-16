@@ -96,6 +96,11 @@ class JavaModelRenderer:
         self.locking_check_template = self.env.get_template("java/locking/locking_check.jinja2template")
         self.locking_instruction_template = self.env.get_template("java/locking/locking_instruction.jinja2template")
 
+    @staticmethod
+    def join_with_strip(elements: List[str], join_str: str = "\n") -> str:
+        """Join the given list of strings with the given string, while filtering out empty strings and stripping."""
+        return join_str.join(v.strip() for v in elements if v.strip() != "")
+
     def get_variable_ref_comment(self, model: VariableRef) -> str:
         """Create an easily identifiable comment for variable reference statements."""
         # Create an easily identifiable comment.
@@ -942,12 +947,41 @@ class JavaModelRenderer:
         """Get the contract of the model's constructor."""
         return ""
 
+    def get_import_statements(self) -> List[str]:
+        """Get the import statements required to execute the Java code."""
+        import_statements = [
+            "import java.util.*;",
+            "import java.util.concurrent.locks.ReentrantLock;",
+        ]
+        if settings.running_time != 0:
+            import_statements.extend([
+                "import java.time.Duration;",
+                "import java.time.Instant;"
+            ])
+        return import_statements
+
+    def get_model_support_variables(self, model: SlcoModel) -> List[str]:
+        """Get the support variables that need to be contained within the model."""
+        return []
+
+    def get_model_support_methods(self, model: SlcoModel) -> List[str]:
+        """Get the support methods that need to be contained within the model."""
+        return []
+
+    def get_main_supportive_method_calls(self) -> List[str]:
+        """Get the supportive method calls that need to be included at the start of the main method."""
+        return []
+
     def render_model(self, model: SlcoModel) -> str:
         """Render the SLCO model as Java code."""
-        # Pre-render the contained classes, lock manager and object instantiations.
+        # Pre-render the contained data.
         lock_manager = self.render_lock_manager()
         classes = [self.render_class(c) for c in model.classes]
         object_instantiations = [self.render_object_instantiation(o) for o in model.objects]
+        import_statements = self.get_import_statements()
+        support_variables = self.get_model_support_variables(model)
+        support_methods = self.get_model_support_methods(model)
+        main_support_method_calls = self.get_main_supportive_method_calls()
 
         # Render the following sections at the last moment to ensure that all recursive steps have finished.
         constructor_contract = self.render_model_constructor_contract(model)
@@ -959,5 +993,8 @@ class JavaModelRenderer:
             classes=classes,
             object_instantiations=object_instantiations,
             constructor_contract=constructor_contract,
-            settings=settings
+            import_statements=import_statements,
+            support_variables=support_variables,
+            support_methods=support_methods,
+            main_support_method_calls=main_support_method_calls
         )

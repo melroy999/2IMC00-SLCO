@@ -67,11 +67,6 @@ class VercorsModelRenderer(JavaModelRenderer):
         # conjunctions and disjunctions in a specific way because of limitations in VerCors.
         return model.locking_atomic_node is not None
 
-    @staticmethod
-    def join_with_strip(elements: List[str], join_str: str = "\n") -> str:
-        """Join the given list of strings with the given string, while filtering out empty strings and stripping."""
-        return join_str.join(v.strip() for v in elements if v.strip() != "")
-
     # RANGE CHECK METHODS.
     #     - Adds methods that generate the data required to render the appropriate range checks for array variables.
     #         - Provides a method that orders variable references topologically to circumvent order related errors.

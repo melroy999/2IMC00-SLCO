@@ -1,10 +1,24 @@
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.lookup.MainMapLookup;
+import java.time.format.DateTimeFormatter;
 
 // SLCO model Test.
 public class Test {
     // The objects in the model.
     private final SLCO_Class[] objects;
+
+    // Additional supporting variables.
+    // Define and initialize the logger to gather the appropriate performance data with.
+    private static final Logger logger;
+    static {
+        String log_date = DateTimeFormatter.ISO_INSTANT.format(Instant.now()).replaceAll(":", ".");
+        String log_name = "Test";
+        MainMapLookup.setMainArguments("log_date", log_date, "log_name", log_name);
+        logger = LogManager.getLogger();
+    }
 
     // Interface for SLCO classes.
     interface SLCO_Class {
@@ -187,17 +201,24 @@ public class Test {
 
             // Attempt to fire a transition starting in state SMC0.
             private void exec_SMC0() {
+                logger.info("D.O P SM1 SMC0");
                 // [SEQ.START]
                 // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | i >= 0 and i < 2 and x[i] = 0.
+                logger.info("T.O P SM1 0 SMC0 SMC0");
                 if(execute_transition_SMC0_0()) {
+                    logger.info("T.CS P SM1 0 SMC0 SMC0");
                     return;
                 }
+                logger.info("T.CF P SM1 0 SMC0 SMC0");
                 // [SEQ.END]
+                logger.info("D.CF P SM1 SMC0");
             }
 
             // Attempt to fire a transition starting in state SMC1.
             private void exec_SMC1() {
+                logger.info("D.O P SM1 SMC1");
                 // There are no transitions starting in state SMC1.
+                logger.info("D.CF P SM1 SMC1");
             }
 
             // Main state machine loop.
@@ -327,17 +348,24 @@ public class Test {
 
             // Attempt to fire a transition starting in state SMC0.
             private void exec_SMC0() {
+                logger.info("D.O P SM2 SMC0");
                 // [SEQ.START]
                 // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | [i >= 0 and i < 2 and x[i] != 0; x[i] := y[i]; y[i] := 0].
+                logger.info("T.O P SM2 0 SMC0 SMC0");
                 if(execute_transition_SMC0_0()) {
+                    logger.info("T.CS P SM2 0 SMC0 SMC0");
                     return;
                 }
+                logger.info("T.CF P SM2 0 SMC0 SMC0");
                 // [SEQ.END]
+                logger.info("D.CF P SM2 SMC0");
             }
 
             // Attempt to fire a transition starting in state SMC1.
             private void exec_SMC1() {
+                logger.info("D.O P SM2 SMC1");
                 // There are no transitions starting in state SMC1.
+                logger.info("D.CF P SM2 SMC1");
             }
 
             // Main state machine loop.
@@ -474,17 +502,24 @@ public class Test {
 
             // Attempt to fire a transition starting in state SMC0.
             private void exec_SMC0() {
+                logger.info("D.O P SM3 SMC0");
                 // [SEQ.START]
                 // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | [i >= 0 and i < 1 and x[i] != 0; i := i + 1; x[i] := y[i]; y[i] := 0].
+                logger.info("T.O P SM3 0 SMC0 SMC0");
                 if(execute_transition_SMC0_0()) {
+                    logger.info("T.CS P SM3 0 SMC0 SMC0");
                     return;
                 }
+                logger.info("T.CF P SM3 0 SMC0 SMC0");
                 // [SEQ.END]
+                logger.info("D.CF P SM3 SMC0");
             }
 
             // Attempt to fire a transition starting in state SMC1.
             private void exec_SMC1() {
+                logger.info("D.O P SM3 SMC1");
                 // There are no transitions starting in state SMC1.
+                logger.info("D.CF P SM3 SMC1");
             }
 
             // Main state machine loop.

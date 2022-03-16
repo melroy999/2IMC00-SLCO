@@ -1,0 +1,8 @@
+// Define and initialize the logger to gather the appropriate performance data with.
+private static final Logger logger;
+static {
+    String log_date = DateTimeFormatter.ISO_INSTANT.format(Instant.now()).replaceAll(":", ".");
+    String log_name = "{{ model_name }}";
+    MainMapLookup.setMainArguments("log_date", log_date, "log_name", log_name);
+    logger = LogManager.getLogger();
+}

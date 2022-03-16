@@ -12,6 +12,7 @@ from preprocessing.ast.restructuring import restructure
 from preprocessing.ast.simplification import simplify
 from preprocessing.ast.finalization import finalize
 from rendering.java.renderer import JavaModelRenderer
+from rendering.measurements.renderer import LogMeasurementsModelRenderer
 from rendering.vercors.locking.renderer import VercorsLockingStructureModelRenderer, \
     VercorsLockingCoverageModelRenderer, VercorsLockingRewriteRulesModelRenderer
 from rendering.vercors.structure.renderer import VercorsStructureModelRenderer
@@ -65,6 +66,12 @@ def render(model, model_folder):
     logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
     with open(file_name, 'w') as out_file:
         out_file.write(VercorsLockingRewriteRulesModelRenderer().render_model(model))
+
+    # Write the program to the desired output file.
+    file_name = os.path.join(model_folder, model.name + "_measurements.java")
+    logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
+    with open(file_name, 'w') as out_file:
+        out_file.write(LogMeasurementsModelRenderer().render_model(model))
 
 
 def get_argument_parser():
