@@ -17,12 +17,6 @@ use_full_smt_dsc = False
 # Should the sequential decision grouping be considered an atomic operation?
 atomic_sequential = False
 
-# Lock the entirety of the array instead of single elements.
-lock_full_arrays = False
-
-# Make the execution of the program sequential by using the same lock for all of the statements using class variables.
-statement_locks = False
-
 # Visualize the locking graph.
 visualize_locking_graph = False
 
@@ -39,7 +33,7 @@ running_time = 0
 def init(parameters):
     """Initialize the global variables, defining the settings of the program"""
     global model_folder, model_name, use_random_pick, no_deterministic_structures, use_full_smt_dsc, atomic_sequential,\
-        lock_full_arrays, statement_locks, visualize_locking_graph, verify_locks, iteration_limit, running_time
+        visualize_locking_graph, verify_locks, iteration_limit, running_time
 
     # Add the name of the model and the location.
     model_folder, model_name = os.path.split(parameters.model)
@@ -50,8 +44,6 @@ def init(parameters):
     use_full_smt_dsc = parameters.use_full_smt_dsc
 
     atomic_sequential = parameters.atomic_sequential
-    lock_full_arrays = parameters.lock_full_arrays
-    statement_locks = parameters.statement_locks
     visualize_locking_graph = parameters.visualize_locking_graph
 
     verify_locks = parameters.verify_locks

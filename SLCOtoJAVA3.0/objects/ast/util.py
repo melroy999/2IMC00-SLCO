@@ -2,7 +2,6 @@ from typing import Iterable, Set
 
 import networkx as nx
 
-import settings
 from objects.ast.models import SlcoModel, Action, Object, Initialisation, Class, StateMachine, State, Variable, Type, \
     Transition, Composite, Assignment, Expression, Primary, VariableRef, ActionRef
 from objects.ast.interfaces import SlcoStatementNode
@@ -280,22 +279,8 @@ def get_variables_to_be_locked(model: SlcoStatementNode):
     """
     Get the variables that need to be locked within the given statement.
     """
-    if settings.statement_locks:
-        return {VariableRef(statement_lock_variable)}
-    else:
-        # Get the class variables being referenced.
-        class_variable_references = get_class_variable_references(model)
-
-        if settings.lock_full_arrays:
-            # The entire array can be locked by enforcing that the index of array variables is always zero.
-            adjusted_variable_references = set()
-            for r in class_variable_references:
-                if r.var.is_array:
-                    adjusted_variable_references.add(VariableRef(r.var, Primary(target=0)))
-                else:
-                    adjusted_variable_references.add(r)
-            class_variable_references = adjusted_variable_references
-        return class_variable_references
+    # Get the class variables being referenced.
+    return get_class_variable_references(model)
 
 
 def get_variable_dependency_graph(model: SlcoStatementNode) -> nx.DiGraph:

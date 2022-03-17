@@ -8,7 +8,6 @@ import networkx as nx
 
 # Avoid circular imports due to type checking.
 import objects.ast.util as util
-import settings
 from objects.ast.models import Expression, Variable
 from preprocessing.ast.simplification import simplify
 
@@ -177,7 +176,7 @@ class LockRequest:
         return target
 
     def __repr__(self) -> str:
-        return str(self.ref) if not settings.lock_full_arrays else str(self.ref.var.name)
+        return str(self.ref)
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, LockRequest):

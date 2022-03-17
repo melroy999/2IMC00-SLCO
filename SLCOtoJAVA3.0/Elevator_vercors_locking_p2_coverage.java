@@ -886,10 +886,10 @@ class GlobalClass_controllerThread {
     private boolean t_work_2_s_0_n_3() {
         //@ assume Perm(c.t, 1);
         //@ assume 0 <= c.t && c.t < 4;
+        //@ assume Perm(c.req[0], 1); // Lock ids 1
+        //@ assume Perm(c.req[1], 1); // Lock ids 2
         //@ assume Perm(c.req[2], 1); // Lock ids 3
-        //@ assume Perm(c.req[1], 1); // Lock ids 1
-        //@ assume Perm(c.req[0], 1); // Lock ids 4
-        //@ assume Perm(c.req[3], 1); // Lock ids 2
+        //@ assume Perm(c.req[3], 1); // Lock ids 4
         return c.req[c.t] == 0;
     }
 

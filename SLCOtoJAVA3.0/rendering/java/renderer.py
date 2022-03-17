@@ -527,7 +527,7 @@ class JavaModelRenderer:
 
     def render_assignment(self, model: Assignment) -> str:
         """Render the given assignment as Java code."""
-        # TODO: properly handle byte calculations. Maybe use char instead of int with a & 0xff mask?
+        # TODO: properly handle byte calculations.
         #   - Do expressions need to be changed too to handle this functionality?
 
         # Create an unique prefix for the statement.

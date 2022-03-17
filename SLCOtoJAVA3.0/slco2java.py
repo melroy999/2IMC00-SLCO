@@ -44,6 +44,12 @@ def render(model, model_folder):
         out_file.write(JavaModelRenderer().render_model(model))
 
     # Write the program to the desired output file.
+    file_name = os.path.join(model_folder, model.name + "_measurements.java")
+    logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
+    with open(file_name, 'w') as out_file:
+        out_file.write(LogMeasurementsModelRenderer().render_model(model))
+
+    # Write the program to the desired output file.
     file_name = os.path.join(model_folder, model.name + "_vercors_structure.java")
     logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
     with open(file_name, 'w') as out_file:
@@ -67,12 +73,6 @@ def render(model, model_folder):
     with open(file_name, 'w') as out_file:
         out_file.write(VercorsLockingRewriteRulesModelRenderer().render_model(model))
 
-    # Write the program to the desired output file.
-    file_name = os.path.join(model_folder, model.name + "_measurements.java")
-    logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
-    with open(file_name, 'w') as out_file:
-        out_file.write(LogMeasurementsModelRenderer().render_model(model))
-
 
 def get_argument_parser():
     """Get a parser for the input arguments."""
@@ -94,10 +94,6 @@ def get_argument_parser():
     # Parameters that control the locking mechanism.
     parser.add_argument("-atomic_sequential", action='store_true', help="Make the sequential decision structures an "
                                                                         "atomic operation.")
-    parser.add_argument("-lock_full_arrays", action='store_true', help="Lock the entirety of an array instead of a "
-                                                                       "single element.")
-    parser.add_argument("-statement_locks", action='store_true', help="Make the execution sequential by having each "
-                                                                      "statement use the same lock.")
     parser.add_argument("-visualize_locking_graph", action='store_true', help="Create a graph visualization of the "
                                                                               "locking graph.")
 
