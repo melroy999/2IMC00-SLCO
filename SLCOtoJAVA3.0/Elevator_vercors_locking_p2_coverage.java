@@ -5,10 +5,10 @@
 // VerCors verification instructions for SLCO class GlobalClass.
 class GlobalClass {
     // Class variables.
-    private final char[] req;
+    private final int[] req;
     private volatile int t;
     private volatile int p;
-    private volatile char v;
+    private volatile int v;
 
     /*@
     // Ensure full access to the class members.
@@ -26,7 +26,7 @@ class GlobalClass {
     ensures this.p == p;
     ensures this.v == v;
     @*/
-    GlobalClass(char[] req, int t, int p, char v) {
+    GlobalClass(int[] req, int t, int p, int v) {
         // Instantiate the class variables.
         this.req = req;
         this.t = t;
@@ -102,8 +102,8 @@ class GlobalClass_cabinThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_mov_0_s_0_n_0() {
-        //@ assume Perm(c.t, 1);
         //@ assume Perm(c.p, 1);
+        //@ assume Perm(c.t, 1);
         return c.t == c.p;
     }
 
@@ -136,8 +136,8 @@ class GlobalClass_cabinThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_mov_1_s_0_n_0() {
-        //@ assume Perm(c.t, 1);
         //@ assume Perm(c.p, 1);
+        //@ assume Perm(c.t, 1);
         return c.t < c.p;
     }
 
@@ -186,8 +186,8 @@ class GlobalClass_cabinThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_mov_2_s_0_n_0() {
-        //@ assume Perm(c.t, 1);
         //@ assume Perm(c.p, 1);
+        //@ assume Perm(c.t, 1);
         return c.t > c.p;
     }
 
@@ -526,7 +526,7 @@ class GlobalClass_controllerThread {
     private final GlobalClass c;
 
     // Thread local variables.
-    private char ldir;
+    private int ldir;
 
     /*@
     // Ensure full access to the class members.
@@ -886,10 +886,10 @@ class GlobalClass_controllerThread {
     private boolean t_work_2_s_0_n_3() {
         //@ assume Perm(c.t, 1);
         //@ assume 0 <= c.t && c.t < 4;
-        //@ assume Perm(c.req[2], 1); // Lock ids 2
-        //@ assume Perm(c.req[3], 1); // Lock ids 3
-        //@ assume Perm(c.req[0], 1); // Lock ids 4
+        //@ assume Perm(c.req[2], 1); // Lock ids 3
         //@ assume Perm(c.req[1], 1); // Lock ids 1
+        //@ assume Perm(c.req[0], 1); // Lock ids 4
+        //@ assume Perm(c.req[3], 1); // Lock ids 2
         return c.req[c.t] == 0;
     }
 

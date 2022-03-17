@@ -5,10 +5,10 @@
 // VerCors verification instructions for SLCO class GlobalClass.
 class GlobalClass {
     // Class variables.
-    private final char[] req;
+    private final int[] req;
     private volatile int t;
     private volatile int p;
-    private volatile char v;
+    private volatile int v;
 
     /*@
     // Ensure full access to the class members.
@@ -26,7 +26,7 @@ class GlobalClass {
     ensures this.p == p;
     ensures this.v == v;
     @*/
-    GlobalClass(char[] req, int t, int p, char v) {
+    GlobalClass(int[] req, int t, int p, int v) {
         // Instantiate the class variables.
         this.req = req;
         this.t = t;
@@ -1452,7 +1452,7 @@ class GlobalClass_controllerThread {
     private final GlobalClass c;
 
     // Thread local variables.
-    private char ldir;
+    private int ldir;
 
     /*@
     // Ensure full access to the class members.

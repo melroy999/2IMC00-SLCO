@@ -807,7 +807,7 @@ class JavaModelRenderer:
     # noinspection PyMethodMayBeStatic
     def render_variable_type(self, model: Variable, include_modifiers=False) -> str:
         """Render the type of the given variable object."""
-        type_name = "boolean" if model.is_boolean else "char" if model.is_byte else "int"
+        type_name = "boolean" if model.is_boolean else "int"
         if model.is_array:
             return f"final {type_name}[]" if include_modifiers else f"{type_name}[]"
         else:

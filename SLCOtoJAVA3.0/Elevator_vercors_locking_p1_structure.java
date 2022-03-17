@@ -5,10 +5,10 @@
 // VerCors verification instructions for SLCO class GlobalClass.
 class GlobalClass {
     // Class variables.
-    private final char[] req;
+    private final int[] req;
     private volatile int t;
     private volatile int p;
-    private volatile char v;
+    private volatile int v;
 
     /*@
     // Ensure full access to the class members.
@@ -26,7 +26,7 @@ class GlobalClass {
     ensures this.p == p;
     ensures this.v == v;
     @*/
-    GlobalClass(char[] req, int t, int p, char v) {
+    GlobalClass(int[] req, int t, int p, int v) {
         // Instantiate the class variables.
         this.req = req;
         this.t = t;
@@ -234,20 +234,20 @@ class GlobalClass_cabinThread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: p, 1: t]
+    // - [0: t, 1: p]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_mov_0_s_0_n_0() {
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.p
-        //@ assert lock_requests[0] == 1; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.t
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.p
         //@ assert lock_requests[1] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.p.
-        //@ assert lock_requests[1] == 1; // Check c.t.
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.t
+        //@ assert lock_requests[0] == 1; // Verify lock activity.
+        //@ assert lock_requests[0] == 1; // Check c.t.
+        //@ assert lock_requests[1] == 1; // Check c.p.
         if(c.t == c.p) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.p
+            lock_requests[0] = lock_requests[0] - 1; // Release c.t
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.t
+            lock_requests[1] = lock_requests[1] - 1; // Release c.p
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -315,7 +315,7 @@ class GlobalClass_cabinThread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: p, 1: t]
+    // - [0: t, 1: p]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | mov -> open | t = p.
@@ -364,23 +364,23 @@ class GlobalClass_cabinThread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: p, 1: t]
+    // - [0: t, 1: p]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: p]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: p]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: p, 1: t]
+    // - [0: t, 1: p]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_mov_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.p.
-        //@ assert lock_requests[1] == 1; // Check c.t.
+        //@ assert lock_requests[0] == 1; // Check c.t.
+        //@ assert lock_requests[1] == 1; // Check c.p.
         if(c.t < c.p) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.t
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
+            lock_requests[0] = lock_requests[0] - 1; // Release c.t
+            //@ assert lock_requests[0] == 0; // Verify lock activity.
             return true;
         }
         return false;
@@ -467,14 +467,14 @@ class GlobalClass_cabinThread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: p, 1: t]
+    // - [0: t, 1: p]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: p, 1: t]
+    // - [0: t, 1: p]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | mov -> mov | [t < p; p := p - 1].
@@ -485,11 +485,11 @@ class GlobalClass_cabinThread {
             return false;
         }
         // SLCO assignment | p := p - 1.
-        //@ assert lock_requests[0] == 1; // Check c.p.
+        //@ assert lock_requests[1] == 1; // Check c.p.
         range_check_assumption_t_1_s_2();
         c.p = c.p - 1;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.p
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.p
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
     }
@@ -530,27 +530,27 @@ class GlobalClass_cabinThread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: p, 1: t]
+    // - [0: t, 1: p]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: p]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: p]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_mov_2_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.p.
-        //@ assert lock_requests[1] == 1; // Check c.t.
+        //@ assert lock_requests[0] == 1; // Check c.t.
+        //@ assert lock_requests[1] == 1; // Check c.p.
         if(c.t > c.p) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.t
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
+            lock_requests[0] = lock_requests[0] - 1; // Release c.t
+            //@ assert lock_requests[0] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.p
+        lock_requests[0] = lock_requests[0] - 1; // Release c.t
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.t
+        lock_requests[1] = lock_requests[1] - 1; // Release c.p
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -636,7 +636,7 @@ class GlobalClass_cabinThread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: p, 1: t]
+    // - [0: t, 1: p]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -653,11 +653,11 @@ class GlobalClass_cabinThread {
             return false;
         }
         // SLCO assignment | p := p + 1.
-        //@ assert lock_requests[0] == 1; // Check c.p.
+        //@ assert lock_requests[1] == 1; // Check c.p.
         range_check_assumption_t_2_s_2();
         c.p = c.p + 1;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.p
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.p
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
     }
@@ -788,27 +788,27 @@ class GlobalClass_cabinThread {
         // SLCO composite | [req[p] := 0; v := 0] -> [true; req[p] := 0; v := 0].
         // (Superfluous) SLCO expression | true.
         // SLCO assignment | req[p] := 0.
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.p
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.v
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.p
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.req[c.p]
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.v
         //@ assert lock_requests[1] == 1; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.req[c.p]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[1] == 1; // Check c.req[c.p].
-        //@ assert lock_requests[2] == 1; // Check c.p.
+        //@ assert lock_requests[0] == 1; // Check c.p.
+        //@ assert lock_requests[2] == 1; // Check c.req[c.p].
         range_check_assumption_t_0_s_3();
         c.req[c.p] = (0) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.req[c.p]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.p
+        lock_requests[0] = lock_requests[0] - 1; // Release c.p
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.req[c.p]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
         // SLCO assignment | v := 0.
-        //@ assert lock_requests[0] == 1; // Check c.v.
+        //@ assert lock_requests[1] == 1; // Check c.v.
         range_check_assumption_t_0_s_4();
         c.v = (0) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.v
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.v
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
     }
@@ -1756,7 +1756,7 @@ class GlobalClass_controllerThread {
     private final GlobalClass c;
 
     // Thread local variables.
-    private char ldir;
+    private int ldir;
     // A list of lock requests. A value of 1 denotes that the given target is locked, and 0 implies no lock.
     private final int[] lock_requests;
 
@@ -2441,7 +2441,7 @@ class GlobalClass_controllerThread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: t, 1: req[1], 2: req[2], 3: req[3], 4: req[0]]
+    // - [0: t, 1: req[1], 2: req[3], 3: req[2], 4: req[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_work_1_s_0_n_2() {
@@ -2453,9 +2453,9 @@ class GlobalClass_controllerThread {
         }
         lock_requests[1] = lock_requests[1] + 1; // Acquire c.req[1]
         //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.req[2]
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.req[3]
         //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] + 1; // Acquire c.req[3]
+        lock_requests[3] = lock_requests[3] + 1; // Acquire c.req[2]
         //@ assert lock_requests[3] == 1; // Verify lock activity.
         lock_requests[4] = lock_requests[4] + 1; // Acquire c.req[0]
         //@ assert lock_requests[4] == 1; // Verify lock activity.
@@ -2514,15 +2514,15 @@ class GlobalClass_controllerThread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: t, 1: req[1], 2: req[2], 3: req[3], 4: req[0]]
+    // - [0: t, 1: req[1], 2: req[3], 3: req[2], 4: req[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_work_1_s_0_n_3() {
         lock_requests[1] = lock_requests[1] + 1; // Acquire c.req[1]
         //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.req[2]
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.req[3]
         //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] + 1; // Acquire c.req[3]
+        lock_requests[3] = lock_requests[3] + 1; // Acquire c.req[2]
         //@ assert lock_requests[3] == 1; // Verify lock activity.
         lock_requests[4] = lock_requests[4] + 1; // Acquire c.req[0]
         //@ assert lock_requests[4] == 1; // Verify lock activity.
@@ -2535,9 +2535,9 @@ class GlobalClass_controllerThread {
             //@ assert lock_requests[0] == 0; // Verify lock activity.
             lock_requests[1] = lock_requests[1] - 1; // Release c.req[1]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.req[2]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.req[3]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.req[3]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.req[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
             lock_requests[4] = lock_requests[4] - 1; // Release c.req[0]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
@@ -2602,7 +2602,7 @@ class GlobalClass_controllerThread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: t, 1: req[1], 2: req[2], 3: req[3], 4: req[0]]
+    // - [0: t, 1: req[1], 2: req[3], 3: req[2], 4: req[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_work_1_s_0_n_4() {
@@ -2693,7 +2693,7 @@ class GlobalClass_controllerThread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: t, 1: req[1], 2: req[2], 3: req[3], 4: req[0]]
+    // - [0: t, 1: req[1], 2: req[3], 3: req[2], 4: req[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | work -> done | t >= 0 and t < 4 and req[t] = 1.
@@ -2748,11 +2748,11 @@ class GlobalClass_controllerThread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: t, 1: req[1], 2: req[2], 3: req[3], 4: req[0]]
+    // - [0: t, 1: req[1], 2: req[3], 3: req[2], 4: req[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: t, 1: req[1], 2: req[2], 3: req[3], 4: req[0]]
+    // - [0: t, 1: req[1], 2: req[3], 3: req[2], 4: req[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
@@ -2767,9 +2767,9 @@ class GlobalClass_controllerThread {
         //@ assert lock_requests[0] == 0; // Verify lock activity.
         lock_requests[1] = lock_requests[1] - 1; // Release c.req[1]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.req[2]
+        lock_requests[2] = lock_requests[2] - 1; // Release c.req[3]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.req[3]
+        lock_requests[3] = lock_requests[3] - 1; // Release c.req[2]
         //@ assert lock_requests[3] == 0; // Verify lock activity.
         lock_requests[4] = lock_requests[4] - 1; // Release c.req[0]
         //@ assert lock_requests[4] == 0; // Verify lock activity.
@@ -2818,11 +2818,11 @@ class GlobalClass_controllerThread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: t, 1: req[1], 2: req[2], 3: req[3], 4: req[0]]
+    // - [0: t, 1: req[1], 2: req[3], 3: req[2], 4: req[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: t, 1: req[1], 2: req[2], 3: req[3], 4: req[0]]
+    // - [0: t, 1: req[1], 2: req[3], 3: req[2], 4: req[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
@@ -2837,9 +2837,9 @@ class GlobalClass_controllerThread {
         //@ assert lock_requests[0] == 0; // Verify lock activity.
         lock_requests[1] = lock_requests[1] - 1; // Release c.req[1]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.req[2]
+        lock_requests[2] = lock_requests[2] - 1; // Release c.req[3]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.req[3]
+        lock_requests[3] = lock_requests[3] - 1; // Release c.req[2]
         //@ assert lock_requests[3] == 0; // Verify lock activity.
         lock_requests[4] = lock_requests[4] - 1; // Release c.req[0]
         //@ assert lock_requests[4] == 0; // Verify lock activity.
@@ -2888,11 +2888,11 @@ class GlobalClass_controllerThread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: t, 1: req[1], 2: req[2], 3: req[3], 4: req[0]]
+    // - [0: t, 1: req[1], 2: req[3], 3: req[2], 4: req[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: t, 1: req[1], 2: req[2], 3: req[3], 4: req[0]]
+    // - [0: t, 1: req[1], 2: req[3], 3: req[2], 4: req[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
@@ -2953,7 +2953,7 @@ class GlobalClass_controllerThread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: t, 1: req[1], 2: req[2], 3: req[3], 4: req[0]]
+    // - [0: t, 1: req[1], 2: req[3], 3: req[2], 4: req[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
@@ -2966,15 +2966,15 @@ class GlobalClass_controllerThread {
     private boolean t_work_2_s_0_n_3() {
         //@ assert lock_requests[0] == 1; // Check c.t.
         //@ assert lock_requests[1] == 1; // Check c.req[1].
-        //@ assert lock_requests[2] == 1; // Check c.req[2].
-        //@ assert lock_requests[3] == 1; // Check c.req[3].
+        //@ assert lock_requests[2] == 1; // Check c.req[3].
+        //@ assert lock_requests[3] == 1; // Check c.req[2].
         //@ assert lock_requests[4] == 1; // Check c.req[0].
         if(c.req[c.t] == 0) {
             lock_requests[1] = lock_requests[1] - 1; // Release c.req[1]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.req[2]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.req[3]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.req[3]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.req[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
             lock_requests[4] = lock_requests[4] - 1; // Release c.req[0]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
@@ -2984,9 +2984,9 @@ class GlobalClass_controllerThread {
         //@ assert lock_requests[0] == 0; // Verify lock activity.
         lock_requests[1] = lock_requests[1] - 1; // Release c.req[1]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.req[2]
+        lock_requests[2] = lock_requests[2] - 1; // Release c.req[3]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.req[3]
+        lock_requests[3] = lock_requests[3] - 1; // Release c.req[2]
         //@ assert lock_requests[3] == 0; // Verify lock activity.
         lock_requests[4] = lock_requests[4] - 1; // Release c.req[0]
         //@ assert lock_requests[4] == 0; // Verify lock activity.
@@ -3038,7 +3038,7 @@ class GlobalClass_controllerThread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: t, 1: req[1], 2: req[2], 3: req[3], 4: req[0]]
+    // - [0: t, 1: req[1], 2: req[3], 3: req[2], 4: req[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
@@ -3161,7 +3161,7 @@ class GlobalClass_controllerThread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: t, 1: req[1], 2: req[2], 3: req[3], 4: req[0]]
+    // - [0: t, 1: req[1], 2: req[3], 3: req[2], 4: req[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
