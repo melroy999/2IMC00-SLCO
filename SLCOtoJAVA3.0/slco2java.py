@@ -96,6 +96,10 @@ def get_argument_parser():
                                                                         "atomic operation.")
     parser.add_argument("-visualize_locking_graph", action='store_true', help="Create a graph visualization of the "
                                                                               "locking graph.")
+    parser.add_argument("-no_locks", action='store_true', help="Create faulty code that does not perform locking and "
+                                                               "hence will not meet the requirement of atomicity.")
+    parser.add_argument("-statement_level_locking", action='store_true', help="Perform locking at the statement level.")
+    parser.add_argument("-lock_array", action='store_true', help="Lock the array instead of an individual index.")
 
     # Parameters that control which statements are rendered.
     parser.add_argument("-verify_locks", action='store_true', help="Add Java statements that verify whether locks have "

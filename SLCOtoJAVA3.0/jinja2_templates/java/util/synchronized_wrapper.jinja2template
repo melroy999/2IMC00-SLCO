@@ -1,0 +1,3 @@
+synchronized(lock) {
+    {{ statement_body | indent(4, False) | trim }}
+}

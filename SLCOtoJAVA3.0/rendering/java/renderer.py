@@ -95,6 +95,7 @@ class JavaModelRenderer:
 
         self.locking_check_template = self.env.get_template("java/locking/locking_check.jinja2template")
         self.locking_instruction_template = self.env.get_template("java/locking/locking_instruction.jinja2template")
+        self.synchronized_wrapper_template = self.env.get_template("java/util/synchronized_wrapper.jinja2template")
 
     @staticmethod
     def join_with_strip(elements: List[str], join_str: str = "\n") -> str:
@@ -528,7 +529,7 @@ class JavaModelRenderer:
     def render_assignment(self, model: Assignment) -> str:
         """Render the given assignment as Java code."""
         # TODO: properly handle byte calculations.
-        #   - Do expressions need to be changed too to handle this functionality?
+        #   - Do expressions need to be changed too to handle this functionality? I.e., comparisons?
 
         # Create an unique prefix for the statement.
         self.current_statement_prefix = self.get_statement_prefix()
@@ -696,14 +697,22 @@ class JavaModelRenderer:
         transition_call_failure_closing_body = self.get_transition_call_failure_closing_body(model)
 
         # Render a call to the specified transition.
-        return self.transition_call_template.render(
+        result = self.transition_call_template.render(
             human_readable_transition_identification=human_readable_transition_identification,
             model_source=model.source,
             model_id=model.id,
             transition_call_opening_body=transition_call_opening_body,
             transition_call_success_closing_body=transition_call_success_closing_body,
-            transition_call_failure_closing_body=transition_call_failure_closing_body
+            transition_call_failure_closing_body=transition_call_failure_closing_body,
         )
+
+        # Wrap the call into a synchronized block if statement level locking is performed.
+        if settings.statement_level_locking:
+            result = self.synchronized_wrapper_template.render(
+                statement_body=result
+            )
+
+        return result
 
     def render_deterministic_decision_node(self, model: DecisionNode) -> str:
         """Render the given deterministic decision node as Java code."""
@@ -864,7 +873,6 @@ class JavaModelRenderer:
 
         # Pre-render the state machine components.
         states = [str(s) for s in model.states]
-        variable_declarations = [f"{self.render_variable_type(v)} {v.name}" for v in model.variables]
         transitions = [self.render_transition(t) for t in model.transitions]
         decision_structures = [self.render_decision_structure(model, s) for s in model.states]
 
@@ -883,12 +891,22 @@ class JavaModelRenderer:
             settings=settings,
             constructor_variable_declarations=constructor_variable_declarations,
             constructor_body=constructor_body,
-            constructor_contract=constructor_contract
+            constructor_contract=constructor_contract,
         )
 
     def render_class_constructor_contract(self, model: Class) -> str:
         """Get the contract of the class's constructor."""
         return ""
+
+    # noinspection PyMethodMayBeStatic
+    def get_class_support_variables(self, model: Class) -> List[str]:
+        """Get the support variables that need to be contained within the class."""
+        if settings.statement_level_locking:
+            return [
+                "private final Object lock = new Object();"
+            ]
+        else:
+            return []
 
     def render_class(self, model: Class) -> str:
         """Render the SLCO class as Java code."""
@@ -901,7 +919,8 @@ class JavaModelRenderer:
         variable_declarations = [f"{self.render_variable_type(v, True)} {v.name}" for v in model.variables]
         constructor_arguments = [f"{self.render_variable_type(v)} {v.name}" for v in model.variables]
         variable_names = [f"{v.name}" for v in model.variables]
-        lock_array_size = max((v.lock_id + v.type.size for v in model.variables), default=0)
+        lock_array_size = max((v.lock_id + max(v.type.size, 1) for v in model.variables), default=0)
+        support_variables = self.get_class_support_variables(model)
 
         # Render the following sections at the last moment to ensure that all recursive steps have finished.
         constructor_contract = self.render_class_constructor_contract(model)
@@ -915,7 +934,8 @@ class JavaModelRenderer:
             constructor_arguments=constructor_arguments,
             variable_names=variable_names,
             lock_array_size=lock_array_size,
-            constructor_contract=constructor_contract
+            constructor_contract=constructor_contract,
+            support_variables=support_variables
         )
 
     def render_object_instantiation(self, model: Object) -> str:

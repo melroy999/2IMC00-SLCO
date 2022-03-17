@@ -14,6 +14,13 @@ private static class {{ model_name }} implements SLCO_Class {
     {% endfor %}
 
     {% endif %}
+    {% if support_variables | length > 0 %}
+    // Additional supporting variables.
+    {% for support_variable in support_variables %}
+    {{ support_variable | indent(4, False) | trim }}
+    {% endfor %}
+
+    {% endif %}
     {% if constructor_contract != "" %}
     {{ constructor_contract | indent(4, False) | trim }}
     {% endif %}

@@ -142,7 +142,7 @@ public class Elevator {
 
             // SLCO expression wrapper | v > 0.
             private boolean t_idle_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 1; // Acquire v
+                lock_ids[0] = target_locks[0] = 5; // Acquire v
                 lockManager.acquire_locks(lock_ids, 1);
                 if(v > 0) {
                     lock_ids[0] = target_locks[0]; // Release v
@@ -167,13 +167,13 @@ public class Elevator {
 
             // SLCO expression wrapper | t = p.
             private boolean t_mov_0_s_0_n_0() {
-                lock_ids[0] = target_locks[1] = 0; // Acquire p
+                lock_ids[0] = target_locks[0] = 0; // Acquire p
                 lockManager.acquire_locks(lock_ids, 1);
-                lock_ids[0] = target_locks[0] = 2; // Acquire t
+                lock_ids[0] = target_locks[1] = 6; // Acquire t
                 lockManager.acquire_locks(lock_ids, 1);
                 if(t == p) {
-                    lock_ids[0] = target_locks[0]; // Release t
-                    lock_ids[1] = target_locks[1]; // Release p
+                    lock_ids[0] = target_locks[0]; // Release p
+                    lock_ids[1] = target_locks[1]; // Release t
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
@@ -194,7 +194,7 @@ public class Elevator {
             // SLCO expression wrapper | t < p.
             private boolean t_mov_1_s_0_n_0() {
                 if(t < p) {
-                    lock_ids[0] = target_locks[0]; // Release t
+                    lock_ids[0] = target_locks[1]; // Release t
                     lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
@@ -210,7 +210,7 @@ public class Elevator {
                 }
                 // SLCO assignment | p := p - 1.
                 p = p - 1;
-                lock_ids[0] = target_locks[1]; // Release p
+                lock_ids[0] = target_locks[0]; // Release p
                 lockManager.release_locks(lock_ids, 1);
 
                 currentState = GlobalClass_cabinThread.States.mov;
@@ -220,12 +220,12 @@ public class Elevator {
             // SLCO expression wrapper | t > p.
             private boolean t_mov_2_s_0_n_0() {
                 if(t > p) {
-                    lock_ids[0] = target_locks[0]; // Release t
+                    lock_ids[0] = target_locks[1]; // Release t
                     lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release t
-                lock_ids[1] = target_locks[1]; // Release p
+                lock_ids[0] = target_locks[0]; // Release p
+                lock_ids[1] = target_locks[1]; // Release t
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -239,7 +239,7 @@ public class Elevator {
                 }
                 // SLCO assignment | p := p + 1.
                 p = p + 1;
-                lock_ids[0] = target_locks[1]; // Release p
+                lock_ids[0] = target_locks[0]; // Release p
                 lockManager.release_locks(lock_ids, 1);
 
                 currentState = GlobalClass_cabinThread.States.mov;
@@ -255,15 +255,15 @@ public class Elevator {
                 // SLCO assignment | req[p] := 0.
                 lock_ids[0] = target_locks[0] = 0; // Acquire p
                 lockManager.acquire_locks(lock_ids, 1);
-                lock_ids[0] = target_locks[2] = 1; // Acquire v
-                lockManager.acquire_locks(lock_ids, 1);
-                lock_ids[0] = target_locks[1] = 3 + p; // Acquire req[p]
+                lock_ids[0] = target_locks[1] = 1 + 0; // Acquire req[0]
                 lockManager.acquire_locks(lock_ids, 1);
                 req[p] = (0) & 0xff;
                 lock_ids[0] = target_locks[0]; // Release p
-                lock_ids[1] = target_locks[1]; // Release req[p]
+                lock_ids[1] = target_locks[1]; // Release req[0]
                 lockManager.release_locks(lock_ids, 2);
                 // SLCO assignment | v := 0.
+                lock_ids[0] = target_locks[2] = 5; // Acquire v
+                lockManager.acquire_locks(lock_ids, 1);
                 v = (0) & 0xff;
                 lock_ids[0] = target_locks[2]; // Release v
                 lockManager.release_locks(lock_ids, 1);
@@ -382,13 +382,13 @@ public class Elevator {
                 currentState = GlobalClass_environmentThread.States.read;
                 lockManager = lockManagerInstance;
                 lock_ids = new int[1];
-                target_locks = new int[4];
+                target_locks = new int[1];
                 random = new Random();
             }
 
             // SLCO expression wrapper | req[0] = 0.
             private boolean t_read_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 3 + 0; // Acquire req[0]
+                lock_ids[0] = target_locks[0] = 1 + 0; // Acquire req[0]
                 lockManager.acquire_locks(lock_ids, 1);
                 if(req[0] == 0) {
                     return true;
@@ -416,12 +416,12 @@ public class Elevator {
 
             // SLCO expression wrapper | req[1] = 0.
             private boolean t_read_1_s_0_n_0() {
-                lock_ids[0] = target_locks[1] = 3 + 1; // Acquire req[1]
+                lock_ids[0] = target_locks[0] = 1 + 0; // Acquire req[0]
                 lockManager.acquire_locks(lock_ids, 1);
                 if(req[1] == 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release req[1]
+                lock_ids[0] = target_locks[0]; // Release req[0]
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
@@ -435,7 +435,7 @@ public class Elevator {
                 }
                 // SLCO assignment | req[1] := 1.
                 req[1] = (1) & 0xff;
-                lock_ids[0] = target_locks[1]; // Release req[1]
+                lock_ids[0] = target_locks[0]; // Release req[0]
                 lockManager.release_locks(lock_ids, 1);
 
                 currentState = GlobalClass_environmentThread.States.read;
@@ -444,12 +444,12 @@ public class Elevator {
 
             // SLCO expression wrapper | req[2] = 0.
             private boolean t_read_2_s_0_n_0() {
-                lock_ids[0] = target_locks[2] = 3 + 2; // Acquire req[2]
+                lock_ids[0] = target_locks[0] = 1 + 0; // Acquire req[0]
                 lockManager.acquire_locks(lock_ids, 1);
                 if(req[2] == 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[2]; // Release req[2]
+                lock_ids[0] = target_locks[0]; // Release req[0]
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
@@ -463,7 +463,7 @@ public class Elevator {
                 }
                 // SLCO assignment | req[2] := 1.
                 req[2] = (1) & 0xff;
-                lock_ids[0] = target_locks[2]; // Release req[2]
+                lock_ids[0] = target_locks[0]; // Release req[0]
                 lockManager.release_locks(lock_ids, 1);
 
                 currentState = GlobalClass_environmentThread.States.read;
@@ -472,12 +472,12 @@ public class Elevator {
 
             // SLCO expression wrapper | req[3] = 0.
             private boolean t_read_3_s_0_n_0() {
-                lock_ids[0] = target_locks[3] = 3 + 3; // Acquire req[3]
+                lock_ids[0] = target_locks[0] = 1 + 0; // Acquire req[0]
                 lockManager.acquire_locks(lock_ids, 1);
                 if(req[3] == 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[3]; // Release req[3]
+                lock_ids[0] = target_locks[0]; // Release req[0]
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
@@ -491,7 +491,7 @@ public class Elevator {
                 }
                 // SLCO assignment | req[3] := 1.
                 req[3] = (1) & 0xff;
-                lock_ids[0] = target_locks[3]; // Release req[3]
+                lock_ids[0] = target_locks[0]; // Release req[0]
                 lockManager.release_locks(lock_ids, 1);
 
                 currentState = GlobalClass_environmentThread.States.read;
@@ -585,8 +585,8 @@ public class Elevator {
             GlobalClass_controllerThread(LockManager lockManagerInstance) {
                 currentState = GlobalClass_controllerThread.States.wait;
                 lockManager = lockManagerInstance;
-                lock_ids = new int[6];
-                target_locks = new int[6];
+                lock_ids = new int[2];
+                target_locks = new int[2];
                 random = new Random();
 
                 // Variable instantiations.
@@ -595,7 +595,7 @@ public class Elevator {
 
             // SLCO expression wrapper | v = 0.
             private boolean t_wait_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 1; // Acquire v
+                lock_ids[0] = target_locks[0] = 5; // Acquire v
                 lockManager.acquire_locks(lock_ids, 1);
                 if(v == 0) {
                     lock_ids[0] = target_locks[0]; // Release v
@@ -615,7 +615,7 @@ public class Elevator {
                     return false;
                 }
                 // SLCO assignment | t := t + (2 * ldir) - 1.
-                lock_ids[0] = target_locks[1] = 2; // Acquire t
+                lock_ids[0] = target_locks[1] = 6; // Acquire t
                 lockManager.acquire_locks(lock_ids, 1);
                 t = t + (2 * ldir) - 1;
                 lock_ids[0] = target_locks[1]; // Release t
@@ -627,11 +627,14 @@ public class Elevator {
 
             // SLCO expression wrapper | t < 0.
             private boolean t_work_0_s_0_n_0() {
-                lock_ids[0] = target_locks[0] = 2; // Acquire t
+                lock_ids[0] = target_locks[0] = 1 + 0; // Acquire req[0]
+                lockManager.acquire_locks(lock_ids, 1);
+                lock_ids[0] = target_locks[1] = 6; // Acquire t
                 lockManager.acquire_locks(lock_ids, 1);
                 if(t < 0) {
-                    lock_ids[0] = target_locks[0]; // Release t
-                    lockManager.release_locks(lock_ids, 1);
+                    lock_ids[0] = target_locks[0]; // Release req[0]
+                    lock_ids[1] = target_locks[1]; // Release t
+                    lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
                 return false;
@@ -640,8 +643,9 @@ public class Elevator {
             // SLCO expression wrapper | t = 4.
             private boolean t_work_0_s_0_n_1() {
                 if(t == 4) {
-                    lock_ids[0] = target_locks[0]; // Release t
-                    lockManager.release_locks(lock_ids, 1);
+                    lock_ids[0] = target_locks[0]; // Release req[0]
+                    lock_ids[1] = target_locks[1]; // Release t
+                    lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
                 return false;
@@ -661,46 +665,21 @@ public class Elevator {
                 return true;
             }
 
-            // SLCO expression wrapper | t >= 0 and t < 4.
-            private boolean t_work_1_s_0_n_0() {
-                if(t >= 0 && t < 4) {
-                    return true;
-                }
-                lock_ids[0] = target_locks[1] = 3 + 0; // Acquire req[0]
-                lock_ids[1] = target_locks[2] = 3 + 1; // Acquire req[1]
-                lock_ids[2] = target_locks[3] = 3 + 2; // Acquire req[2]
-                lock_ids[3] = target_locks[4] = 3 + 3; // Acquire req[3]
-                lockManager.acquire_locks(lock_ids, 4);
-                return false;
-            }
-
             // SLCO expression wrapper | req[t] = 1.
-            private boolean t_work_1_s_0_n_1() {
-                lock_ids[0] = target_locks[1] = 3 + 0; // Acquire req[0]
-                lock_ids[1] = target_locks[2] = 3 + 1; // Acquire req[1]
-                lock_ids[2] = target_locks[3] = 3 + 2; // Acquire req[2]
-                lock_ids[3] = target_locks[4] = 3 + 3; // Acquire req[3]
-                lock_ids[4] = target_locks[5] = 3 + t; // Acquire req[t]
-                lockManager.acquire_locks(lock_ids, 5);
+            private boolean t_work_1_s_0_n_0() {
                 if(req[t] == 1) {
-                    lock_ids[0] = target_locks[0]; // Release t
-                    lock_ids[1] = target_locks[1]; // Release req[0]
-                    lock_ids[2] = target_locks[2]; // Release req[1]
-                    lock_ids[3] = target_locks[3]; // Release req[2]
-                    lock_ids[4] = target_locks[4]; // Release req[3]
-                    lock_ids[5] = target_locks[5]; // Release req[t]
-                    lockManager.release_locks(lock_ids, 6);
+                    lock_ids[0] = target_locks[0]; // Release req[0]
+                    lock_ids[1] = target_locks[1]; // Release t
+                    lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[5]; // Release req[t]
-                lockManager.release_locks(lock_ids, 1);
                 return false;
             }
 
             // SLCO transition (p:0, id:1) | work -> done | t >= 0 and t < 4 and req[t] = 1.
             private boolean execute_transition_work_1() {
                 // SLCO expression | t >= 0 and t < 4 and req[t] = 1.
-                if(!(t_work_1_s_0_n_0() && t_work_1_s_0_n_1())) {
+                if(!(t >= 0 && t < 4 && t_work_1_s_0_n_0())) {
                     return false;
                 }
 
@@ -713,12 +692,9 @@ public class Elevator {
                 if(t >= 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release t
-                lock_ids[1] = target_locks[1]; // Release req[0]
-                lock_ids[2] = target_locks[2]; // Release req[1]
-                lock_ids[3] = target_locks[3]; // Release req[2]
-                lock_ids[4] = target_locks[4]; // Release req[3]
-                lockManager.release_locks(lock_ids, 5);
+                lock_ids[0] = target_locks[0]; // Release req[0]
+                lock_ids[1] = target_locks[1]; // Release t
+                lockManager.release_locks(lock_ids, 2);
                 return false;
             }
 
@@ -727,31 +703,22 @@ public class Elevator {
                 if(t < 4) {
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release t
-                lock_ids[1] = target_locks[1]; // Release req[0]
-                lock_ids[2] = target_locks[2]; // Release req[1]
-                lock_ids[3] = target_locks[3]; // Release req[2]
-                lock_ids[4] = target_locks[4]; // Release req[3]
-                lockManager.release_locks(lock_ids, 5);
+                lock_ids[0] = target_locks[0]; // Release req[0]
+                lock_ids[1] = target_locks[1]; // Release t
+                lockManager.release_locks(lock_ids, 2);
                 return false;
             }
 
             // SLCO expression wrapper | req[t] = 0.
             private boolean t_work_2_s_0_n_2() {
                 if(req[t] == 0) {
-                    lock_ids[0] = target_locks[1]; // Release req[0]
-                    lock_ids[1] = target_locks[2]; // Release req[1]
-                    lock_ids[2] = target_locks[3]; // Release req[2]
-                    lock_ids[3] = target_locks[4]; // Release req[3]
-                    lockManager.release_locks(lock_ids, 4);
+                    lock_ids[0] = target_locks[0]; // Release req[0]
+                    lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release t
-                lock_ids[1] = target_locks[1]; // Release req[0]
-                lock_ids[2] = target_locks[2]; // Release req[1]
-                lock_ids[3] = target_locks[3]; // Release req[2]
-                lock_ids[4] = target_locks[4]; // Release req[3]
-                lockManager.release_locks(lock_ids, 5);
+                lock_ids[0] = target_locks[0]; // Release req[0]
+                lock_ids[1] = target_locks[1]; // Release t
+                lockManager.release_locks(lock_ids, 2);
                 return false;
             }
 
@@ -764,7 +731,7 @@ public class Elevator {
                 }
                 // SLCO assignment | t := t + (2 * ldir) - 1.
                 t = t + (2 * ldir) - 1;
-                lock_ids[0] = target_locks[0]; // Release t
+                lock_ids[0] = target_locks[1]; // Release t
                 lockManager.release_locks(lock_ids, 1);
 
                 currentState = GlobalClass_controllerThread.States.work;
@@ -776,7 +743,7 @@ public class Elevator {
                 // (Superfluous) SLCO expression | true.
 
                 // SLCO assignment | [v := 1] -> v := 1.
-                lock_ids[0] = target_locks[0] = 1; // Acquire v
+                lock_ids[0] = target_locks[0] = 5; // Acquire v
                 lockManager.acquire_locks(lock_ids, 1);
                 v = (1) & 0xff;
                 lock_ids[0] = target_locks[0]; // Release v

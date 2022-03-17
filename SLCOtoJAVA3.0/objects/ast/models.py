@@ -291,7 +291,8 @@ class Variable(SlcoEvaluableNode):
     @property
     def is_class_variable(self) -> bool:
         """Returns ``True`` when the parent object is a class, ``False`` otherwise."""
-        return isinstance(self.parent, Class)
+        # Do not consider class variables class variables when locks should not be generated.
+        return not settings.no_locks and isinstance(self.parent, Class)
 
 
 class Type(SlcoNode):
