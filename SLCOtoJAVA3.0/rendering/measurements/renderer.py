@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import List, Union
 
+import settings
 from objects.ast.models import SlcoModel, Transition, Expression, Primary, StateMachine, State
 from rendering.java.renderer import JavaModelRenderer
 
@@ -69,7 +70,8 @@ class LogMeasurementsModelRenderer(JavaModelRenderer):
         result = super().get_model_support_variables(model)
         result.append(
             self.logger_variable_and_static_initialization_template.render(
-                model_name=model.name
+                model_name=model.name,
+                log_settings=settings.settings_abbreviations
             )
         )
         return result

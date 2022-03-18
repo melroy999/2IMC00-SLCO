@@ -75,16 +75,16 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.v > 0);
+    ensures \result == (v > 0);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_idle_0_s_0_n_0() {
-        return c.v > 0;
+        return v > 0;
     }
 
     /*@
@@ -104,10 +104,10 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_0() {
         
@@ -130,7 +130,7 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == \old(c.v > 0);
+    ensures \result == \old(v > 0);
 
     // Declare the support variables.
     yields boolean _guard;
@@ -139,20 +139,20 @@ class GlobalClass_cabinThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     // SLCO transition (p:0, id:0) | idle -> mov | v > 0.
     private boolean execute_transition_idle_0() {
         // SLCO expression | v > 0.
-        //@ ghost _guard = c.v > 0;
+        //@ ghost _guard = v > 0;
         if(!(t_idle_0_s_0_n_0())) {
-            //@ assert !(c.v > 0);
+            //@ assert !(v > 0);
             return false;
         }
-        //@ assert c.v > 0;
+        //@ assert v > 0;
 
         return true;
     }
@@ -175,16 +175,16 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t == c.p);
+    ensures \result == (t == p);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_mov_0_s_0_n_0() {
-        return c.t == c.p;
+        return t == p;
     }
 
     /*@
@@ -204,10 +204,10 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_0() {
         
@@ -230,7 +230,7 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == \old(c.t == c.p);
+    ensures \result == \old(t == p);
 
     // Declare the support variables.
     yields boolean _guard;
@@ -239,20 +239,20 @@ class GlobalClass_cabinThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     // SLCO transition (p:0, id:0) | mov -> open | t = p.
     private boolean execute_transition_mov_0() {
         // SLCO expression | t = p.
-        //@ ghost _guard = c.t == c.p;
+        //@ ghost _guard = t == p;
         if(!(t_mov_0_s_0_n_0())) {
-            //@ assert !(c.t == c.p);
+            //@ assert !(t == p);
             return false;
         }
-        //@ assert c.t == c.p;
+        //@ assert t == p;
 
         return true;
     }
@@ -275,16 +275,16 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t < c.p);
+    ensures \result == (t < p);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_mov_1_s_0_n_0() {
-        return c.t < c.p;
+        return t < p;
     }
 
     /*@
@@ -304,10 +304,10 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_1_s_2() {
         
@@ -330,10 +330,10 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_1() {
         
@@ -356,7 +356,7 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == \old(c.t < c.p);
+    ensures \result == \old(t < p);
 
     // Declare the support variables.
     yields boolean _guard;
@@ -366,27 +366,27 @@ class GlobalClass_cabinThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures _guard ==> (c.p == _rhs_0);
-    ensures !_guard ==> (c.p == \old(c.p));
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures _guard ==> (p == _rhs_0);
+    ensures !_guard ==> (p == \old(p));
+    ensures v == \old(v);
     @*/
     // SLCO transition (p:0, id:1) | mov -> mov | [t < p; p := p - 1].
     private boolean execute_transition_mov_1() {
         // SLCO composite | [t < p; p := p - 1].
         // SLCO expression | t < p.
-        //@ ghost _guard = c.t < c.p;
+        //@ ghost _guard = t < p;
         if(!(t_mov_1_s_0_n_0())) {
-            //@ assert !(c.t < c.p);
+            //@ assert !(t < p);
             return false;
         }
-        //@ assert c.t < c.p;
+        //@ assert t < p;
         // SLCO assignment | p := p - 1.
         range_check_assumption_t_1_s_2();
-        //@ ghost _rhs_0 = c.p - 1;
-        c.p = c.p - 1;
-        //@ assert c.p == _rhs_0;
+        //@ ghost _rhs_0 = p - 1;
+        p = p - 1;
+        //@ assert p == _rhs_0;
 
         return true;
     }
@@ -409,16 +409,16 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t > c.p);
+    ensures \result == (t > p);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_mov_2_s_0_n_0() {
-        return c.t > c.p;
+        return t > p;
     }
 
     /*@
@@ -438,10 +438,10 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_2_s_2() {
         
@@ -464,10 +464,10 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_2() {
         
@@ -490,7 +490,7 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == \old(c.t > c.p);
+    ensures \result == \old(t > p);
 
     // Declare the support variables.
     yields boolean _guard;
@@ -500,27 +500,27 @@ class GlobalClass_cabinThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures _guard ==> (c.p == _rhs_0);
-    ensures !_guard ==> (c.p == \old(c.p));
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures _guard ==> (p == _rhs_0);
+    ensures !_guard ==> (p == \old(p));
+    ensures v == \old(v);
     @*/
     // SLCO transition (p:0, id:2) | mov -> mov | [t > p; p := p + 1].
     private boolean execute_transition_mov_2() {
         // SLCO composite | [t > p; p := p + 1].
         // SLCO expression | t > p.
-        //@ ghost _guard = c.t > c.p;
+        //@ ghost _guard = t > p;
         if(!(t_mov_2_s_0_n_0())) {
-            //@ assert !(c.t > c.p);
+            //@ assert !(t > p);
             return false;
         }
-        //@ assert c.t > c.p;
+        //@ assert t > p;
         // SLCO assignment | p := p + 1.
         range_check_assumption_t_2_s_2();
-        //@ ghost _rhs_0 = c.p + 1;
-        c.p = c.p + 1;
-        //@ assert c.p == _rhs_0;
+        //@ ghost _rhs_0 = p + 1;
+        p = p + 1;
+        //@ assert p == _rhs_0;
 
         return true;
     }
@@ -542,17 +542,17 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Require and ensure that all of the accessed indices are within range.
-    ensures 0 <= c.p && c.p < 4;
+    ensures 0 <= p && p < 4;
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_0_s_3() {
         // Assume that all of the accessed indices are within range.
-        //@ assume 0 <= c.p && c.p < 4;
+        //@ assume 0 <= p && p < 4;
     }
 
     /*@
@@ -572,10 +572,10 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_0_s_4() {
         
@@ -598,10 +598,10 @@ class GlobalClass_cabinThread {
     context Perm(c.v, 1);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_0() {
         
@@ -639,12 +639,12 @@ class GlobalClass_cabinThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures _guard ==> (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == value_open_0_req(_i, _index_0, _rhs_0, \old(c.req[_i])));
-    ensures !_guard ==> (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures _guard ==> (c.v == _rhs_1);
-    ensures !_guard ==> (c.v == \old(c.v));
+    ensures _guard ==> (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == value_open_0_req(_i, _index_0, _rhs_0, \old(req[_i])));
+    ensures !_guard ==> (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures _guard ==> (v == _rhs_1);
+    ensures !_guard ==> (v == \old(v));
     @*/
     // SLCO transition (p:0, id:0) | open -> idle | true | [true; req[p] := 0; v := 0].
     private boolean execute_transition_open_0() {
@@ -657,14 +657,14 @@ class GlobalClass_cabinThread {
         // SLCO assignment | req[p] := 0.
         range_check_assumption_t_0_s_3();
         //@ ghost _rhs_0 = 0;
-        //@ ghost _index_0 = c.p;
-        c.req[c.p] = (0) & 0xff;
-        //@ assert c.req[_index_0] == _rhs_0;
+        //@ ghost _index_0 = p;
+        req[p] = (0) & 0xff;
+        //@ assert req[_index_0] == _rhs_0;
         // SLCO assignment | v := 0.
         range_check_assumption_t_0_s_4();
         //@ ghost _rhs_1 = 0;
-        c.v = (0) & 0xff;
-        //@ assert c.v == _rhs_1;
+        v = (0) & 0xff;
+        //@ assert v == _rhs_1;
 
         return true;
     }
@@ -808,16 +808,16 @@ class GlobalClass_environmentThread {
     context 0 <= 0 && 0 < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.req[0] == 0);
+    ensures \result == (req[0] == 0);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_read_0_s_0_n_0() {
-        return c.req[0] == 0;
+        return req[0] == 0;
     }
 
     /*@
@@ -840,10 +840,10 @@ class GlobalClass_environmentThread {
     ensures 0 <= 0 && 0 < 4;
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_0_s_2() {
         // Assume that all of the accessed indices are within range.
@@ -870,10 +870,10 @@ class GlobalClass_environmentThread {
     ensures 0 <= 0 && 0 < 4;
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_0() {
         // Assume that all of the accessed indices are within range.
@@ -903,7 +903,7 @@ class GlobalClass_environmentThread {
     requires 0 <= 0 && 0 < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == \old(c.req[0] == 0);
+    ensures \result == \old(req[0] == 0);
 
     // Declare the support variables.
     yields boolean _guard;
@@ -914,28 +914,28 @@ class GlobalClass_environmentThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures _guard ==> (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == value_read_0_req(_i, _index_0, _rhs_0, \old(c.req[_i])));
-    ensures !_guard ==> (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures _guard ==> (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == value_read_0_req(_i, _index_0, _rhs_0, \old(req[_i])));
+    ensures !_guard ==> (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     // SLCO transition (p:0, id:0) | read -> read | [req[0] = 0; req[0] := 1].
     private boolean execute_transition_read_0() {
         // SLCO composite | [req[0] = 0; req[0] := 1].
         // SLCO expression | req[0] = 0.
-        //@ ghost _guard = c.req[0] == 0;
+        //@ ghost _guard = req[0] == 0;
         if(!(t_read_0_s_0_n_0())) {
-            //@ assert !(c.req[0] == 0);
+            //@ assert !(req[0] == 0);
             return false;
         }
-        //@ assert c.req[0] == 0;
+        //@ assert req[0] == 0;
         // SLCO assignment | req[0] := 1.
         range_check_assumption_t_0_s_2();
         //@ ghost _rhs_0 = 1;
         //@ ghost _index_0 = 0;
-        c.req[0] = (1) & 0xff;
-        //@ assert c.req[_index_0] == _rhs_0;
+        req[0] = (1) & 0xff;
+        //@ assert req[_index_0] == _rhs_0;
 
         return true;
     }
@@ -961,16 +961,16 @@ class GlobalClass_environmentThread {
     context 0 <= 1 && 1 < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.req[1] == 0);
+    ensures \result == (req[1] == 0);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_read_1_s_0_n_0() {
-        return c.req[1] == 0;
+        return req[1] == 0;
     }
 
     /*@
@@ -993,10 +993,10 @@ class GlobalClass_environmentThread {
     ensures 0 <= 1 && 1 < 4;
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_1_s_2() {
         // Assume that all of the accessed indices are within range.
@@ -1023,10 +1023,10 @@ class GlobalClass_environmentThread {
     ensures 0 <= 1 && 1 < 4;
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_1() {
         // Assume that all of the accessed indices are within range.
@@ -1056,7 +1056,7 @@ class GlobalClass_environmentThread {
     requires 0 <= 1 && 1 < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == \old(c.req[1] == 0);
+    ensures \result == \old(req[1] == 0);
 
     // Declare the support variables.
     yields boolean _guard;
@@ -1067,28 +1067,28 @@ class GlobalClass_environmentThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures _guard ==> (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == value_read_1_req(_i, _index_0, _rhs_0, \old(c.req[_i])));
-    ensures !_guard ==> (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures _guard ==> (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == value_read_1_req(_i, _index_0, _rhs_0, \old(req[_i])));
+    ensures !_guard ==> (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     // SLCO transition (p:0, id:1) | read -> read | [req[1] = 0; req[1] := 1].
     private boolean execute_transition_read_1() {
         // SLCO composite | [req[1] = 0; req[1] := 1].
         // SLCO expression | req[1] = 0.
-        //@ ghost _guard = c.req[1] == 0;
+        //@ ghost _guard = req[1] == 0;
         if(!(t_read_1_s_0_n_0())) {
-            //@ assert !(c.req[1] == 0);
+            //@ assert !(req[1] == 0);
             return false;
         }
-        //@ assert c.req[1] == 0;
+        //@ assert req[1] == 0;
         // SLCO assignment | req[1] := 1.
         range_check_assumption_t_1_s_2();
         //@ ghost _rhs_0 = 1;
         //@ ghost _index_0 = 1;
-        c.req[1] = (1) & 0xff;
-        //@ assert c.req[_index_0] == _rhs_0;
+        req[1] = (1) & 0xff;
+        //@ assert req[_index_0] == _rhs_0;
 
         return true;
     }
@@ -1114,16 +1114,16 @@ class GlobalClass_environmentThread {
     context 0 <= 2 && 2 < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.req[2] == 0);
+    ensures \result == (req[2] == 0);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_read_2_s_0_n_0() {
-        return c.req[2] == 0;
+        return req[2] == 0;
     }
 
     /*@
@@ -1146,10 +1146,10 @@ class GlobalClass_environmentThread {
     ensures 0 <= 2 && 2 < 4;
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_2_s_2() {
         // Assume that all of the accessed indices are within range.
@@ -1176,10 +1176,10 @@ class GlobalClass_environmentThread {
     ensures 0 <= 2 && 2 < 4;
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_2() {
         // Assume that all of the accessed indices are within range.
@@ -1209,7 +1209,7 @@ class GlobalClass_environmentThread {
     requires 0 <= 2 && 2 < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == \old(c.req[2] == 0);
+    ensures \result == \old(req[2] == 0);
 
     // Declare the support variables.
     yields boolean _guard;
@@ -1220,28 +1220,28 @@ class GlobalClass_environmentThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures _guard ==> (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == value_read_2_req(_i, _index_0, _rhs_0, \old(c.req[_i])));
-    ensures !_guard ==> (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures _guard ==> (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == value_read_2_req(_i, _index_0, _rhs_0, \old(req[_i])));
+    ensures !_guard ==> (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     // SLCO transition (p:0, id:2) | read -> read | [req[2] = 0; req[2] := 1].
     private boolean execute_transition_read_2() {
         // SLCO composite | [req[2] = 0; req[2] := 1].
         // SLCO expression | req[2] = 0.
-        //@ ghost _guard = c.req[2] == 0;
+        //@ ghost _guard = req[2] == 0;
         if(!(t_read_2_s_0_n_0())) {
-            //@ assert !(c.req[2] == 0);
+            //@ assert !(req[2] == 0);
             return false;
         }
-        //@ assert c.req[2] == 0;
+        //@ assert req[2] == 0;
         // SLCO assignment | req[2] := 1.
         range_check_assumption_t_2_s_2();
         //@ ghost _rhs_0 = 1;
         //@ ghost _index_0 = 2;
-        c.req[2] = (1) & 0xff;
-        //@ assert c.req[_index_0] == _rhs_0;
+        req[2] = (1) & 0xff;
+        //@ assert req[_index_0] == _rhs_0;
 
         return true;
     }
@@ -1267,16 +1267,16 @@ class GlobalClass_environmentThread {
     context 0 <= 3 && 3 < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.req[3] == 0);
+    ensures \result == (req[3] == 0);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_read_3_s_0_n_0() {
-        return c.req[3] == 0;
+        return req[3] == 0;
     }
 
     /*@
@@ -1299,10 +1299,10 @@ class GlobalClass_environmentThread {
     ensures 0 <= 3 && 3 < 4;
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_3_s_2() {
         // Assume that all of the accessed indices are within range.
@@ -1329,10 +1329,10 @@ class GlobalClass_environmentThread {
     ensures 0 <= 3 && 3 < 4;
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_3() {
         // Assume that all of the accessed indices are within range.
@@ -1362,7 +1362,7 @@ class GlobalClass_environmentThread {
     requires 0 <= 3 && 3 < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == \old(c.req[3] == 0);
+    ensures \result == \old(req[3] == 0);
 
     // Declare the support variables.
     yields boolean _guard;
@@ -1373,28 +1373,28 @@ class GlobalClass_environmentThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures _guard ==> (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == value_read_3_req(_i, _index_0, _rhs_0, \old(c.req[_i])));
-    ensures !_guard ==> (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures _guard ==> (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == value_read_3_req(_i, _index_0, _rhs_0, \old(req[_i])));
+    ensures !_guard ==> (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     // SLCO transition (p:0, id:3) | read -> read | [req[3] = 0; req[3] := 1].
     private boolean execute_transition_read_3() {
         // SLCO composite | [req[3] = 0; req[3] := 1].
         // SLCO expression | req[3] = 0.
-        //@ ghost _guard = c.req[3] == 0;
+        //@ ghost _guard = req[3] == 0;
         if(!(t_read_3_s_0_n_0())) {
-            //@ assert !(c.req[3] == 0);
+            //@ assert !(req[3] == 0);
             return false;
         }
-        //@ assert c.req[3] == 0;
+        //@ assert req[3] == 0;
         // SLCO assignment | req[3] := 1.
         range_check_assumption_t_3_s_2();
         //@ ghost _rhs_0 = 1;
         //@ ghost _index_0 = 3;
-        c.req[3] = (1) & 0xff;
-        //@ assert c.req[_index_0] == _rhs_0;
+        req[3] = (1) & 0xff;
+        //@ assert req[_index_0] == _rhs_0;
 
         return true;
     }
@@ -1493,19 +1493,19 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.v == 0);
+    ensures \result == (v == 0);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_wait_0_s_0_n_0() {
-        return c.v == 0;
+        return v == 0;
     }
 
     /*@
@@ -1531,10 +1531,10 @@ class GlobalClass_controllerThread {
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_0_s_2() {
         
@@ -1563,10 +1563,10 @@ class GlobalClass_controllerThread {
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_0() {
         
@@ -1592,7 +1592,7 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == \old(c.v == 0);
+    ensures \result == \old(v == 0);
 
     // Declare the support variables.
     yields boolean _guard;
@@ -1602,28 +1602,28 @@ class GlobalClass_controllerThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures _guard ==> (c.t == _rhs_0);
-    ensures !_guard ==> (c.t == \old(c.t));
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures _guard ==> (t == _rhs_0);
+    ensures !_guard ==> (t == \old(t));
+    ensures p == \old(p);
+    ensures v == \old(v);
     ensures ldir == \old(ldir);
     @*/
     // SLCO transition (p:0, id:0) | wait -> work | [v = 0; t := t + (2 * ldir) - 1].
     private boolean execute_transition_wait_0() {
         // SLCO composite | [v = 0; t := t + (2 * ldir) - 1].
         // SLCO expression | v = 0.
-        //@ ghost _guard = c.v == 0;
+        //@ ghost _guard = v == 0;
         if(!(t_wait_0_s_0_n_0())) {
-            //@ assert !(c.v == 0);
+            //@ assert !(v == 0);
             return false;
         }
-        //@ assert c.v == 0;
+        //@ assert v == 0;
         // SLCO assignment | t := t + (2 * ldir) - 1.
         range_check_assumption_t_0_s_2();
-        //@ ghost _rhs_0 = c.t + (2 * ldir) - 1;
-        c.t = c.t + (2 * ldir) - 1;
-        //@ assert c.t == _rhs_0;
+        //@ ghost _rhs_0 = t + (2 * ldir) - 1;
+        t = t + (2 * ldir) - 1;
+        //@ assert t == _rhs_0;
 
         return true;
     }
@@ -1649,19 +1649,19 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t < 0);
+    ensures \result == (t < 0);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_work_0_s_0_n_0() {
-        return c.t < 0;
+        return t < 0;
     }
 
     // SLCO expression wrapper | t = 4.
@@ -1685,19 +1685,19 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t == 4);
+    ensures \result == (t == 4);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_work_0_s_0_n_1() {
-        return c.t == 4;
+        return t == 4;
     }
 
     // SLCO expression wrapper | t < 0 or t = 4.
@@ -1721,16 +1721,16 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t < 0 || c.t == 4);
+    ensures \result == (t < 0 || t == 4);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_work_0_s_0_n_2() {
         return t_work_0_s_0_n_0() || t_work_0_s_0_n_1();
@@ -1759,10 +1759,10 @@ class GlobalClass_controllerThread {
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_0_s_2() {
         
@@ -1791,10 +1791,10 @@ class GlobalClass_controllerThread {
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_0() {
         
@@ -1820,7 +1820,7 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == \old(c.t < 0 || c.t == 4);
+    ensures \result == \old(t < 0 || t == 4);
 
     // Declare the support variables.
     yields boolean _guard;
@@ -1830,10 +1830,10 @@ class GlobalClass_controllerThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     ensures _guard ==> (ldir == _rhs_0);
     ensures !_guard ==> (ldir == \old(ldir));
     @*/
@@ -1841,12 +1841,12 @@ class GlobalClass_controllerThread {
     private boolean execute_transition_work_0() {
         // SLCO composite | [t < 0 or t = 4; ldir := 1 - ldir].
         // SLCO expression | t < 0 or t = 4.
-        //@ ghost _guard = c.t < 0 || c.t == 4;
+        //@ ghost _guard = t < 0 || t == 4;
         if(!(t_work_0_s_0_n_2())) {
-            //@ assert !(c.t < 0 || c.t == 4);
+            //@ assert !(t < 0 || t == 4);
             return false;
         }
-        //@ assert c.t < 0 || c.t == 4;
+        //@ assert t < 0 || t == 4;
         // SLCO assignment | ldir := 1 - ldir.
         range_check_assumption_t_0_s_2();
         //@ ghost _rhs_0 = 1 - ldir;
@@ -1877,19 +1877,19 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t >= 0);
+    ensures \result == (t >= 0);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_work_1_s_0_n_0() {
-        return c.t >= 0;
+        return t >= 0;
     }
 
     // SLCO expression wrapper | t < 4.
@@ -1913,19 +1913,19 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t < 4);
+    ensures \result == (t < 4);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_work_1_s_0_n_1() {
-        return c.t < 4;
+        return t < 4;
     }
 
     // SLCO expression wrapper | t >= 0 and t < 4.
@@ -1949,16 +1949,16 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t >= 0 && c.t < 4);
+    ensures \result == (t >= 0 && t < 4);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_work_1_s_0_n_2() {
         return t_work_1_s_0_n_0() && t_work_1_s_0_n_1();
@@ -1985,22 +1985,22 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Require and ensure that all of the accessed indices are within range.
-    context 0 <= c.t && c.t < 4;
+    context 0 <= t && t < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.req[c.t] == 1);
+    ensures \result == (req[t] == 1);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_work_1_s_0_n_3() {
-        return c.req[c.t] == 1;
+        return req[t] == 1;
     }
 
     // SLCO expression wrapper | t >= 0 and t < 4 and req[t] = 1.
@@ -2024,19 +2024,19 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Require and ensure that all of the accessed indices are within range.
-    context 0 <= c.t && c.t < 4;
+    context 0 <= t && t < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t >= 0 && c.t < 4 && c.req[c.t] == 1);
+    ensures \result == (t >= 0 && t < 4 && req[t] == 1);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_work_1_s_0_n_4() {
         return t_work_1_s_0_n_2() && t_work_1_s_0_n_3();
@@ -2062,20 +2062,20 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Require and ensure that all of the accessed indices are within range.
-    ensures 0 <= c.t && c.t < 4;
+    ensures 0 <= t && t < 4;
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_1() {
         // Assume that all of the accessed indices are within range.
-        //@ assume 0 <= c.t && c.t < 4;
+        //@ assume 0 <= t && t < 4;
     }
 
     /*@
@@ -2098,10 +2098,10 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Require and ensure that all of the accessed indices are within range.
-    requires 0 <= c.t && c.t < 4;
+    requires 0 <= t && t < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == \old(c.t >= 0 && c.t < 4 && c.req[c.t] == 1);
+    ensures \result == \old(t >= 0 && t < 4 && req[t] == 1);
 
     // Declare the support variables.
     yields boolean _guard;
@@ -2110,21 +2110,21 @@ class GlobalClass_controllerThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     ensures ldir == \old(ldir);
     @*/
     // SLCO transition (p:0, id:1) | work -> done | t >= 0 and t < 4 and req[t] = 1.
     private boolean execute_transition_work_1() {
         // SLCO expression | t >= 0 and t < 4 and req[t] = 1.
-        //@ ghost _guard = c.t >= 0 && c.t < 4 && c.req[c.t] == 1;
+        //@ ghost _guard = t >= 0 && t < 4 && req[t] == 1;
         if(!(t_work_1_s_0_n_4())) {
-            //@ assert !(c.t >= 0 && c.t < 4 && c.req[c.t] == 1);
+            //@ assert !(t >= 0 && t < 4 && req[t] == 1);
             return false;
         }
-        //@ assert c.t >= 0 && c.t < 4 && c.req[c.t] == 1;
+        //@ assert t >= 0 && t < 4 && req[t] == 1;
 
         return true;
     }
@@ -2150,19 +2150,19 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t >= 0);
+    ensures \result == (t >= 0);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_work_2_s_0_n_0() {
-        return c.t >= 0;
+        return t >= 0;
     }
 
     // SLCO expression wrapper | t < 4.
@@ -2186,19 +2186,19 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t < 4);
+    ensures \result == (t < 4);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_work_2_s_0_n_1() {
-        return c.t < 4;
+        return t < 4;
     }
 
     // SLCO expression wrapper | t >= 0 and t < 4.
@@ -2222,16 +2222,16 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t >= 0 && c.t < 4);
+    ensures \result == (t >= 0 && t < 4);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_work_2_s_0_n_2() {
         return t_work_2_s_0_n_0() && t_work_2_s_0_n_1();
@@ -2258,22 +2258,22 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Require and ensure that all of the accessed indices are within range.
-    context 0 <= c.t && c.t < 4;
+    context 0 <= t && t < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.req[c.t] == 0);
+    ensures \result == (req[t] == 0);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_work_2_s_0_n_3() {
-        return c.req[c.t] == 0;
+        return req[t] == 0;
     }
 
     // SLCO expression wrapper | t >= 0 and t < 4 and req[t] = 0.
@@ -2297,19 +2297,19 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Require and ensure that all of the accessed indices are within range.
-    context 0 <= c.t && c.t < 4;
+    context 0 <= t && t < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == (c.t >= 0 && c.t < 4 && c.req[c.t] == 0);
+    ensures \result == (t >= 0 && t < 4 && req[t] == 0);
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private boolean t_work_2_s_0_n_4() {
         return t_work_2_s_0_n_2() && t_work_2_s_0_n_3();
@@ -2338,10 +2338,10 @@ class GlobalClass_controllerThread {
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_2_s_2() {
         
@@ -2367,20 +2367,20 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Require and ensure that all of the accessed indices are within range.
-    ensures 0 <= c.t && c.t < 4;
+    ensures 0 <= t && t < 4;
 
     // Ensure that all state machine variable values remain unchanged.
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_2() {
         // Assume that all of the accessed indices are within range.
-        //@ assume 0 <= c.t && c.t < 4;
+        //@ assume 0 <= t && t < 4;
     }
 
     /*@
@@ -2403,10 +2403,10 @@ class GlobalClass_controllerThread {
     context Perm(c.v, 1);
 
     // Require and ensure that all of the accessed indices are within range.
-    requires 0 <= c.t && c.t < 4;
+    requires 0 <= t && t < 4;
 
     // Ensure that the result of the function is equivalent to the target statement.
-    ensures \result == \old(c.t >= 0 && c.t < 4 && c.req[c.t] == 0);
+    ensures \result == \old(t >= 0 && t < 4 && req[t] == 0);
 
     // Declare the support variables.
     yields boolean _guard;
@@ -2416,28 +2416,28 @@ class GlobalClass_controllerThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures _guard ==> (c.t == _rhs_0);
-    ensures !_guard ==> (c.t == \old(c.t));
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures _guard ==> (t == _rhs_0);
+    ensures !_guard ==> (t == \old(t));
+    ensures p == \old(p);
+    ensures v == \old(v);
     ensures ldir == \old(ldir);
     @*/
     // SLCO transition (p:0, id:2) | work -> work | [t >= 0 and t < 4 and req[t] = 0; t := t + (2 * ldir) - 1].
     private boolean execute_transition_work_2() {
         // SLCO composite | [t >= 0 and t < 4 and req[t] = 0; t := t + (2 * ldir) - 1].
         // SLCO expression | t >= 0 and t < 4 and req[t] = 0.
-        //@ ghost _guard = c.t >= 0 && c.t < 4 && c.req[c.t] == 0;
+        //@ ghost _guard = t >= 0 && t < 4 && req[t] == 0;
         if(!(t_work_2_s_0_n_4())) {
-            //@ assert !(c.t >= 0 && c.t < 4 && c.req[c.t] == 0);
+            //@ assert !(t >= 0 && t < 4 && req[t] == 0);
             return false;
         }
-        //@ assert c.t >= 0 && c.t < 4 && c.req[c.t] == 0;
+        //@ assert t >= 0 && t < 4 && req[t] == 0;
         // SLCO assignment | t := t + (2 * ldir) - 1.
         range_check_assumption_t_2_s_2();
-        //@ ghost _rhs_0 = c.t + (2 * ldir) - 1;
-        c.t = c.t + (2 * ldir) - 1;
-        //@ assert c.t == _rhs_0;
+        //@ ghost _rhs_0 = t + (2 * ldir) - 1;
+        t = t + (2 * ldir) - 1;
+        //@ assert t == _rhs_0;
 
         return true;
     }
@@ -2465,10 +2465,10 @@ class GlobalClass_controllerThread {
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_0_s_2() {
         
@@ -2497,10 +2497,10 @@ class GlobalClass_controllerThread {
     ensures ldir == \old(ldir);
 
     // Ensure that all class variable values remain unchanged.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures c.v == \old(c.v);
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures v == \old(v);
     @*/
     private void range_check_assumption_t_0() {
         
@@ -2536,11 +2536,11 @@ class GlobalClass_controllerThread {
     ensures \result == _guard;
 
     // Ensure that the appropriate values are changed, and if so, only when the guard holds true.
-    ensures (\forall* int _i; 0 <= _i && _i < c.req.length; c.req[_i] == \old(c.req[_i]));
-    ensures c.t == \old(c.t);
-    ensures c.p == \old(c.p);
-    ensures _guard ==> (c.v == _rhs_0);
-    ensures !_guard ==> (c.v == \old(c.v));
+    ensures (\forall* int _i; 0 <= _i && _i < req.length; req[_i] == \old(req[_i]));
+    ensures t == \old(t);
+    ensures p == \old(p);
+    ensures _guard ==> (v == _rhs_0);
+    ensures !_guard ==> (v == \old(v));
     ensures ldir == \old(ldir);
     @*/
     // SLCO transition (p:0, id:0) | done -> wait | true | v := 1.
@@ -2551,8 +2551,8 @@ class GlobalClass_controllerThread {
         // SLCO assignment | [v := 1] -> v := 1.
         range_check_assumption_t_0_s_2();
         //@ ghost _rhs_0 = 1;
-        c.v = (1) & 0xff;
-        //@ assert c.v == _rhs_0;
+        v = (1) & 0xff;
+        //@ assert v == _rhs_0;
 
         return true;
     }

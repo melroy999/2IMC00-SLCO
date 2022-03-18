@@ -38,11 +38,51 @@ iteration_limit = 0
 # Set the number of seconds the state machines within the model run.
 running_time = 0
 
+# A string to be included during logging.
+settings_abbreviations = ""
+
+
+def set_settings_abbreviations(parameters):
+    """Initialize the settings abbreviations string"""
+    global model_folder, model_name, use_random_pick, no_deterministic_structures, use_full_smt_dsc, atomic_sequential,\
+        no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, iteration_limit, \
+        running_time, settings_abbreviations
+    included_settings = []
+    if use_random_pick != parameters.use_random_pick:
+        included_settings.append("URP")
+    if no_deterministic_structures != parameters.no_deterministic_structures:
+        included_settings.append("NDS")
+    if use_full_smt_dsc != parameters.use_full_smt_dsc:
+        included_settings.append("UFD")
+
+    if atomic_sequential != parameters.atomic_sequential:
+        included_settings.append("AS")
+    if no_locks != parameters.no_locks:
+        included_settings.append("NL")
+    if statement_level_locking != parameters.statement_level_locking:
+        included_settings.append("SLL")
+    if lock_array != parameters.lock_array:
+        included_settings.append("LA")
+
+    if verify_locks != parameters.verify_locks:
+        included_settings.append("VL")
+    if iteration_limit != parameters.iteration_limit:
+        included_settings.append(f"I={parameters.iteration_limit}")
+    if running_time != parameters.running_time:
+        included_settings.append(f"T={parameters.running_time}s")
+
+    included_settings.sort()
+    settings_abbreviations = "" if len(included_settings) == 0 else f'[{",".join(included_settings)}]'
+
 
 def init(parameters):
     """Initialize the global variables, defining the settings of the program"""
     global model_folder, model_name, use_random_pick, no_deterministic_structures, use_full_smt_dsc, atomic_sequential,\
-        no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, iteration_limit, running_time
+        no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, iteration_limit, \
+        running_time
+
+    # Add abbreviations such that used settings can be easily tracked.
+    set_settings_abbreviations(parameters)
 
     # Add the name of the model and the location.
     model_folder, model_name = os.path.split(parameters.model)

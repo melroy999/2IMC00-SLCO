@@ -3,6 +3,7 @@ private static final Logger logger;
 static {
     String log_date = DateTimeFormatter.ISO_INSTANT.format(Instant.now()).replaceAll(":", ".");
     String log_name = "{{ model_name }}";
-    MainMapLookup.setMainArguments("log_date", log_date, "log_name", log_name);
+    String log_settings = "{{ log_settings }}";
+    MainMapLookup.setMainArguments("log_date", log_date, "log_settings", log_settings, "log_name", log_name);
     logger = LogManager.getLogger();
 }
