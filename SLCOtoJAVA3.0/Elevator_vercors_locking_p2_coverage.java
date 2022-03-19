@@ -69,7 +69,8 @@ class GlobalClass_cabinThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_idle_0_s_0_n_0() {
-        return v > 0;
+        //@ assume Perm(c.v, 1);
+        return c.v > 0;
     }
 
     /*@
@@ -101,7 +102,9 @@ class GlobalClass_cabinThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_mov_0_s_0_n_0() {
-        return t == p;
+        //@ assume Perm(c.t, 1);
+        //@ assume Perm(c.p, 1);
+        return c.t == c.p;
     }
 
     /*@
@@ -133,7 +136,9 @@ class GlobalClass_cabinThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_mov_1_s_0_n_0() {
-        return t < p;
+        //@ assume Perm(c.t, 1);
+        //@ assume Perm(c.p, 1);
+        return c.t < c.p;
     }
 
     /*@
@@ -165,7 +170,8 @@ class GlobalClass_cabinThread {
     @*/
     private boolean t_mov_1_s_1() {
         // SLCO assignment | p := p - 1.
-        p = p - 1;
+        //@ assume Perm(c.p, 1);
+        c.p = c.p - 1;
     }
 
     // SLCO expression wrapper | t > p.
@@ -180,7 +186,9 @@ class GlobalClass_cabinThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_mov_2_s_0_n_0() {
-        return t > p;
+        //@ assume Perm(c.t, 1);
+        //@ assume Perm(c.p, 1);
+        return c.t > c.p;
     }
 
     /*@
@@ -212,7 +220,8 @@ class GlobalClass_cabinThread {
     @*/
     private boolean t_mov_2_s_1() {
         // SLCO assignment | p := p + 1.
-        p = p + 1;
+        //@ assume Perm(c.p, 1);
+        c.p = c.p + 1;
     }
 
     /*@
@@ -255,8 +264,10 @@ class GlobalClass_cabinThread {
     @*/
     private boolean t_open_0_s_2() {
         // SLCO assignment | req[p] := 0.
-        //@ assume 0 <= p && p < 4;
-        req[p] = (0) & 0xff;
+        //@ assume Perm(c.p, 1);
+        //@ assume 0 <= c.p && c.p < 4;
+        //@ assume Perm(c.req[c.p], 1);
+        c.req[c.p] = (0) & 0xff;
     }
 
     /*@
@@ -271,7 +282,8 @@ class GlobalClass_cabinThread {
     @*/
     private boolean t_open_0_s_3() {
         // SLCO assignment | v := 0.
-        v = (0) & 0xff;
+        //@ assume Perm(c.v, 1);
+        c.v = (0) & 0xff;
     }
 }
 
@@ -312,7 +324,8 @@ class GlobalClass_environmentThread {
     @*/
     private boolean t_read_0_s_0_n_0() {
         //@ assume 0 <= 0 && 0 < 4;
-        return req[0] == 0;
+        //@ assume Perm(c.req[0], 1);
+        return c.req[0] == 0;
     }
 
     /*@
@@ -345,7 +358,8 @@ class GlobalClass_environmentThread {
     private boolean t_read_0_s_1() {
         // SLCO assignment | req[0] := 1.
         //@ assume 0 <= 0 && 0 < 4;
-        req[0] = (1) & 0xff;
+        //@ assume Perm(c.req[0], 1);
+        c.req[0] = (1) & 0xff;
     }
 
     // SLCO expression wrapper | req[1] = 0.
@@ -361,7 +375,8 @@ class GlobalClass_environmentThread {
     @*/
     private boolean t_read_1_s_0_n_0() {
         //@ assume 0 <= 1 && 1 < 4;
-        return req[1] == 0;
+        //@ assume Perm(c.req[1], 1);
+        return c.req[1] == 0;
     }
 
     /*@
@@ -394,7 +409,8 @@ class GlobalClass_environmentThread {
     private boolean t_read_1_s_1() {
         // SLCO assignment | req[1] := 1.
         //@ assume 0 <= 1 && 1 < 4;
-        req[1] = (1) & 0xff;
+        //@ assume Perm(c.req[1], 1);
+        c.req[1] = (1) & 0xff;
     }
 
     // SLCO expression wrapper | req[2] = 0.
@@ -410,7 +426,8 @@ class GlobalClass_environmentThread {
     @*/
     private boolean t_read_2_s_0_n_0() {
         //@ assume 0 <= 2 && 2 < 4;
-        return req[2] == 0;
+        //@ assume Perm(c.req[2], 1);
+        return c.req[2] == 0;
     }
 
     /*@
@@ -443,7 +460,8 @@ class GlobalClass_environmentThread {
     private boolean t_read_2_s_1() {
         // SLCO assignment | req[2] := 1.
         //@ assume 0 <= 2 && 2 < 4;
-        req[2] = (1) & 0xff;
+        //@ assume Perm(c.req[2], 1);
+        c.req[2] = (1) & 0xff;
     }
 
     // SLCO expression wrapper | req[3] = 0.
@@ -459,7 +477,8 @@ class GlobalClass_environmentThread {
     @*/
     private boolean t_read_3_s_0_n_0() {
         //@ assume 0 <= 3 && 3 < 4;
-        return req[3] == 0;
+        //@ assume Perm(c.req[3], 1);
+        return c.req[3] == 0;
     }
 
     /*@
@@ -492,7 +511,8 @@ class GlobalClass_environmentThread {
     private boolean t_read_3_s_1() {
         // SLCO assignment | req[3] := 1.
         //@ assume 0 <= 3 && 3 < 4;
-        req[3] = (1) & 0xff;
+        //@ assume Perm(c.req[3], 1);
+        c.req[3] = (1) & 0xff;
     }
 }
 
@@ -541,7 +561,8 @@ class GlobalClass_controllerThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_wait_0_s_0_n_0() {
-        return v == 0;
+        //@ assume Perm(c.v, 1);
+        return c.v == 0;
     }
 
     /*@
@@ -579,7 +600,8 @@ class GlobalClass_controllerThread {
     @*/
     private boolean t_wait_0_s_1() {
         // SLCO assignment | t := t + (2 * ldir) - 1.
-        t = t + (2 * ldir) - 1;
+        //@ assume Perm(c.t, 1);
+        c.t = c.t + (2 * ldir) - 1;
     }
 
     // SLCO expression wrapper | t < 0.
@@ -597,7 +619,8 @@ class GlobalClass_controllerThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_work_0_s_0_n_0() {
-        return t < 0;
+        //@ assume Perm(c.t, 1);
+        return c.t < 0;
     }
 
     // SLCO expression wrapper | t = 4.
@@ -615,7 +638,8 @@ class GlobalClass_controllerThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_work_0_s_0_n_1() {
-        return t == 4;
+        //@ assume Perm(c.t, 1);
+        return c.t == 4;
     }
 
     // SLCO expression wrapper | t < 0 or t = 4.
@@ -689,7 +713,8 @@ class GlobalClass_controllerThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_work_1_s_0_n_0() {
-        return t >= 0;
+        //@ assume Perm(c.t, 1);
+        return c.t >= 0;
     }
 
     // SLCO expression wrapper | t < 4.
@@ -707,7 +732,8 @@ class GlobalClass_controllerThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_work_1_s_0_n_1() {
-        return t < 4;
+        //@ assume Perm(c.t, 1);
+        return c.t < 4;
     }
 
     // SLCO expression wrapper | t >= 0 and t < 4.
@@ -743,8 +769,10 @@ class GlobalClass_controllerThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_work_1_s_0_n_3() {
-        //@ assume 0 <= t && t < 4;
-        return req[t] == 1;
+        //@ assume Perm(c.t, 1);
+        //@ assume 0 <= c.t && c.t < 4;
+        //@ assume Perm(c.req[c.t], 1); // Lock ids 5
+        return c.req[c.t] == 1;
     }
 
     // SLCO expression wrapper | t >= 0 and t < 4 and req[t] = 1.
@@ -800,7 +828,8 @@ class GlobalClass_controllerThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_work_2_s_0_n_0() {
-        return t >= 0;
+        //@ assume Perm(c.t, 1);
+        return c.t >= 0;
     }
 
     // SLCO expression wrapper | t < 4.
@@ -818,7 +847,8 @@ class GlobalClass_controllerThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_work_2_s_0_n_1() {
-        return t < 4;
+        //@ assume Perm(c.t, 1);
+        return c.t < 4;
     }
 
     // SLCO expression wrapper | t >= 0 and t < 4.
@@ -854,8 +884,13 @@ class GlobalClass_controllerThread {
     context c.req != null && c.req.length == 4;
     @*/
     private boolean t_work_2_s_0_n_3() {
-        //@ assume 0 <= t && t < 4;
-        return req[t] == 0;
+        //@ assume Perm(c.t, 1);
+        //@ assume 0 <= c.t && c.t < 4;
+        //@ assume Perm(c.req[0], 1); // Lock ids 3
+        //@ assume Perm(c.req[1], 1); // Lock ids 4
+        //@ assume Perm(c.req[2], 1); // Lock ids 1
+        //@ assume Perm(c.req[3], 1); // Lock ids 2
+        return c.req[c.t] == 0;
     }
 
     // SLCO expression wrapper | t >= 0 and t < 4 and req[t] = 0.
@@ -911,7 +946,8 @@ class GlobalClass_controllerThread {
     @*/
     private boolean t_work_2_s_1() {
         // SLCO assignment | t := t + (2 * ldir) - 1.
-        t = t + (2 * ldir) - 1;
+        //@ assume Perm(c.t, 1);
+        c.t = c.t + (2 * ldir) - 1;
     }
 
     /*@
@@ -946,7 +982,8 @@ class GlobalClass_controllerThread {
     @*/
     private boolean t_done_0_s_1() {
         // SLCO assignment | [v := 1] -> v := 1.
-        v = (1) & 0xff;
+        //@ assume Perm(c.v, 1);
+        c.v = (1) & 0xff;
     }
 }
 

@@ -62,9 +62,9 @@ public class {{ model_name }} {
 
     // Run the application.
     public static void main(String[] args) {
-        {% if main_support_method_calls | length > 0 %}
-        {% for method_call in main_support_method_calls %}
-        {{ method_call | trim }}
+        {% if main_support_opening_method_calls | length > 0 %}
+        {% for method_call in main_support_opening_method_calls %}
+        {{ method_call | indent(8, False) | trim }}
         {% endfor %}
 
         {% endif %}
@@ -72,5 +72,11 @@ public class {{ model_name }} {
         {{ model_name }} model = new {{ model_name }}();
         model.startThreads();
         model.joinThreads();
+        {% if main_support_closing_method_calls | length > 0 %}
+
+        {% for method_call in main_support_closing_method_calls %}
+        {{ method_call | indent(8, False) | trim }}
+        {% endfor %}
+        {% endif %}
     }
 }
