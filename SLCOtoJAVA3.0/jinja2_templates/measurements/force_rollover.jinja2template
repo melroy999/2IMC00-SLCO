@@ -1,0 +1,6 @@
+// Force a rollover to take place.
+LoggerContext context = LoggerContext.getContext(false);
+Appender appender = context.getConfiguration().getAppender("RollingRandomAccessFile");
+if (appender instanceof RollingRandomAccessFileAppender) {
+    ((RollingRandomAccessFileAppender) appender).getManager().rollover();
+}

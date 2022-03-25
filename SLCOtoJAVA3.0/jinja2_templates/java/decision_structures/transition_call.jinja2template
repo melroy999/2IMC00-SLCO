@@ -4,7 +4,7 @@
 {% endif %}
 if(execute_transition_{{ model_source }}_{{ model_id }}()) {
     {% if transition_call_success_closing_body != "" %}
-    {{ transition_call_success_closing_body | trim }}
+    {{ transition_call_success_closing_body | indent(4, False) | trim }}
     {% endif %}
     return;
 }
