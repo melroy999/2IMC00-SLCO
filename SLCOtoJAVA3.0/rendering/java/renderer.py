@@ -988,11 +988,11 @@ class JavaModelRenderer:
         """Get the support methods that need to be contained within the model."""
         return []
 
-    def get_main_supportive_opening_method_calls(self) -> List[str]:
+    def get_main_supportive_opening_method_calls(self, model: SlcoModel) -> List[str]:
         """Get the supportive method calls that need to be included at the start of the main method."""
         return []
 
-    def get_main_supportive_closing_method_calls(self) -> List[str]:
+    def get_main_supportive_closing_method_calls(self, model: SlcoModel) -> List[str]:
         """Get the supportive method calls that need to be included at the end of the main method."""
         return []
 
@@ -1005,8 +1005,8 @@ class JavaModelRenderer:
         import_statements = self.get_import_statements()
         support_variables = self.get_model_support_variables(model)
         support_methods = self.get_model_support_methods(model)
-        main_support_opening_method_calls = self.get_main_supportive_opening_method_calls()
-        main_support_closing_method_calls = self.get_main_supportive_closing_method_calls()
+        main_support_opening_method_calls = self.get_main_supportive_opening_method_calls(model)
+        main_support_closing_method_calls = self.get_main_supportive_closing_method_calls(model)
 
         # Render the following sections at the last moment to ensure that all recursive steps have finished.
         constructor_contract = self.render_model_constructor_contract(model)
