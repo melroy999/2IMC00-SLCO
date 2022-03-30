@@ -38,8 +38,20 @@ iteration_limit = 0
 # Set the number of seconds the state machines within the model run.
 running_time = 0
 
+# The log file size used during logging measurements.
+log_file_size = "100MB"
+
+# The log buffer size used during logging measurements.
+log_buffer_size = 4194304
+
+# The compression level to be used during the logging.
+compression_level = 3
+
 # A string to be included during logging.
 settings_abbreviations = ""
+
+# The original arguments.
+original_arguments = ""
 
 
 def set_settings_abbreviations(parameters):
@@ -71,15 +83,19 @@ def set_settings_abbreviations(parameters):
     if running_time != parameters.running_time:
         included_settings.append(f"T={parameters.running_time}s")
 
+    included_settings.append(f"LFS={parameters.log_file_size}")
+    included_settings.append(f"LBS={parameters.log_buffer_size}")
+    included_settings.append(f"CL={parameters.compression_level}")
+
     included_settings.sort()
     settings_abbreviations = "" if len(included_settings) == 0 else f'[{",".join(included_settings)}]'
 
 
-def init(parameters):
+def init(parameters, _args):
     """Initialize the global variables, defining the settings of the program"""
     global model_folder, model_name, use_random_pick, no_deterministic_structures, use_full_smt_dsc, atomic_sequential,\
         no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, iteration_limit, \
-        running_time
+        running_time, log_file_size, log_buffer_size, compression_level, original_arguments
 
     # Add abbreviations such that used settings can be easily tracked.
     set_settings_abbreviations(parameters)
@@ -101,3 +117,9 @@ def init(parameters):
     verify_locks = parameters.verify_locks
     iteration_limit = parameters.iteration_limit
     running_time = parameters.running_time
+
+    log_file_size = parameters.log_file_size
+    log_buffer_size = parameters.log_buffer_size
+    compression_level = parameters.compression_level
+
+    original_arguments = " ".join(_args)

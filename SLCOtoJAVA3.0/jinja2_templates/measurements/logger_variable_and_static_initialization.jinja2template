@@ -4,6 +4,16 @@ static {
     String log_date = DateTimeFormatter.ISO_INSTANT.format(Instant.now()).replaceAll(":", ".");
     String log_name = "{{ model_name }}";
     String log_settings = "{{ log_settings }}";
-    MainMapLookup.setMainArguments("log_date", log_date, "log_settings", log_settings, "log_name", log_name);
+    String log_file_size = "{{ log_file_size }}";
+    String log_buffer_size = "{{ log_buffer_size }}";
+    String compression_level = "{{ compression_level }}";
+    MainMapLookup.setMainArguments(
+        "log_date", log_date,
+        "log_settings", log_settings,
+        "log_name", log_name,
+        "log_file_size", log_file_size,
+        "log_buffer_size", log_buffer_size,
+        "compression_level", compression_level
+    );
     logger = LogManager.getLogger();
 }

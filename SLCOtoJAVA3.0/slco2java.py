@@ -109,6 +109,15 @@ def get_argument_parser():
                              "(default: 10000 iterations).")
     parser.add_argument("-running_time", nargs="?", type=int, const=60, default=0, required=False,
                         help="Add a timer to the code, to make program executions finite (in seconds, default: 60s).")
+
+    # Parameters that control the performance measurements code.
+    parser.add_argument("-log_file_size", nargs="?", type=str, default="100MB", required=False,
+                        help="The rollover size for log files generated "
+                             "during logging driven performance measurements.")
+    parser.add_argument("-log_buffer_size", nargs="?", type=int, default=4194304, required=False,
+                        help="The buffer size for the logger used in logging driven performance measurements.")
+    parser.add_argument("-compression_level", nargs="?", type=int, const=3, default=3, required=False,
+                        help="The buffer size for the logger used in logging driven performance measurements.")
     return parser
 
 
@@ -138,7 +147,7 @@ def main(_args):
     logging.info("#" * 180)
 
     # Parse the parameters and save the settings.
-    settings.init(parsed_arguments)
+    settings.init(parsed_arguments, _args)
 
     # Read the model.
     model_path = os.path.join(settings.model_folder, settings.model_name)

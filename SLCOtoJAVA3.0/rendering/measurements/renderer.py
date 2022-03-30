@@ -83,7 +83,10 @@ class LogMeasurementsModelRenderer(JavaModelRenderer):
         result.append(
             self.logger_variable_and_static_initialization_template.render(
                 model_name=model.name,
-                log_settings=settings.settings_abbreviations
+                log_settings=settings.settings_abbreviations,
+                log_file_size=settings.log_file_size,
+                log_buffer_size=settings.log_buffer_size,
+                compression_level=settings.compression_level
             )
         )
         return result
@@ -120,17 +123,17 @@ class LogMeasurementsModelRenderer(JavaModelRenderer):
                     transitions = dict()
                     for t in sm.state_to_transitions[state]:
                         transitions[t.id] = {
+                            "name": str(t),
+                            "id": self.abbreviation_mapping[(c, sm, t)],
                             "source": t.source.name,
                             "target": t.target.name,
                             "priority": t.priority,
-                            "is_excluded": t.is_excluded,
-                            "name": str(t),
-                            "id": self.abbreviation_mapping[(c, sm, t)]
+                            "is_excluded": t.is_excluded
                         }
                     decision_structures[state.name] = {
                         "source": state.name,
-                        "transitions": transitions,
-                        "id": self.abbreviation_mapping[(c, sm, state)]
+                        "id": self.abbreviation_mapping[(c, sm, state)],
+                        "transitions": transitions
                     }
                 state_machines[sm.name] = {
                     "name": sm.name,
@@ -143,6 +146,7 @@ class LogMeasurementsModelRenderer(JavaModelRenderer):
             }
         data = {
             "name": model.name,
+            "settings": settings.original_arguments,
             "classes": classes
         }
 
@@ -163,16 +167,11 @@ class LogMeasurementsModelRenderer(JavaModelRenderer):
         ])
         return result
 
-    def get_main_supportive_opening_method_calls(self, model: SlcoModel) -> List[str]:
-        result = super().get_main_supportive_opening_method_calls(model)
-        return result + [
-            "// Include information about the model.",
-            f"logger.info(\"JSON {self.get_model_information(model)}\");"
-        ]
-
     def get_main_supportive_closing_method_calls(self, model: SlcoModel) -> List[str]:
         result = super().get_main_supportive_closing_method_calls(model)
         return result + [
+            "// Include information about the model.",
+            f"logger.info(\"JSON {self.get_model_information(model)}\");",
             self.sleep_template.render(),
             self.force_rollover_template.render(),
             self.sleep_template.render()
