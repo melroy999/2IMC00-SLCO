@@ -9,12 +9,15 @@ static {
     String log_settings = "{{ log_settings }}";
     String log_file_size = "{{ log_file_size }}";
     String compression_level = "{{ compression_level }}";
+    String log_type = "{{ log_type }}";
+
     MainMapLookup.setMainArguments(
         "log_date", log_date,
         "log_settings", log_settings,
         "log_name", log_name,
         "log_file_size", log_file_size,
-        "compression_level", compression_level
+        "compression_level", compression_level,
+        "log_type", log_type
     );
     logger = LogManager.getLogger();
 }

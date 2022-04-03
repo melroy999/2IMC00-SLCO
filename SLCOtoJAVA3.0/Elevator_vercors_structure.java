@@ -687,13 +687,13 @@ class GlobalClass_cabinThread {
     @*/
     // Attempt to fire a transition starting in state idle.
     private void exec_idle() {
-        // [SEQ.START]
+        // [N_DET.START]
         // SLCO transition (p:0, id:0) | idle -> mov | v > 0.
         //@ ghost range_check_assumption_t_0();
         if(execute_transition_idle_0()) {
             return;
         }
-        // [SEQ.END]
+        // [N_DET.END]
     }
 
     /*@
@@ -714,7 +714,7 @@ class GlobalClass_cabinThread {
     @*/
     // Attempt to fire a transition starting in state mov.
     private void exec_mov() {
-        // [SEQ.START]
+        // [N_DET.START]
         // [DET.START]
         // SLCO transition (p:0, id:0) | mov -> open | t = p.
         //@ ghost range_check_assumption_t_0();
@@ -732,7 +732,7 @@ class GlobalClass_cabinThread {
             return;
         }
         // [DET.END]
-        // [SEQ.END]
+        // [N_DET.END]
     }
 
     /*@
@@ -753,13 +753,13 @@ class GlobalClass_cabinThread {
     @*/
     // Attempt to fire a transition starting in state open.
     private void exec_open() {
-        // [SEQ.START]
+        // [N_DET.START]
         // SLCO transition (p:0, id:0) | open -> idle | true | [true; req[p] := 0; v := 0].
         //@ ghost range_check_assumption_t_0();
         if(execute_transition_open_0()) {
             return;
         }
-        // [SEQ.END]
+        // [N_DET.END]
     }
 }
 
@@ -1417,28 +1417,38 @@ class GlobalClass_environmentThread {
     @*/
     // Attempt to fire a transition starting in state read.
     private void exec_read() {
-        // [SEQ.START]
-        // SLCO transition (p:0, id:0) | read -> read | [req[0] = 0; req[0] := 1].
-        //@ ghost range_check_assumption_t_3();
-        if(execute_transition_read_0()) {
-            return;
+        // [N_DET.START]
+        switch(random.nextInt(4)) {
+            case 0 -> {
+                // SLCO transition (p:0, id:0) | read -> read | [req[0] = 0; req[0] := 1].
+                //@ ghost range_check_assumption_t_3();
+                if(execute_transition_read_0()) {
+                    return;
+                }
+            }
+            case 1 -> {
+                // SLCO transition (p:0, id:1) | read -> read | [req[1] = 0; req[1] := 1].
+                //@ ghost range_check_assumption_t_3();
+                if(execute_transition_read_1()) {
+                    return;
+                }
+            }
+            case 2 -> {
+                // SLCO transition (p:0, id:2) | read -> read | [req[2] = 0; req[2] := 1].
+                //@ ghost range_check_assumption_t_3();
+                if(execute_transition_read_2()) {
+                    return;
+                }
+            }
+            case 3 -> {
+                // SLCO transition (p:0, id:3) | read -> read | [req[3] = 0; req[3] := 1].
+                //@ ghost range_check_assumption_t_3();
+                if(execute_transition_read_3()) {
+                    return;
+                }
+            }
         }
-        // SLCO transition (p:0, id:1) | read -> read | [req[1] = 0; req[1] := 1].
-        //@ ghost range_check_assumption_t_3();
-        if(execute_transition_read_1()) {
-            return;
-        }
-        // SLCO transition (p:0, id:2) | read -> read | [req[2] = 0; req[2] := 1].
-        //@ ghost range_check_assumption_t_3();
-        if(execute_transition_read_2()) {
-            return;
-        }
-        // SLCO transition (p:0, id:3) | read -> read | [req[3] = 0; req[3] := 1].
-        //@ ghost range_check_assumption_t_3();
-        if(execute_transition_read_3()) {
-            return;
-        }
-        // [SEQ.END]
+        // [N_DET.END]
     }
 }
 
@@ -2578,13 +2588,13 @@ class GlobalClass_controllerThread {
     @*/
     // Attempt to fire a transition starting in state wait.
     private void exec_wait() {
-        // [SEQ.START]
+        // [N_DET.START]
         // SLCO transition (p:0, id:0) | wait -> work | [v = 0; t := t + (2 * ldir) - 1].
         //@ ghost range_check_assumption_t_0();
         if(execute_transition_wait_0()) {
             return;
         }
-        // [SEQ.END]
+        // [N_DET.END]
     }
 
     /*@
@@ -2608,7 +2618,7 @@ class GlobalClass_controllerThread {
     @*/
     // Attempt to fire a transition starting in state work.
     private void exec_work() {
-        // [SEQ.START]
+        // [N_DET.START]
         // [DET.START]
         // SLCO transition (p:0, id:0) | work -> wait | [t < 0 or t = 4; ldir := 1 - ldir].
         //@ ghost range_check_assumption_t_0();
@@ -2626,7 +2636,7 @@ class GlobalClass_controllerThread {
             return;
         }
         // [DET.END]
-        // [SEQ.END]
+        // [N_DET.END]
     }
 
     /*@
@@ -2650,13 +2660,13 @@ class GlobalClass_controllerThread {
     @*/
     // Attempt to fire a transition starting in state done.
     private void exec_done() {
-        // [SEQ.START]
+        // [N_DET.START]
         // SLCO transition (p:0, id:0) | done -> wait | true | v := 1.
         //@ ghost range_check_assumption_t_0();
         if(execute_transition_done_0()) {
             return;
         }
-        // [SEQ.END]
+        // [N_DET.END]
     }
 }
 

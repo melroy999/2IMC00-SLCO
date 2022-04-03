@@ -12,7 +12,8 @@ from preprocessing.ast.restructuring import restructure
 from preprocessing.ast.simplification import simplify
 from preprocessing.ast.finalization import finalize
 from rendering.java.renderer import JavaModelRenderer
-from rendering.measurements.renderer import LogMeasurementsModelRenderer
+from rendering.measurements.counting.renderer import CountMeasurementsModelRenderer
+from rendering.measurements.logging.renderer import LogMeasurementsModelRenderer
 from rendering.vercors.locking.renderer import VercorsLockingStructureModelRenderer, \
     VercorsLockingCoverageModelRenderer, VercorsLockingRewriteRulesModelRenderer
 from rendering.vercors.structure.renderer import VercorsStructureModelRenderer
@@ -40,37 +41,43 @@ def render(model, model_folder):
     # Write the program to the desired output file.
     file_name = os.path.join(model_folder, model.name + ".java")
     logging.info(f">>> Rendering model \"{model}\" to file \"{file_name}\"")
-    with open(file_name, 'w') as out_file:
+    with open(file_name, "w") as out_file:
         out_file.write(JavaModelRenderer().render_model(model))
 
     # Write the program to the desired output file.
-    file_name = os.path.join(model_folder, model.name + "_measurements.java")
-    logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
-    with open(file_name, 'w') as out_file:
+    file_name = os.path.join(model_folder, model.name + "_log_based_measurements.java")
+    logging.info(f">>> Rendering measurement model \"{model}\" to file \"{file_name}\"")
+    with open(file_name, "w") as out_file:
         out_file.write(LogMeasurementsModelRenderer().render_model(model))
+
+    # Write the program to the desired output file.
+    file_name = os.path.join(model_folder, model.name + "_count_based_measurements.java")
+    logging.info(f">>> Rendering measurement model \"{model}\" to file \"{file_name}\"")
+    with open(file_name, "w") as out_file:
+        out_file.write(CountMeasurementsModelRenderer().render_model(model))
 
     # Write the program to the desired output file.
     file_name = os.path.join(model_folder, model.name + "_vercors_structure.java")
     logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
-    with open(file_name, 'w') as out_file:
+    with open(file_name, "w") as out_file:
         out_file.write(VercorsStructureModelRenderer().render_model(model))
 
     # Write the program to the desired output file.
     file_name = os.path.join(model_folder, model.name + "_vercors_locking_p1_structure.java")
     logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
-    with open(file_name, 'w') as out_file:
+    with open(file_name, "w") as out_file:
         out_file.write(VercorsLockingStructureModelRenderer().render_model(model))
 
     # Write the program to the desired output file.
     file_name = os.path.join(model_folder, model.name + "_vercors_locking_p2_coverage.java")
     logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
-    with open(file_name, 'w') as out_file:
+    with open(file_name, "w") as out_file:
         out_file.write(VercorsLockingCoverageModelRenderer().render_model(model))
 
     # Write the program to the desired output file.
     file_name = os.path.join(model_folder, model.name + "_vercors_locking_p3_rewrite_rules.java")
     logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
-    with open(file_name, 'w') as out_file:
+    with open(file_name, "w") as out_file:
         out_file.write(VercorsLockingRewriteRulesModelRenderer().render_model(model))
 
 
@@ -80,29 +87,29 @@ def get_argument_parser():
     parser.add_argument("model", help="The SLCO 2.0 model to be converted to a Java program.")
 
     # Parameters that control the locking structure.
-    parser.add_argument("-use_random_pick", action='store_true', help="Use non-deterministic structures instead of "
+    parser.add_argument("-use_random_pick", action="store_true", help="Use non-deterministic structures instead of "
                                                                       "relying on the priority and list ordering.")
-    parser.add_argument("-no_deterministic_structures", action='store_true', help="Disable the creation of "
+    parser.add_argument("-no_deterministic_structures", action="store_true", help="Disable the creation of "
                                                                                   "deterministic structures and force "
                                                                                   "the decision structure to choose a "
                                                                                   "transition arbitrarily.")
-    parser.add_argument("-use_full_smt_dsc", action='store_true', help="(EXPERIMENTAL) Use the alternative algorithm "
+    parser.add_argument("-use_full_smt_dsc", action="store_true", help="(EXPERIMENTAL) Use the alternative algorithm "
                                                                        "for constructing decision structures that uses "
                                                                        "only a single SMT model to assign all "
                                                                        "transitions to groups.")
 
     # Parameters that control the locking mechanism.
-    parser.add_argument("-atomic_sequential", action='store_true', help="Make the sequential decision structures an "
+    parser.add_argument("-atomic_sequential", action="store_true", help="Make the sequential decision structures an "
                                                                         "atomic operation.")
-    parser.add_argument("-visualize_locking_graph", action='store_true', help="Create a graph visualization of the "
+    parser.add_argument("-visualize_locking_graph", action="store_true", help="Create a graph visualization of the "
                                                                               "locking graph.")
-    parser.add_argument("-no_locks", action='store_true', help="Create faulty code that does not perform locking and "
+    parser.add_argument("-no_locks", action="store_true", help="Create faulty code that does not perform locking and "
                                                                "hence will not meet the requirement of atomicity.")
-    parser.add_argument("-statement_level_locking", action='store_true', help="Perform locking at the statement level.")
-    parser.add_argument("-lock_array", action='store_true', help="Lock the array instead of an individual index.")
+    parser.add_argument("-statement_level_locking", action="store_true", help="Perform locking at the statement level.")
+    parser.add_argument("-lock_array", action="store_true", help="Lock the array instead of an individual index.")
 
     # Parameters that control which statements are rendered.
-    parser.add_argument("-verify_locks", action='store_true', help="Add Java statements that verify whether locks have "
+    parser.add_argument("-verify_locks", action="store_true", help="Add Java statements that verify whether locks have "
                                                                    "been acquired before use.")
     parser.add_argument("-iteration_limit", nargs="?", type=int, const=10000, default=0, required=False,
                         help="Produce a transition counter in the code, to make program executions finite "

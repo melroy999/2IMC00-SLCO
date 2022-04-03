@@ -49,6 +49,10 @@ class {{ class_name }}_{{ model_name }}Thread extends Thread implements {{ class
             i++;
             {% endif %}
         }
+        {% if post_execution != "" %}
+
+        {{ post_execution | indent(8, False) | trim }}
+        {% endif %}
     }
 
     // The thread's run method.

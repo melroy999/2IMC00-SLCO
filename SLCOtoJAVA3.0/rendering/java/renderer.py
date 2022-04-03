@@ -741,7 +741,7 @@ class JavaModelRenderer:
     def render_non_deterministic_decision_node(self, model: DecisionNode) -> str:
         """Render the given non-deterministic decision node as Java code."""
         if settings.use_random_pick:
-            return self.render_non_deterministic_decision_node(model)
+            return self.render_pick_random_decision_node(model)
         else:
             return self.render_sequential_decision_node(model)
 
@@ -833,6 +833,10 @@ class JavaModelRenderer:
             default_value = a
         return default_value
 
+    def render_state_machine_post_execution(self, model: StateMachine) -> str:
+        """Render code that needs to be executed after the state machine has finished its run."""
+        return ""
+
     def render_state_machine_constructor_contract(self, model: StateMachine) -> str:
         """Get the contract of the state machine's constructor."""
         return ""
@@ -880,6 +884,7 @@ class JavaModelRenderer:
         constructor_variable_declarations = self.render_state_machine_variable_declarations(model)
         constructor_body = self.render_state_machine_constructor_body(model)
         constructor_contract = self.render_state_machine_constructor_contract(model)
+        post_execution = self.render_state_machine_post_execution(model)
 
         # Render the state machine template.
         return self.state_machine_template.render(
@@ -892,6 +897,7 @@ class JavaModelRenderer:
             constructor_variable_declarations=constructor_variable_declarations,
             constructor_body=constructor_body,
             constructor_contract=constructor_contract,
+            post_execution=post_execution
         )
 
     def render_class_constructor_contract(self, model: Class) -> str:
