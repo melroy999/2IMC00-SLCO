@@ -53,6 +53,15 @@ settings_abbreviations = ""
 # The original arguments.
 original_arguments = ""
 
+# Indicate that models containing vercors verification code needs to be rendered.
+vercors_verification = False
+
+# Indicate that models containing performance measurements needs to be rendered.
+performance_measurements = False
+
+# The name of the root package.
+package_name = ""
+
 
 def set_settings_abbreviations(parameters):
     """Initialize the settings abbreviations string"""
@@ -95,7 +104,8 @@ def init(parameters, _args):
     """Initialize the global variables, defining the settings of the program"""
     global model_folder, model_name, use_random_pick, no_deterministic_structures, use_full_smt_dsc, atomic_sequential,\
         no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, iteration_limit, \
-        running_time, log_file_size, log_buffer_size, compression_level, original_arguments
+        running_time, log_file_size, log_buffer_size, compression_level, original_arguments, vercors_verification, \
+        performance_measurements, package_name
 
     # Add abbreviations such that used settings can be easily tracked.
     set_settings_abbreviations(parameters)
@@ -121,5 +131,9 @@ def init(parameters, _args):
     log_file_size = parameters.log_file_size
     log_buffer_size = parameters.log_buffer_size
     compression_level = parameters.compression_level
+
+    vercors_verification = parameters.vercors_verification
+    performance_measurements = parameters.performance_measurements
+    package_name = parameters.package_name
 
     original_arguments = " ".join(_args)

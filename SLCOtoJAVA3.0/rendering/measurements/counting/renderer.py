@@ -93,6 +93,9 @@ class CountMeasurementsModelRenderer(MeasurementsModelRenderer):
         )
         return result
 
+    def get_package_name(self) -> str:
+        return ".".join(v for v in [super().get_package_name(), "counting"] if v != "")
+
     def get_import_statements(self) -> List[str]:
         # Add the imports needed for the logging system.
         result = super().get_import_statements()

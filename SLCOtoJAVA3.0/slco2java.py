@@ -2,6 +2,7 @@
 import argparse
 import logging
 import os
+import pathlib
 import sys
 
 import settings
@@ -38,47 +39,60 @@ def preprocess(model):
 
 def render(model, model_folder):
     """The translation function."""
+    # Create the result folder.
+    pathlib.Path(os.path.join(model_folder, "results")).mkdir(parents=True, exist_ok=True)
+
     # Write the program to the desired output file.
-    file_name = os.path.join(model_folder, model.name + ".java")
+    file_name = os.path.join(model_folder, "results", model.name + ".java")
     logging.info(f">>> Rendering model \"{model}\" to file \"{file_name}\"")
     with open(file_name, "w") as out_file:
         out_file.write(JavaModelRenderer().render_model(model))
 
-    # Write the program to the desired output file.
-    file_name = os.path.join(model_folder, model.name + "_log_based_measurements.java")
-    logging.info(f">>> Rendering measurement model \"{model}\" to file \"{file_name}\"")
-    with open(file_name, "w") as out_file:
-        out_file.write(LogMeasurementsModelRenderer().render_model(model))
+    if settings.performance_measurements:
+        # Create the logging and counting folders.
+        pathlib.Path(os.path.join(model_folder, "results", "logging")).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(os.path.join(model_folder, "results", "counting")).mkdir(parents=True, exist_ok=True)
 
-    # Write the program to the desired output file.
-    file_name = os.path.join(model_folder, model.name + "_count_based_measurements.java")
-    logging.info(f">>> Rendering measurement model \"{model}\" to file \"{file_name}\"")
-    with open(file_name, "w") as out_file:
-        out_file.write(CountMeasurementsModelRenderer().render_model(model))
+        # Write the program to the desired output file.
+        file_name = os.path.join(model_folder, "results", "logging", model.name + ".java")
+        logging.info(f">>> Rendering measurement model \"{model}\" to file \"{file_name}\"")
+        with open(file_name, "w") as out_file:
+            out_file.write(LogMeasurementsModelRenderer().render_model(model))
 
-    # Write the program to the desired output file.
-    file_name = os.path.join(model_folder, model.name + "_vercors_structure.java")
-    logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
-    with open(file_name, "w") as out_file:
-        out_file.write(VercorsStructureModelRenderer().render_model(model))
+        # Write the program to the desired output file.
+        file_name = os.path.join(model_folder, "results", "counting", model.name + ".java")
+        logging.info(f">>> Rendering measurement model \"{model}\" to file \"{file_name}\"")
+        with open(file_name, "w") as out_file:
+            out_file.write(CountMeasurementsModelRenderer().render_model(model))
 
-    # Write the program to the desired output file.
-    file_name = os.path.join(model_folder, model.name + "_vercors_locking_p1_structure.java")
-    logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
-    with open(file_name, "w") as out_file:
-        out_file.write(VercorsLockingStructureModelRenderer().render_model(model))
+    if settings.vercors_verification:
+        # Create the structure and locking folders.
+        pathlib.Path(os.path.join(model_folder, "results", "vercors", "structure")).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(os.path.join(model_folder, "results", "vercors", "locking")).mkdir(parents=True, exist_ok=True)
 
-    # Write the program to the desired output file.
-    file_name = os.path.join(model_folder, model.name + "_vercors_locking_p2_coverage.java")
-    logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
-    with open(file_name, "w") as out_file:
-        out_file.write(VercorsLockingCoverageModelRenderer().render_model(model))
+        # Write the program to the desired output file.
+        file_name = os.path.join(model_folder, "results", "vercors", "structure", model.name + ".java")
+        logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
+        with open(file_name, "w") as out_file:
+            out_file.write(VercorsStructureModelRenderer().render_model(model))
 
-    # Write the program to the desired output file.
-    file_name = os.path.join(model_folder, model.name + "_vercors_locking_p3_rewrite_rules.java")
-    logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
-    with open(file_name, "w") as out_file:
-        out_file.write(VercorsLockingRewriteRulesModelRenderer().render_model(model))
+        # Write the program to the desired output file.
+        file_name = os.path.join(model_folder, "results", "vercors", "locking", model.name + "_p1_structure.java")
+        logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
+        with open(file_name, "w") as out_file:
+            out_file.write(VercorsLockingStructureModelRenderer().render_model(model))
+
+        # Write the program to the desired output file.
+        file_name = os.path.join(model_folder, "results", "vercors", "locking", model.name + "_p2_coverage.java")
+        logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
+        with open(file_name, "w") as out_file:
+            out_file.write(VercorsLockingCoverageModelRenderer().render_model(model))
+
+        # Write the program to the desired output file.
+        file_name = os.path.join(model_folder, "results", "vercors", "locking", model.name + "_p3_rewrite_rules.java")
+        logging.info(f">>> Rendering vercors model \"{model}\" to file \"{file_name}\"")
+        with open(file_name, "w") as out_file:
+            out_file.write(VercorsLockingRewriteRulesModelRenderer().render_model(model))
 
 
 def get_argument_parser():
@@ -125,6 +139,15 @@ def get_argument_parser():
                         help="The buffer size for the logger used in logging driven performance measurements.")
     parser.add_argument("-compression_level", nargs="?", type=int, const=3, default=3, required=False,
                         help="The buffer size for the logger used in logging driven performance measurements.")
+    parser.add_argument("-package_name", nargs="?", type=str, default="", required=False,
+                        help="The name of the root package the model should be part of.")
+
+    # Control which models are rendered.
+    parser.add_argument("-vercors_verification", action="store_true", help="Render models that uses VerCors to "
+                                                                           "formally verify the generated model.")
+    parser.add_argument("-performance_measurements", action="store_true", help="Render models that uses measure the "
+                                                                               "performance of the generated model.")
+
     return parser
 
 

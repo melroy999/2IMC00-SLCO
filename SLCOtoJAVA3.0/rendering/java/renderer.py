@@ -973,17 +973,29 @@ class JavaModelRenderer:
         """Get the contract of the model's constructor."""
         return ""
 
+    def get_package_name(self) -> str:
+        """Get the package name of the model."""
+        return settings.package_name
+
     def get_import_statements(self) -> List[str]:
         """Get the import statements required to execute the Java code."""
-        import_statements = [
+        import_statements = []
+        if self.get_package_name() != "":
+            import_statements.extend([
+                f"package {self.get_package_name()};",
+                ""
+            ])
+
+        import_statements.extend([
             "import java.util.*;",
             "import java.util.concurrent.locks.ReentrantLock;",
-        ]
+        ])
         if settings.running_time != 0:
             import_statements.extend([
                 "import java.time.Duration;",
                 "import java.time.Instant;"
             ])
+
         return import_statements
 
     def get_model_support_variables(self, model: SlcoModel) -> List[str]:
