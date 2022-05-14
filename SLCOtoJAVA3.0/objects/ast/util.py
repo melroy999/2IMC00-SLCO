@@ -105,7 +105,10 @@ def ast_to_model(model, lookup_table: dict, parent=None):
             result.index = ast_to_model(model.index, lookup_table)
         return result
     elif type_name == "ActionRef":
-        result = ActionRef(lookup_table[model.act])
+        if model.act.name == "tau":
+            result = Primary(target=True)
+        else:
+            result = ActionRef(lookup_table[model.act.name])
         return result
     else:
         raise Exception("Received a model of unknown type %s." % type(model))

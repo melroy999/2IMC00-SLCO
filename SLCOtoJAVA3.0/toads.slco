@@ -1,0 +1,46 @@
+model ToadsAndFrogs {
+    classes
+    	GlobalClass {
+    		variables
+    			Integer[9] a:=[1,1,1,1,0,2,2,2,2]
+    			Integer y:=4
+    			Integer tmin:=0
+    			Integer fmax:=8
+    		state machines
+    			Toad {
+    				initial q
+    				transitions
+    					from q to q { [y>0 and tmin!=y-1 and a[y-1]=1; a[y]:=1; y:=y-1; a[y]:=0] }
+    					from q to q { [y>0 and tmin=y-1 and a[y-1]=1; a[y]:=1; tmin:=y; y:=y-1; a[y]:=0] }
+    					from q to q { [y>1 and tmin!=y-2 and a[y-2]=1 and a[y-1]=2; a[y]:=1; y:=y-2; a[y]:=0] }
+    					from q to q { [y>1 and tmin=y-2 and a[y-2]=1 and a[y-1]=2; a[y]:=1; tmin:=y; y:=y-2; a[y]:=0] }
+                }
+    			Frog {
+    				initial q
+    				transitions
+    					from q to q { [y<8 and fmax!=y+1 and a[y+1]=2; a[y]:=2; y:=y+1; a[y]:=0] }
+    					from q to q { [y<8 and fmax=y+1 and a[y+1]=2; a[y]:=2; fmax:=y; y:=y+1; a[y]:=0] }
+    					from q to q { [y<7 and fmax!=y+2 and a[y+1]=1 and a[y+2]=2; a[y]:=2; y:=y+2; a[y]:=0] }
+    					from q to q { [y<7 and fmax=y+2 and a[y+1]=1 and a[y+2]=2; a[y]:=2; fmax:=y; y:=y+2; a[y]:=0] }
+                }
+    			Control {
+    				initial running
+    				states success failure reset
+    				transitions
+    					from running to success { tmin>y and fmax<y }
+    					from running to failure { y=0 and a[y+1]=1 and a[y+2]=1 }
+    					from running to failure { y=1 and a[y-1]=2 and a[y+1]=1 and a[y+2]=1 }
+    					from running to failure { y>1 and y<7 and a[y-2]=2 and a[y-1]=2 and a[y+1]=1 and a[y+2]=1 }
+    					from running to failure { y=7 and a[y-2]=2 and a[y-1]=2 and a[y+1]=1 }
+    					from running to failure { y=8 and a[y-2]=2 and a[y-1]=2 }
+    					from success to reset
+    					from failure to reset
+    					from reset to running { [
+                            y:=4; tmin:=0; fmax:=8;
+                            a[0]:=1; a[1]:=1; a[2]:=1; a[3]:=1; a[4]:=0; a[5]:=2; a[6]:=2; a[7]:=2; a[8]:=2
+                        ] }
+                }
+    	}
+    objects
+    	globalObject : GlobalClass()
+}
