@@ -4,28 +4,7 @@ import libraries.slcolib
 
 
 # Overwrite the expression statements since they are right-associative instead of left-associative.
-class Expression(object):
-    def __init__(self, parent, left=None, op=None, right=None, terms=None):
-        self.parent = parent
-        if terms is None:
-            self.left = left
-            self.op = op
-            self.right = right
-        else:
-            if len(terms) > 3:
-                self.left = Expression(self, None, None, None, terms[:-2])
-                self.op = terms[-2]
-                self.right = terms[-1]
-            elif len(terms) > 1:
-                self.left = terms[0]
-                self.op = terms[1]
-                self.right = terms[2]
-            else:
-                self.left = terms[0]
-                self.op = ""
-                self.right = None
-
-
+# Moreover, add additional levels such that the order of precedence is equivalent to that of Java.
 class ExprPrec1(object):
     def __init__(self, parent, left, op, right):
         self.parent = parent
@@ -34,7 +13,7 @@ class ExprPrec1(object):
         self.right = right
 
 
-class ExprPrec2(object):
+class GenericExprPrec(object):
     def __init__(self, parent, left=None, op=None, right=None, terms=None):
         self.parent = parent
         if terms is None:
@@ -56,48 +35,39 @@ class ExprPrec2(object):
                 self.right = None
 
 
-class ExprPrec3(object):
+class Expression(GenericExprPrec):
     def __init__(self, parent, left=None, op=None, right=None, terms=None):
-        self.parent = parent
-        if terms is None:
-            self.left = left
-            self.op = op
-            self.right = right
-        else:
-            if len(terms) > 3:
-                self.left = ExprPrec3(self, None, None, None, terms[:-2])
-                self.op = terms[-2]
-                self.right = terms[-1]
-            elif len(terms) > 1:
-                self.left = terms[0]
-                self.op = terms[1]
-                self.right = terms[2]
-            else:
-                self.left = terms[0]
-                self.op = ""
-                self.right = None
+        super().__init__(parent, left, op, right, terms)
 
 
-class ExprPrec4(object):
+class ExprPrec2(GenericExprPrec):
     def __init__(self, parent, left=None, op=None, right=None, terms=None):
-        self.parent = parent
-        if terms is None:
-            self.left = left
-            self.op = op
-            self.right = right
-        else:
-            if len(terms) > 3:
-                self.left = ExprPrec4(self, None, None, None, terms[:-2])
-                self.op = terms[-2]
-                self.right = terms[-1]
-            elif len(terms) > 1:
-                self.left = terms[0]
-                self.op = terms[1]
-                self.right = terms[2]
-            else:
-                self.left = terms[0]
-                self.op = ""
-                self.right = None
+        super().__init__(parent, left, op, right, terms)
+
+
+class ExprPrec3(GenericExprPrec):
+    def __init__(self, parent, left=None, op=None, right=None, terms=None):
+        super().__init__(parent, left, op, right, terms)
+
+
+class ExprPrec4(GenericExprPrec):
+    def __init__(self, parent, left=None, op=None, right=None, terms=None):
+        super().__init__(parent, left, op, right, terms)
+
+
+class ExprPrec5(GenericExprPrec):
+    def __init__(self, parent, left=None, op=None, right=None, terms=None):
+        super().__init__(parent, left, op, right, terms)
+
+
+class ExprPrec6(GenericExprPrec):
+    def __init__(self, parent, left=None, op=None, right=None, terms=None):
+        super().__init__(parent, left, op, right, terms)
+
+
+class ExprPrec7(GenericExprPrec):
+    def __init__(self, parent, left=None, op=None, right=None, terms=None):
+        super().__init__(parent, left, op, right, terms)
 
 
 # Overwrite the functions.
@@ -114,7 +84,7 @@ def read_SLCO_model(m):
     """Read, post process, and type check an SLCO model"""
     # create meta-model
     slco_mm = libraries.slcolib.metamodel_from_file(
-        join(libraries.slcolib.this_folder, "../textx_grammars/slco2_left_associative.tx"),
+        join(libraries.slcolib.this_folder, "../textx_grammars/slco2_revised.tx"),
         autokwd=True,
         classes=[
             libraries.slcolib.Assignment,
@@ -124,6 +94,9 @@ def read_SLCO_model(m):
             ExprPrec2,
             ExprPrec3,
             ExprPrec4,
+            ExprPrec5,
+            ExprPrec6,
+            ExprPrec7,
             libraries.slcolib.Primary,
             libraries.slcolib.ExpressionRef,
             libraries.slcolib.Variable,

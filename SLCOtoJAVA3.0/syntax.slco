@@ -1,13 +1,30 @@
 model Syntax {
 	classes
 	P {
-        variables Boolean a Boolean b Boolean c Boolean d
         state machines
         SM1 {
-            initial SMC0 states SMC1
+            variables Boolean a Boolean b Boolean c Boolean d
+            initial SMC0
             transitions
             from SMC0 to SMC0 {
-                a and b or c and d;
+                (a and b or c and d) = ((a and b) or (c and d));
+            }
+            from SMC0 to SMC0 {
+                (a and b xor c or d) = ((a and (b xor c)) or d);
+            }
+        }
+        SM2 {
+            variables Integer a Integer b Integer c Integer d
+            initial SMC0
+            transitions
+            from SMC0 to SMC0 {
+                (a < 0 = a <= 1) = ((a < 0) = (a <= 1));
+            }
+            from SMC0 to SMC0 {
+                (b > 0 = b >= -1) = ((b > 0) = (b >= -1));
+            }
+            from SMC0 to SMC0 {
+                (b > 0 <> b <= 0) = ((b > 0) != (b <= 0));
             }
         }
 	}

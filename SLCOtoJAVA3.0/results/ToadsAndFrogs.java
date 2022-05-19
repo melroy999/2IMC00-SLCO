@@ -20,10 +20,10 @@ public class ToadsAndFrogs {
         // Instantiate the objects.
         objects = new SLCO_Class[] {
             new GlobalClass(
-                new int[]{ 1, 1, 1, 1, 0, 2, 2, 2, 2 },
                 4,
                 0,
-                8
+                8,
+                new int[]{ 1, 1, 1, 1, 0, 2, 2, 2, 2 }
             )
         };
     }
@@ -69,43 +69,43 @@ public class ToadsAndFrogs {
     // Representation of the SLCO class GlobalClass.
     private static class GlobalClass implements SLCO_Class {
         // The state machine threads.
-        private final Thread T_Toad;
-        private final Thread T_Frog;
-        private final Thread T_Check;
+        private final Thread T_toad;
+        private final Thread T_frog;
+        private final Thread T_control;
 
         // Class variables.
-        private final int[] a;
         private volatile int y;
         private volatile int tmin;
         private volatile int fmax;
+        private final int[] a;
 
-        GlobalClass(int[] a, int y, int tmin, int fmax) {
+        GlobalClass(int y, int tmin, int fmax, int[] a) {
             // Create a lock manager.
             LockManager lockManager = new LockManager(12);
 
             // Instantiate the class variables.
-            this.a = a;
             this.y = y;
             this.tmin = tmin;
             this.fmax = fmax;
+            this.a = a;
 
             // Instantiate the state machine threads and pass on the class' lock manager.
-            T_Toad = new GlobalClass_ToadThread(lockManager);
-            T_Frog = new GlobalClass_FrogThread(lockManager);
-            T_Check = new GlobalClass_CheckThread(lockManager);
+            T_toad = new GlobalClass_toadThread(lockManager);
+            T_frog = new GlobalClass_frogThread(lockManager);
+            T_control = new GlobalClass_controlThread(lockManager);
         }
 
-        // Define the states fot the state machine Toad.
-        interface GlobalClass_ToadThread_States {
+        // Define the states fot the state machine toad.
+        interface GlobalClass_toadThread_States {
             enum States {
                 q
             }
         }
 
-        // Representation of the SLCO state machine Toad.
-        class GlobalClass_ToadThread extends Thread implements GlobalClass_ToadThread_States {
+        // Representation of the SLCO state machine toad.
+        class GlobalClass_toadThread extends Thread implements GlobalClass_toadThread_States {
             // Current state
-            private GlobalClass_ToadThread.States currentState;
+            private GlobalClass_toadThread.States currentState;
 
             // Random number generator to handle non-determinism.
             private final Random random;
@@ -117,8 +117,8 @@ public class ToadsAndFrogs {
             private final int[] lock_ids;
             private final int[] target_locks;
 
-            GlobalClass_ToadThread(LockManager lockManagerInstance) {
-                currentState = GlobalClass_ToadThread.States.q;
+            GlobalClass_toadThread(LockManager lockManagerInstance) {
+                currentState = GlobalClass_toadThread.States.q;
                 lockManager = lockManagerInstance;
                 lock_ids = new int[5];
                 target_locks = new int[5];
@@ -186,7 +186,7 @@ public class ToadsAndFrogs {
                 lock_ids[1] = target_locks[2]; // Release a[(y - 1)]
                 lockManager.release_locks(lock_ids, 2);
 
-                currentState = GlobalClass_ToadThread.States.q;
+                currentState = GlobalClass_toadThread.States.q;
                 return true;
             }
 
@@ -254,7 +254,7 @@ public class ToadsAndFrogs {
                 lock_ids[1] = target_locks[2]; // Release a[(y - 1)]
                 lockManager.release_locks(lock_ids, 2);
 
-                currentState = GlobalClass_ToadThread.States.q;
+                currentState = GlobalClass_toadThread.States.q;
                 return true;
             }
 
@@ -289,7 +289,7 @@ public class ToadsAndFrogs {
             private boolean t_q_2_s_0_n_2() {
                 lock_ids[0] = target_locks[2] = 3 + (y - 1); // Acquire a[(y - 1)]
                 lock_ids[1] = target_locks[3] = 3 + y; // Acquire a[y]
-                lock_ids[2] = target_locks[4] = 3 + (y - 2); // Acquire a[(y - 2)]
+                lock_ids[2] = target_locks[4] = 3 + y - 2; // Acquire a[y - 2]
                 lockManager.acquire_locks(lock_ids, 3);
                 if(a[y - 2] == 1) {
                     return true;
@@ -297,7 +297,7 @@ public class ToadsAndFrogs {
                 lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[2]; // Release a[(y - 1)]
                 lock_ids[2] = target_locks[3]; // Release a[y]
-                lock_ids[3] = target_locks[4]; // Release a[(y - 2)]
+                lock_ids[3] = target_locks[4]; // Release a[y - 2]
                 lockManager.release_locks(lock_ids, 4);
                 return false;
             }
@@ -312,7 +312,7 @@ public class ToadsAndFrogs {
                 lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[2]; // Release a[(y - 1)]
                 lock_ids[2] = target_locks[3]; // Release a[y]
-                lock_ids[3] = target_locks[4]; // Release a[(y - 2)]
+                lock_ids[3] = target_locks[4]; // Release a[y - 2]
                 lockManager.release_locks(lock_ids, 4);
                 return false;
             }
@@ -333,10 +333,10 @@ public class ToadsAndFrogs {
                 // SLCO assignment | a[y] := 0.
                 a[y] = 0;
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[4]; // Release a[(y - 2)]
+                lock_ids[1] = target_locks[4]; // Release a[y - 2]
                 lockManager.release_locks(lock_ids, 2);
 
-                currentState = GlobalClass_ToadThread.States.q;
+                currentState = GlobalClass_toadThread.States.q;
                 return true;
             }
 
@@ -369,7 +369,7 @@ public class ToadsAndFrogs {
             private boolean t_q_3_s_0_n_2() {
                 lock_ids[0] = target_locks[2] = 3 + (y - 1); // Acquire a[(y - 1)]
                 lock_ids[1] = target_locks[3] = 3 + y; // Acquire a[y]
-                lock_ids[2] = target_locks[4] = 3 + (y - 2); // Acquire a[(y - 2)]
+                lock_ids[2] = target_locks[4] = 3 + y - 2; // Acquire a[y - 2]
                 lockManager.acquire_locks(lock_ids, 3);
                 if(a[y - 2] == 1) {
                     return true;
@@ -378,7 +378,7 @@ public class ToadsAndFrogs {
                 lock_ids[1] = target_locks[1]; // Release tmin
                 lock_ids[2] = target_locks[2]; // Release a[(y - 1)]
                 lock_ids[3] = target_locks[3]; // Release a[y]
-                lock_ids[4] = target_locks[4]; // Release a[(y - 2)]
+                lock_ids[4] = target_locks[4]; // Release a[y - 2]
                 lockManager.release_locks(lock_ids, 5);
                 return false;
             }
@@ -394,7 +394,7 @@ public class ToadsAndFrogs {
                 lock_ids[1] = target_locks[1]; // Release tmin
                 lock_ids[2] = target_locks[2]; // Release a[(y - 1)]
                 lock_ids[3] = target_locks[3]; // Release a[y]
-                lock_ids[4] = target_locks[4]; // Release a[(y - 2)]
+                lock_ids[4] = target_locks[4]; // Release a[y - 2]
                 lockManager.release_locks(lock_ids, 5);
                 return false;
             }
@@ -419,10 +419,10 @@ public class ToadsAndFrogs {
                 // SLCO assignment | a[y] := 0.
                 a[y] = 0;
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[4]; // Release a[(y - 2)]
+                lock_ids[1] = target_locks[4]; // Release a[y - 2]
                 lockManager.release_locks(lock_ids, 2);
 
-                currentState = GlobalClass_ToadThread.States.q;
+                currentState = GlobalClass_toadThread.States.q;
                 return true;
             }
 
@@ -479,17 +479,17 @@ public class ToadsAndFrogs {
             }
         }
 
-        // Define the states fot the state machine Frog.
-        interface GlobalClass_FrogThread_States {
+        // Define the states fot the state machine frog.
+        interface GlobalClass_frogThread_States {
             enum States {
                 q
             }
         }
 
-        // Representation of the SLCO state machine Frog.
-        class GlobalClass_FrogThread extends Thread implements GlobalClass_FrogThread_States {
+        // Representation of the SLCO state machine frog.
+        class GlobalClass_frogThread extends Thread implements GlobalClass_frogThread_States {
             // Current state
-            private GlobalClass_FrogThread.States currentState;
+            private GlobalClass_frogThread.States currentState;
 
             // Random number generator to handle non-determinism.
             private final Random random;
@@ -501,8 +501,8 @@ public class ToadsAndFrogs {
             private final int[] lock_ids;
             private final int[] target_locks;
 
-            GlobalClass_FrogThread(LockManager lockManagerInstance) {
-                currentState = GlobalClass_FrogThread.States.q;
+            GlobalClass_frogThread(LockManager lockManagerInstance) {
+                currentState = GlobalClass_frogThread.States.q;
                 lockManager = lockManagerInstance;
                 lock_ids = new int[5];
                 target_locks = new int[5];
@@ -570,7 +570,7 @@ public class ToadsAndFrogs {
                 lock_ids[1] = target_locks[2]; // Release a[(y + 1)]
                 lockManager.release_locks(lock_ids, 2);
 
-                currentState = GlobalClass_FrogThread.States.q;
+                currentState = GlobalClass_frogThread.States.q;
                 return true;
             }
 
@@ -638,7 +638,7 @@ public class ToadsAndFrogs {
                 lock_ids[1] = target_locks[2]; // Release a[(y + 1)]
                 lockManager.release_locks(lock_ids, 2);
 
-                currentState = GlobalClass_FrogThread.States.q;
+                currentState = GlobalClass_frogThread.States.q;
                 return true;
             }
 
@@ -673,7 +673,7 @@ public class ToadsAndFrogs {
             private boolean t_q_2_s_0_n_2() {
                 lock_ids[0] = target_locks[2] = 3 + (y + 1); // Acquire a[(y + 1)]
                 lock_ids[1] = target_locks[3] = 3 + y; // Acquire a[y]
-                lock_ids[2] = target_locks[4] = 3 + y + 2; // Acquire a[y + 2]
+                lock_ids[2] = target_locks[4] = 3 + (y + 2); // Acquire a[(y + 2)]
                 lockManager.acquire_locks(lock_ids, 3);
                 if(a[y + 1] == 1) {
                     lock_ids[0] = target_locks[2]; // Release a[(y + 1)]
@@ -683,7 +683,7 @@ public class ToadsAndFrogs {
                 lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[2]; // Release a[(y + 1)]
                 lock_ids[2] = target_locks[3]; // Release a[y]
-                lock_ids[3] = target_locks[4]; // Release a[y + 2]
+                lock_ids[3] = target_locks[4]; // Release a[(y + 2)]
                 lockManager.release_locks(lock_ids, 4);
                 return false;
             }
@@ -695,7 +695,7 @@ public class ToadsAndFrogs {
                 }
                 lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[3]; // Release a[y]
-                lock_ids[2] = target_locks[4]; // Release a[y + 2]
+                lock_ids[2] = target_locks[4]; // Release a[(y + 2)]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
@@ -716,10 +716,10 @@ public class ToadsAndFrogs {
                 // SLCO assignment | a[y] := 0.
                 a[y] = 0;
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[4]; // Release a[y + 2]
+                lock_ids[1] = target_locks[4]; // Release a[(y + 2)]
                 lockManager.release_locks(lock_ids, 2);
 
-                currentState = GlobalClass_FrogThread.States.q;
+                currentState = GlobalClass_frogThread.States.q;
                 return true;
             }
 
@@ -752,7 +752,7 @@ public class ToadsAndFrogs {
             private boolean t_q_3_s_0_n_2() {
                 lock_ids[0] = target_locks[2] = 3 + (y + 1); // Acquire a[(y + 1)]
                 lock_ids[1] = target_locks[3] = 3 + y; // Acquire a[y]
-                lock_ids[2] = target_locks[4] = 3 + y + 2; // Acquire a[y + 2]
+                lock_ids[2] = target_locks[4] = 3 + (y + 2); // Acquire a[(y + 2)]
                 lockManager.acquire_locks(lock_ids, 3);
                 if(a[y + 1] == 1) {
                     lock_ids[0] = target_locks[2]; // Release a[(y + 1)]
@@ -763,7 +763,7 @@ public class ToadsAndFrogs {
                 lock_ids[1] = target_locks[1]; // Release fmax
                 lock_ids[2] = target_locks[2]; // Release a[(y + 1)]
                 lock_ids[3] = target_locks[3]; // Release a[y]
-                lock_ids[4] = target_locks[4]; // Release a[y + 2]
+                lock_ids[4] = target_locks[4]; // Release a[(y + 2)]
                 lockManager.release_locks(lock_ids, 5);
                 return false;
             }
@@ -776,7 +776,7 @@ public class ToadsAndFrogs {
                 lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[1]; // Release fmax
                 lock_ids[2] = target_locks[3]; // Release a[y]
-                lock_ids[3] = target_locks[4]; // Release a[y + 2]
+                lock_ids[3] = target_locks[4]; // Release a[(y + 2)]
                 lockManager.release_locks(lock_ids, 4);
                 return false;
             }
@@ -801,10 +801,10 @@ public class ToadsAndFrogs {
                 // SLCO assignment | a[y] := 0.
                 a[y] = 0;
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[4]; // Release a[y + 2]
+                lock_ids[1] = target_locks[4]; // Release a[(y + 2)]
                 lockManager.release_locks(lock_ids, 2);
 
-                currentState = GlobalClass_FrogThread.States.q;
+                currentState = GlobalClass_frogThread.States.q;
                 return true;
             }
 
@@ -861,20 +861,21 @@ public class ToadsAndFrogs {
             }
         }
 
-        // Define the states fot the state machine Check.
-        interface GlobalClass_CheckThread_States {
+        // Define the states fot the state machine control.
+        interface GlobalClass_controlThread_States {
             enum States {
                 running, 
+                done, 
                 success, 
                 failure, 
                 reset
             }
         }
 
-        // Representation of the SLCO state machine Check.
-        class GlobalClass_CheckThread extends Thread implements GlobalClass_CheckThread_States {
+        // Representation of the SLCO state machine control.
+        class GlobalClass_controlThread extends Thread implements GlobalClass_controlThread_States {
             // Current state
-            private GlobalClass_CheckThread.States currentState;
+            private GlobalClass_controlThread.States currentState;
 
             // Random number generator to handle non-determinism.
             private final Random random;
@@ -886,400 +887,444 @@ public class ToadsAndFrogs {
             private final int[] lock_ids;
             private final int[] target_locks;
 
-            GlobalClass_CheckThread(LockManager lockManagerInstance) {
-                currentState = GlobalClass_CheckThread.States.running;
+            GlobalClass_controlThread(LockManager lockManagerInstance) {
+                currentState = GlobalClass_controlThread.States.running;
                 lockManager = lockManagerInstance;
                 lock_ids = new int[5];
                 target_locks = new int[12];
                 random = new Random();
             }
 
-            // SLCO expression wrapper | tmin > y.
-            private boolean t_running_0_s_0_n_0() {
-                lock_ids[0] = target_locks[1] = 0; // Acquire y
-                lockManager.acquire_locks(lock_ids, 1);
-                lock_ids[0] = target_locks[0] = 1; // Acquire tmin
-                lockManager.acquire_locks(lock_ids, 1);
-                if(tmin > y) {
-                    lock_ids[0] = target_locks[0]; // Release tmin
-                    lockManager.release_locks(lock_ids, 1);
-                    return true;
-                }
-                lock_ids[0] = target_locks[0]; // Release tmin
-                lock_ids[1] = target_locks[1]; // Release y
-                lockManager.release_locks(lock_ids, 2);
-                return false;
-            }
-
-            // SLCO expression wrapper | fmax < y.
-            private boolean t_running_0_s_0_n_1() {
-                lock_ids[0] = target_locks[2] = 2; // Acquire fmax
-                lockManager.acquire_locks(lock_ids, 1);
-                if(fmax < y) {
-                    lock_ids[0] = target_locks[1]; // Release y
-                    lock_ids[1] = target_locks[2]; // Release fmax
-                    lockManager.release_locks(lock_ids, 2);
-                    return true;
-                }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[2]; // Release fmax
-                lockManager.release_locks(lock_ids, 2);
-                return false;
-            }
-
-            // SLCO transition (p:0, id:0) | running -> success | tmin > y and fmax < y.
-            private boolean execute_transition_running_0() {
-                // SLCO expression | tmin > y and fmax < y.
-                if(!(t_running_0_s_0_n_0() && t_running_0_s_0_n_1())) {
-                    return false;
-                }
-
-                currentState = GlobalClass_CheckThread.States.success;
-                return true;
-            }
-
             // SLCO expression wrapper | y = 0.
-            private boolean t_running_1_s_0_n_0() {
-                lock_ids[0] = target_locks[1] = 0; // Acquire y
+            private boolean t_running_0_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 if(y == 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
+                lock_ids[0] = target_locks[0]; // Release y
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
 
             // SLCO expression wrapper | a[y + 1] = 1.
-            private boolean t_running_1_s_0_n_1() {
-                lock_ids[0] = target_locks[3] = 3 + y + 1; // Acquire a[y + 1]
-                lock_ids[1] = target_locks[4] = 3 + y + 2; // Acquire a[y + 2]
+            private boolean t_running_0_s_0_n_1() {
+                lock_ids[0] = target_locks[1] = 3 + y + 1; // Acquire a[y + 1]
+                lock_ids[1] = target_locks[2] = 3 + y + 2; // Acquire a[y + 2]
                 lockManager.acquire_locks(lock_ids, 2);
                 if(a[y + 1] == 1) {
-                    lock_ids[0] = target_locks[3]; // Release a[y + 1]
+                    lock_ids[0] = target_locks[1]; // Release a[y + 1]
                     lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[3]; // Release a[y + 1]
-                lock_ids[2] = target_locks[4]; // Release a[y + 2]
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[1]; // Release a[y + 1]
+                lock_ids[2] = target_locks[2]; // Release a[y + 2]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
 
             // SLCO expression wrapper | a[y + 2] = 1.
-            private boolean t_running_1_s_0_n_2() {
+            private boolean t_running_0_s_0_n_2() {
                 if(a[y + 2] == 1) {
-                    lock_ids[0] = target_locks[1]; // Release y
-                    lock_ids[1] = target_locks[4]; // Release a[y + 2]
+                    lock_ids[0] = target_locks[0]; // Release y
+                    lock_ids[1] = target_locks[2]; // Release a[y + 2]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[4]; // Release a[y + 2]
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[2]; // Release a[y + 2]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
 
-            // SLCO transition (p:0, id:1) | running -> failure | y = 0 and a[y + 1] = 1 and a[y + 2] = 1.
-            private boolean execute_transition_running_1() {
+            // SLCO transition (p:0, id:0) | running -> done | y = 0 and a[y + 1] = 1 and a[y + 2] = 1.
+            private boolean execute_transition_running_0() {
                 // SLCO expression | y = 0 and a[y + 1] = 1 and a[y + 2] = 1.
-                if(!(t_running_1_s_0_n_0() && t_running_1_s_0_n_1() && t_running_1_s_0_n_2())) {
+                if(!(t_running_0_s_0_n_0() && t_running_0_s_0_n_1() && t_running_0_s_0_n_2())) {
                     return false;
                 }
 
-                currentState = GlobalClass_CheckThread.States.failure;
+                currentState = GlobalClass_controlThread.States.done;
                 return true;
             }
 
             // SLCO expression wrapper | y = 1.
-            private boolean t_running_2_s_0_n_0() {
-                lock_ids[0] = target_locks[1] = 0; // Acquire y
+            private boolean t_running_1_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 if(y == 1) {
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
+                lock_ids[0] = target_locks[0]; // Release y
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
 
             // SLCO expression wrapper | a[y - 1] = 2.
-            private boolean t_running_2_s_0_n_1() {
-                lock_ids[0] = target_locks[3] = 3 + y + 1; // Acquire a[y + 1]
-                lock_ids[1] = target_locks[4] = 3 + y + 2; // Acquire a[y + 2]
-                lock_ids[2] = target_locks[6] = 3 + y - 1; // Acquire a[y - 1]
+            private boolean t_running_1_s_0_n_1() {
+                lock_ids[0] = target_locks[1] = 3 + y + 1; // Acquire a[y + 1]
+                lock_ids[1] = target_locks[2] = 3 + y + 2; // Acquire a[y + 2]
+                lock_ids[2] = target_locks[4] = 3 + y - 1; // Acquire a[y - 1]
                 lockManager.acquire_locks(lock_ids, 3);
                 if(a[y - 1] == 2) {
-                    lock_ids[0] = target_locks[6]; // Release a[y - 1]
+                    lock_ids[0] = target_locks[4]; // Release a[y - 1]
                     lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[3]; // Release a[y + 1]
-                lock_ids[2] = target_locks[4]; // Release a[y + 2]
-                lock_ids[3] = target_locks[6]; // Release a[y - 1]
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[1]; // Release a[y + 1]
+                lock_ids[2] = target_locks[2]; // Release a[y + 2]
+                lock_ids[3] = target_locks[4]; // Release a[y - 1]
                 lockManager.release_locks(lock_ids, 4);
                 return false;
             }
 
             // SLCO expression wrapper | a[y + 1] = 1.
-            private boolean t_running_2_s_0_n_2() {
+            private boolean t_running_1_s_0_n_2() {
                 if(a[y + 1] == 1) {
-                    lock_ids[0] = target_locks[3]; // Release a[y + 1]
+                    lock_ids[0] = target_locks[1]; // Release a[y + 1]
                     lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[3]; // Release a[y + 1]
-                lock_ids[2] = target_locks[4]; // Release a[y + 2]
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[1]; // Release a[y + 1]
+                lock_ids[2] = target_locks[2]; // Release a[y + 2]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
 
             // SLCO expression wrapper | a[y + 2] = 1.
-            private boolean t_running_2_s_0_n_3() {
+            private boolean t_running_1_s_0_n_3() {
                 if(a[y + 2] == 1) {
-                    lock_ids[0] = target_locks[1]; // Release y
-                    lock_ids[1] = target_locks[4]; // Release a[y + 2]
+                    lock_ids[0] = target_locks[0]; // Release y
+                    lock_ids[1] = target_locks[2]; // Release a[y + 2]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[4]; // Release a[y + 2]
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[2]; // Release a[y + 2]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
 
-            // SLCO transition (p:0, id:2) | running -> failure | y = 1 and a[y - 1] = 2 and a[y + 1] = 1 and a[y + 2] = 1.
-            private boolean execute_transition_running_2() {
+            // SLCO transition (p:0, id:1) | running -> done | y = 1 and a[y - 1] = 2 and a[y + 1] = 1 and a[y + 2] = 1.
+            private boolean execute_transition_running_1() {
                 // SLCO expression | y = 1 and a[y - 1] = 2 and a[y + 1] = 1 and a[y + 2] = 1.
+                if(!(t_running_1_s_0_n_0() && t_running_1_s_0_n_1() && t_running_1_s_0_n_2() && t_running_1_s_0_n_3())) {
+                    return false;
+                }
+
+                currentState = GlobalClass_controlThread.States.done;
+                return true;
+            }
+
+            // SLCO expression wrapper | y = 7.
+            private boolean t_running_2_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
+                lockManager.acquire_locks(lock_ids, 1);
+                if(y == 7) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | a[y - 2] = 2.
+            private boolean t_running_2_s_0_n_1() {
+                lock_ids[0] = target_locks[1] = 3 + y + 1; // Acquire a[y + 1]
+                lock_ids[1] = target_locks[3] = 3 + y - 2; // Acquire a[y - 2]
+                lock_ids[2] = target_locks[4] = 3 + y - 1; // Acquire a[y - 1]
+                lockManager.acquire_locks(lock_ids, 3);
+                if(a[y - 2] == 2) {
+                    lock_ids[0] = target_locks[3]; // Release a[y - 2]
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[1]; // Release a[y + 1]
+                lock_ids[2] = target_locks[3]; // Release a[y - 2]
+                lock_ids[3] = target_locks[4]; // Release a[y - 1]
+                lockManager.release_locks(lock_ids, 4);
+                return false;
+            }
+
+            // SLCO expression wrapper | a[y - 1] = 2.
+            private boolean t_running_2_s_0_n_2() {
+                if(a[y - 1] == 2) {
+                    lock_ids[0] = target_locks[4]; // Release a[y - 1]
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[1]; // Release a[y + 1]
+                lock_ids[2] = target_locks[4]; // Release a[y - 1]
+                lockManager.release_locks(lock_ids, 3);
+                return false;
+            }
+
+            // SLCO expression wrapper | a[y + 1] = 1.
+            private boolean t_running_2_s_0_n_3() {
+                if(a[y + 1] == 1) {
+                    lock_ids[0] = target_locks[0]; // Release y
+                    lock_ids[1] = target_locks[1]; // Release a[y + 1]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[1]; // Release a[y + 1]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:2) | running -> done | y = 7 and a[y - 2] = 2 and a[y - 1] = 2 and a[y + 1] = 1.
+            private boolean execute_transition_running_2() {
+                // SLCO expression | y = 7 and a[y - 2] = 2 and a[y - 1] = 2 and a[y + 1] = 1.
                 if(!(t_running_2_s_0_n_0() && t_running_2_s_0_n_1() && t_running_2_s_0_n_2() && t_running_2_s_0_n_3())) {
                     return false;
                 }
 
-                currentState = GlobalClass_CheckThread.States.failure;
+                currentState = GlobalClass_controlThread.States.done;
+                return true;
+            }
+
+            // SLCO expression wrapper | y = 8.
+            private boolean t_running_3_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
+                lockManager.acquire_locks(lock_ids, 1);
+                if(y == 8) {
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
+            // SLCO expression wrapper | a[y - 2] = 2.
+            private boolean t_running_3_s_0_n_1() {
+                lock_ids[0] = target_locks[3] = 3 + y - 2; // Acquire a[y - 2]
+                lock_ids[1] = target_locks[4] = 3 + y - 1; // Acquire a[y - 1]
+                lockManager.acquire_locks(lock_ids, 2);
+                if(a[y - 2] == 2) {
+                    lock_ids[0] = target_locks[3]; // Release a[y - 2]
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[3]; // Release a[y - 2]
+                lock_ids[2] = target_locks[4]; // Release a[y - 1]
+                lockManager.release_locks(lock_ids, 3);
+                return false;
+            }
+
+            // SLCO expression wrapper | a[y - 1] = 2.
+            private boolean t_running_3_s_0_n_2() {
+                if(a[y - 1] == 2) {
+                    lock_ids[0] = target_locks[0]; // Release y
+                    lock_ids[1] = target_locks[4]; // Release a[y - 1]
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[4]; // Release a[y - 1]
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:3) | running -> done | y = 8 and a[y - 2] = 2 and a[y - 1] = 2.
+            private boolean execute_transition_running_3() {
+                // SLCO expression | y = 8 and a[y - 2] = 2 and a[y - 1] = 2.
+                if(!(t_running_3_s_0_n_0() && t_running_3_s_0_n_1() && t_running_3_s_0_n_2())) {
+                    return false;
+                }
+
+                currentState = GlobalClass_controlThread.States.done;
                 return true;
             }
 
             // SLCO expression wrapper | y > 1.
-            private boolean t_running_3_s_0_n_0() {
-                lock_ids[0] = target_locks[1] = 0; // Acquire y
+            private boolean t_running_4_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
                 if(y > 1) {
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
+                lock_ids[0] = target_locks[0]; // Release y
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
 
             // SLCO expression wrapper | y < 7.
-            private boolean t_running_3_s_0_n_1() {
+            private boolean t_running_4_s_0_n_1() {
                 if(y < 7) {
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
+                lock_ids[0] = target_locks[0]; // Release y
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
 
             // SLCO expression wrapper | a[y - 2] = 2.
-            private boolean t_running_3_s_0_n_2() {
-                lock_ids[0] = target_locks[3] = 3 + y + 1; // Acquire a[y + 1]
-                lock_ids[1] = target_locks[4] = 3 + y + 2; // Acquire a[y + 2]
-                lock_ids[2] = target_locks[5] = 3 + y - 2; // Acquire a[y - 2]
-                lock_ids[3] = target_locks[6] = 3 + y - 1; // Acquire a[y - 1]
+            private boolean t_running_4_s_0_n_2() {
+                lock_ids[0] = target_locks[1] = 3 + y + 1; // Acquire a[y + 1]
+                lock_ids[1] = target_locks[2] = 3 + y + 2; // Acquire a[y + 2]
+                lock_ids[2] = target_locks[3] = 3 + y - 2; // Acquire a[y - 2]
+                lock_ids[3] = target_locks[4] = 3 + y - 1; // Acquire a[y - 1]
                 lockManager.acquire_locks(lock_ids, 4);
                 if(a[y - 2] == 2) {
-                    lock_ids[0] = target_locks[5]; // Release a[y - 2]
+                    lock_ids[0] = target_locks[3]; // Release a[y - 2]
                     lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[3]; // Release a[y + 1]
-                lock_ids[2] = target_locks[4]; // Release a[y + 2]
-                lock_ids[3] = target_locks[5]; // Release a[y - 2]
-                lock_ids[4] = target_locks[6]; // Release a[y - 1]
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[1]; // Release a[y + 1]
+                lock_ids[2] = target_locks[2]; // Release a[y + 2]
+                lock_ids[3] = target_locks[3]; // Release a[y - 2]
+                lock_ids[4] = target_locks[4]; // Release a[y - 1]
                 lockManager.release_locks(lock_ids, 5);
                 return false;
             }
 
             // SLCO expression wrapper | a[y - 1] = 2.
-            private boolean t_running_3_s_0_n_3() {
+            private boolean t_running_4_s_0_n_3() {
                 if(a[y - 1] == 2) {
-                    lock_ids[0] = target_locks[6]; // Release a[y - 1]
+                    lock_ids[0] = target_locks[4]; // Release a[y - 1]
                     lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[3]; // Release a[y + 1]
-                lock_ids[2] = target_locks[4]; // Release a[y + 2]
-                lock_ids[3] = target_locks[6]; // Release a[y - 1]
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[1]; // Release a[y + 1]
+                lock_ids[2] = target_locks[2]; // Release a[y + 2]
+                lock_ids[3] = target_locks[4]; // Release a[y - 1]
                 lockManager.release_locks(lock_ids, 4);
                 return false;
             }
 
             // SLCO expression wrapper | a[y + 1] = 1.
-            private boolean t_running_3_s_0_n_4() {
+            private boolean t_running_4_s_0_n_4() {
                 if(a[y + 1] == 1) {
-                    lock_ids[0] = target_locks[3]; // Release a[y + 1]
+                    lock_ids[0] = target_locks[1]; // Release a[y + 1]
                     lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[3]; // Release a[y + 1]
-                lock_ids[2] = target_locks[4]; // Release a[y + 2]
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[1]; // Release a[y + 1]
+                lock_ids[2] = target_locks[2]; // Release a[y + 2]
                 lockManager.release_locks(lock_ids, 3);
                 return false;
             }
 
             // SLCO expression wrapper | a[y + 2] = 1.
-            private boolean t_running_3_s_0_n_5() {
+            private boolean t_running_4_s_0_n_5() {
                 if(a[y + 2] == 1) {
-                    lock_ids[0] = target_locks[1]; // Release y
-                    lock_ids[1] = target_locks[4]; // Release a[y + 2]
+                    lock_ids[0] = target_locks[0]; // Release y
+                    lock_ids[1] = target_locks[2]; // Release a[y + 2]
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[4]; // Release a[y + 2]
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[2]; // Release a[y + 2]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
 
-            // SLCO transition (p:0, id:3) | running -> failure | y > 1 and y < 7 and a[y - 2] = 2 and a[y - 1] = 2 and a[y + 1] = 1 and a[y + 2] = 1.
-            private boolean execute_transition_running_3() {
-                // SLCO expression | y > 1 and y < 7 and a[y - 2] = 2 and a[y - 1] = 2 and a[y + 1] = 1 and a[y + 2] = 1.
-                if(!(t_running_3_s_0_n_0() && t_running_3_s_0_n_1() && t_running_3_s_0_n_2() && t_running_3_s_0_n_3() && t_running_3_s_0_n_4() && t_running_3_s_0_n_5())) {
-                    return false;
-                }
-
-                currentState = GlobalClass_CheckThread.States.failure;
-                return true;
-            }
-
-            // SLCO expression wrapper | y = 7.
-            private boolean t_running_4_s_0_n_0() {
-                lock_ids[0] = target_locks[1] = 0; // Acquire y
-                lockManager.acquire_locks(lock_ids, 1);
-                if(y == 7) {
-                    return true;
-                }
-                lock_ids[0] = target_locks[1]; // Release y
-                lockManager.release_locks(lock_ids, 1);
-                return false;
-            }
-
-            // SLCO expression wrapper | a[y - 2] = 2.
-            private boolean t_running_4_s_0_n_1() {
-                lock_ids[0] = target_locks[3] = 3 + y + 1; // Acquire a[y + 1]
-                lock_ids[1] = target_locks[5] = 3 + y - 2; // Acquire a[y - 2]
-                lock_ids[2] = target_locks[6] = 3 + y - 1; // Acquire a[y - 1]
-                lockManager.acquire_locks(lock_ids, 3);
-                if(a[y - 2] == 2) {
-                    lock_ids[0] = target_locks[5]; // Release a[y - 2]
-                    lockManager.release_locks(lock_ids, 1);
-                    return true;
-                }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[3]; // Release a[y + 1]
-                lock_ids[2] = target_locks[5]; // Release a[y - 2]
-                lock_ids[3] = target_locks[6]; // Release a[y - 1]
-                lockManager.release_locks(lock_ids, 4);
-                return false;
-            }
-
-            // SLCO expression wrapper | a[y - 1] = 2.
-            private boolean t_running_4_s_0_n_2() {
-                if(a[y - 1] == 2) {
-                    lock_ids[0] = target_locks[6]; // Release a[y - 1]
-                    lockManager.release_locks(lock_ids, 1);
-                    return true;
-                }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[3]; // Release a[y + 1]
-                lock_ids[2] = target_locks[6]; // Release a[y - 1]
-                lockManager.release_locks(lock_ids, 3);
-                return false;
-            }
-
-            // SLCO expression wrapper | a[y + 1] = 1.
-            private boolean t_running_4_s_0_n_3() {
-                if(a[y + 1] == 1) {
-                    lock_ids[0] = target_locks[1]; // Release y
-                    lock_ids[1] = target_locks[3]; // Release a[y + 1]
-                    lockManager.release_locks(lock_ids, 2);
-                    return true;
-                }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[3]; // Release a[y + 1]
-                lockManager.release_locks(lock_ids, 2);
-                return false;
-            }
-
-            // SLCO transition (p:0, id:4) | running -> failure | y = 7 and a[y - 2] = 2 and a[y - 1] = 2 and a[y + 1] = 1.
+            // SLCO transition (p:0, id:4) | running -> done | y > 1 and y < 7 and a[y - 2] = 2 and a[y - 1] = 2 and a[y + 1] = 1 and a[y + 2] = 1.
             private boolean execute_transition_running_4() {
-                // SLCO expression | y = 7 and a[y - 2] = 2 and a[y - 1] = 2 and a[y + 1] = 1.
-                if(!(t_running_4_s_0_n_0() && t_running_4_s_0_n_1() && t_running_4_s_0_n_2() && t_running_4_s_0_n_3())) {
+                // SLCO expression | y > 1 and y < 7 and a[y - 2] = 2 and a[y - 1] = 2 and a[y + 1] = 1 and a[y + 2] = 1.
+                if(!(t_running_4_s_0_n_0() && t_running_4_s_0_n_1() && t_running_4_s_0_n_2() && t_running_4_s_0_n_3() && t_running_4_s_0_n_4() && t_running_4_s_0_n_5())) {
                     return false;
                 }
 
-                currentState = GlobalClass_CheckThread.States.failure;
+                currentState = GlobalClass_controlThread.States.done;
                 return true;
             }
 
-            // SLCO expression wrapper | y = 8.
-            private boolean t_running_5_s_0_n_0() {
-                lock_ids[0] = target_locks[1] = 0; // Acquire y
+            // SLCO expression wrapper | tmin > y.
+            private boolean t_done_0_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
-                if(y == 8) {
-                    return true;
-                }
-                lock_ids[0] = target_locks[1]; // Release y
-                lockManager.release_locks(lock_ids, 1);
-                return false;
-            }
-
-            // SLCO expression wrapper | a[y - 2] = 2.
-            private boolean t_running_5_s_0_n_1() {
-                lock_ids[0] = target_locks[5] = 3 + y - 2; // Acquire a[y - 2]
-                lock_ids[1] = target_locks[6] = 3 + y - 1; // Acquire a[y - 1]
-                lockManager.acquire_locks(lock_ids, 2);
-                if(a[y - 2] == 2) {
-                    lock_ids[0] = target_locks[5]; // Release a[y - 2]
+                lock_ids[0] = target_locks[1] = 1; // Acquire tmin
+                lockManager.acquire_locks(lock_ids, 1);
+                if(tmin > y) {
+                    lock_ids[0] = target_locks[1]; // Release tmin
                     lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[5]; // Release a[y - 2]
-                lock_ids[2] = target_locks[6]; // Release a[y - 1]
-                lockManager.release_locks(lock_ids, 3);
-                return false;
-            }
-
-            // SLCO expression wrapper | a[y - 1] = 2.
-            private boolean t_running_5_s_0_n_2() {
-                if(a[y - 1] == 2) {
-                    lock_ids[0] = target_locks[1]; // Release y
-                    lock_ids[1] = target_locks[6]; // Release a[y - 1]
-                    lockManager.release_locks(lock_ids, 2);
-                    return true;
-                }
-                lock_ids[0] = target_locks[1]; // Release y
-                lock_ids[1] = target_locks[6]; // Release a[y - 1]
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[1]; // Release tmin
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
 
-            // SLCO transition (p:0, id:5) | running -> failure | y = 8 and a[y - 2] = 2 and a[y - 1] = 2.
-            private boolean execute_transition_running_5() {
-                // SLCO expression | y = 8 and a[y - 2] = 2 and a[y - 1] = 2.
-                if(!(t_running_5_s_0_n_0() && t_running_5_s_0_n_1() && t_running_5_s_0_n_2())) {
+            // SLCO expression wrapper | fmax < y.
+            private boolean t_done_0_s_0_n_1() {
+                lock_ids[0] = target_locks[2] = 2; // Acquire fmax
+                lockManager.acquire_locks(lock_ids, 1);
+                if(fmax < y) {
+                    lock_ids[0] = target_locks[0]; // Release y
+                    lock_ids[1] = target_locks[2]; // Release fmax
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[2]; // Release fmax
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:0) | done -> success | tmin > y and fmax < y.
+            private boolean execute_transition_done_0() {
+                // SLCO expression | tmin > y and fmax < y.
+                if(!(t_done_0_s_0_n_0() && t_done_0_s_0_n_1())) {
                     return false;
                 }
 
-                currentState = GlobalClass_CheckThread.States.failure;
+                currentState = GlobalClass_controlThread.States.success;
+                return true;
+            }
+
+            // SLCO expression wrapper | tmin > y.
+            private boolean t_done_1_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
+                lockManager.acquire_locks(lock_ids, 1);
+                lock_ids[0] = target_locks[1] = 1; // Acquire tmin
+                lockManager.acquire_locks(lock_ids, 1);
+                if(tmin > y) {
+                    lock_ids[0] = target_locks[1]; // Release tmin
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[1]; // Release tmin
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO expression wrapper | fmax < y.
+            private boolean t_done_1_s_0_n_1() {
+                lock_ids[0] = target_locks[2] = 2; // Acquire fmax
+                lockManager.acquire_locks(lock_ids, 1);
+                if(fmax < y) {
+                    lock_ids[0] = target_locks[0]; // Release y
+                    lock_ids[1] = target_locks[2]; // Release fmax
+                    lockManager.release_locks(lock_ids, 2);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[2]; // Release fmax
+                lockManager.release_locks(lock_ids, 2);
+                return false;
+            }
+
+            // SLCO transition (p:0, id:1) | done -> failure | !(tmin > y and fmax < y).
+            private boolean execute_transition_done_1() {
+                // SLCO expression | !(tmin > y and fmax < y).
+                if(!(!((t_done_1_s_0_n_0() && t_done_1_s_0_n_1())))) {
+                    return false;
+                }
+
+                currentState = GlobalClass_controlThread.States.failure;
                 return true;
             }
 
@@ -1287,7 +1332,7 @@ public class ToadsAndFrogs {
             private boolean execute_transition_success_0() {
                 // (Superfluous) SLCO expression | true.
 
-                currentState = GlobalClass_CheckThread.States.reset;
+                currentState = GlobalClass_controlThread.States.reset;
                 return true;
             }
 
@@ -1295,15 +1340,15 @@ public class ToadsAndFrogs {
             private boolean execute_transition_failure_0() {
                 // (Superfluous) SLCO expression | true.
 
-                currentState = GlobalClass_CheckThread.States.reset;
+                currentState = GlobalClass_controlThread.States.reset;
                 return true;
             }
 
-            // SLCO transition (p:0, id:0) | reset -> running | true | [true; y := 4; tmin := 0; fmax := 8; a[0] := 1; a[1] := 1; a[2] := 1; a[3] := 1; a[4] := 0; a[5] := 2; a[6] := 2; a[7] := 2; a[8] := 2].
+            // SLCO transition (p:0, id:0) | reset -> running | true | [true; y := 4; tmin := 0; fmax := 8; a[4] := 0; a[0] := 1; a[1] := 1; a[2] := 1; a[3] := 1; a[5] := 2; a[6] := 2; a[7] := 2; a[8] := 2].
             private boolean execute_transition_reset_0() {
                 // (Superfluous) SLCO expression | true.
 
-                // SLCO composite | [y := 4; tmin := 0; fmax := 8; a[0] := 1; a[1] := 1; a[2] := 1; a[3] := 1; a[4] := 0; a[5] := 2; a[6] := 2; a[7] := 2; a[8] := 2] -> [true; y := 4; tmin := 0; fmax := 8; a[0] := 1; a[1] := 1; a[2] := 1; a[3] := 1; a[4] := 0; a[5] := 2; a[6] := 2; a[7] := 2; a[8] := 2].
+                // SLCO composite | [y := 4; tmin := 0; fmax := 8; a[4] := 0; a[0] := 1; a[1] := 1; a[2] := 1; a[3] := 1; a[5] := 2; a[6] := 2; a[7] := 2; a[8] := 2] -> [true; y := 4; tmin := 0; fmax := 8; a[4] := 0; a[0] := 1; a[1] := 1; a[2] := 1; a[3] := 1; a[5] := 2; a[6] := 2; a[7] := 2; a[8] := 2].
                 // (Superfluous) SLCO expression | true.
                 // SLCO assignment | y := 4.
                 lock_ids[0] = target_locks[0] = 0; // Acquire y
@@ -1323,35 +1368,31 @@ public class ToadsAndFrogs {
                 fmax = 8;
                 lock_ids[0] = target_locks[2]; // Release fmax
                 lockManager.release_locks(lock_ids, 1);
+                // SLCO assignment | a[4] := 0.
+                lock_ids[0] = target_locks[3] = 3 + 3; // Acquire a[3]
+                lock_ids[1] = target_locks[4] = 3 + 4; // Acquire a[4]
+                lock_ids[2] = target_locks[5] = 3 + 0; // Acquire a[0]
+                lock_ids[3] = target_locks[6] = 3 + 1; // Acquire a[1]
+                lock_ids[4] = target_locks[7] = 3 + 2; // Acquire a[2]
+                lockManager.acquire_locks(lock_ids, 5);
+                a[4] = 0;
+                lock_ids[0] = target_locks[4]; // Release a[4]
+                lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | a[0] := 1.
-                lock_ids[0] = target_locks[3] = 3 + 0; // Acquire a[0]
-                lockManager.acquire_locks(lock_ids, 1);
                 a[0] = 1;
-                lock_ids[0] = target_locks[3]; // Release a[0]
+                lock_ids[0] = target_locks[5]; // Release a[0]
                 lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | a[1] := 1.
-                lock_ids[0] = target_locks[4] = 3 + 1; // Acquire a[1]
-                lockManager.acquire_locks(lock_ids, 1);
                 a[1] = 1;
-                lock_ids[0] = target_locks[4]; // Release a[1]
+                lock_ids[0] = target_locks[6]; // Release a[1]
                 lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | a[2] := 1.
-                lock_ids[0] = target_locks[5] = 3 + 2; // Acquire a[2]
-                lockManager.acquire_locks(lock_ids, 1);
                 a[2] = 1;
-                lock_ids[0] = target_locks[5]; // Release a[2]
+                lock_ids[0] = target_locks[7]; // Release a[2]
                 lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | a[3] := 1.
-                lock_ids[0] = target_locks[6] = 3 + 3; // Acquire a[3]
-                lockManager.acquire_locks(lock_ids, 1);
                 a[3] = 1;
-                lock_ids[0] = target_locks[6]; // Release a[3]
-                lockManager.release_locks(lock_ids, 1);
-                // SLCO assignment | a[4] := 0.
-                lock_ids[0] = target_locks[7] = 3 + 4; // Acquire a[4]
-                lockManager.acquire_locks(lock_ids, 1);
-                a[4] = 0;
-                lock_ids[0] = target_locks[7]; // Release a[4]
+                lock_ids[0] = target_locks[3]; // Release a[3]
                 lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | a[5] := 2.
                 lock_ids[0] = target_locks[8] = 3 + 5; // Acquire a[5]
@@ -1378,47 +1419,61 @@ public class ToadsAndFrogs {
                 lock_ids[0] = target_locks[11]; // Release a[8]
                 lockManager.release_locks(lock_ids, 1);
 
-                currentState = GlobalClass_CheckThread.States.running;
+                currentState = GlobalClass_controlThread.States.running;
                 return true;
             }
 
             // Attempt to fire a transition starting in state running.
             private void exec_running() {
                 // [N_DET.START]
-                switch(random.nextInt(6)) {
+                switch(random.nextInt(5)) {
                     case 0 -> {
-                        // SLCO transition (p:0, id:0) | running -> success | tmin > y and fmax < y.
+                        // SLCO transition (p:0, id:0) | running -> done | y = 0 and a[y + 1] = 1 and a[y + 2] = 1.
                         if(execute_transition_running_0()) {
                             return;
                         }
                     }
                     case 1 -> {
-                        // SLCO transition (p:0, id:1) | running -> failure | y = 0 and a[y + 1] = 1 and a[y + 2] = 1.
+                        // SLCO transition (p:0, id:1) | running -> done | y = 1 and a[y - 1] = 2 and a[y + 1] = 1 and a[y + 2] = 1.
                         if(execute_transition_running_1()) {
                             return;
                         }
                     }
                     case 2 -> {
-                        // SLCO transition (p:0, id:2) | running -> failure | y = 1 and a[y - 1] = 2 and a[y + 1] = 1 and a[y + 2] = 1.
+                        // SLCO transition (p:0, id:2) | running -> done | y = 7 and a[y - 2] = 2 and a[y - 1] = 2 and a[y + 1] = 1.
                         if(execute_transition_running_2()) {
                             return;
                         }
                     }
                     case 3 -> {
-                        // SLCO transition (p:0, id:3) | running -> failure | y > 1 and y < 7 and a[y - 2] = 2 and a[y - 1] = 2 and a[y + 1] = 1 and a[y + 2] = 1.
+                        // SLCO transition (p:0, id:3) | running -> done | y = 8 and a[y - 2] = 2 and a[y - 1] = 2.
                         if(execute_transition_running_3()) {
                             return;
                         }
                     }
                     case 4 -> {
-                        // SLCO transition (p:0, id:4) | running -> failure | y = 7 and a[y - 2] = 2 and a[y - 1] = 2 and a[y + 1] = 1.
+                        // SLCO transition (p:0, id:4) | running -> done | y > 1 and y < 7 and a[y - 2] = 2 and a[y - 1] = 2 and a[y + 1] = 1 and a[y + 2] = 1.
                         if(execute_transition_running_4()) {
                             return;
                         }
                     }
-                    case 5 -> {
-                        // SLCO transition (p:0, id:5) | running -> failure | y = 8 and a[y - 2] = 2 and a[y - 1] = 2.
-                        if(execute_transition_running_5()) {
+                }
+                // [N_DET.END]
+            }
+
+            // Attempt to fire a transition starting in state done.
+            private void exec_done() {
+                // [N_DET.START]
+                switch(random.nextInt(2)) {
+                    case 0 -> {
+                        // SLCO transition (p:0, id:0) | done -> success | tmin > y and fmax < y.
+                        if(execute_transition_done_0()) {
+                            return;
+                        }
+                    }
+                    case 1 -> {
+                        // SLCO transition (p:0, id:1) | done -> failure | !(tmin > y and fmax < y).
+                        if(execute_transition_done_1()) {
                             return;
                         }
                     }
@@ -1449,7 +1504,7 @@ public class ToadsAndFrogs {
             // Attempt to fire a transition starting in state reset.
             private void exec_reset() {
                 // [N_DET.START]
-                // SLCO transition (p:0, id:0) | reset -> running | true | [true; y := 4; tmin := 0; fmax := 8; a[0] := 1; a[1] := 1; a[2] := 1; a[3] := 1; a[4] := 0; a[5] := 2; a[6] := 2; a[7] := 2; a[8] := 2].
+                // SLCO transition (p:0, id:0) | reset -> running | true | [true; y := 4; tmin := 0; fmax := 8; a[4] := 0; a[0] := 1; a[1] := 1; a[2] := 1; a[3] := 1; a[5] := 2; a[6] := 2; a[7] := 2; a[8] := 2].
                 if(execute_transition_reset_0()) {
                     return;
                 }
@@ -1462,6 +1517,7 @@ public class ToadsAndFrogs {
                 while(Duration.between(time_start, Instant.now()).toSeconds() < 60) {
                     switch(currentState) {
                         case running -> exec_running();
+                        case done -> exec_done();
                         case success -> exec_success();
                         case failure -> exec_failure();
                         case reset -> exec_reset();
@@ -1482,18 +1538,18 @@ public class ToadsAndFrogs {
 
         // Start all threads.
         public void startThreads() {
-            T_Toad.start();
-            T_Frog.start();
-            T_Check.start();
+            T_toad.start();
+            T_frog.start();
+            T_control.start();
         }
 
         // Join all threads.
         public void joinThreads() {
             while (true) {
                 try {
-                    T_Toad.join();
-                    T_Frog.join();
-                    T_Check.join();
+                    T_toad.join();
+                    T_frog.join();
+                    T_control.join();
                     break;
                 } catch (InterruptedException e) {
                     e.printStackTrace();

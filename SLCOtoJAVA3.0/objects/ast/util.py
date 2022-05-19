@@ -85,7 +85,9 @@ def ast_to_model(model, lookup_table: dict, parent=None):
         result.left = ast_to_model(model.left, lookup_table)
         result.right = ast_to_model(model.right, lookup_table)
         return result
-    elif type_name in ["Expression", "ExprPrec1", "ExprPrec2", "ExprPrec3", "ExprPrec4"]:
+    elif type_name in [
+        "Expression", "ExprPrec1", "ExprPrec2", "ExprPrec3", "ExprPrec4", "ExprPrec5", "ExprPrec6", "ExprPrec7"
+    ]:
         result = Expression(model.op)
         left = [ast_to_model(model.left, lookup_table)]
         right = [] if model.right is None else [ast_to_model(model.right, lookup_table)]
