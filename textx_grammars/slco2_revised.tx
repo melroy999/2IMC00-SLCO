@@ -87,11 +87,23 @@ SendSignal:
 ;
 
 Expression:
-  terms=ExprPrec4 ((terms='or'|terms='xor'|terms='and'|terms='&&'|terms='||') terms=ExprPrec4)*
+  terms=ExprPrec7 ((terms='or'|terms='||') terms=ExprPrec7)*
+;
+
+ExprPrec7:
+  terms=ExprPrec6 ((terms='and'|terms='&&') terms=ExprPrec6)*
+;
+
+ExprPrec6:
+  terms=ExprPrec5 ((terms='xor') terms=ExprPrec5)*
+;
+
+ExprPrec5:
+  terms=ExprPrec4 ((terms='!='|terms='='|terms='<>') terms=ExprPrec4)*
 ;
 
 ExprPrec4:
-  terms=ExprPrec3 ((terms='!='|terms='='|terms='<>'|terms='<='|terms='>='|terms='<'|terms='>') terms=ExprPrec3)*
+  terms=ExprPrec3 ((terms='<='|terms='>='|terms='<'|terms='>') terms=ExprPrec3)*
 ;
 
 ExprPrec3:
