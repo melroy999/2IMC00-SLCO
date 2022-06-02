@@ -28,7 +28,10 @@ def print_decision_structure(model: Union[Transition, DecisionNode], indents=0) 
             for decision in model.decisions + model.excluded_transitions:
                 print_decision_structure(decision, indents + 2)
         else:
-            logging.info(f"{' ' * indents} - N_DET:")
+            if model.guard_statement is not None:
+                logging.info(f"{' ' * indents} - N_DET ({model.guard_statement.guard}):")
+            else:
+                logging.info(f"{' ' * indents} - N_DET:")
             for decision in model.decisions + model.excluded_transitions:
                 print_decision_structure(decision, indents + 2)
     else:

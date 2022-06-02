@@ -7,6 +7,7 @@ from z3 import z3
 
 import settings
 from objects.ast.models import DecisionNode, Transition
+from smt.solutions.greedy.recursion import select_non_deterministic_node
 
 if TYPE_CHECKING:
     from objects.ast.models import Variable
@@ -602,20 +603,22 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
         else:
             remaining_transitions.append(t)
 
-    if settings.no_deterministic_structures:
-        # Do not create deterministic structures when the no determinism flag is provided.
-        non_deterministic_choices: List[Transition, DecisionNode] = remaining_transitions
-    else:
-        if settings.use_full_smt_dsc:
-            non_deterministic_choices = create_deterministic_decision_structures_full_smt(remaining_transitions)
-        else:
-            non_deterministic_choices = create_deterministic_decision_structures(remaining_transitions)
+    decision_node = select_non_deterministic_node(list(remaining_transitions))
 
-    # Sort the decisions based on the priority.
-    non_deterministic_choices += trivially_satisfiable_transitions
-    non_deterministic_choices.sort(key=lambda x: (x.priority, x.id))
-
-    # Create and return a non-deterministic decision node for the given decisions.
-    decision_node = DecisionNode(False, non_deterministic_choices, excluded_transitions)
-    optimize_lock_ordering_greedy(decision_node)
+    # if settings.no_deterministic_structures:
+    #     # Do not create deterministic structures when the no determinism flag is provided.
+    #     non_deterministic_choices: List[Transition, DecisionNode] = remaining_transitions
+    # else:
+    #     if settings.use_full_smt_dsc:
+    #         non_deterministic_choices = create_deterministic_decision_structures_full_smt(remaining_transitions)
+    #     else:
+    #         non_deterministic_choices = create_deterministic_decision_structures(remaining_transitions)
+    #
+    # # Sort the decisions based on the priority.
+    # non_deterministic_choices += trivially_satisfiable_transitions
+    # non_deterministic_choices.sort(key=lambda x: (x.priority, x.id))
+    #
+    # # Create and return a non-deterministic decision node for the given decisions.
+    # decision_node = DecisionNode(False, non_deterministic_choices, excluded_transitions)
+    # optimize_lock_ordering_greedy(decision_node)
     return decision_node

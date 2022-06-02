@@ -135,22 +135,16 @@ public class Syntax {
 
             // Attempt to fire a transition starting in state SMC0.
             private void exec_SMC0() {
-                // [N_DET.START]
-                switch(random.nextInt(2)) {
-                    case 0 -> {
-                        // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | true.
-                        if(execute_transition_SMC0_0()) {
-                            return;
-                        }
-                    }
-                    case 1 -> {
-                        // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | true.
-                        if(execute_transition_SMC0_1()) {
-                            return;
-                        }
-                    }
+                // [SEQ.START]
+                // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | true.
+                if(execute_transition_SMC0_0()) {
+                    return;
                 }
-                // [N_DET.END]
+                // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | true.
+                if(execute_transition_SMC0_1()) {
+                    return;
+                }
+                // [SEQ.END]
             }
 
             // Main state machine loop.
@@ -242,28 +236,20 @@ public class Syntax {
 
             // Attempt to fire a transition starting in state SMC0.
             private void exec_SMC0() {
-                // [N_DET.START]
-                switch(random.nextInt(3)) {
-                    case 0 -> {
-                        // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | true.
-                        if(execute_transition_SMC0_0()) {
-                            return;
-                        }
-                    }
-                    case 1 -> {
-                        // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | true.
-                        if(execute_transition_SMC0_1()) {
-                            return;
-                        }
-                    }
-                    case 2 -> {
-                        // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | true.
-                        if(execute_transition_SMC0_2()) {
-                            return;
-                        }
-                    }
+                // [SEQ.START]
+                // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | true.
+                if(execute_transition_SMC0_0()) {
+                    return;
                 }
-                // [N_DET.END]
+                // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | true.
+                if(execute_transition_SMC0_1()) {
+                    return;
+                }
+                // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | true.
+                if(execute_transition_SMC0_2()) {
+                    return;
+                }
+                // [SEQ.END]
             }
 
             // Main state machine loop.

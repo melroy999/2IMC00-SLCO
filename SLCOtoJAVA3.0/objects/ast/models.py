@@ -737,6 +737,7 @@ class DecisionNode(SlcoLockableNode):
         super().__init__()
         self.decisions = decisions
         self.is_deterministic = is_deterministic
+        self._guard_statement = None
 
         # Track which decisions have been intentionally excluded in the decision node/structure.
         self.excluded_transitions = excluded_transitions
@@ -763,3 +764,11 @@ class DecisionNode(SlcoLockableNode):
     @property
     def id(self) -> int:
         return min(d.id for d in self.decisions)
+
+    @property
+    def guard_statement(self):
+        return self._guard_statement
+
+    @guard_statement.setter
+    def guard_statement(self, value):
+        self._guard_statement = value
