@@ -65,12 +65,14 @@ public class Nesting {
     private static class P implements SLCO_Class {
         // The state machine threads.
         private final Thread T_SM1;
+        private final Thread T_SM2;
 
         P() {
             // Create a lock manager.
             LockManager lockManager = new LockManager(0);
             // Instantiate the state machine threads and pass on the class' lock manager.
             T_SM1 = new P_SM1Thread(lockManager);
+            T_SM2 = new P_SM2Thread(lockManager);
         }
 
         // Define the states fot the state machine SM1.
@@ -325,9 +327,128 @@ public class Nesting {
             }
         }
 
+        // Define the states fot the state machine SM2.
+        interface P_SM2Thread_States {
+            enum States {
+                SMC0
+            }
+        }
+
+        // Representation of the SLCO state machine SM2.
+        class P_SM2Thread extends Thread implements P_SM2Thread_States {
+            // Current state
+            private P_SM2Thread.States currentState;
+
+            // Random number generator to handle non-determinism.
+            private final Random random;
+
+            // Thread local variables.
+            private int a;
+            private int b;
+            private int c;
+            private int d;
+
+            // The lock manager of the parent class.
+            private final LockManager lockManager;
+
+            // A list of lock ids and target locks that can be reused.
+            private final int[] lock_ids;
+            private final int[] target_locks;
+
+            P_SM2Thread(LockManager lockManagerInstance) {
+                currentState = P_SM2Thread.States.SMC0;
+                lockManager = lockManagerInstance;
+                lock_ids = new int[0];
+                target_locks = new int[0];
+                random = new Random();
+
+                // Variable instantiations.
+                a = 0;
+                b = 0;
+                c = 0;
+                d = 0;
+            }
+
+            // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | a > 10.
+            private boolean execute_transition_SMC0_0() {
+                // SLCO expression | a > 10.
+                if(!(a > 10)) {
+                    return false;
+                }
+
+                currentState = P_SM2Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | a < 1.
+            private boolean execute_transition_SMC0_1() {
+                // SLCO expression | a < 1.
+                if(!(a < 1)) {
+                    return false;
+                }
+
+                currentState = P_SM2Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | a < 1.
+            private boolean execute_transition_SMC0_2() {
+                // SLCO expression | a < 1.
+                if(!(a < 1)) {
+                    return false;
+                }
+
+                currentState = P_SM2Thread.States.SMC0;
+                return true;
+            }
+
+            // Attempt to fire a transition starting in state SMC0.
+            private void exec_SMC0() {
+                // [SEQ.START]
+                // [DET.START]
+                // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | a > 10.
+                if(execute_transition_SMC0_0()) {
+                    return;
+                }
+                // [SEQ.START]
+                // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | a < 1.
+                if(execute_transition_SMC0_1()) {
+                    return;
+                }
+                // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | a < 1.
+                if(execute_transition_SMC0_2()) {
+                    return;
+                }
+                // [SEQ.END]
+                // [DET.END]
+                // [SEQ.END]
+            }
+
+            // Main state machine loop.
+            private void exec() {
+                Instant time_start = Instant.now();
+                while(Duration.between(time_start, Instant.now()).toSeconds() < 60) {
+                    switch(currentState) {
+                        case SMC0 -> exec_SMC0();
+                    }
+                }
+            }
+
+            // The thread's run method.
+            public void run() {
+                try {
+                    exec();
+                } catch(Exception e) {
+                    lockManager.exception_unlock();
+                    throw e;
+                }
+            }
+        }
+
         // Start all threads.
         public void startThreads() {
             T_SM1.start();
+            T_SM2.start();
         }
 
         // Join all threads.
@@ -335,6 +456,7 @@ public class Nesting {
             while (true) {
                 try {
                     T_SM1.join();
+                    T_SM2.join();
                     break;
                 } catch (InterruptedException e) {
                     e.printStackTrace();

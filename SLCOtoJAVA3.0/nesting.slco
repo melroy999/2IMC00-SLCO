@@ -40,6 +40,20 @@ model Nesting {
                 a < 2;
             }
         }
+        SM2 {
+            variables Integer a Integer b Integer c Integer d
+            initial SMC0
+            transitions
+            from SMC0 to SMC0 {
+                a > 10;
+            }
+            from SMC0 to SMC0 {
+                a < 1;
+            }
+            from SMC0 to SMC0 {
+                a < 1;
+            }
+        }
 	}
 	objects p: P()
 }

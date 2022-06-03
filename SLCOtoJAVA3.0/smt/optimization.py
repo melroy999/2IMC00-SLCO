@@ -7,7 +7,9 @@ from z3 import z3
 
 import settings
 from objects.ast.models import DecisionNode, Transition
-from smt.solutions.greedy.recursion import select_non_deterministic_node
+from smt.solutions.combinations import OptimalContainsNestedDecisionStructureSolver, OptimalBaseDecisionStructureSolver
+from smt.solutions.recursion.solver import RecursionDecisionStructureSolver
+from smt.solutions.solver import DecisionStructureSolver
 
 if TYPE_CHECKING:
     from objects.ast.models import Variable
@@ -587,6 +589,9 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
     Use z3 optimization to create a minimally sized collections of groups of transitions in which the guard statements'
     active regions do not overlap.
     """
+    solver = OptimalContainsNestedDecisionStructureSolver(transitions)
+    return solver.solve()
+
     # Give all transitions an unique identity.
     for i, t in enumerate(transitions):
         t.id = i
@@ -603,22 +608,20 @@ def create_decision_groupings(transitions: List[Transition]) -> DecisionNode:
         else:
             remaining_transitions.append(t)
 
-    decision_node = select_non_deterministic_node(list(remaining_transitions))
+    if settings.no_deterministic_structures:
+        # Do not create deterministic structures when the no determinism flag is provided.
+        non_deterministic_choices: List[Transition, DecisionNode] = remaining_transitions
+    else:
+        if settings.use_full_smt_dsc:
+            non_deterministic_choices = create_deterministic_decision_structures_full_smt(remaining_transitions)
+        else:
+            non_deterministic_choices = create_deterministic_decision_structures(remaining_transitions)
 
-    # if settings.no_deterministic_structures:
-    #     # Do not create deterministic structures when the no determinism flag is provided.
-    #     non_deterministic_choices: List[Transition, DecisionNode] = remaining_transitions
-    # else:
-    #     if settings.use_full_smt_dsc:
-    #         non_deterministic_choices = create_deterministic_decision_structures_full_smt(remaining_transitions)
-    #     else:
-    #         non_deterministic_choices = create_deterministic_decision_structures(remaining_transitions)
-    #
-    # # Sort the decisions based on the priority.
-    # non_deterministic_choices += trivially_satisfiable_transitions
-    # non_deterministic_choices.sort(key=lambda x: (x.priority, x.id))
-    #
-    # # Create and return a non-deterministic decision node for the given decisions.
-    # decision_node = DecisionNode(False, non_deterministic_choices, excluded_transitions)
-    # optimize_lock_ordering_greedy(decision_node)
+    # Sort the decisions based on the priority.
+    non_deterministic_choices += trivially_satisfiable_transitions
+    non_deterministic_choices.sort(key=lambda x: (x.priority, x.id))
+
+    # Create and return a non-deterministic decision node for the given decisions.
+    decision_node = DecisionNode(False, non_deterministic_choices, excluded_transitions)
+    optimize_lock_ordering_greedy(decision_node)
     return decision_node

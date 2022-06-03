@@ -772,3 +772,10 @@ class DecisionNode(SlcoLockableNode):
     @guard_statement.setter
     def guard_statement(self, value):
         self._guard_statement = value
+
+    def add_excluded_transitions(self, excluded_transitions):
+        """Add transitions that are excluded by the decision node."""
+        self.excluded_transitions += excluded_transitions
+        for t in excluded_transitions:
+            t.is_excluded = True
+
