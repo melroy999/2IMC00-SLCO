@@ -108,16 +108,6 @@ class DecisionStructureSolver:
         return z3.And(v >= 0, v < 2)
 
     @staticmethod
-    def include_and_truth_table() -> bool:
-        """A boolean that denotes whether truth table variables for the and operator needs to be included."""
-        return True
-
-    @staticmethod
-    def include_is_equal_truth_table() -> bool:
-        """A boolean that denotes whether truth table variables for the is equal operator needs to be included."""
-        return False
-
-    @staticmethod
     def include_contains_truth_table() -> bool:
         """A boolean that denotes whether truth table variables for the contains operator needs to be included."""
         return False
@@ -139,10 +129,8 @@ class DecisionStructureSolver:
             self.solver.add(v == t.priority)
 
         # Create the desired truth tables.
-        if self.include_and_truth_table():
-            self.and_truth_table = self.create_and_truth_table(transitions, alias_variables)
-        if self.include_is_equal_truth_table():
-            self.is_equal_truth_table = self.create_is_equal_truth_table(transitions, alias_variables)
+        self.and_truth_table = self.create_and_truth_table(transitions, alias_variables)
+        self.is_equal_truth_table = self.create_is_equal_truth_table(transitions, alias_variables)
         if self.include_contains_truth_table():
             self.contains_truth_table = self.create_contains_truth_table(transitions, alias_variables)
 
@@ -167,7 +155,6 @@ class DecisionStructureSolver:
         # Sort the transitions and create a deterministic node.
         transitions.sort(key=lambda x: (x.priority, x.id))
         deterministic_node = DecisionNode(True, transitions, [])
-        # TODO: lock ordering optimization.
         return deterministic_node
 
     def remove_conflicting_transitions(self, transitions: List[Transition]):
@@ -299,8 +286,58 @@ class DecisionStructureSolver:
         non_deterministic_choices += conflicting_transitions
         non_deterministic_choices.sort(key=lambda x: (x.priority, x.id))
         non_deterministic_node = DecisionNode(False, non_deterministic_choices, [])
-        # TODO: lock ordering optimization.
         return non_deterministic_node
+
+    def simplify(self, d: DecisionNode) -> DecisionNode:
+        """Recursively simplify the structure of the given decision node."""
+        excluded_transitions = d.excluded_transitions
+        decisions = []
+        guard_statement = d.guard_statement
+
+        # Simplify decisions that contain only one option.
+        for decision in d.decisions:
+            if isinstance(decision, Transition):
+                decisions.append(decision)
+            else:
+                # Simplify the nested transition.
+                simplified_decision_node = self.simplify(decision)
+
+                # Raise the decision if the decision node only contains one option.
+                if len(simplified_decision_node.decisions) == 1:
+                    decisions += simplified_decision_node.decisions
+                    excluded_transitions += simplified_decision_node.excluded_transitions
+                else:
+                    decisions.append(simplified_decision_node)
+
+        simplified_decision_node = DecisionNode(d.is_deterministic, decisions, excluded_transitions)
+        simplified_decision_node.guard_statement = guard_statement
+        return simplified_decision_node
+
+    def validate(self, d: DecisionNode) -> None:
+        """Validate the given decision structure for semantic correctness."""
+        # Validate that all options are mutually exclusive if the node is deterministic.
+        if d.is_deterministic:
+            for i, d1 in enumerate(d.decisions):
+                for j, d2 in enumerate(d.decisions):
+                    # Overlap is mirrored. So break on observing equal decisions.
+                    if i == j:
+                        break
+
+                    # Raise an exception if they have solutions in common.
+                    id1 = d1.id if isinstance(d1, Transition) else d1.guard_statement.id
+                    id2 = d2.id if isinstance(d2, Transition) else d2.guard_statement.id
+                    if self.and_truth_table[id1][id2]:
+                        raise Exception("The deterministic group has overlapping solution spaces.")
+
+        # Validate that all excluded transitions are unreachable.
+        for transition in d.excluded_transitions:
+            if not transition.guard.is_false():
+                raise Exception("A transition is excluded that can be active.")
+
+        for decision in d.decisions:
+            # Validate the nested decision nodes.
+            if isinstance(decision, DecisionNode):
+                self.validate(decision)
 
     def solve(self) -> DecisionNode:
         """Convert the list of transitions to a decision structure."""
@@ -326,5 +363,15 @@ class DecisionStructureSolver:
         # Restore the state of the solver.
         self.solver.pop()
 
+        # TODO: do sorting based on lock ordering optimization.
+
+        # Post-process the node.
+        decision_node = self.simplify(non_deterministic_node)
+
+        # TODO: mark unavoidable lock violations due to the ordering.
+
+        # Validate whether the deterministic nodes have non-overlapping members.
+        self.validate(decision_node)
+
         # Return the node.
-        return non_deterministic_node
+        return decision_node

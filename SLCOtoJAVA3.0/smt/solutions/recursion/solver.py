@@ -60,5 +60,4 @@ class RecursionDecisionStructureSolver(DecisionStructureSolver):
         # Sort the transitions and create a deterministic node.
         deterministic_choices.sort(key=lambda x: (x.priority, x.id))
         deterministic_node = DecisionNode(True, deterministic_choices, [])
-        # TODO: lock ordering optimization.
         return deterministic_node

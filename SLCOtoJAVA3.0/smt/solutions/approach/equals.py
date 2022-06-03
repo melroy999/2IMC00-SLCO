@@ -9,11 +9,6 @@ from smt.solutions.solver import DecisionStructureSolver
 class EqualsDecisionStructureSolver(DecisionStructureSolver):
     """A class that converts a list of transitions to a decision structure, using equality for more refined groups."""
 
-    @staticmethod
-    def include_is_equal_truth_table() -> bool:
-        """A boolean that denotes whether truth table variables for the is equal operator needs to be included."""
-        return True
-
     def create_non_deterministic_node_smt_model_overlap_constraints(
             self,
             t1: Transition,

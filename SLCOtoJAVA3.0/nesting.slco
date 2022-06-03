@@ -19,7 +19,13 @@ model Nesting {
                 a > 11 && a < 15;
             }
             from SMC0 to SMC0 {
+                a > 11 && a < 15;
+            }
+            from SMC0 to SMC0 {
                 a > 11 && a < 13;
+            }
+            from SMC0 to SMC0 {
+                a > 13 && a < 15;
             }
             from SMC0 to SMC0 {
                 a > 13 && a < 15;
@@ -52,6 +58,14 @@ model Nesting {
             }
             from SMC0 to SMC0 {
                 a < 1;
+            }
+        }
+        SM3 {
+            variables Integer a Integer b Integer c Integer d
+            initial SMC0
+            transitions
+            from SMC0 to SMC0 {
+                a > 10;
             }
         }
 	}
