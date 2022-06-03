@@ -1,8 +1,10 @@
 import logging
-from typing import Union
+from typing import Union, List
 
+import settings
 from objects.ast.models import StateMachine, DecisionNode, Transition
 from smt.optimization import create_decision_groupings
+from smt.solutions.combinations import *
 
 
 def set_groupings(model: StateMachine):
@@ -14,10 +16,21 @@ def set_groupings(model: StateMachine):
     # Create a decision structure.
     for state, transitions in model.state_to_transitions.items():
         logging.info(f"Assigning decision groupings for state {state}")
-        root_decision_node = model.state_to_decision_node[state] = create_decision_groupings(
-            transitions
-        )
+        root_decision_node = model.state_to_decision_node[state] = get_groupings(transitions)
         print_decision_structure(root_decision_node)
+
+
+def get_groupings(transitions: List[Transition]):
+    """Get the groupings for the given list of transitions."""
+    solver_options = {
+        0: GreedyBaseDecisionStructureSolver,
+        1: GreedyEqualsNestedDecisionStructureSolver,
+        2: GreedyContainsNestedDecisionStructureSolver,
+        3: OptimalBaseDecisionStructureSolver,
+        4: OptimalEqualsNestedDecisionStructureSolver,
+        5: OptimalContainsNestedDecisionStructureSolver,
+    }
+    return solver_options[settings.decision_structure_solver_id](transitions).solve()
 
 
 def print_decision_structure(model: Union[Transition, DecisionNode], indents=0) -> None:

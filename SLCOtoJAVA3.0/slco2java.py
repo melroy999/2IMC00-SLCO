@@ -97,7 +97,9 @@ def render(model, model_folder):
 
 def get_argument_parser():
     """Get a parser for the input arguments."""
-    parser = argparse.ArgumentParser(description="Transform an SLCO 2.0 model to a Java program")
+    parser = argparse.ArgumentParser(
+        description="Transform an SLCO 2.0 model to a Java program", formatter_class=argparse.RawTextHelpFormatter
+    )
     parser.add_argument("model", help="The SLCO 2.0 model to be converted to a Java program.")
 
     # Parameters that control the locking structure.
@@ -107,10 +109,17 @@ def get_argument_parser():
                                                                                   "deterministic structures and force "
                                                                                   "the decision structure to choose a "
                                                                                   "transition arbitrarily.")
-    parser.add_argument("-use_full_smt_dsc", action="store_true", help="(EXPERIMENTAL) Use the alternative algorithm "
-                                                                       "for constructing decision structures that uses "
-                                                                       "only a single SMT model to assign all "
-                                                                       "transitions to groups.")
+
+    parser.add_argument("-decision_structure_solver_id", nargs="?", type=int, choices=range(0, 6), const=2, default=0,
+                        required=False, help=
+                        "The ID of the decision structure solver to use:\n"
+                        "0. Greedy basic solver meeting minimum requirements\n"
+                        "1. Greedy solver that merges equal transitions\n"
+                        "2. Greedy solver that creates a nested structure for contained transitions (default)\n"
+                        "3. Optimal basic solver meeting minimum requirements\n"
+                        "4. Optimal solver that merges equal transitions\n"
+                        "5. Optimal solver that creates a nested structure for contained transitions\n"
+                        )
 
     # Parameters that control the locking mechanism.
     parser.add_argument("-atomic_sequential", action="store_true", help="Make the sequential decision structures an "

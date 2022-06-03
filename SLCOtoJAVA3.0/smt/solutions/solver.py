@@ -2,6 +2,7 @@ from typing import List, Dict, Callable, Optional, Union, Tuple
 
 from z3 import z3, ModelRef, CheckSatResult
 
+import settings
 from objects.ast.models import Transition, DecisionNode
 
 
@@ -264,6 +265,10 @@ class DecisionStructureSolver:
             self, transitions: List[Transition], alias_variables: Dict[str, z3.ArithRef]
     ) -> DecisionNode:
         """Convert the list of transitions to a non-deterministic decision node."""
+        # Return a non-deterministic node containing all transitions if no deterministic structures should be generated.
+        if settings.no_deterministic_structures:
+            return DecisionNode(False, transitions, [])
+
         # Preprocess transitions that overlap with all other available transitions.
         conflicting_transitions = self.remove_conflicting_transitions(transitions)
 
@@ -302,8 +307,12 @@ class DecisionStructureSolver:
                 # Simplify the nested transition.
                 simplified_decision_node = self.simplify(decision)
 
-                # Raise the decision if the decision node only contains one option.
                 if len(simplified_decision_node.decisions) == 1:
+                    # Raise the decision if the decision node only contains one option.
+                    decisions += simplified_decision_node.decisions
+                    excluded_transitions += simplified_decision_node.excluded_transitions
+                elif simplified_decision_node.is_deterministic == d.is_deterministic:
+                    # Merge nodes of the same type.
                     decisions += simplified_decision_node.decisions
                     excluded_transitions += simplified_decision_node.excluded_transitions
                 else:

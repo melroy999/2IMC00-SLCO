@@ -11,8 +11,8 @@ use_random_pick = False
 # Should the program generate Java code without deterministic structures?
 no_deterministic_structures = False
 
-# Should the program use the alternative algorithm (using only a single SMT model) to find deterministic structures?
-use_full_smt_dsc = False
+# The decision structure solver to use.
+decision_structure_solver_id = 2
 
 # Should the sequential decision grouping be considered an atomic operation?
 atomic_sequential = False
@@ -65,16 +65,16 @@ package_name = ""
 
 def set_settings_abbreviations(parameters):
     """Initialize the settings abbreviations string"""
-    global model_folder, model_name, use_random_pick, no_deterministic_structures, use_full_smt_dsc, atomic_sequential,\
-        no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, iteration_limit, \
-        running_time, settings_abbreviations
+    global model_folder, model_name, use_random_pick, no_deterministic_structures, decision_structure_solver_id, \
+        atomic_sequential,no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, \
+        iteration_limit, running_time, settings_abbreviations
     included_settings = []
     if use_random_pick != parameters.use_random_pick:
         included_settings.append("URP")
     if no_deterministic_structures != parameters.no_deterministic_structures:
         included_settings.append("NDS")
-    if use_full_smt_dsc != parameters.use_full_smt_dsc:
-        included_settings.append("UFD")
+    if decision_structure_solver_id != parameters.decision_structure_solver_id:
+        included_settings.append(f"DSSI={parameters.decision_structure_solver_id}")
 
     if atomic_sequential != parameters.atomic_sequential:
         included_settings.append("AS")
@@ -92,9 +92,9 @@ def set_settings_abbreviations(parameters):
     if running_time != parameters.running_time:
         included_settings.append(f"T={parameters.running_time}s")
 
-    included_settings.append(f"LFS={parameters.log_file_size}")
-    included_settings.append(f"LBS={parameters.log_buffer_size}")
-    included_settings.append(f"CL={parameters.compression_level}")
+    # included_settings.append(f"LFS={parameters.log_file_size}")
+    # included_settings.append(f"LBS={parameters.log_buffer_size}")
+    # included_settings.append(f"CL={parameters.compression_level}")
 
     included_settings.sort()
     settings_abbreviations = "" if len(included_settings) == 0 else f'[{",".join(included_settings)}]'
@@ -102,10 +102,10 @@ def set_settings_abbreviations(parameters):
 
 def init(parameters, _args):
     """Initialize the global variables, defining the settings of the program"""
-    global model_folder, model_name, use_random_pick, no_deterministic_structures, use_full_smt_dsc, atomic_sequential,\
-        no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, iteration_limit, \
-        running_time, log_file_size, log_buffer_size, compression_level, original_arguments, vercors_verification, \
-        performance_measurements, package_name
+    global model_folder, model_name, use_random_pick, no_deterministic_structures, decision_structure_solver_id, \
+        atomic_sequential, no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, \
+        iteration_limit, running_time, log_file_size, log_buffer_size, compression_level, original_arguments, \
+        vercors_verification, performance_measurements, package_name
 
     # Add abbreviations such that used settings can be easily tracked.
     set_settings_abbreviations(parameters)
@@ -116,7 +116,7 @@ def init(parameters, _args):
     # Store all of the desired settings.
     use_random_pick = parameters.use_random_pick
     no_deterministic_structures = parameters.no_deterministic_structures
-    use_full_smt_dsc = parameters.use_full_smt_dsc
+    decision_structure_solver_id = parameters.decision_structure_solver_id
 
     atomic_sequential = parameters.atomic_sequential
     no_locks = parameters.no_locks or parameters.statement_level_locking
