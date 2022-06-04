@@ -265,8 +265,6 @@ public class Nesting {
             // Attempt to fire a transition starting in state SMC0.
             private void exec_SMC0() {
                 // [SEQ.START]
-                // [DET.START]
-                // [SEQ.START]
                 // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | a > 10.
                 if(execute_transition_SMC0_0()) {
                     return;
@@ -275,12 +273,24 @@ public class Nesting {
                 if(execute_transition_SMC0_1()) {
                     return;
                 }
+                // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | a > 13 and a < 17.
+                if(execute_transition_SMC0_2()) {
+                    return;
+                }
                 // [DET.START]
-                // [SEQ.START]
                 // SLCO transition (p:0, id:3) | SMC0 -> SMC0 | a > 11 and a < 15.
                 if(execute_transition_SMC0_3()) {
                     return;
                 }
+                // SLCO transition (p:0, id:8) | SMC0 -> SMC0 | a > 15 and a < 20.
+                if(execute_transition_SMC0_8()) {
+                    return;
+                }
+                // SLCO transition (p:0, id:11) | SMC0 -> SMC0 | a < 1.
+                if(execute_transition_SMC0_11()) {
+                    return;
+                }
+                // [DET.END]
                 // SLCO transition (p:0, id:4) | SMC0 -> SMC0 | a > 11 and a < 15.
                 if(execute_transition_SMC0_4()) {
                     return;
@@ -290,24 +300,10 @@ public class Nesting {
                 if(execute_transition_SMC0_5()) {
                     return;
                 }
-                // [SEQ.START]
-                // SLCO transition (p:0, id:6) | SMC0 -> SMC0 | a > 13 and a < 15.
-                if(execute_transition_SMC0_6()) {
-                    return;
-                }
                 // SLCO transition (p:0, id:7) | SMC0 -> SMC0 | a > 13 and a < 15.
                 if(execute_transition_SMC0_7()) {
                     return;
                 }
-                // [SEQ.END]
-                // [DET.END]
-                // [SEQ.END]
-                // [SEQ.START]
-                // SLCO transition (p:0, id:8) | SMC0 -> SMC0 | a > 15 and a < 20.
-                if(execute_transition_SMC0_8()) {
-                    return;
-                }
-                // [DET.START]
                 // SLCO transition (p:0, id:9) | SMC0 -> SMC0 | a > 15 and a < 17.
                 if(execute_transition_SMC0_9()) {
                     return;
@@ -316,23 +312,13 @@ public class Nesting {
                 if(execute_transition_SMC0_10()) {
                     return;
                 }
-                // [DET.END]
-                // [SEQ.END]
-                // [DET.END]
-                // [SEQ.END]
-                // [SEQ.START]
-                // SLCO transition (p:0, id:11) | SMC0 -> SMC0 | a < 1.
-                if(execute_transition_SMC0_11()) {
-                    return;
-                }
                 // SLCO transition (p:0, id:12) | SMC0 -> SMC0 | a < 2.
                 if(execute_transition_SMC0_12()) {
                     return;
                 }
-                // [SEQ.END]
                 // [DET.END]
-                // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | a > 13 and a < 17.
-                if(execute_transition_SMC0_2()) {
+                // SLCO transition (p:0, id:6) | SMC0 -> SMC0 | a > 13 and a < 15.
+                if(execute_transition_SMC0_6()) {
                     return;
                 }
                 // [SEQ.END]
@@ -442,17 +428,15 @@ public class Nesting {
                 if(execute_transition_SMC0_0()) {
                     return;
                 }
-                // [SEQ.START]
-                // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | a < 1.
-                if(execute_transition_SMC0_1()) {
-                    return;
-                }
                 // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | a < 1.
                 if(execute_transition_SMC0_2()) {
                     return;
                 }
-                // [SEQ.END]
                 // [DET.END]
+                // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | a < 1.
+                if(execute_transition_SMC0_1()) {
+                    return;
+                }
                 // [SEQ.END]
             }
 

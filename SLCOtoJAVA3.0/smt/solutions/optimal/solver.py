@@ -38,13 +38,6 @@ class OptimalDecisionStructureSolver(DecisionStructureSolver):
         # Maximize the size of the group.
         self.create_non_deterministic_node_smt_model_optimization_constraint(transitions, alias_variables)
 
-    def create_non_deterministic_node_smt_model_optimization_constraint(
-            self, transitions: List[Transition], alias_variables: Dict[str, z3.ArithRef]
-    ) -> None:
-        """Add the maximization constraints to the model."""
-        # Minimize, since we want the lowest number of groups.
-        self.solver.minimize(sum(alias_variables[f"g{t.id}"] for t in transitions))
-
     def get_non_deterministic_node_groups(
             self, transitions: List[Transition], alias_variables: Dict[str, z3.ArithRef]
     ) -> List[List[Union[DecisionNode, Transition]]]:

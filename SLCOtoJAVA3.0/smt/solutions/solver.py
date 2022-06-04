@@ -176,7 +176,7 @@ class DecisionStructureSolver:
             v: z3.ArithRef,
             transitions: List[Transition],
             alias_variables: Dict[str, z3.ArithRef],
-            target_group: int = 1
+            target_group: int = 0
     ) -> None:
         """Add the overlap constraints to the model."""
         inner_or = z3.Or([
@@ -193,7 +193,7 @@ class DecisionStructureSolver:
             v: z3.ArithRef,
             transitions: List[Transition],
             alias_variables: Dict[str, z3.ArithRef],
-            target_group: int = 1
+            target_group: int = 0
     ) -> None:
         """Add the priority constraints to the model."""
         inner_or = z3.Or([
@@ -208,7 +208,7 @@ class DecisionStructureSolver:
             self, transitions: List[Transition], alias_variables: Dict[str, z3.ArithRef]
     ) -> None:
         """Add the maximization constraints to the model."""
-        self.solver.maximize(sum(alias_variables[f"g{t.id}"] for t in transitions))
+        self.solver.minimize(sum(alias_variables[f"g{t.id}"] for t in transitions))
 
     def create_non_deterministic_node_smt_model_constraints(
             self, transitions: List[Transition], alias_variables: Dict[str, z3.ArithRef]
@@ -247,7 +247,7 @@ class DecisionStructureSolver:
 
             # Find the target transitions that are part of the deterministic group.
             grouped_transitions: List[Transition] = [
-                t for t in transitions if model.evaluate(alias_variables[f"g{t.id}"], model_completion=True) == 1
+                t for t in transitions if model.evaluate(alias_variables[f"g{t.id}"], model_completion=True) == 0
             ]
             deterministic_transition_groups.append(grouped_transitions)
 
