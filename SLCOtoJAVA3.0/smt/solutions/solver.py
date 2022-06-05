@@ -176,7 +176,7 @@ class DecisionStructureSolver:
             v: z3.ArithRef,
             transitions: List[Transition],
             alias_variables: Dict[str, z3.ArithRef],
-            target_group: int = 0
+            target_group: int
     ) -> None:
         """Add the overlap constraints to the model."""
         inner_or = z3.Or([
@@ -193,7 +193,7 @@ class DecisionStructureSolver:
             v: z3.ArithRef,
             transitions: List[Transition],
             alias_variables: Dict[str, z3.ArithRef],
-            target_group: int = 0
+            target_group: int
     ) -> None:
         """Add the priority constraints to the model."""
         inner_or = z3.Or([
@@ -219,10 +219,10 @@ class DecisionStructureSolver:
             v = alias_variables[f"g{t1.id}"]
 
             # It must hold that the transition has no overlap with any of the members in the same group.
-            self.create_non_deterministic_node_smt_model_overlap_constraints(t1, v, transitions, alias_variables)
+            self.create_non_deterministic_node_smt_model_overlap_constraints(t1, v, transitions, alias_variables, 0)
 
             # It must hold that the priority of each member in the group is the same.
-            self.create_non_deterministic_node_smt_model_priority_constraints(t1, v, transitions, alias_variables)
+            self.create_non_deterministic_node_smt_model_priority_constraints(t1, v, transitions, alias_variables, 0)
 
         # Maximize the size of the group.
         self.create_non_deterministic_node_smt_model_optimization_constraint(transitions, alias_variables)

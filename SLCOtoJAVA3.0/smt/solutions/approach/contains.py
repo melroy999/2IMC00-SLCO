@@ -29,7 +29,7 @@ class ContainsDecisionStructureSolver(DecisionStructureSolver):
             v: z3.ArithRef,
             transitions: List[Transition],
             alias_variables: Dict[str, z3.ArithRef],
-            target_group: int = 1
+            target_group: int
     ) -> None:
         """Add the overlap constraints to the model."""
         inner_or = z3.Or([
