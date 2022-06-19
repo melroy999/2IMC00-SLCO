@@ -108,11 +108,6 @@ class DecisionStructureSolver:
         """Get the bounds to use for the group variable within the smt model."""
         return z3.And(v >= 0, v < 2)
 
-    @staticmethod
-    def include_contains_truth_table() -> bool:
-        """A boolean that denotes whether truth table variables for the contains operator needs to be included."""
-        return False
-
     def create_smt_model_variables(
             self, transitions: List[Transition]
     ) -> Dict[str, z3.ArithRef]:
@@ -132,8 +127,7 @@ class DecisionStructureSolver:
         # Create the desired truth tables.
         self.and_truth_table = self.create_and_truth_table(transitions, alias_variables)
         self.is_equal_truth_table = self.create_is_equal_truth_table(transitions, alias_variables)
-        if self.include_contains_truth_table():
-            self.contains_truth_table = self.create_contains_truth_table(transitions, alias_variables)
+        self.contains_truth_table = self.create_contains_truth_table(transitions, alias_variables)
 
         return alias_variables
 
@@ -324,8 +318,8 @@ class DecisionStructureSolver:
 
     def validate(self, d: DecisionNode) -> None:
         """Validate the given decision structure for semantic correctness."""
-        # Validate that all options are mutually exclusive if the node is deterministic.
         if d.is_deterministic:
+            # Validate that all options are mutually exclusive if the node is deterministic.
             for i, d1 in enumerate(d.decisions):
                 for j, d2 in enumerate(d.decisions):
                     # Overlap is mirrored. So break on observing equal decisions.
@@ -337,6 +331,18 @@ class DecisionStructureSolver:
                     id2 = d2.id if isinstance(d2, Transition) else d2.guard_statement.id
                     if self.and_truth_table[id1][id2]:
                         raise Exception("The deterministic group has overlapping solution spaces.")
+        elif d.guard_statement is not None:
+            # Validate that the guard statement of the node contains all transitions.
+            id1 = d.guard_statement.id
+            for d1 in d.decisions:
+                target_ids = []
+                if isinstance(d1, DecisionNode):
+                    for d2 in d1.decisions:
+                        target_ids.append(d2.id if isinstance(d2, Transition) else d2.guard_statement.id)
+                else:
+                    target_ids.append(d1.id)
+                if not all(self.contains_truth_table[id1][id2] for id2 in target_ids):
+                    raise Exception("The guard statement of the non-deterministic group does not contain all members.")
 
         # Validate that all excluded transitions are unreachable.
         for transition in d.excluded_transitions:

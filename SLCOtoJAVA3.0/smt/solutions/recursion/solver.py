@@ -28,7 +28,7 @@ class RecursionDecisionStructureSolver(DecisionStructureSolver):
         truth_matrix = np.matrix(
             [[self.and_truth_table[t1.id][t2.id] for t2 in transitions] for t1 in transitions], dtype=bool
         )
-        propagated_truth_matrix = np.linalg.matrix_power(truth_matrix, len(transitions))
+        reachability_matrix = np.linalg.matrix_power(truth_matrix, len(transitions))
 
         # Extract the groups.
         decision_groups: List[List[Transition]] = []
@@ -39,7 +39,7 @@ class RecursionDecisionStructureSolver(DecisionStructureSolver):
                 continue
 
             # Find all transitions that overlap.
-            target_indices: List[int] = [j for j, t2 in enumerate(transitions) if propagated_truth_matrix[i, j]]
+            target_indices: List[int] = [j for j, t2 in enumerate(transitions) if reachability_matrix[i, j]]
             decision_groups.append([index_to_transition[j] for j in target_indices])
             grouped_indices.update(target_indices)
 

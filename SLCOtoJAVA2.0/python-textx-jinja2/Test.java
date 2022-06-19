@@ -64,10 +64,10 @@ public class Test {
   context (\forall* int slco_i ; 0 <= slco_i < x.length ; Perm(x[slco_i],write));
   ensures b0 ==> \result == true;
   ensures !b0 ==> \result == false;
-  ensures b0 ==> (\forall* int slco_i ; 0 <= slco_i < x.length ; x[slco_i] == value_SMC0_1_x(slco_i, i2, b2, i0, b1, \old(x[slco_i])));
-  ensures !b0 ==> (\forall* int slco_i ; 0 <= slco_i < x.length ; x[slco_i] == \old(x[slco_i]));
   ensures b0 ==> (j == i1);
   ensures !b0 ==> (j == \old(j));
+  ensures b0 ==> (\forall* int slco_i ; 0 <= slco_i < x.length ; x[slco_i] == value_SMC0_1_x(slco_i, i2, b2, i0, b1, \old(x[slco_i])));
+  ensures !b0 ==> (\forall* int slco_i ; 0 <= slco_i < x.length ; x[slco_i] == \old(x[slco_i]));
   @*/
   boolean execute_SMC0_1() {
     // SLCO statement: [ not x[j + 0]; x[j + 1] := j = 2; j := 3; x[0] := False ]

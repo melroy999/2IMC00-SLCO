@@ -9,11 +9,6 @@ from smt.solutions.solver import DecisionStructureSolver
 class ContainsDecisionStructureSolver(DecisionStructureSolver):
     """A class that converts a list of transitions to a decision structure, using contains for more refined groups."""
 
-    @staticmethod
-    def include_contains_truth_table() -> bool:
-        """A boolean that denotes whether truth table variables for the contains operator needs to be included."""
-        return True
-
     def get_encompassing_guard_statement(self, transitions: List[Transition]) -> Transition:
         """Get the transition that contains the encompassing guard statement of the nested group."""
         # Select the transition that contains the most transitions.
