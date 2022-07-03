@@ -94,9 +94,6 @@ public class Nesting {
 
             // Thread local variables.
             private int a;
-            private int b;
-            private int c;
-            private int d;
 
             // The lock manager of the parent class.
             private final LockManager lockManager;
@@ -114,9 +111,6 @@ public class Nesting {
 
                 // Variable instantiations.
                 a = 0;
-                b = 0;
-                c = 0;
-                d = 0;
             }
 
             // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | a > 10.
@@ -251,8 +245,30 @@ public class Nesting {
                 return true;
             }
 
-            // SLCO transition (p:0, id:12) | SMC0 -> SMC0 | a < 2.
+            // SLCO transition (p:0, id:12) | SMC0 -> SMC0 | a < 1.
             private boolean execute_transition_SMC0_12() {
+                // SLCO expression | a < 1.
+                if(!(a < 1)) {
+                    return false;
+                }
+
+                currentState = P_SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO transition (p:0, id:13) | SMC0 -> SMC0 | a < 2.
+            private boolean execute_transition_SMC0_13() {
+                // SLCO expression | a < 2.
+                if(!(a < 2)) {
+                    return false;
+                }
+
+                currentState = P_SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO transition (p:2, id:14) | SMC0 -> SMC0 | a < 2.
+            private boolean execute_transition_SMC0_14() {
                 // SLCO expression | a < 2.
                 if(!(a < 2)) {
                     return false;
@@ -325,14 +341,22 @@ public class Nesting {
                 if(execute_transition_SMC0_11()) {
                     return;
                 }
-                // SLCO transition (p:0, id:12) | SMC0 -> SMC0 | a < 2.
+                // SLCO transition (p:0, id:12) | SMC0 -> SMC0 | a < 1.
                 if(execute_transition_SMC0_12()) {
+                    return;
+                }
+                // SLCO transition (p:0, id:13) | SMC0 -> SMC0 | a < 2.
+                if(execute_transition_SMC0_13()) {
                     return;
                 }
                 // [SEQ.END]
                 // [DET.END]
                 // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | a > 13 and a < 17.
                 if(execute_transition_SMC0_2()) {
+                    return;
+                }
+                // SLCO transition (p:2, id:14) | SMC0 -> SMC0 | a < 2.
+                if(execute_transition_SMC0_14()) {
                     return;
                 }
                 // [SEQ.END]
@@ -376,9 +400,6 @@ public class Nesting {
 
             // Thread local variables.
             private int a;
-            private int b;
-            private int c;
-            private int d;
 
             // The lock manager of the parent class.
             private final LockManager lockManager;
@@ -396,9 +417,6 @@ public class Nesting {
 
                 // Variable instantiations.
                 a = 0;
-                b = 0;
-                c = 0;
-                d = 0;
             }
 
             // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | a > 10.
@@ -494,9 +512,6 @@ public class Nesting {
 
             // Thread local variables.
             private int a;
-            private int b;
-            private int c;
-            private int d;
 
             // The lock manager of the parent class.
             private final LockManager lockManager;
@@ -514,9 +529,6 @@ public class Nesting {
 
                 // Variable instantiations.
                 a = 0;
-                b = 0;
-                c = 0;
-                d = 0;
             }
 
             // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | a > 10.

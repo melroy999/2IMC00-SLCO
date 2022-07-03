@@ -299,6 +299,7 @@ def get_variables_to_be_locked(model: SlcoStatementNode):
         target_variables = adjusted_variable_references
     return target_variables
 
+
 def get_variable_dependency_graph(model: SlcoStatementNode) -> nx.DiGraph:
     """Get a variable dependency graph for the variables within the statement."""
     if model.variable_dependency_graph is not None:

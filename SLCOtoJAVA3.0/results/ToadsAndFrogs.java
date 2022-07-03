@@ -149,11 +149,11 @@ public class ToadsAndFrogs {
                 if(t_q_0_s_0_n_0() && t_q_0_s_0_n_1()) {
                     return true;
                 }
-                lock_ids[0] = target_locks[2] = 3 + 3; // Acquire a[3]
-                lock_ids[1] = target_locks[3] = 3 + 4; // Acquire a[4]
-                lock_ids[2] = target_locks[4] = 3 + 1; // Acquire a[1]
-                lock_ids[3] = target_locks[5] = 3 + 2; // Acquire a[2]
-                lock_ids[4] = target_locks[6] = 3 + 0; // Acquire a[0]
+                lock_ids[0] = target_locks[2] = 3 + 4; // Acquire a[4]
+                lock_ids[1] = target_locks[3] = 3 + 0; // Acquire a[0]
+                lock_ids[2] = target_locks[4] = 3 + 2; // Acquire a[2]
+                lock_ids[3] = target_locks[5] = 3 + 1; // Acquire a[1]
+                lock_ids[4] = target_locks[6] = 3 + 3; // Acquire a[3]
                 lock_ids[5] = target_locks[7] = 3 + 5; // Acquire a[5]
                 lock_ids[6] = target_locks[8] = 3 + 6; // Acquire a[6]
                 lock_ids[7] = target_locks[9] = 3 + 7; // Acquire a[7]
@@ -164,11 +164,11 @@ public class ToadsAndFrogs {
 
             // SLCO expression wrapper | a[y - 1] = 1.
             private boolean t_q_0_s_0_n_3() {
-                lock_ids[0] = target_locks[2] = 3 + 3; // Acquire a[3]
-                lock_ids[1] = target_locks[3] = 3 + 4; // Acquire a[4]
-                lock_ids[2] = target_locks[4] = 3 + 1; // Acquire a[1]
-                lock_ids[3] = target_locks[5] = 3 + 2; // Acquire a[2]
-                lock_ids[4] = target_locks[6] = 3 + 0; // Acquire a[0]
+                lock_ids[0] = target_locks[2] = 3 + 4; // Acquire a[4]
+                lock_ids[1] = target_locks[3] = 3 + 0; // Acquire a[0]
+                lock_ids[2] = target_locks[4] = 3 + 2; // Acquire a[2]
+                lock_ids[3] = target_locks[5] = 3 + 1; // Acquire a[1]
+                lock_ids[4] = target_locks[6] = 3 + 3; // Acquire a[3]
                 lock_ids[5] = target_locks[7] = 3 + 5; // Acquire a[5]
                 lock_ids[6] = target_locks[8] = 3 + 6; // Acquire a[6]
                 lock_ids[7] = target_locks[9] = 3 + 7; // Acquire a[7]
@@ -178,11 +178,11 @@ public class ToadsAndFrogs {
                 lockManager.acquire_locks(lock_ids, 11);
                 if(a[y - 1] == 1) {
                     lock_ids[0] = target_locks[1]; // Release tmin
-                    lock_ids[1] = target_locks[2]; // Release a[3]
-                    lock_ids[2] = target_locks[3]; // Release a[4]
-                    lock_ids[3] = target_locks[4]; // Release a[1]
-                    lock_ids[4] = target_locks[5]; // Release a[2]
-                    lock_ids[5] = target_locks[6]; // Release a[0]
+                    lock_ids[1] = target_locks[2]; // Release a[4]
+                    lock_ids[2] = target_locks[3]; // Release a[0]
+                    lock_ids[3] = target_locks[4]; // Release a[2]
+                    lock_ids[4] = target_locks[5]; // Release a[1]
+                    lock_ids[5] = target_locks[6]; // Release a[3]
                     lock_ids[6] = target_locks[7]; // Release a[5]
                     lock_ids[7] = target_locks[8]; // Release a[6]
                     lock_ids[8] = target_locks[9]; // Release a[7]
@@ -237,11 +237,11 @@ public class ToadsAndFrogs {
                 // SLCO assignment | a[y] := 0.
                 a[y] = 0;
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[2]; // Release a[3]
-                lock_ids[2] = target_locks[3]; // Release a[4]
-                lock_ids[3] = target_locks[4]; // Release a[1]
-                lock_ids[4] = target_locks[5]; // Release a[2]
-                lock_ids[5] = target_locks[6]; // Release a[0]
+                lock_ids[1] = target_locks[2]; // Release a[4]
+                lock_ids[2] = target_locks[3]; // Release a[0]
+                lock_ids[3] = target_locks[4]; // Release a[2]
+                lock_ids[4] = target_locks[5]; // Release a[1]
+                lock_ids[5] = target_locks[6]; // Release a[3]
                 lock_ids[6] = target_locks[7]; // Release a[5]
                 lock_ids[7] = target_locks[8]; // Release a[6]
                 lock_ids[8] = target_locks[9]; // Release a[7]
@@ -276,11 +276,11 @@ public class ToadsAndFrogs {
                 // SLCO assignment | a[y] := 0.
                 a[y] = 0;
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[2]; // Release a[3]
-                lock_ids[2] = target_locks[3]; // Release a[4]
-                lock_ids[3] = target_locks[4]; // Release a[1]
-                lock_ids[4] = target_locks[5]; // Release a[2]
-                lock_ids[5] = target_locks[6]; // Release a[0]
+                lock_ids[1] = target_locks[2]; // Release a[4]
+                lock_ids[2] = target_locks[3]; // Release a[0]
+                lock_ids[3] = target_locks[4]; // Release a[2]
+                lock_ids[4] = target_locks[5]; // Release a[1]
+                lock_ids[5] = target_locks[6]; // Release a[3]
                 lock_ids[6] = target_locks[7]; // Release a[5]
                 lock_ids[7] = target_locks[8]; // Release a[6]
                 lock_ids[8] = target_locks[9]; // Release a[7]
@@ -298,11 +298,11 @@ public class ToadsAndFrogs {
                 }
                 lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[1]; // Release tmin
-                lock_ids[2] = target_locks[2]; // Release a[3]
-                lock_ids[3] = target_locks[3]; // Release a[4]
-                lock_ids[4] = target_locks[4]; // Release a[1]
-                lock_ids[5] = target_locks[5]; // Release a[2]
-                lock_ids[6] = target_locks[6]; // Release a[0]
+                lock_ids[2] = target_locks[2]; // Release a[4]
+                lock_ids[3] = target_locks[3]; // Release a[0]
+                lock_ids[4] = target_locks[4]; // Release a[2]
+                lock_ids[5] = target_locks[5]; // Release a[1]
+                lock_ids[6] = target_locks[6]; // Release a[3]
                 lock_ids[7] = target_locks[7]; // Release a[5]
                 lock_ids[8] = target_locks[8]; // Release a[6]
                 lock_ids[9] = target_locks[9]; // Release a[7]
@@ -318,11 +318,11 @@ public class ToadsAndFrogs {
                 }
                 lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[1]; // Release tmin
-                lock_ids[2] = target_locks[2]; // Release a[3]
-                lock_ids[3] = target_locks[3]; // Release a[4]
-                lock_ids[4] = target_locks[4]; // Release a[1]
-                lock_ids[5] = target_locks[5]; // Release a[2]
-                lock_ids[6] = target_locks[6]; // Release a[0]
+                lock_ids[2] = target_locks[2]; // Release a[4]
+                lock_ids[3] = target_locks[3]; // Release a[0]
+                lock_ids[4] = target_locks[4]; // Release a[2]
+                lock_ids[5] = target_locks[5]; // Release a[1]
+                lock_ids[6] = target_locks[6]; // Release a[3]
                 lock_ids[7] = target_locks[7]; // Release a[5]
                 lock_ids[8] = target_locks[8]; // Release a[6]
                 lock_ids[9] = target_locks[9]; // Release a[7]
@@ -338,11 +338,11 @@ public class ToadsAndFrogs {
                 }
                 lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[1]; // Release tmin
-                lock_ids[2] = target_locks[2]; // Release a[3]
-                lock_ids[3] = target_locks[3]; // Release a[4]
-                lock_ids[4] = target_locks[4]; // Release a[1]
-                lock_ids[5] = target_locks[5]; // Release a[2]
-                lock_ids[6] = target_locks[6]; // Release a[0]
+                lock_ids[2] = target_locks[2]; // Release a[4]
+                lock_ids[3] = target_locks[3]; // Release a[0]
+                lock_ids[4] = target_locks[4]; // Release a[2]
+                lock_ids[5] = target_locks[5]; // Release a[1]
+                lock_ids[6] = target_locks[6]; // Release a[3]
                 lock_ids[7] = target_locks[7]; // Release a[5]
                 lock_ids[8] = target_locks[8]; // Release a[6]
                 lock_ids[9] = target_locks[9]; // Release a[7]
@@ -358,11 +358,11 @@ public class ToadsAndFrogs {
                 }
                 lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[1]; // Release tmin
-                lock_ids[2] = target_locks[2]; // Release a[3]
-                lock_ids[3] = target_locks[3]; // Release a[4]
-                lock_ids[4] = target_locks[4]; // Release a[1]
-                lock_ids[5] = target_locks[5]; // Release a[2]
-                lock_ids[6] = target_locks[6]; // Release a[0]
+                lock_ids[2] = target_locks[2]; // Release a[4]
+                lock_ids[3] = target_locks[3]; // Release a[0]
+                lock_ids[4] = target_locks[4]; // Release a[2]
+                lock_ids[5] = target_locks[5]; // Release a[1]
+                lock_ids[6] = target_locks[6]; // Release a[3]
                 lock_ids[7] = target_locks[7]; // Release a[5]
                 lock_ids[8] = target_locks[8]; // Release a[6]
                 lock_ids[9] = target_locks[9]; // Release a[7]
@@ -389,11 +389,11 @@ public class ToadsAndFrogs {
                 // SLCO assignment | a[y] := 0.
                 a[y] = 0;
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[2]; // Release a[3]
-                lock_ids[2] = target_locks[3]; // Release a[4]
-                lock_ids[3] = target_locks[4]; // Release a[1]
-                lock_ids[4] = target_locks[5]; // Release a[2]
-                lock_ids[5] = target_locks[6]; // Release a[0]
+                lock_ids[1] = target_locks[2]; // Release a[4]
+                lock_ids[2] = target_locks[3]; // Release a[0]
+                lock_ids[3] = target_locks[4]; // Release a[2]
+                lock_ids[4] = target_locks[5]; // Release a[1]
+                lock_ids[5] = target_locks[6]; // Release a[3]
                 lock_ids[6] = target_locks[7]; // Release a[5]
                 lock_ids[7] = target_locks[8]; // Release a[6]
                 lock_ids[8] = target_locks[9]; // Release a[7]
@@ -503,11 +503,11 @@ public class ToadsAndFrogs {
                 if(t_q_0_s_0_n_0() && t_q_0_s_0_n_1()) {
                     return true;
                 }
-                lock_ids[0] = target_locks[2] = 3 + 3; // Acquire a[3]
-                lock_ids[1] = target_locks[3] = 3 + 4; // Acquire a[4]
-                lock_ids[2] = target_locks[4] = 3 + 1; // Acquire a[1]
-                lock_ids[3] = target_locks[5] = 3 + 2; // Acquire a[2]
-                lock_ids[4] = target_locks[6] = 3 + 0; // Acquire a[0]
+                lock_ids[0] = target_locks[2] = 3 + 4; // Acquire a[4]
+                lock_ids[1] = target_locks[3] = 3 + 0; // Acquire a[0]
+                lock_ids[2] = target_locks[4] = 3 + 2; // Acquire a[2]
+                lock_ids[3] = target_locks[5] = 3 + 1; // Acquire a[1]
+                lock_ids[4] = target_locks[6] = 3 + 3; // Acquire a[3]
                 lock_ids[5] = target_locks[7] = 3 + 5; // Acquire a[5]
                 lock_ids[6] = target_locks[8] = 3 + 6; // Acquire a[6]
                 lock_ids[7] = target_locks[9] = 3 + 7; // Acquire a[7]
@@ -518,11 +518,11 @@ public class ToadsAndFrogs {
 
             // SLCO expression wrapper | a[y + 1] = 2.
             private boolean t_q_0_s_0_n_3() {
-                lock_ids[0] = target_locks[2] = 3 + 3; // Acquire a[3]
-                lock_ids[1] = target_locks[3] = 3 + 4; // Acquire a[4]
-                lock_ids[2] = target_locks[4] = 3 + 1; // Acquire a[1]
-                lock_ids[3] = target_locks[5] = 3 + 2; // Acquire a[2]
-                lock_ids[4] = target_locks[6] = 3 + 0; // Acquire a[0]
+                lock_ids[0] = target_locks[2] = 3 + 4; // Acquire a[4]
+                lock_ids[1] = target_locks[3] = 3 + 0; // Acquire a[0]
+                lock_ids[2] = target_locks[4] = 3 + 2; // Acquire a[2]
+                lock_ids[3] = target_locks[5] = 3 + 1; // Acquire a[1]
+                lock_ids[4] = target_locks[6] = 3 + 3; // Acquire a[3]
                 lock_ids[5] = target_locks[7] = 3 + 5; // Acquire a[5]
                 lock_ids[6] = target_locks[8] = 3 + 6; // Acquire a[6]
                 lock_ids[7] = target_locks[9] = 3 + 7; // Acquire a[7]
@@ -532,11 +532,11 @@ public class ToadsAndFrogs {
                 lockManager.acquire_locks(lock_ids, 11);
                 if(a[y + 1] == 2) {
                     lock_ids[0] = target_locks[1]; // Release fmax
-                    lock_ids[1] = target_locks[2]; // Release a[3]
-                    lock_ids[2] = target_locks[3]; // Release a[4]
-                    lock_ids[3] = target_locks[4]; // Release a[1]
-                    lock_ids[4] = target_locks[5]; // Release a[2]
-                    lock_ids[5] = target_locks[6]; // Release a[0]
+                    lock_ids[1] = target_locks[2]; // Release a[4]
+                    lock_ids[2] = target_locks[3]; // Release a[0]
+                    lock_ids[3] = target_locks[4]; // Release a[2]
+                    lock_ids[4] = target_locks[5]; // Release a[1]
+                    lock_ids[5] = target_locks[6]; // Release a[3]
                     lock_ids[6] = target_locks[7]; // Release a[5]
                     lock_ids[7] = target_locks[8]; // Release a[6]
                     lock_ids[8] = target_locks[9]; // Release a[7]
@@ -591,11 +591,11 @@ public class ToadsAndFrogs {
                 // SLCO assignment | a[y] := 0.
                 a[y] = 0;
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[2]; // Release a[3]
-                lock_ids[2] = target_locks[3]; // Release a[4]
-                lock_ids[3] = target_locks[4]; // Release a[1]
-                lock_ids[4] = target_locks[5]; // Release a[2]
-                lock_ids[5] = target_locks[6]; // Release a[0]
+                lock_ids[1] = target_locks[2]; // Release a[4]
+                lock_ids[2] = target_locks[3]; // Release a[0]
+                lock_ids[3] = target_locks[4]; // Release a[2]
+                lock_ids[4] = target_locks[5]; // Release a[1]
+                lock_ids[5] = target_locks[6]; // Release a[3]
                 lock_ids[6] = target_locks[7]; // Release a[5]
                 lock_ids[7] = target_locks[8]; // Release a[6]
                 lock_ids[8] = target_locks[9]; // Release a[7]
@@ -630,11 +630,11 @@ public class ToadsAndFrogs {
                 // SLCO assignment | a[y] := 0.
                 a[y] = 0;
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[2]; // Release a[3]
-                lock_ids[2] = target_locks[3]; // Release a[4]
-                lock_ids[3] = target_locks[4]; // Release a[1]
-                lock_ids[4] = target_locks[5]; // Release a[2]
-                lock_ids[5] = target_locks[6]; // Release a[0]
+                lock_ids[1] = target_locks[2]; // Release a[4]
+                lock_ids[2] = target_locks[3]; // Release a[0]
+                lock_ids[3] = target_locks[4]; // Release a[2]
+                lock_ids[4] = target_locks[5]; // Release a[1]
+                lock_ids[5] = target_locks[6]; // Release a[3]
                 lock_ids[6] = target_locks[7]; // Release a[5]
                 lock_ids[7] = target_locks[8]; // Release a[6]
                 lock_ids[8] = target_locks[9]; // Release a[7]
@@ -652,11 +652,11 @@ public class ToadsAndFrogs {
                 }
                 lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[1]; // Release fmax
-                lock_ids[2] = target_locks[2]; // Release a[3]
-                lock_ids[3] = target_locks[3]; // Release a[4]
-                lock_ids[4] = target_locks[4]; // Release a[1]
-                lock_ids[5] = target_locks[5]; // Release a[2]
-                lock_ids[6] = target_locks[6]; // Release a[0]
+                lock_ids[2] = target_locks[2]; // Release a[4]
+                lock_ids[3] = target_locks[3]; // Release a[0]
+                lock_ids[4] = target_locks[4]; // Release a[2]
+                lock_ids[5] = target_locks[5]; // Release a[1]
+                lock_ids[6] = target_locks[6]; // Release a[3]
                 lock_ids[7] = target_locks[7]; // Release a[5]
                 lock_ids[8] = target_locks[8]; // Release a[6]
                 lock_ids[9] = target_locks[9]; // Release a[7]
@@ -672,11 +672,11 @@ public class ToadsAndFrogs {
                 }
                 lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[1]; // Release fmax
-                lock_ids[2] = target_locks[2]; // Release a[3]
-                lock_ids[3] = target_locks[3]; // Release a[4]
-                lock_ids[4] = target_locks[4]; // Release a[1]
-                lock_ids[5] = target_locks[5]; // Release a[2]
-                lock_ids[6] = target_locks[6]; // Release a[0]
+                lock_ids[2] = target_locks[2]; // Release a[4]
+                lock_ids[3] = target_locks[3]; // Release a[0]
+                lock_ids[4] = target_locks[4]; // Release a[2]
+                lock_ids[5] = target_locks[5]; // Release a[1]
+                lock_ids[6] = target_locks[6]; // Release a[3]
                 lock_ids[7] = target_locks[7]; // Release a[5]
                 lock_ids[8] = target_locks[8]; // Release a[6]
                 lock_ids[9] = target_locks[9]; // Release a[7]
@@ -692,11 +692,11 @@ public class ToadsAndFrogs {
                 }
                 lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[1]; // Release fmax
-                lock_ids[2] = target_locks[2]; // Release a[3]
-                lock_ids[3] = target_locks[3]; // Release a[4]
-                lock_ids[4] = target_locks[4]; // Release a[1]
-                lock_ids[5] = target_locks[5]; // Release a[2]
-                lock_ids[6] = target_locks[6]; // Release a[0]
+                lock_ids[2] = target_locks[2]; // Release a[4]
+                lock_ids[3] = target_locks[3]; // Release a[0]
+                lock_ids[4] = target_locks[4]; // Release a[2]
+                lock_ids[5] = target_locks[5]; // Release a[1]
+                lock_ids[6] = target_locks[6]; // Release a[3]
                 lock_ids[7] = target_locks[7]; // Release a[5]
                 lock_ids[8] = target_locks[8]; // Release a[6]
                 lock_ids[9] = target_locks[9]; // Release a[7]
@@ -712,11 +712,11 @@ public class ToadsAndFrogs {
                 }
                 lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[1]; // Release fmax
-                lock_ids[2] = target_locks[2]; // Release a[3]
-                lock_ids[3] = target_locks[3]; // Release a[4]
-                lock_ids[4] = target_locks[4]; // Release a[1]
-                lock_ids[5] = target_locks[5]; // Release a[2]
-                lock_ids[6] = target_locks[6]; // Release a[0]
+                lock_ids[2] = target_locks[2]; // Release a[4]
+                lock_ids[3] = target_locks[3]; // Release a[0]
+                lock_ids[4] = target_locks[4]; // Release a[2]
+                lock_ids[5] = target_locks[5]; // Release a[1]
+                lock_ids[6] = target_locks[6]; // Release a[3]
                 lock_ids[7] = target_locks[7]; // Release a[5]
                 lock_ids[8] = target_locks[8]; // Release a[6]
                 lock_ids[9] = target_locks[9]; // Release a[7]
@@ -743,11 +743,11 @@ public class ToadsAndFrogs {
                 // SLCO assignment | a[y] := 0.
                 a[y] = 0;
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[2]; // Release a[3]
-                lock_ids[2] = target_locks[3]; // Release a[4]
-                lock_ids[3] = target_locks[4]; // Release a[1]
-                lock_ids[4] = target_locks[5]; // Release a[2]
-                lock_ids[5] = target_locks[6]; // Release a[0]
+                lock_ids[1] = target_locks[2]; // Release a[4]
+                lock_ids[2] = target_locks[3]; // Release a[0]
+                lock_ids[3] = target_locks[4]; // Release a[2]
+                lock_ids[4] = target_locks[5]; // Release a[1]
+                lock_ids[5] = target_locks[6]; // Release a[3]
                 lock_ids[6] = target_locks[7]; // Release a[5]
                 lock_ids[7] = target_locks[8]; // Release a[6]
                 lock_ids[8] = target_locks[9]; // Release a[7]
@@ -844,11 +844,11 @@ public class ToadsAndFrogs {
                 if(y == 0) {
                     return true;
                 }
-                lock_ids[0] = target_locks[1] = 3 + 3; // Acquire a[3]
-                lock_ids[1] = target_locks[2] = 3 + 4; // Acquire a[4]
-                lock_ids[2] = target_locks[3] = 3 + 1; // Acquire a[1]
-                lock_ids[3] = target_locks[4] = 3 + 2; // Acquire a[2]
-                lock_ids[4] = target_locks[5] = 3 + 0; // Acquire a[0]
+                lock_ids[0] = target_locks[1] = 3 + 4; // Acquire a[4]
+                lock_ids[1] = target_locks[2] = 3 + 0; // Acquire a[0]
+                lock_ids[2] = target_locks[3] = 3 + 2; // Acquire a[2]
+                lock_ids[3] = target_locks[4] = 3 + 1; // Acquire a[1]
+                lock_ids[4] = target_locks[5] = 3 + 3; // Acquire a[3]
                 lock_ids[5] = target_locks[6] = 3 + 5; // Acquire a[5]
                 lock_ids[6] = target_locks[7] = 3 + 6; // Acquire a[6]
                 lock_ids[7] = target_locks[8] = 3 + 7; // Acquire a[7]
@@ -859,25 +859,25 @@ public class ToadsAndFrogs {
 
             // SLCO expression wrapper | a[y + 1] = 1.
             private boolean t_running_0_s_0_n_1() {
-                lock_ids[0] = target_locks[1] = 3 + 3; // Acquire a[3]
-                lock_ids[1] = target_locks[2] = 3 + 4; // Acquire a[4]
-                lock_ids[2] = target_locks[3] = 3 + 1; // Acquire a[1]
-                lock_ids[3] = target_locks[4] = 3 + 2; // Acquire a[2]
-                lock_ids[4] = target_locks[5] = 3 + 0; // Acquire a[0]
+                lock_ids[0] = target_locks[1] = 3 + 4; // Acquire a[4]
+                lock_ids[1] = target_locks[2] = 3 + 0; // Acquire a[0]
+                lock_ids[2] = target_locks[3] = 3 + 2; // Acquire a[2]
+                lock_ids[3] = target_locks[4] = 3 + 1; // Acquire a[1]
+                lock_ids[4] = target_locks[5] = 3 + 3; // Acquire a[3]
                 lock_ids[5] = target_locks[6] = 3 + 5; // Acquire a[5]
                 lock_ids[6] = target_locks[7] = 3 + 6; // Acquire a[6]
                 lock_ids[7] = target_locks[8] = 3 + 7; // Acquire a[7]
                 lock_ids[8] = target_locks[9] = 3 + 8; // Acquire a[8]
-                lock_ids[9] = target_locks[10] = 3 + y + 2; // Acquire a[y + 2]
-                lock_ids[10] = target_locks[11] = 3 + y + 1; // Acquire a[y + 1]
+                lock_ids[9] = target_locks[10] = 3 + y + 1; // Acquire a[y + 1]
+                lock_ids[10] = target_locks[11] = 3 + y + 2; // Acquire a[y + 2]
                 lockManager.acquire_locks(lock_ids, 11);
                 if(a[y + 1] == 1) {
-                    lock_ids[0] = target_locks[11]; // Release a[y + 1]
+                    lock_ids[0] = target_locks[10]; // Release a[y + 1]
                     lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
-                lock_ids[0] = target_locks[10]; // Release a[y + 2]
-                lock_ids[1] = target_locks[11]; // Release a[y + 1]
+                lock_ids[0] = target_locks[10]; // Release a[y + 1]
+                lock_ids[1] = target_locks[11]; // Release a[y + 2]
                 lockManager.release_locks(lock_ids, 2);
                 return false;
             }
@@ -886,20 +886,20 @@ public class ToadsAndFrogs {
             private boolean t_running_0_s_0_n_2() {
                 if(a[y + 2] == 1) {
                     lock_ids[0] = target_locks[0]; // Release y
-                    lock_ids[1] = target_locks[1]; // Release a[3]
-                    lock_ids[2] = target_locks[2]; // Release a[4]
-                    lock_ids[3] = target_locks[3]; // Release a[1]
-                    lock_ids[4] = target_locks[4]; // Release a[2]
-                    lock_ids[5] = target_locks[5]; // Release a[0]
+                    lock_ids[1] = target_locks[1]; // Release a[4]
+                    lock_ids[2] = target_locks[2]; // Release a[0]
+                    lock_ids[3] = target_locks[3]; // Release a[2]
+                    lock_ids[4] = target_locks[4]; // Release a[1]
+                    lock_ids[5] = target_locks[5]; // Release a[3]
                     lock_ids[6] = target_locks[6]; // Release a[5]
                     lock_ids[7] = target_locks[7]; // Release a[6]
                     lock_ids[8] = target_locks[8]; // Release a[7]
                     lock_ids[9] = target_locks[9]; // Release a[8]
-                    lock_ids[10] = target_locks[10]; // Release a[y + 2]
+                    lock_ids[10] = target_locks[11]; // Release a[y + 2]
                     lockManager.release_locks(lock_ids, 11);
                     return true;
                 }
-                lock_ids[0] = target_locks[10]; // Release a[y + 2]
+                lock_ids[0] = target_locks[11]; // Release a[y + 2]
                 lockManager.release_locks(lock_ids, 1);
                 return false;
             }
@@ -919,11 +919,11 @@ public class ToadsAndFrogs {
             private boolean t_running_1_s_0_n_0() {
                 if(a[y + 2] == 1) {
                     lock_ids[0] = target_locks[0]; // Release y
-                    lock_ids[1] = target_locks[1]; // Release a[3]
-                    lock_ids[2] = target_locks[2]; // Release a[4]
-                    lock_ids[3] = target_locks[3]; // Release a[1]
-                    lock_ids[4] = target_locks[4]; // Release a[2]
-                    lock_ids[5] = target_locks[5]; // Release a[0]
+                    lock_ids[1] = target_locks[1]; // Release a[4]
+                    lock_ids[2] = target_locks[2]; // Release a[0]
+                    lock_ids[3] = target_locks[3]; // Release a[2]
+                    lock_ids[4] = target_locks[4]; // Release a[1]
+                    lock_ids[5] = target_locks[5]; // Release a[3]
                     lock_ids[6] = target_locks[6]; // Release a[5]
                     lock_ids[7] = target_locks[7]; // Release a[6]
                     lock_ids[8] = target_locks[8]; // Release a[7]
@@ -949,11 +949,11 @@ public class ToadsAndFrogs {
             private boolean t_running_2_s_0_n_0() {
                 if(a[y + 1] == 1) {
                     lock_ids[0] = target_locks[0]; // Release y
-                    lock_ids[1] = target_locks[1]; // Release a[3]
-                    lock_ids[2] = target_locks[2]; // Release a[4]
-                    lock_ids[3] = target_locks[3]; // Release a[1]
-                    lock_ids[4] = target_locks[4]; // Release a[2]
-                    lock_ids[5] = target_locks[5]; // Release a[0]
+                    lock_ids[1] = target_locks[1]; // Release a[4]
+                    lock_ids[2] = target_locks[2]; // Release a[0]
+                    lock_ids[3] = target_locks[3]; // Release a[2]
+                    lock_ids[4] = target_locks[4]; // Release a[1]
+                    lock_ids[5] = target_locks[5]; // Release a[3]
                     lock_ids[6] = target_locks[6]; // Release a[5]
                     lock_ids[7] = target_locks[7]; // Release a[6]
                     lock_ids[8] = target_locks[8]; // Release a[7]
@@ -979,11 +979,11 @@ public class ToadsAndFrogs {
             private boolean t_running_3_s_0_n_0() {
                 if(a[y - 1] == 2) {
                     lock_ids[0] = target_locks[0]; // Release y
-                    lock_ids[1] = target_locks[1]; // Release a[3]
-                    lock_ids[2] = target_locks[2]; // Release a[4]
-                    lock_ids[3] = target_locks[3]; // Release a[1]
-                    lock_ids[4] = target_locks[4]; // Release a[2]
-                    lock_ids[5] = target_locks[5]; // Release a[0]
+                    lock_ids[1] = target_locks[1]; // Release a[4]
+                    lock_ids[2] = target_locks[2]; // Release a[0]
+                    lock_ids[3] = target_locks[3]; // Release a[2]
+                    lock_ids[4] = target_locks[4]; // Release a[1]
+                    lock_ids[5] = target_locks[5]; // Release a[3]
                     lock_ids[6] = target_locks[6]; // Release a[5]
                     lock_ids[7] = target_locks[7]; // Release a[6]
                     lock_ids[8] = target_locks[8]; // Release a[7]
@@ -1011,11 +1011,11 @@ public class ToadsAndFrogs {
                     return true;
                 }
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[1]; // Release a[3]
-                lock_ids[2] = target_locks[2]; // Release a[4]
-                lock_ids[3] = target_locks[3]; // Release a[1]
-                lock_ids[4] = target_locks[4]; // Release a[2]
-                lock_ids[5] = target_locks[5]; // Release a[0]
+                lock_ids[1] = target_locks[1]; // Release a[4]
+                lock_ids[2] = target_locks[2]; // Release a[0]
+                lock_ids[3] = target_locks[3]; // Release a[2]
+                lock_ids[4] = target_locks[4]; // Release a[1]
+                lock_ids[5] = target_locks[5]; // Release a[3]
                 lock_ids[6] = target_locks[6]; // Release a[5]
                 lock_ids[7] = target_locks[7]; // Release a[6]
                 lock_ids[8] = target_locks[8]; // Release a[7]
@@ -1030,11 +1030,11 @@ public class ToadsAndFrogs {
                     return true;
                 }
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[1]; // Release a[3]
-                lock_ids[2] = target_locks[2]; // Release a[4]
-                lock_ids[3] = target_locks[3]; // Release a[1]
-                lock_ids[4] = target_locks[4]; // Release a[2]
-                lock_ids[5] = target_locks[5]; // Release a[0]
+                lock_ids[1] = target_locks[1]; // Release a[4]
+                lock_ids[2] = target_locks[2]; // Release a[0]
+                lock_ids[3] = target_locks[3]; // Release a[2]
+                lock_ids[4] = target_locks[4]; // Release a[1]
+                lock_ids[5] = target_locks[5]; // Release a[3]
                 lock_ids[6] = target_locks[6]; // Release a[5]
                 lock_ids[7] = target_locks[7]; // Release a[6]
                 lock_ids[8] = target_locks[8]; // Release a[7]
@@ -1049,11 +1049,11 @@ public class ToadsAndFrogs {
                     return true;
                 }
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[1]; // Release a[3]
-                lock_ids[2] = target_locks[2]; // Release a[4]
-                lock_ids[3] = target_locks[3]; // Release a[1]
-                lock_ids[4] = target_locks[4]; // Release a[2]
-                lock_ids[5] = target_locks[5]; // Release a[0]
+                lock_ids[1] = target_locks[1]; // Release a[4]
+                lock_ids[2] = target_locks[2]; // Release a[0]
+                lock_ids[3] = target_locks[3]; // Release a[2]
+                lock_ids[4] = target_locks[4]; // Release a[1]
+                lock_ids[5] = target_locks[5]; // Release a[3]
                 lock_ids[6] = target_locks[6]; // Release a[5]
                 lock_ids[7] = target_locks[7]; // Release a[6]
                 lock_ids[8] = target_locks[8]; // Release a[7]
@@ -1068,11 +1068,11 @@ public class ToadsAndFrogs {
                     return true;
                 }
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[1]; // Release a[3]
-                lock_ids[2] = target_locks[2]; // Release a[4]
-                lock_ids[3] = target_locks[3]; // Release a[1]
-                lock_ids[4] = target_locks[4]; // Release a[2]
-                lock_ids[5] = target_locks[5]; // Release a[0]
+                lock_ids[1] = target_locks[1]; // Release a[4]
+                lock_ids[2] = target_locks[2]; // Release a[0]
+                lock_ids[3] = target_locks[3]; // Release a[2]
+                lock_ids[4] = target_locks[4]; // Release a[1]
+                lock_ids[5] = target_locks[5]; // Release a[3]
                 lock_ids[6] = target_locks[6]; // Release a[5]
                 lock_ids[7] = target_locks[7]; // Release a[6]
                 lock_ids[8] = target_locks[8]; // Release a[7]
@@ -1087,11 +1087,11 @@ public class ToadsAndFrogs {
                     return true;
                 }
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[1]; // Release a[3]
-                lock_ids[2] = target_locks[2]; // Release a[4]
-                lock_ids[3] = target_locks[3]; // Release a[1]
-                lock_ids[4] = target_locks[4]; // Release a[2]
-                lock_ids[5] = target_locks[5]; // Release a[0]
+                lock_ids[1] = target_locks[1]; // Release a[4]
+                lock_ids[2] = target_locks[2]; // Release a[0]
+                lock_ids[3] = target_locks[3]; // Release a[2]
+                lock_ids[4] = target_locks[4]; // Release a[1]
+                lock_ids[5] = target_locks[5]; // Release a[3]
                 lock_ids[6] = target_locks[6]; // Release a[5]
                 lock_ids[7] = target_locks[7]; // Release a[6]
                 lock_ids[8] = target_locks[8]; // Release a[7]
@@ -1104,11 +1104,11 @@ public class ToadsAndFrogs {
             private boolean t_running_4_s_0_n_5() {
                 if(a[y + 2] == 1) {
                     lock_ids[0] = target_locks[0]; // Release y
-                    lock_ids[1] = target_locks[1]; // Release a[3]
-                    lock_ids[2] = target_locks[2]; // Release a[4]
-                    lock_ids[3] = target_locks[3]; // Release a[1]
-                    lock_ids[4] = target_locks[4]; // Release a[2]
-                    lock_ids[5] = target_locks[5]; // Release a[0]
+                    lock_ids[1] = target_locks[1]; // Release a[4]
+                    lock_ids[2] = target_locks[2]; // Release a[0]
+                    lock_ids[3] = target_locks[3]; // Release a[2]
+                    lock_ids[4] = target_locks[4]; // Release a[1]
+                    lock_ids[5] = target_locks[5]; // Release a[3]
                     lock_ids[6] = target_locks[6]; // Release a[5]
                     lock_ids[7] = target_locks[7]; // Release a[6]
                     lock_ids[8] = target_locks[8]; // Release a[7]
@@ -1117,11 +1117,11 @@ public class ToadsAndFrogs {
                     return true;
                 }
                 lock_ids[0] = target_locks[0]; // Release y
-                lock_ids[1] = target_locks[1]; // Release a[3]
-                lock_ids[2] = target_locks[2]; // Release a[4]
-                lock_ids[3] = target_locks[3]; // Release a[1]
-                lock_ids[4] = target_locks[4]; // Release a[2]
-                lock_ids[5] = target_locks[5]; // Release a[0]
+                lock_ids[1] = target_locks[1]; // Release a[4]
+                lock_ids[2] = target_locks[2]; // Release a[0]
+                lock_ids[3] = target_locks[3]; // Release a[2]
+                lock_ids[4] = target_locks[4]; // Release a[1]
+                lock_ids[5] = target_locks[5]; // Release a[3]
                 lock_ids[6] = target_locks[6]; // Release a[5]
                 lock_ids[7] = target_locks[7]; // Release a[6]
                 lock_ids[8] = target_locks[8]; // Release a[7]
@@ -1143,9 +1143,9 @@ public class ToadsAndFrogs {
 
             // SLCO expression wrapper | tmin > y.
             private boolean t_done_0_s_0_n_0() {
-                lock_ids[0] = target_locks[1] = 0; // Acquire y
+                lock_ids[0] = target_locks[0] = 0; // Acquire y
                 lockManager.acquire_locks(lock_ids, 1);
-                lock_ids[0] = target_locks[0] = 1; // Acquire tmin
+                lock_ids[0] = target_locks[1] = 1; // Acquire tmin
                 lockManager.acquire_locks(lock_ids, 1);
                 if(tmin > y) {
                     return true;
@@ -1160,8 +1160,8 @@ public class ToadsAndFrogs {
                 lock_ids[0] = target_locks[2] = 2; // Acquire fmax
                 lockManager.acquire_locks(lock_ids, 1);
                 if(fmax < y) {
-                    lock_ids[0] = target_locks[0]; // Release tmin
-                    lock_ids[1] = target_locks[1]; // Release y
+                    lock_ids[0] = target_locks[0]; // Release y
+                    lock_ids[1] = target_locks[1]; // Release tmin
                     lock_ids[2] = target_locks[2]; // Release fmax
                     lockManager.release_locks(lock_ids, 3);
                     return true;
@@ -1183,12 +1183,12 @@ public class ToadsAndFrogs {
             // SLCO expression wrapper | tmin > y.
             private boolean t_done_1_s_0_n_0() {
                 if(tmin > y) {
-                    lock_ids[0] = target_locks[0]; // Release tmin
+                    lock_ids[0] = target_locks[1]; // Release tmin
                     lockManager.release_locks(lock_ids, 1);
                     return true;
                 }
-                lock_ids[0] = target_locks[0]; // Release tmin
-                lock_ids[1] = target_locks[1]; // Release y
+                lock_ids[0] = target_locks[0]; // Release y
+                lock_ids[1] = target_locks[1]; // Release tmin
                 lock_ids[2] = target_locks[2]; // Release fmax
                 lockManager.release_locks(lock_ids, 3);
                 return false;
@@ -1197,12 +1197,12 @@ public class ToadsAndFrogs {
             // SLCO expression wrapper | fmax < y.
             private boolean t_done_1_s_0_n_1() {
                 if(fmax < y) {
-                    lock_ids[0] = target_locks[1]; // Release y
+                    lock_ids[0] = target_locks[0]; // Release y
                     lock_ids[1] = target_locks[2]; // Release fmax
                     lockManager.release_locks(lock_ids, 2);
                     return true;
                 }
-                lock_ids[0] = target_locks[1]; // Release y
+                lock_ids[0] = target_locks[0]; // Release y
                 lock_ids[1] = target_locks[2]; // Release fmax
                 lockManager.release_locks(lock_ids, 2);
                 return false;
@@ -1260,30 +1260,30 @@ public class ToadsAndFrogs {
                 lock_ids[0] = target_locks[2]; // Release fmax
                 lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | a[4] := 0.
-                lock_ids[0] = target_locks[3] = 3 + 3; // Acquire a[3]
-                lock_ids[1] = target_locks[4] = 3 + 0; // Acquire a[0]
-                lock_ids[2] = target_locks[5] = 3 + 1; // Acquire a[1]
-                lock_ids[3] = target_locks[6] = 3 + 4; // Acquire a[4]
-                lock_ids[4] = target_locks[7] = 3 + 2; // Acquire a[2]
+                lock_ids[0] = target_locks[3] = 3 + 2; // Acquire a[2]
+                lock_ids[1] = target_locks[4] = 3 + 4; // Acquire a[4]
+                lock_ids[2] = target_locks[5] = 3 + 3; // Acquire a[3]
+                lock_ids[3] = target_locks[6] = 3 + 0; // Acquire a[0]
+                lock_ids[4] = target_locks[7] = 3 + 1; // Acquire a[1]
                 lockManager.acquire_locks(lock_ids, 5);
                 a[4] = 0;
-                lock_ids[0] = target_locks[6]; // Release a[4]
+                lock_ids[0] = target_locks[4]; // Release a[4]
                 lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | a[0] := 1.
                 a[0] = 1;
-                lock_ids[0] = target_locks[4]; // Release a[0]
+                lock_ids[0] = target_locks[6]; // Release a[0]
                 lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | a[1] := 1.
                 a[1] = 1;
-                lock_ids[0] = target_locks[5]; // Release a[1]
+                lock_ids[0] = target_locks[7]; // Release a[1]
                 lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | a[2] := 1.
                 a[2] = 1;
-                lock_ids[0] = target_locks[7]; // Release a[2]
+                lock_ids[0] = target_locks[3]; // Release a[2]
                 lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | a[3] := 1.
                 a[3] = 1;
-                lock_ids[0] = target_locks[3]; // Release a[3]
+                lock_ids[0] = target_locks[5]; // Release a[3]
                 lockManager.release_locks(lock_ids, 1);
                 // SLCO assignment | a[5] := 2.
                 lock_ids[0] = target_locks[8] = 3 + 5; // Acquire a[5]

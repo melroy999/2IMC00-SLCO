@@ -3,7 +3,6 @@ from typing import Union, List
 
 import settings
 from objects.ast.models import StateMachine, DecisionNode, Transition
-from smt.optimization import create_decision_groupings
 from smt.solutions.combinations import *
 
 

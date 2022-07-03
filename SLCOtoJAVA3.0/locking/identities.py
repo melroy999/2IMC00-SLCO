@@ -63,38 +63,24 @@ def normalize_heuristic_targets(graph: nx.DiGraph):
         data["ir:t_weight_n"] = data["ir:t_weight"] / max(1, e_total_t_ir_weight)
         data["ir:weight_n"] = data["ir:weight"] / max(1, e_total_ir_weight)
         data["ls:weight_n"] = data["ls:weight"] / max(1, e_total_ls_weight)
-    #
-    # for e in graph.nodes(data=True):
-    #     print(e)
-    # for e in graph.edges(data=True):
-    #     print(e)
+
+    # Add a normalized weight for the variable size.
+    v: Variable
+    total_size = sum(max(1, v.type.size) for v in graph.nodes)
+    for v in graph.nodes:
+        v.type.size_n = max(1, v.type.size) / total_size
 
 
 def get_sortable_heuristic_tuple(v: Variable, graph: nx.DiGraph) -> Tuple:
     """
     Express the heuristic as a tuple, in which the items are ordered on their overall importance.
     """
-    # Observations:
-    #   1. Location sensitive variables have the largest impact on the locking and concurrency when unpacked.
-    #   2. Unpacking operations will only occur for array variables. Hence, prefer selecting them over others.
-    #   3. Unpacking needs to always occur when a self-loop is present. Hence, give them a lower id.
-    #   4a. The more a variable is used, the greater the effect of its unpacking.
-    #   4b. The more variables proceed another in the locking graph, the more likely it is that unpacking will occur if
-    #   the lock is given a lower identity.
-    #   5. As a last resort, use the variable name to make a decision.
-    # data = graph.nodes[v]
-    # node_weights = data["ls:t_weight_n"] + data["ls:weight_n"] + data["an:weight_n"]
-    # edge_weights = 0
-    # for w in graph.successors(v):
-    #     data_w = graph.edges[v, w]
-    #     edge_weights += data_w["ir:t_weight_n"] + data_w["ir:weight_n"] + data_w["ls:weight_n"]
-    # return data["ls:is_location_sensitive"], v.is_array, graph.has_edge(v, v), node_weights + edge_weights, v.name
-    #
-    #
-
     data = graph.nodes[v]
-    weighted_total = data["ls:is_location_sensitive_n"]
-    weighted_total += 0 if v.is_array else 2
+
+    # Use the variable size as the base value, since the unpacking of large arrays is more impactful.
+    weighted_total = v.type.size_n
+
+    # Relations that occur less regularly should be prioritized.
     weighted_total += data["ls:t_weight_n"]
     weighted_total += data["ls:weight_n"]
     weighted_total += data["an:weight_n"]
@@ -104,9 +90,13 @@ def get_sortable_heuristic_tuple(v: Variable, graph: nx.DiGraph) -> Tuple:
         weighted_total += data_w["ir:weight_n"]
         weighted_total += data_w["ls:weight_n"]
 
+    # A variable with a low number of dependencies should be prioritized.
+    weighted_total += len(list(graph.successors(v))) / len(graph.edges)
+
+    # Location sensitive locks should be processed last if possible.
+    weighted_total += data["ls:is_location_sensitive_n"]
+
     return weighted_total, v.name
-
-
 
 
 def generate_lock_identities(model: Class) -> None:

@@ -303,6 +303,7 @@ class Type(SlcoNode):
         super().__init__()
         self.base = base
         self.size = size
+        self.size_n = 0
 
     def __repr__(self) -> str:
         base_abbreviation = "bool" if self.is_boolean else "byte" if self.is_byte else "int"
@@ -680,7 +681,18 @@ class VariableRef(SlcoStatementNode, SlcoEvaluableNode):
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, VariableRef):
-            return self.var == o.var and self.is_equivalent(o)
+            if self.var != o.var:
+                return False
+            if not self.var.is_array:
+                return True
+
+            try:
+                # SMT is slow--optimize constants.
+                i1 = int(str(self.index))
+                i2 = int(str(o.index))
+                return i1 == i2
+            except ValueError:
+                return self.is_equivalent(o)
         return False
 
     def __hash__(self) -> int:
