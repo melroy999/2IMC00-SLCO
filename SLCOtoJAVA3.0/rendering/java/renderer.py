@@ -34,8 +34,13 @@ class JavaModelRenderer:
         self.current_statement_prefix: str = ""
         self.current_transition_prefix: str = ""
         self.current_control_node_methods: List[str] = []
+
+        self.current_decision_node_id = 0
+        self.current_decision_control_node_methods: List[str] = []
+
         self.current_transition: Optional[Transition] = None
         self.current_state_machine: Optional[StateMachine] = None
+        self.current_state: Optional[State] = None
         self.current_class: Optional[Class] = None
 
         # Lookup tables.
@@ -82,6 +87,9 @@ class JavaModelRenderer:
         )
         self.sequential_decision_node_template = self.env.get_template(
             "java/decision_structures/sequential_decision_node.jinja2template"
+        )
+        self.decision_node_guard_statement_encapsulation_template = self.env.get_template(
+            "java/decision_structures/decision_node_guard_statement_encapsulation.jinja2template"
         )
         self.decision_structure_template = self.env.get_template(
             "java/decision_structures/decision_structure.jinja2template"
@@ -716,7 +724,6 @@ class JavaModelRenderer:
 
     def render_deterministic_decision_node(self, model: DecisionNode) -> str:
         """Render the given deterministic decision node as Java code."""
-        # TODO: Adjust to consider the guard statement of a node.
         rendered_decisions, rendered_excluded_transitions = self.get_rendered_nested_decision_structures(model)
         return self.deterministic_decision_node_template.render(
             rendered_decisions=rendered_decisions,
@@ -725,7 +732,6 @@ class JavaModelRenderer:
 
     def render_sequential_decision_node(self, model: DecisionNode) -> str:
         """Render the given sequential decision node as Java code."""
-        # TODO: Adjust to consider the guard statement of a node.
         rendered_decisions, rendered_excluded_transitions = self.get_rendered_nested_decision_structures(model)
         return self.sequential_decision_node_template.render(
             rendered_decisions=rendered_decisions,
@@ -734,7 +740,6 @@ class JavaModelRenderer:
 
     def render_pick_random_decision_node(self, model: DecisionNode) -> str:
         """Render the given pick random decision node as Java code."""
-        # TODO: Adjust to consider the guard statement of a node.
         rendered_decisions, rendered_excluded_transitions = self.get_rendered_nested_decision_structures(model)
         return self.pick_random_decision_node_template.render(
             rendered_decisions=rendered_decisions,
@@ -750,10 +755,44 @@ class JavaModelRenderer:
 
     def render_decision_node(self, model: DecisionNode) -> str:
         """Render the given decision node as Java code."""
+        if model.locking_atomic_node.has_locks():
+            raise Exception("Locks within the atomic node of a decision node are currently not supported.")
+
         if model.is_deterministic:
             return self.render_deterministic_decision_node(model)
         else:
             return self.render_non_deterministic_decision_node(model)
+
+    def render_decision_node_guard_statement_encapsulation(self, model: DecisionNode):
+        """Render the decision node and its encapsulating guard statement if required."""
+        rendered_decision_node = self.render_decision_node(model)
+
+        if model.guard_statement is None or \
+                (model.guard_statement.is_true() and not model.guard_statement.locking_atomic_node.has_locks()):
+            # Return the decision structure as-is, without an encapsulating if statement.
+            return rendered_decision_node
+        else:
+            # Reset the control nodes.
+            self.current_statement_prefix = f"d_{self.current_state}_{self.current_decision_node_id}"
+            self.current_control_node_id = 0
+            self.current_control_node_methods = []
+            self.current_decision_node_id += 1
+
+            # Create an in-line Java code string for the guard expression.
+            in_line_expression = self.render_expression_control_node(model.guard_statement)
+
+            # Pre-render applicable information and data.
+            human_readable_expression_identification = self.get_root_expression_comment(False, model.guard_statement)
+
+            # Ensure that all control nodes will be rendered for the decision structure.
+            self.current_decision_control_node_methods += self.current_control_node_methods
+
+            # Render the encapsulation.
+            return self.decision_node_guard_statement_encapsulation_template.render(
+                in_line_expression=in_line_expression,
+                human_readable_expression_identification=human_readable_expression_identification,
+                rendered_decision_node=rendered_decision_node
+            )
 
     def get_rendered_nested_decision_structures(self, model: DecisionNode) -> Tuple[List[str], List[str]]:
         """Render the nested decision structures of the given model and report them as lists."""
@@ -763,7 +802,7 @@ class JavaModelRenderer:
             if isinstance(decision, Transition):
                 result = self.render_transition_call(decision)
             elif isinstance(decision, DecisionNode):
-                result = self.render_decision_node(decision)
+                result = self.render_decision_node_guard_statement_encapsulation(decision)
             else:
                 raise Exception(
                     f"No function exists to turn objects of type {type(decision)} into in-line Java statements."
@@ -794,12 +833,17 @@ class JavaModelRenderer:
 
     def render_decision_structure(self, model: StateMachine, state: State) -> str:
         """Render the decision structure for the given state machine and starting state as Java code."""
+        # Track the current state.
+        self.current_state = state
+        self.current_decision_node_id = 0
+        self.current_decision_control_node_methods = []
+
         # Find the target decision structure and pre-render it as Java code.
         if state not in model.state_to_decision_node:
             method_body = f"// There are no transitions starting in state {state}."
         else:
             root_target_node: DecisionNode = model.state_to_decision_node[state]
-            method_body = self.render_decision_node(root_target_node)
+            method_body = self.render_decision_node_guard_statement_encapsulation(root_target_node)
 
         # Pre-render supporting statements.
         # Render the following sections at the last moment to ensure that all recursive steps have finished.
@@ -813,7 +857,8 @@ class JavaModelRenderer:
             method_body=method_body,
             decision_structure_contract=decision_structure_contract,
             decision_structure_opening_body=decision_structure_opening_body,
-            decision_structure_closing_body=decision_structure_closing_body
+            decision_structure_closing_body=decision_structure_closing_body,
+            control_node_methods=self.current_decision_control_node_methods
         )
 
     # noinspection PyMethodMayBeStatic

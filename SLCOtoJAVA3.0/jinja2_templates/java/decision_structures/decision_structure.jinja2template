@@ -1,3 +1,7 @@
+{% for support_methods in control_node_methods %}
+{{ support_methods }}
+
+{% endfor %}
 {% if decision_structure_contract != "" %}
 {{ decision_structure_contract | trim }}
 {% endif %}

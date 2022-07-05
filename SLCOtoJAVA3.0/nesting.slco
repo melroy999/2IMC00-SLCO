@@ -21,7 +21,6 @@ model Nesting {
             from SMC0 to SMC0 { a < 1 }
             from SMC0 to SMC0 { a < 2 }
             2: from SMC0 to SMC0 { a < 2 }
-            from SMC0 to SMC0 { a := 2 }
         }
         SM2 {
             initial SMC0
