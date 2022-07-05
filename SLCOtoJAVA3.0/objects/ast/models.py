@@ -391,6 +391,13 @@ class Transition(SlcoStructuralNode):
         return self.guard.locking_atomic_node
 
     @property
+    def get_isolated_atomic_nodes(self) -> List[AtomicNode]:
+        """
+        Get the atomic node of the transition's secondary statements.
+        """
+        return [s.locking_atomic_node for s in self.statements[1:]]
+
+    @property
     def used_variables(self) -> Set[Variable]:
         """
         Get the variables used within the transition's guard statement.
@@ -758,13 +765,9 @@ class DecisionNode(SlcoLockableNode):
 
         # Track the variables used within the child nodes.
         self.used_variables: Set[Variable] = set()
-        for d in decisions:
-            self.used_variables.update(d.used_variables)
 
         # Track the variables used within the child nodes that are location sensitive.
         self.location_sensitive_locks: List[Lock] = []
-        for d in decisions:
-            self.location_sensitive_locks.extend(d.location_sensitive_locks)
 
     def __repr__(self) -> str:
         return f"DecisionNode:{'DET' if self.is_deterministic else 'N_DET' if settings.use_random_pick else 'SEQ'}"

@@ -1,29 +1,29 @@
 model Nesting {
 	classes
 	P {
+        variables Integer a
         state machines
         SM1 {
-            variables Integer a
             initial SMC0
             transitions
             from SMC0 to SMC0 { a > 10 }
             from SMC0 to SMC0 { a > 11 }
             from SMC0 to SMC0 { a > 13 && a < 17 }
-            from SMC0 to SMC0 { a > 11 && a < 15 }
-            from SMC0 to SMC0 { a > 11 && a < 15 }
             from SMC0 to SMC0 { a > 11 && a < 13 }
             from SMC0 to SMC0 { a > 13 && a < 15 }
             from SMC0 to SMC0 { a > 13 && a < 15 }
             from SMC0 to SMC0 { a > 15 && a < 20 }
             from SMC0 to SMC0 { a > 15 && a < 17 }
             from SMC0 to SMC0 { a > 17 && a < 20 }
+            from SMC0 to SMC0 { a > 11 && a < 15 }
+            from SMC0 to SMC0 { a > 11 && a < 15 }
             from SMC0 to SMC0 { a < 1 }
             from SMC0 to SMC0 { a < 1 }
             from SMC0 to SMC0 { a < 2 }
             2: from SMC0 to SMC0 { a < 2 }
+            from SMC0 to SMC0 { a := 2 }
         }
         SM2 {
-            variables Integer a
             initial SMC0
             transitions
             from SMC0 to SMC0 { a > 10 }
@@ -31,7 +31,6 @@ model Nesting {
             from SMC0 to SMC0 { a < 1 }
         }
         SM3 {
-            variables Integer a
             initial SMC0
             transitions
             from SMC0 to SMC0 { a > 10 }

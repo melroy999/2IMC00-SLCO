@@ -2,7 +2,7 @@ import logging
 
 from grouping.resolver import set_groupings
 from locking.identities import assign_lock_identities
-from locking.structuring import initialize_transition_locking_structure, initialize_main_locking_structure, \
+from locking.structuring import initialize_main_locking_structure, \
     finalize_locking_structure
 from objects.ast.models import Class, SlcoModel
 
@@ -10,12 +10,6 @@ from objects.ast.models import Class, SlcoModel
 def finalize_class(e: Class):
     """Finalize the given SLCO class object."""
     logging.info(f">> Finalizing {e}.")
-
-    # Start by initializing the locking structures of the individual transitions.
-    logging.info(f"> Initializing transition locking structures of {e}.")
-    for sm in e.state_machines:
-        for t in sm.transitions:
-            initialize_transition_locking_structure(t)
 
     # Finalize the transitions and state machines.
     for sm in e.state_machines:

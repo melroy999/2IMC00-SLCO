@@ -716,6 +716,7 @@ class JavaModelRenderer:
 
     def render_deterministic_decision_node(self, model: DecisionNode) -> str:
         """Render the given deterministic decision node as Java code."""
+        # TODO: Adjust to consider the guard statement of a node.
         rendered_decisions, rendered_excluded_transitions = self.get_rendered_nested_decision_structures(model)
         return self.deterministic_decision_node_template.render(
             rendered_decisions=rendered_decisions,
@@ -724,6 +725,7 @@ class JavaModelRenderer:
 
     def render_sequential_decision_node(self, model: DecisionNode) -> str:
         """Render the given sequential decision node as Java code."""
+        # TODO: Adjust to consider the guard statement of a node.
         rendered_decisions, rendered_excluded_transitions = self.get_rendered_nested_decision_structures(model)
         return self.sequential_decision_node_template.render(
             rendered_decisions=rendered_decisions,
@@ -732,6 +734,7 @@ class JavaModelRenderer:
 
     def render_pick_random_decision_node(self, model: DecisionNode) -> str:
         """Render the given pick random decision node as Java code."""
+        # TODO: Adjust to consider the guard statement of a node.
         rendered_decisions, rendered_excluded_transitions = self.get_rendered_nested_decision_structures(model)
         return self.pick_random_decision_node_template.render(
             rendered_decisions=rendered_decisions,

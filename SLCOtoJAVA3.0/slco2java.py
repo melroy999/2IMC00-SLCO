@@ -110,20 +110,18 @@ def get_argument_parser():
                                                                                   "the decision structure to choose a "
                                                                                   "transition arbitrarily.")
 
-    parser.add_argument("-decision_structure_solver_id", nargs="?", type=int, choices=range(0, 6), const=2, default=0,
+    parser.add_argument("-decision_structure_solver_id", nargs="?", type=int, choices=range(0, 6), const=1, default=0,
                         required=False, help=
                         "The ID of the decision structure solver to use:\n"
                         "0. Greedy basic solver meeting minimum requirements\n"
-                        "1. Greedy solver that merges equal transitions\n"
-                        "2. Greedy solver that creates a nested structure for contained transitions (default)\n"
+                        "1. Greedy solver that merges equal transitions (default)\n"
+                        "2. Greedy solver that creates a nested structure for contained transitions\n"
                         "3. Optimal basic solver meeting minimum requirements\n"
                         "4. Optimal solver that merges equal transitions\n"
                         "5. Optimal solver that creates a nested structure for contained transitions\n"
                         )
 
     # Parameters that control the locking mechanism.
-    parser.add_argument("-atomic_sequential", action="store_true", help="Make the sequential decision structures an "
-                                                                        "atomic operation.")
     parser.add_argument("-visualize_locking_graph", action="store_true", help="Create a graph visualization of the "
                                                                               "locking graph.")
     parser.add_argument("-no_locks", action="store_true", help="Create faulty code that does not perform locking and "
@@ -162,8 +160,6 @@ def get_argument_parser():
 
 def report_parsing_errors(parser: argparse.ArgumentParser, parsed_arguments):
     """Report any errors found in the parsed values."""
-    if parsed_arguments.atomic_sequential and parsed_arguments.use_random_pick:
-        parser.error("The arguments -atomic_sequential and -use_random_pick are mutually exclusive.")
     if parsed_arguments.iteration_limit != 0 and parsed_arguments.running_time != 0:
         parser.error("The arguments -iteration_limit and -running_time are mutually exclusive.")
 

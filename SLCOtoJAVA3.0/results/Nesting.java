@@ -19,7 +19,7 @@ public class Nesting {
     Nesting() {
         // Instantiate the objects.
         objects = new SLCO_Class[] {
-            new P()
+            new P(0)
         };
     }
 
@@ -68,9 +68,16 @@ public class Nesting {
         private final Thread T_SM2;
         private final Thread T_SM3;
 
-        P() {
+        // Class variables.
+        private volatile int a;
+
+        P(int a) {
             // Create a lock manager.
-            LockManager lockManager = new LockManager(0);
+            LockManager lockManager = new LockManager(1);
+
+            // Instantiate the class variables.
+            this.a = a;
+
             // Instantiate the state machine threads and pass on the class' lock manager.
             T_SM1 = new P_SM1Thread(lockManager);
             T_SM2 = new P_SM2Thread(lockManager);
@@ -92,9 +99,6 @@ public class Nesting {
             // Random number generator to handle non-determinism.
             private final Random random;
 
-            // Thread local variables.
-            private int a;
-
             // The lock manager of the parent class.
             private final LockManager lockManager;
 
@@ -105,40 +109,67 @@ public class Nesting {
             P_SM1Thread(LockManager lockManagerInstance) {
                 currentState = P_SM1Thread.States.SMC0;
                 lockManager = lockManagerInstance;
-                lock_ids = new int[0];
-                target_locks = new int[0];
+                lock_ids = new int[1];
+                target_locks = new int[1];
                 random = new Random();
+            }
 
-                // Variable instantiations.
-                a = 0;
+            // SLCO expression wrapper | a > 10.
+            private boolean t_SMC0_0_s_0_n_0() {
+                if(a > 10) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
             }
 
             // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | a > 10.
             private boolean execute_transition_SMC0_0() {
                 // SLCO expression | a > 10.
-                if(!(a > 10)) {
+                if(!(t_SMC0_0_s_0_n_0())) {
                     return false;
                 }
 
                 currentState = P_SM1Thread.States.SMC0;
                 return true;
+            }
+
+            // SLCO expression wrapper | a > 11.
+            private boolean t_SMC0_1_s_0_n_0() {
+                if(a > 11) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
             }
 
             // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | a > 11.
             private boolean execute_transition_SMC0_1() {
                 // SLCO expression | a > 11.
-                if(!(a > 11)) {
+                if(!(t_SMC0_1_s_0_n_0())) {
                     return false;
                 }
 
                 currentState = P_SM1Thread.States.SMC0;
                 return true;
+            }
+
+            // SLCO expression wrapper | a < 17.
+            private boolean t_SMC0_2_s_0_n_0() {
+                if(a < 17) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
             }
 
             // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | a > 13 and a < 17.
             private boolean execute_transition_SMC0_2() {
                 // SLCO expression | a > 13 and a < 17.
-                if(!(a > 13 && a < 17)) {
+                if(!(a > 13 && t_SMC0_2_s_0_n_0())) {
                     return false;
                 }
 
@@ -146,32 +177,20 @@ public class Nesting {
                 return true;
             }
 
-            // SLCO transition (p:0, id:3) | SMC0 -> SMC0 | a > 11 and a < 15.
+            // SLCO expression wrapper | a < 13.
+            private boolean t_SMC0_3_s_0_n_0() {
+                if(a < 13) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
+            }
+
+            // SLCO transition (p:0, id:3) | SMC0 -> SMC0 | a > 11 and a < 13.
             private boolean execute_transition_SMC0_3() {
-                // SLCO expression | a > 11 and a < 15.
-                if(!(a > 11 && a < 15)) {
-                    return false;
-                }
-
-                currentState = P_SM1Thread.States.SMC0;
-                return true;
-            }
-
-            // SLCO transition (p:0, id:4) | SMC0 -> SMC0 | a > 11 and a < 15.
-            private boolean execute_transition_SMC0_4() {
-                // SLCO expression | a > 11 and a < 15.
-                if(!(a > 11 && a < 15)) {
-                    return false;
-                }
-
-                currentState = P_SM1Thread.States.SMC0;
-                return true;
-            }
-
-            // SLCO transition (p:0, id:5) | SMC0 -> SMC0 | a > 11 and a < 13.
-            private boolean execute_transition_SMC0_5() {
                 // SLCO expression | a > 11 and a < 13.
-                if(!(a > 11 && a < 13)) {
+                if(!(a > 11 && t_SMC0_3_s_0_n_0())) {
                     return false;
                 }
 
@@ -179,32 +198,62 @@ public class Nesting {
                 return true;
             }
 
-            // SLCO transition (p:0, id:6) | SMC0 -> SMC0 | a > 13 and a < 15.
+            // SLCO expression wrapper | a < 15.
+            private boolean t_SMC0_4_s_0_n_0() {
+                if(a < 15) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
+            }
+
+            // SLCO transition (p:0, id:4) | SMC0 -> SMC0 | a > 13 and a < 15.
+            private boolean execute_transition_SMC0_4() {
+                // SLCO expression | a > 13 and a < 15.
+                if(!(a > 13 && t_SMC0_4_s_0_n_0())) {
+                    return false;
+                }
+
+                currentState = P_SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | a < 15.
+            private boolean t_SMC0_5_s_0_n_0() {
+                if(a < 15) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
+            }
+
+            // SLCO transition (p:0, id:5) | SMC0 -> SMC0 | a > 13 and a < 15.
+            private boolean execute_transition_SMC0_5() {
+                // SLCO expression | a > 13 and a < 15.
+                if(!(a > 13 && t_SMC0_5_s_0_n_0())) {
+                    return false;
+                }
+
+                currentState = P_SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | a < 20.
+            private boolean t_SMC0_6_s_0_n_0() {
+                if(a < 20) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
+            }
+
+            // SLCO transition (p:0, id:6) | SMC0 -> SMC0 | a > 15 and a < 20.
             private boolean execute_transition_SMC0_6() {
-                // SLCO expression | a > 13 and a < 15.
-                if(!(a > 13 && a < 15)) {
-                    return false;
-                }
-
-                currentState = P_SM1Thread.States.SMC0;
-                return true;
-            }
-
-            // SLCO transition (p:0, id:7) | SMC0 -> SMC0 | a > 13 and a < 15.
-            private boolean execute_transition_SMC0_7() {
-                // SLCO expression | a > 13 and a < 15.
-                if(!(a > 13 && a < 15)) {
-                    return false;
-                }
-
-                currentState = P_SM1Thread.States.SMC0;
-                return true;
-            }
-
-            // SLCO transition (p:0, id:8) | SMC0 -> SMC0 | a > 15 and a < 20.
-            private boolean execute_transition_SMC0_8() {
                 // SLCO expression | a > 15 and a < 20.
-                if(!(a > 15 && a < 20)) {
+                if(!(a > 15 && t_SMC0_6_s_0_n_0())) {
                     return false;
                 }
 
@@ -212,10 +261,20 @@ public class Nesting {
                 return true;
             }
 
-            // SLCO transition (p:0, id:9) | SMC0 -> SMC0 | a > 15 and a < 17.
-            private boolean execute_transition_SMC0_9() {
+            // SLCO expression wrapper | a < 17.
+            private boolean t_SMC0_7_s_0_n_0() {
+                if(a < 17) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
+            }
+
+            // SLCO transition (p:0, id:7) | SMC0 -> SMC0 | a > 15 and a < 17.
+            private boolean execute_transition_SMC0_7() {
                 // SLCO expression | a > 15 and a < 17.
-                if(!(a > 15 && a < 17)) {
+                if(!(a > 15 && t_SMC0_7_s_0_n_0())) {
                     return false;
                 }
 
@@ -223,43 +282,125 @@ public class Nesting {
                 return true;
             }
 
-            // SLCO transition (p:0, id:10) | SMC0 -> SMC0 | a > 17 and a < 20.
-            private boolean execute_transition_SMC0_10() {
+            // SLCO expression wrapper | a < 20.
+            private boolean t_SMC0_8_s_0_n_0() {
+                if(a < 20) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
+            }
+
+            // SLCO transition (p:0, id:8) | SMC0 -> SMC0 | a > 17 and a < 20.
+            private boolean execute_transition_SMC0_8() {
                 // SLCO expression | a > 17 and a < 20.
-                if(!(a > 17 && a < 20)) {
+                if(!(a > 17 && t_SMC0_8_s_0_n_0())) {
                     return false;
                 }
 
                 currentState = P_SM1Thread.States.SMC0;
                 return true;
+            }
+
+            // SLCO expression wrapper | a < 15.
+            private boolean t_SMC0_9_s_0_n_0() {
+                if(a < 15) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
+            }
+
+            // SLCO transition (p:0, id:9) | SMC0 -> SMC0 | a > 11 and a < 15.
+            private boolean execute_transition_SMC0_9() {
+                // SLCO expression | a > 11 and a < 15.
+                if(!(a > 11 && t_SMC0_9_s_0_n_0())) {
+                    return false;
+                }
+
+                currentState = P_SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | a < 15.
+            private boolean t_SMC0_10_s_0_n_0() {
+                if(a < 15) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
+            }
+
+            // SLCO transition (p:0, id:10) | SMC0 -> SMC0 | a > 11 and a < 15.
+            private boolean execute_transition_SMC0_10() {
+                // SLCO expression | a > 11 and a < 15.
+                if(!(a > 11 && t_SMC0_10_s_0_n_0())) {
+                    return false;
+                }
+
+                currentState = P_SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | a < 1.
+            private boolean t_SMC0_11_s_0_n_0() {
+                if(a < 1) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
             }
 
             // SLCO transition (p:0, id:11) | SMC0 -> SMC0 | a < 1.
             private boolean execute_transition_SMC0_11() {
                 // SLCO expression | a < 1.
-                if(!(a < 1)) {
+                if(!(t_SMC0_11_s_0_n_0())) {
                     return false;
                 }
 
                 currentState = P_SM1Thread.States.SMC0;
                 return true;
+            }
+
+            // SLCO expression wrapper | a < 1.
+            private boolean t_SMC0_12_s_0_n_0() {
+                if(a < 1) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
             }
 
             // SLCO transition (p:0, id:12) | SMC0 -> SMC0 | a < 1.
             private boolean execute_transition_SMC0_12() {
                 // SLCO expression | a < 1.
-                if(!(a < 1)) {
+                if(!(t_SMC0_12_s_0_n_0())) {
                     return false;
                 }
 
                 currentState = P_SM1Thread.States.SMC0;
                 return true;
+            }
+
+            // SLCO expression wrapper | a < 2.
+            private boolean t_SMC0_13_s_0_n_0() {
+                if(a < 2) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
             }
 
             // SLCO transition (p:0, id:13) | SMC0 -> SMC0 | a < 2.
             private boolean execute_transition_SMC0_13() {
                 // SLCO expression | a < 2.
-                if(!(a < 2)) {
+                if(!(t_SMC0_13_s_0_n_0())) {
                     return false;
                 }
 
@@ -267,12 +408,49 @@ public class Nesting {
                 return true;
             }
 
+            // SLCO expression wrapper | a < 2.
+            private boolean t_SMC0_14_s_0_n_0() {
+                if(a < 2) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release a
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
             // SLCO transition (p:2, id:14) | SMC0 -> SMC0 | a < 2.
             private boolean execute_transition_SMC0_14() {
                 // SLCO expression | a < 2.
-                if(!(a < 2)) {
+                if(!(t_SMC0_14_s_0_n_0())) {
                     return false;
                 }
+
+                currentState = P_SM1Thread.States.SMC0;
+                return true;
+            }
+
+            // SLCO expression wrapper | true.
+            private boolean t_SMC0_15_s_0_n_0() {
+                lock_ids[0] = target_locks[0]; // Release a
+                lockManager.release_locks(lock_ids, 1);
+                return true;
+            }
+
+            // SLCO transition (p:0, id:15) | SMC0 -> SMC0 | true | a := 2.
+            private boolean execute_transition_SMC0_15() {
+                // SLCO expression | true.
+                if(!(t_SMC0_15_s_0_n_0())) {
+                    return false;
+                }
+
+                // SLCO assignment | a := 2.
+                lock_ids[0] = target_locks[0] = 0; // Acquire a
+                lockManager.acquire_locks(lock_ids, 1);
+                a = 2;
+                lock_ids[0] = target_locks[0]; // Release a
+                lockManager.release_locks(lock_ids, 1);
 
                 currentState = P_SM1Thread.States.SMC0;
                 return true;
@@ -293,43 +471,43 @@ public class Nesting {
                 }
                 // [DET.START]
                 // [SEQ.START]
-                // SLCO transition (p:0, id:3) | SMC0 -> SMC0 | a > 11 and a < 15.
+                // [DET.START]
+                // SLCO transition (p:0, id:3) | SMC0 -> SMC0 | a > 11 and a < 13.
                 if(execute_transition_SMC0_3()) {
                     return;
                 }
-                // SLCO transition (p:0, id:4) | SMC0 -> SMC0 | a > 11 and a < 15.
+                // [SEQ.START]
+                // SLCO transition (p:0, id:4) | SMC0 -> SMC0 | a > 13 and a < 15.
                 if(execute_transition_SMC0_4()) {
                     return;
                 }
-                // [DET.START]
-                // SLCO transition (p:0, id:5) | SMC0 -> SMC0 | a > 11 and a < 13.
+                // SLCO transition (p:0, id:5) | SMC0 -> SMC0 | a > 13 and a < 15.
                 if(execute_transition_SMC0_5()) {
-                    return;
-                }
-                // [SEQ.START]
-                // SLCO transition (p:0, id:6) | SMC0 -> SMC0 | a > 13 and a < 15.
-                if(execute_transition_SMC0_6()) {
-                    return;
-                }
-                // SLCO transition (p:0, id:7) | SMC0 -> SMC0 | a > 13 and a < 15.
-                if(execute_transition_SMC0_7()) {
                     return;
                 }
                 // [SEQ.END]
                 // [DET.END]
-                // [SEQ.END]
-                // [SEQ.START]
-                // SLCO transition (p:0, id:8) | SMC0 -> SMC0 | a > 15 and a < 20.
-                if(execute_transition_SMC0_8()) {
-                    return;
-                }
-                // [DET.START]
-                // SLCO transition (p:0, id:9) | SMC0 -> SMC0 | a > 15 and a < 17.
+                // SLCO transition (p:0, id:9) | SMC0 -> SMC0 | a > 11 and a < 15.
                 if(execute_transition_SMC0_9()) {
                     return;
                 }
-                // SLCO transition (p:0, id:10) | SMC0 -> SMC0 | a > 17 and a < 20.
+                // SLCO transition (p:0, id:10) | SMC0 -> SMC0 | a > 11 and a < 15.
                 if(execute_transition_SMC0_10()) {
+                    return;
+                }
+                // [SEQ.END]
+                // [SEQ.START]
+                // SLCO transition (p:0, id:6) | SMC0 -> SMC0 | a > 15 and a < 20.
+                if(execute_transition_SMC0_6()) {
+                    return;
+                }
+                // [DET.START]
+                // SLCO transition (p:0, id:7) | SMC0 -> SMC0 | a > 15 and a < 17.
+                if(execute_transition_SMC0_7()) {
+                    return;
+                }
+                // SLCO transition (p:0, id:8) | SMC0 -> SMC0 | a > 17 and a < 20.
+                if(execute_transition_SMC0_8()) {
                     return;
                 }
                 // [DET.END]
@@ -353,6 +531,10 @@ public class Nesting {
                 // [DET.END]
                 // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | a > 13 and a < 17.
                 if(execute_transition_SMC0_2()) {
+                    return;
+                }
+                // SLCO transition (p:0, id:15) | SMC0 -> SMC0 | true | a := 2.
+                if(execute_transition_SMC0_15()) {
                     return;
                 }
                 // SLCO transition (p:2, id:14) | SMC0 -> SMC0 | a < 2.
@@ -398,9 +580,6 @@ public class Nesting {
             // Random number generator to handle non-determinism.
             private final Random random;
 
-            // Thread local variables.
-            private int a;
-
             // The lock manager of the parent class.
             private final LockManager lockManager;
 
@@ -411,29 +590,48 @@ public class Nesting {
             P_SM2Thread(LockManager lockManagerInstance) {
                 currentState = P_SM2Thread.States.SMC0;
                 lockManager = lockManagerInstance;
-                lock_ids = new int[0];
-                target_locks = new int[0];
+                lock_ids = new int[1];
+                target_locks = new int[1];
                 random = new Random();
+            }
 
-                // Variable instantiations.
-                a = 0;
+            // SLCO expression wrapper | a > 10.
+            private boolean t_SMC0_0_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 0; // Acquire a
+                lockManager.acquire_locks(lock_ids, 1);
+                if(a > 10) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
             }
 
             // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | a > 10.
             private boolean execute_transition_SMC0_0() {
                 // SLCO expression | a > 10.
-                if(!(a > 10)) {
+                if(!(t_SMC0_0_s_0_n_0())) {
                     return false;
                 }
 
                 currentState = P_SM2Thread.States.SMC0;
                 return true;
+            }
+
+            // SLCO expression wrapper | a < 1.
+            private boolean t_SMC0_1_s_0_n_0() {
+                if(a < 1) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                return false;
             }
 
             // SLCO transition (p:0, id:1) | SMC0 -> SMC0 | a < 1.
             private boolean execute_transition_SMC0_1() {
                 // SLCO expression | a < 1.
-                if(!(a < 1)) {
+                if(!(t_SMC0_1_s_0_n_0())) {
                     return false;
                 }
 
@@ -441,10 +639,22 @@ public class Nesting {
                 return true;
             }
 
+            // SLCO expression wrapper | a < 1.
+            private boolean t_SMC0_2_s_0_n_0() {
+                if(a < 1) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release a
+                lockManager.release_locks(lock_ids, 1);
+                return false;
+            }
+
             // SLCO transition (p:0, id:2) | SMC0 -> SMC0 | a < 1.
             private boolean execute_transition_SMC0_2() {
                 // SLCO expression | a < 1.
-                if(!(a < 1)) {
+                if(!(t_SMC0_2_s_0_n_0())) {
                     return false;
                 }
 
@@ -510,9 +720,6 @@ public class Nesting {
             // Random number generator to handle non-determinism.
             private final Random random;
 
-            // Thread local variables.
-            private int a;
-
             // The lock manager of the parent class.
             private final LockManager lockManager;
 
@@ -523,18 +730,29 @@ public class Nesting {
             P_SM3Thread(LockManager lockManagerInstance) {
                 currentState = P_SM3Thread.States.SMC0;
                 lockManager = lockManagerInstance;
-                lock_ids = new int[0];
-                target_locks = new int[0];
+                lock_ids = new int[1];
+                target_locks = new int[1];
                 random = new Random();
+            }
 
-                // Variable instantiations.
-                a = 0;
+            // SLCO expression wrapper | a > 10.
+            private boolean t_SMC0_0_s_0_n_0() {
+                lock_ids[0] = target_locks[0] = 0; // Acquire a
+                lockManager.acquire_locks(lock_ids, 1);
+                if(a > 10) {
+                    lock_ids[0] = target_locks[0]; // Release a
+                    lockManager.release_locks(lock_ids, 1);
+                    return true;
+                }
+                lock_ids[0] = target_locks[0]; // Release a
+                lockManager.release_locks(lock_ids, 1);
+                return false;
             }
 
             // SLCO transition (p:0, id:0) | SMC0 -> SMC0 | a > 10.
             private boolean execute_transition_SMC0_0() {
                 // SLCO expression | a > 10.
-                if(!(a > 10)) {
+                if(!(t_SMC0_0_s_0_n_0())) {
                     return false;
                 }
 

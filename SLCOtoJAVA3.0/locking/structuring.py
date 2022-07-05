@@ -8,29 +8,9 @@ from locking.validation import validate_locking_structure_integrity
 from objects.ast.interfaces import SlcoLockableNode, SlcoStatementNode
 from objects.ast.models import Primary, Composite, Transition, Assignment, Expression, StateMachine, Class, \
     VariableRef, Variable, DecisionNode, State
-from objects.ast.util import get_variable_references, get_variables_to_be_locked
+from objects.ast.util import get_variable_references, get_variables_to_be_locked, copy_node
 from objects.locking.models import AtomicNode, LockingNode, Lock, LockRequest, LockRequestInstanceProvider
 from objects.locking.visualization import render_locking_structure_instructions
-
-
-def initialize_transition_locking_structure(model: Transition):
-    """Construct a locking structure for the targeted transition."""
-    # Construct the locking structure for the transition.
-    create_transition_locking_structure(model)
-
-    # Generate the base-level locking data and add it to the locking structure.
-    for s in model.statements:
-        generate_base_level_locking_entries(s.locking_atomic_node)
-        assign_locking_node_ids(s.locking_atomic_node)
-        generate_location_sensitivity_checks(s.locking_atomic_node)
-        generate_unavoidable_location_sensitivity_violation_marks(s.locking_atomic_node)
-
-    # Perform a movement step prior to knowing the lock identities.
-    # Two passes are required: one to get the non-constant array variables to the right position in the graph, and a
-    # second to compensate for the effect that the movement of the aforementioned non-constant array indices may have
-    # on the location of constant valued indices.
-    for s in model.statements:
-        restructure_lock_acquisitions(s.locking_atomic_node, nr_of_passes=2)
 
 
 def construct_composite_node(model: Composite, result: AtomicNode) -> None:
@@ -262,6 +242,10 @@ def generate_location_sensitivity_checks(model: AtomicNode, aggregate_variable_r
     if aggregate_variable_references is None:
         aggregate_variable_references: Set[Lock] = set()
 
+    # Reset the list of aggregate variable references when dealing with a decision node.
+    if isinstance(model.partner, DecisionNode):
+        aggregate_variable_references: Set[Lock] = set()
+
     # Perform a DFS on the objects atomic nodes.
     if len(model.child_atomic_nodes) > 0:
         # Generate the checks for all children.
@@ -358,13 +342,38 @@ def initialize_main_locking_structure(model: StateMachine, state: State):
 
     # Construct the locking structure for the structure.
     create_main_locking_structure(decision_structure_root)
-    assign_locking_node_ids(decision_structure_root.locking_atomic_node)
+
+    # Find all isolated atomic nodes.
+    isolated_atomic_nodes = []
+    for t in model.state_to_transitions[state]:
+        if not t.is_excluded:
+            isolated_atomic_nodes.extend(t.get_isolated_atomic_nodes)
+
+    # Ensure that all structures have their variables initialized and locking node ids assigned.
+    for s in [decision_structure_root.locking_atomic_node] + isolated_atomic_nodes:
+        generate_base_level_locking_entries(s)
+        assign_locking_node_ids(s)
+
+    # Generate location sensitivity markings.
+    # TODO: Do this at the proper scope.
+    #  -should this be done only at the transition level and within the decision structure guards?
+    for s in [decision_structure_root.locking_atomic_node] + isolated_atomic_nodes:
+        generate_location_sensitivity_checks(s)
+        generate_unavoidable_location_sensitivity_violation_marks(s)
+
+    # # Perform a movement step prior to knowing the lock identities.
+    # # Two passes are required: one to get the non-constant array variables to the right position in the graph, and a
+    # # second to compensate for the effect that the movement of the aforementioned non-constant array indices may have
+    # # on the location of constant valued indices.
+    # for s in model.statements:
+    #     restructure_lock_acquisitions(s.locking_atomic_node, nr_of_passes=2)
 
     # Perform a movement step prior to knowing the lock identities.
     # Two passes are required: one to get the non-constant array variables to the right position in the graph, and a
     # second to compensate for the effect that the movement of the aforementioned non-constant array indices may have
     # on the location of constant valued indices.
-    restructure_lock_acquisitions(decision_structure_root.locking_atomic_node, nr_of_passes=2)
+    for s in [decision_structure_root.locking_atomic_node] + isolated_atomic_nodes:
+        restructure_lock_acquisitions(s, nr_of_passes=2)
 
 
 def get_max_list_size(model: AtomicNode) -> int:
@@ -382,15 +391,40 @@ def get_max_list_size(model: AtomicNode) -> int:
     return max_size
 
 
+def include_decision_node_guard_statement(model: DecisionNode, result: AtomicNode) -> LockingNode:
+    """Add components to the DAG of locking nodes for the given guard statement of a decision node."""
+    distribution_node = result.entry_node
+
+    if model.guard_statement is not None:
+        guard_statement = copy_node(model.guard_statement.guard, dict(), dict())
+        if isinstance(guard_statement, Composite):
+            guard_statement = guard_statement.guard
+        guard_statement.parent = model
+        model.guard_statement = guard_statement
+
+        atomic_node = create_transition_locking_structure(model.guard_statement)
+        result.include_atomic_node(atomic_node)
+
+        # The guard statement acts as the entry point for the decisions. The failure exit goes to the failure exit.
+        result.graph.add_edge(result.entry_node, atomic_node.entry_node)
+        result.graph.add_edge(atomic_node.failure_exit, result.failure_exit)
+        distribution_node = atomic_node.success_exit
+
+    return distribution_node
+
+
 def construct_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
     """Add components to the DAG of locking nodes for the given deterministic decision node."""
+    # Check if the decision node has a guard statement.
+    distribution_node = include_decision_node_guard_statement(model, result)
+
     # Get an atomic node for all of the options.
     atomic_nodes = [create_main_locking_structure(v) for v in model.decisions]
     for n in atomic_nodes:
         result.include_atomic_node(n)
 
     # When one branch fails, the control flow will proceed to the next one in line.
-    result.graph.add_edge(result.entry_node, atomic_nodes[0].entry_node)
+    result.graph.add_edge(distribution_node, atomic_nodes[0].entry_node)
     for i in range(1, len(atomic_nodes)):
         result.graph.add_edge(atomic_nodes[i - 1].failure_exit, atomic_nodes[i].entry_node)
     result.graph.add_edge(atomic_nodes[-1].failure_exit, result.failure_exit)
@@ -398,30 +432,25 @@ def construct_deterministic_decision_node(model: DecisionNode, result: AtomicNod
 
 def construct_non_deterministic_decision_node(model: DecisionNode, result: AtomicNode) -> None:
     """Add components to the DAG of locking nodes for the given non-deterministic decision node."""
+    # Check if the decision node has a guard statement.
+    distribution_node = include_decision_node_guard_statement(model, result)
+
     # Get an atomic node for all of the options.
     atomic_nodes = [create_main_locking_structure(v) for v in model.decisions]
     for n in atomic_nodes:
         result.include_atomic_node(n)
 
-    # Given that the decision is completely random, the entry is connected to the entry of all choices.
+    # Given that the decision is completely random, the distribution node is connected to the entry of all choices.
     # Moreover, each failure exit is connected to the failure exit of the node.
     for n in atomic_nodes:
-        result.graph.add_edge(result.entry_node, n.entry_node)
+        result.graph.add_edge(distribution_node, n.entry_node)
         result.graph.add_edge(n.failure_exit, result.failure_exit)
 
 
 def construct_sequential_decision_node(model: DecisionNode, result: AtomicNode) -> None:
     """Add components to the DAG of locking nodes for the given sequential decision node."""
-    # Get an atomic node for all of the options.
-    atomic_nodes = [create_main_locking_structure(v) for v in model.decisions]
-    for n in atomic_nodes:
-        result.include_atomic_node(n)
-
-    # Having the sequential operation be completely atomic would be a large hit on the performance.
-    # Hence, use the same approach taken for non-determinism.
-    for n in atomic_nodes:
-        result.graph.add_edge(result.entry_node, n.entry_node)
-        result.graph.add_edge(n.failure_exit, result.failure_exit)
+    # Sequential decisions are equivalent to deterministic decisions.
+    construct_deterministic_decision_node(model, result)
 
 
 def create_main_locking_structure(model) -> AtomicNode:
@@ -433,6 +462,7 @@ def create_main_locking_structure(model) -> AtomicNode:
     if isinstance(model, Transition):
         # The guard expression of the transition needs to be included in the main structure. Other statements do not.
         # Chain the guard statement with the overarching decision structure.
+        create_transition_locking_structure(model)
         return model.locking_atomic_node
 
     # All objects from this point on will return an atomic node.
@@ -445,11 +475,7 @@ def create_main_locking_structure(model) -> AtomicNode:
         elif settings.use_random_pick:
             construct_non_deterministic_decision_node(model, result)
         else:
-            if settings.atomic_sequential:
-                # The sequential should behave like a deterministic group instead.
-                construct_deterministic_decision_node(model, result)
-            else:
-                construct_sequential_decision_node(model, result)
+            construct_sequential_decision_node(model, result)
     else:
         raise Exception("This node is not allowed to be part of the locking structure.")
 

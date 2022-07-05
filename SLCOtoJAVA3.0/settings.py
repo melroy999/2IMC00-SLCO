@@ -14,9 +14,6 @@ no_deterministic_structures = False
 # The decision structure solver to use.
 decision_structure_solver_id = 2
 
-# Should the sequential decision grouping be considered an atomic operation?
-atomic_sequential = False
-
 # Do not perform locking.
 no_locks = False
 
@@ -76,8 +73,6 @@ def set_settings_abbreviations(parameters):
     if decision_structure_solver_id != parameters.decision_structure_solver_id:
         included_settings.append(f"DSSI={parameters.decision_structure_solver_id}")
 
-    if atomic_sequential != parameters.atomic_sequential:
-        included_settings.append("AS")
     if no_locks != parameters.no_locks:
         included_settings.append("NL")
     if statement_level_locking != parameters.statement_level_locking:
@@ -103,9 +98,9 @@ def set_settings_abbreviations(parameters):
 def init(parameters, _args):
     """Initialize the global variables, defining the settings of the program"""
     global model_folder, model_name, use_random_pick, no_deterministic_structures, decision_structure_solver_id, \
-        atomic_sequential, no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, \
-        iteration_limit, running_time, log_file_size, log_buffer_size, compression_level, original_arguments, \
-        vercors_verification, performance_measurements, package_name
+        no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, iteration_limit, \
+        running_time, log_file_size, log_buffer_size, compression_level, original_arguments, vercors_verification, \
+        performance_measurements, package_name
 
     # Add abbreviations such that used settings can be easily tracked.
     set_settings_abbreviations(parameters)
@@ -118,7 +113,6 @@ def init(parameters, _args):
     no_deterministic_structures = parameters.no_deterministic_structures
     decision_structure_solver_id = parameters.decision_structure_solver_id
 
-    atomic_sequential = parameters.atomic_sequential
     no_locks = parameters.no_locks or parameters.statement_level_locking
     statement_level_locking = parameters.statement_level_locking
     lock_array = parameters.lock_array
