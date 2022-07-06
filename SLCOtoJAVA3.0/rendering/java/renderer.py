@@ -174,9 +174,9 @@ class JavaModelRenderer:
 
         # Find the locks used by the target statement.
         if isinstance(model, Assignment):
-            target_variable_references: Set[VariableRef] = get_variables_to_be_locked(model.left)
+            target_variable_references: Set[VariableRef] = get_variables_to_be_locked(model.left, self.current_class)
             if len(model.locking_atomic_node.child_atomic_nodes) == 0:
-                target_variable_references.update(get_variables_to_be_locked(model.right))
+                target_variable_references.update(get_variables_to_be_locked(model.right, self.current_class))
         elif len(model.locking_atomic_node.child_atomic_nodes) > 0:
             # TODO: Certain configurations may have intermediate control nodes too, for which the locks are not present.
             #   - Say, a && b becomes a control node, then a and b will not be locked prior to reaching a && b.
@@ -184,7 +184,7 @@ class JavaModelRenderer:
             target_variable_references: Set[VariableRef] = set()
         else:
             # Find which variables are used by the object in question.
-            target_variable_references: Set[VariableRef] = get_variables_to_be_locked(model)
+            target_variable_references: Set[VariableRef] = get_variables_to_be_locked(model, self.current_class)
 
         # Convert the set to a list to have a constant ordering.
         target_lock_checks = list(target_variable_references)
@@ -715,10 +715,10 @@ class JavaModelRenderer:
         )
 
         # Wrap the call into a synchronized block if statement level locking is performed.
-        if settings.statement_level_locking:
-            result = self.synchronized_wrapper_template.render(
-                statement_body=result
-            )
+        # if settings.statement_level_locking:
+        #     result = self.synchronized_wrapper_template.render(
+        #         statement_body=result
+        #     )
 
         return result
 
@@ -955,12 +955,13 @@ class JavaModelRenderer:
     # noinspection PyMethodMayBeStatic
     def get_class_support_variables(self, model: Class) -> List[str]:
         """Get the support variables that need to be contained within the class."""
-        if settings.statement_level_locking:
-            return [
-                "private final Object lock = new Object();"
-            ]
-        else:
-            return []
+        # if settings.statement_level_locking:
+        #     return [
+        #         "private final Object lock = new Object();"
+        #     ]
+        # else:
+        #     return []
+        return []
 
     def render_class(self, model: Class) -> str:
         """Render the SLCO class as Java code."""

@@ -113,7 +113,7 @@ def init(parameters, _args):
     no_deterministic_structures = parameters.no_deterministic_structures
     decision_structure_solver_id = parameters.decision_structure_solver_id
 
-    no_locks = parameters.no_locks or parameters.statement_level_locking
+    no_locks = parameters.no_locks
     statement_level_locking = parameters.statement_level_locking
     lock_array = parameters.lock_array
     visualize_locking_graph = parameters.visualize_locking_graph

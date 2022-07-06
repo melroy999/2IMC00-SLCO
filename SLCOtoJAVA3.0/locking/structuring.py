@@ -161,19 +161,19 @@ def create_transition_locking_structure(model: Union[Transition, SlcoStatementNo
     return result
 
 
-def generate_base_level_locking_entries(model: AtomicNode):
+def generate_base_level_locking_entries(model: AtomicNode, c: Class):
     """Add the requested lock objects to the base-level lockable components."""
     if isinstance(model.partner, Assignment):
         # Find the variables that are targeted by the assignment's atomic node.
-        class_variable_references = get_variables_to_be_locked(model.partner.left)
+        class_variable_references = get_variables_to_be_locked(model.partner.left, c)
 
         if len(model.child_atomic_nodes) == 0:
             # No atomic node present for the right hand side. Add the requested locks to the assignment's atomic node.
-            class_variable_references.update(get_variables_to_be_locked(model.partner.right))
+            class_variable_references.update(get_variables_to_be_locked(model.partner.right, c))
         else:
             # Recursively add the appropriate data to the right hand side.
             for n in model.partner.locking_atomic_node.child_atomic_nodes:
-                generate_base_level_locking_entries(n)
+                generate_base_level_locking_entries(n, c)
                 model.used_variables.update(n.used_variables)
 
         # Create lock objects for all of the used class variables, and add them to the entry and exit points.
@@ -185,11 +185,11 @@ def generate_base_level_locking_entries(model: AtomicNode):
     elif len(model.child_atomic_nodes) > 0:
         # The node is not a base-level lockable node. Continue recursively.
         for n in model.partner.locking_atomic_node.child_atomic_nodes:
-            generate_base_level_locking_entries(n)
+            generate_base_level_locking_entries(n, c)
             model.used_variables.update(n.used_variables)
     else:
         # The node is a base-level lockable node. Add the appropriate locks.
-        class_variable_references = get_variables_to_be_locked(model.partner)
+        class_variable_references = get_variables_to_be_locked(model.partner, c)
         locks = {Lock(r, model.entry_node) for r in class_variable_references}
         model.entry_node.locks_to_acquire.update(locks)
         model.success_exit.locks_to_release.update(locks)
@@ -351,7 +351,7 @@ def initialize_main_locking_structure(model: StateMachine, state: State):
 
     # Ensure that all structures have their variables initialized and locking node ids assigned.
     for s in [decision_structure_root.locking_atomic_node] + isolated_atomic_nodes:
-        generate_base_level_locking_entries(s)
+        generate_base_level_locking_entries(s, model.parent)
         assign_locking_node_ids(s)
 
     # Generate location sensitivity markings.
@@ -517,7 +517,7 @@ def finalize_locking_structure(model: StateMachine, state: State):
 
     # Find unresolvable violations and mark them as dirty.
     for n in target_atomic_nodes:
-        generate_dirty_lock_marks(n)
+        generate_dirty_lock_marks(n, model.parent)
 
     # Create the locking instructions. Create a lock request instance provider for the state specifically.
     lock_request_instance_provider = LockRequestInstanceProvider()
@@ -530,7 +530,7 @@ def finalize_locking_structure(model: StateMachine, state: State):
 
     # Validate the locking structure.
     for n in target_atomic_nodes:
-        validate_locking_structure_integrity(n)
+        validate_locking_structure_integrity(n, model.parent)
 
     # Save allocation data for the locking parameters.
     model.lock_ids_list_size = max(
@@ -606,13 +606,13 @@ def restructure_lock_acquisitions(model: AtomicNode, nr_of_passes=2):
                         q.locks_to_release.update(violating_lock_requests)
 
 
-def generate_dirty_lock_marks(model: AtomicNode):
+def generate_dirty_lock_marks(model: AtomicNode, c: Class):
     """Mark the locks that violate the desired lock ordering or structural behavior as dirty."""
     # Check for location sensitivity issues.
     mark_location_sensitivity_violations(model)
 
     # Mark array variables that violate the strict lock ordering as dirty.
-    mark_lock_ordering_violations(model)
+    mark_lock_ordering_violations(model, c)
 
 
 def mark_location_sensitivity_violations(model: AtomicNode):
@@ -634,14 +634,14 @@ def mark_location_sensitivity_violations(model: AtomicNode):
                 )
 
 
-def mark_lock_ordering_violations(model: AtomicNode):
+def mark_lock_ordering_violations(model: AtomicNode, c: Class):
     """Find array class variables that use variables in the index that have not been locked prior to reading."""
     # Check for every array variable that is acquired for lock ordering violations in the index.
     n: LockingNode
     for n in model.graph.nodes:
         i: Lock
         for i in (j for j in n.locks_to_acquire if j.ref.var.is_array):
-            class_variable_references: Set[VariableRef] = get_variables_to_be_locked(i.ref.index)
+            class_variable_references: Set[VariableRef] = get_variables_to_be_locked(i.ref.index, c)
             if any(r for r in class_variable_references if r.var.lock_id >= i.ref.var.lock_id):
                 # A violation is found. Mark the lock as dirty.
                 i.is_dirty = True

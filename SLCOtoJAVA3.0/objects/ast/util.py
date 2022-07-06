@@ -281,14 +281,25 @@ statement_lock_variable = Variable("statement lock", Type("int", 0))
 statement_lock_variable.lock_id = 0
 
 
-def get_variables_to_be_locked(model: SlcoStatementNode):
+def get_variables_to_be_locked(model: SlcoStatementNode, c: Class) -> Set[VariableRef]:
     """
     Get the variables that need to be locked within the given statement.
     """
     # Get the class variables being referenced.
     target_variables = get_class_variable_references(model)
 
-    if settings.lock_array:
+    if settings.no_locks:
+        return set()
+    elif settings.statement_level_locking:
+        # Acquire the first variable if the target statement has class variables.
+        if len(target_variables) > 0:
+            if c.variables[0].type.is_array:
+                return {VariableRef(c.variables[0], Primary(target=0))}
+            else:
+                return {VariableRef(c.variables[0])}
+        else:
+            return target_variables
+    elif settings.lock_array:
         # The entire array can be locked by enforcing that the index of array variables is always zero.
         adjusted_variable_references = set()
         for r in target_variables:

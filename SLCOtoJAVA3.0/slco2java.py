@@ -162,6 +162,11 @@ def report_parsing_errors(parser: argparse.ArgumentParser, parsed_arguments):
     """Report any errors found in the parsed values."""
     if parsed_arguments.iteration_limit != 0 and parsed_arguments.running_time != 0:
         parser.error("The arguments -iteration_limit and -running_time are mutually exclusive.")
+    locking_mode_arguments = [
+        parsed_arguments.lock_array, parsed_arguments.statement_level_locking, parsed_arguments.no_locks
+    ]
+    if len([v for v in locking_mode_arguments if v]) > 1:
+        parser.error("The arguments -lock_array, -statement_level_locking and -no_locks are mutually exclusive.")
 
 
 def main(_args):

@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Set, TYPE_CHECKING
 
-from objects.ast.models import Assignment, DecisionNode
+from objects.ast.models import Assignment, DecisionNode, Class
 
 import networkx as nx
 
@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from objects.locking.models import AtomicNode, LockingNode, LockRequest
 
 
-def validate_locking_structure_integrity(model: AtomicNode):
+def validate_locking_structure_integrity(model: AtomicNode, c: Class):
     """
     Verify that the locking structure does not violate the semantics.
         - All locks used in base-level lockable components need to have been acquired before use.
@@ -28,7 +28,7 @@ def validate_locking_structure_integrity(model: AtomicNode):
     starting_points = [n for n in model.graph.nodes if len(list(model.graph.predecessors(n))) == 0]
 
     # Raise an exception of any of the paths does not get through the validation.
-    if not all(validate_locking_node_integrity(n, model.graph, set()) for n in starting_points):
+    if not all(validate_locking_node_integrity(n, model.graph, set(), c) for n in starting_points):
         render_locking_structure_instructions(model)
         raise Exception(f"The atomic node of \"{model.partner}\" has a path that violates the locking semantics.")
     if not all(validate_locking_instruction_integrity(n, model.graph, set()) for n in starting_points):
@@ -37,7 +37,7 @@ def validate_locking_structure_integrity(model: AtomicNode):
 
 
 def validate_locking_node_integrity(
-        n: LockingNode, graph: nx.DiGraph, acquired_locks: Set[Lock]
+        n: LockingNode, graph: nx.DiGraph, acquired_locks: Set[Lock], c: Class
 ) -> bool:
     """
     Verify the following:
@@ -52,9 +52,9 @@ def validate_locking_node_integrity(
     # All locks used in base-level lockable components need to have been acquired before use.
     target_variables: Set[VariableRef] = set()
     if len(n.partner.locking_atomic_node.child_atomic_nodes) == 0:
-        target_variables = get_variables_to_be_locked(n.partner)
+        target_variables = get_variables_to_be_locked(n.partner, c)
     elif isinstance(n.partner, Assignment) and len(n.partner.locking_atomic_node.child_atomic_nodes) == 1:
-        target_variables = get_variables_to_be_locked(n.partner.left)
+        target_variables = get_variables_to_be_locked(n.partner.left, c)
 
     # Ensure that all variables used by the statement are locked.
     target_locks: Set[Lock] = {Lock(r, entry_node) for r in target_variables}
@@ -64,7 +64,7 @@ def validate_locking_node_integrity(
 
     # The path so far is valid. Check if successors are valid too.
     return all(
-        validate_locking_node_integrity(n, graph, set(acquired_locks)) for n in graph.successors(n)
+        validate_locking_node_integrity(n, graph, set(acquired_locks), c) for n in graph.successors(n)
     )
 
 
