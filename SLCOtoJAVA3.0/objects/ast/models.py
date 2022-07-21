@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from functools import lru_cache
 from typing import Union, List, Optional, Iterator, Dict, Set, TYPE_CHECKING
 
 import networkx as nx
+from cachetools import cached
 
 import settings
 from objects.ast.interfaces import SlcoNode, SlcoStructuralNode, SlcoEvaluableNode, SlcoStatementNode, SlcoLockableNode
@@ -685,15 +687,16 @@ class VariableRef(SlcoStatementNode, SlcoEvaluableNode):
         if self.index is not None:
             yield self.index
 
+    # @cached(cache={}, key=lambda e1, e2: (e1.id, e2.id) if e1.id < e2.id else (e2.id, e1.id))
+    @cached(cache={}, key=lambda e1, e2: (e1.id, e2.id))
     def __eq__(self, o: object) -> bool:
         if isinstance(o, VariableRef):
+            # SMT is slow--attempt to determine equality without it before calling the SMT function.
             if self.var != o.var:
                 return False
             if not self.var.is_array:
                 return True
-
             try:
-                # SMT is slow--optimize constants.
                 i1 = int(str(self.index))
                 i2 = int(str(o.index))
                 return i1 == i2

@@ -361,13 +361,6 @@ def initialize_main_locking_structure(model: StateMachine, state: State):
         generate_location_sensitivity_checks(s)
         generate_unavoidable_location_sensitivity_violation_marks(s)
 
-    # # Perform a movement step prior to knowing the lock identities.
-    # # Two passes are required: one to get the non-constant array variables to the right position in the graph, and a
-    # # second to compensate for the effect that the movement of the aforementioned non-constant array indices may have
-    # # on the location of constant valued indices.
-    # for s in model.statements:
-    #     restructure_lock_acquisitions(s.locking_atomic_node, nr_of_passes=2)
-
     # Perform a movement step prior to knowing the lock identities.
     # Two passes are required: one to get the non-constant array variables to the right position in the graph, and a
     # second to compensate for the effect that the movement of the aforementioned non-constant array indices may have
@@ -578,9 +571,9 @@ def restructure_lock_acquisitions(model: AtomicNode, nr_of_passes=2):
 
         # Find the locks acquired in the current node that should be moved upwards.
         # A lock needs to be moved upwards if it should be requested before an already requested lock (<=).
-        violating_lock_requests: Set[Lock] = {
+        violating_lock_requests: List[Lock] = [
             i for i in n.locks_to_acquire if any(i <= i2 for i2 in locks_acquired_by_predecessors)
-        }
+        ]
 
         # Move the violating locks upwards, while ensuring that the structure stays intact and sound.
         if len(violating_lock_requests) > 0:
@@ -648,12 +641,12 @@ def mark_lock_ordering_violations(model: AtomicNode, c: Class):
                 logging.info(f"Marking lock {i} in \"{model.partner}\" as dirty due to a lock ordering violation.")
 
 
-def get_unpacked_lock_requests(i: Lock, provider: LockRequestInstanceProvider) -> Set[LockRequest]:
+def get_unpacked_lock_requests(i: Lock, provider: LockRequestInstanceProvider) -> List[LockRequest]:
     """
     Get the variable references needed to lock the entirety of the array associated with the lock's target variable.
     """
-    target_references = {VariableRef(i.ref.var, Primary(target=j)) for j in range(i.ref.var.type.size)}
-    return {LockRequest.get(r, provider) for r in target_references}
+    target_references = [VariableRef(i.ref.var, Primary(target=j)) for j in range(i.ref.var.type.size)]
+    return [LockRequest.get(r, provider) for r in target_references]
 
 
 def generate_locking_phases(lock_requests: Set[LockRequest]) -> List[List[LockRequest]]:
@@ -683,11 +676,11 @@ def generate_locking_instructions(model: AtomicNode, provider: LockRequestInstan
         instructions = n.locking_instructions
 
         # Find the locks that are considered safe to attain under the lock ordering and locality restrictions.
-        safe_to_be_acquired_locks = {i for i in n.locks_to_acquire if not i.is_dirty}
+        safe_to_be_acquired_locks = [i for i in n.locks_to_acquire if not i.is_dirty]
         instructions.locks_to_acquire.update(LockRequest.get(i, provider) for i in safe_to_be_acquired_locks)
 
         # Find the locks that need to be unpacked.
-        dirty_to_be_acquired_locks = n.locks_to_acquire.difference(safe_to_be_acquired_locks)
+        dirty_to_be_acquired_locks = [i for i in n.locks_to_acquire if i.is_dirty]
 
         # Perform weak or strict unpacking.
         i: Lock
@@ -708,10 +701,12 @@ def generate_locking_instructions(model: AtomicNode, provider: LockRequestInstan
         instructions.locks_to_acquire_phases = generate_locking_phases(instructions.locks_to_acquire)
 
         # Next, process the lock releases. Ensure that the proper replacements are added for strict unpacking.
-        strictly_unpacked_to_be_released_locks = {
+        strictly_unpacked_to_be_released_locks = [
             i for i in n.locks_to_release if i.is_dirty and i.is_location_sensitive
-        }
-        safe_to_be_released_locks = n.locks_to_release.difference(strictly_unpacked_to_be_released_locks)
+        ]
+        safe_to_be_released_locks = [
+            i for i in n.locks_to_release if not i.is_dirty or not i.is_location_sensitive
+        ]
 
         # Gather release data and perform weak or strict unpacking.
         instructions.locks_to_release.update(LockRequest.get(i, provider) for i in safe_to_be_released_locks)

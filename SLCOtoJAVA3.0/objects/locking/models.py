@@ -111,7 +111,11 @@ class Lock:
                 # There is no index to be compared, so the references are equivalent.
                 return True
             else:
-                # If either of the two locks has a non-constant index, then the operator will always yield true.
+                # Check if there exists a solution for which the left index is smaller or equal to the right index.
+                # TODO: Two passes may not be sufficient due to this change.
+                # return self.ref.index.exists_lte(o.ref.index)
+
+                # # If either of the two locks has a non-constant index, then the operator will always yield true.
                 if isinstance(self.ref.index, Expression) or self.ref.index.value is None:
                     return True
                 elif isinstance(o.ref.index, Expression) or o.ref.index.value is None:
@@ -180,11 +184,13 @@ class LockRequest:
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, LockRequest):
-            return self.ref == o.ref
+            return self.id == o.id
+            # return self.ref == o.ref
         return False
 
     def __hash__(self) -> int:
-        return hash(self.ref)
+        return hash(self.id)
+        # return hash(self.ref)
 
     @property
     def index(self):

@@ -62,3 +62,16 @@ def z3_is_negation_equivalent(expression1, expression2, byte_values: set) -> boo
 
     # The expressions are equivalent if no instance can be found for which they are not equal.
     return result.r == z3.Z3_L_FALSE
+
+
+def z3_exists_lte(expression1, expression2, byte_values: set) -> bool:
+    """Check whether the first expression has a solution for which it less than or equal to the second."""
+    solver.push()
+    solver.add(expression1 <= expression2)
+    for v in byte_values:
+        solver.add(z3.And(0 <= v, v < 256))
+    result = solver.check()
+    solver.pop()
+
+    # A solution existing implies that expression one may be less than equal to expression two.
+    return result.r == z3.Z3_L_TRUE

@@ -1,0 +1,24 @@
+model Test {
+	classes
+	P {
+        variables Integer[2] x Integer[2] y Boolean[3] b Integer i := 0 Byte[2] c Byte d
+        state machines
+        SM1 {
+            initial SMC0 states SMC1 SMC2 SMC3
+            transitions
+            from SMC0 to SMC0 {
+                x[i] > 0 and x[i + 1] > 0;
+            }
+            from SMC1 to SMC1 {
+                x[i] > 0 and x[i + 1] > 0 and x[0] > 0;
+            }
+            from SMC2 to SMC2 {
+                x[0] > 0 and x[i] > 0;
+            }
+            from SMC3 to SMC3 {
+                x[0] > 0 and x[1 + i * i] > 0;
+            }
+        }
+	}
+	objects p: P()
+}

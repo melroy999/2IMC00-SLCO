@@ -8,7 +8,7 @@ import networkx as nx
 
 from objects.util import get_incremental_id
 from smt.conversion import to_smt
-from smt.solving import is_true, is_false, is_equivalent, is_negation_equivalent
+from smt.solving import is_true, is_false, is_equivalent, is_negation_equivalent, exists_lte
 
 # Avoid circular imports due to type checking.
 if TYPE_CHECKING:
@@ -51,6 +51,12 @@ class SlcoEvaluableNode(SlcoNode, metaclass=ABCMeta):
     def is_negation_equivalent(self, target: SlcoEvaluableNode) -> bool:
         """Evaluate whether this statement and the negation of the given statement have the same solution space."""
         return is_negation_equivalent(self, target)
+
+    def exists_lte(self, target: SlcoEvaluableNode):
+        """
+        Evaluate whether there exists a solution for which this statement is less than or equal to the given statement.
+        """
+        return exists_lte(self, target)
 
     @property
     def smt(self):

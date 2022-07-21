@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from cachetools import cached
 from typing import TYPE_CHECKING, Iterable
-from smt.util import z3_always_holds, z3_never_holds, z3_is_equivalent, z3_is_negation_equivalent
+from smt.util import z3_always_holds, z3_never_holds, z3_is_equivalent, z3_is_negation_equivalent, z3_exists_lte
 
 if TYPE_CHECKING:
     from objects.ast.interfaces import SlcoEvaluableNode
@@ -34,6 +34,12 @@ def is_negation_equivalent(e, target: SlcoEvaluableNode) -> bool:
     """Evaluate whether this statement and the negation of the given statement have the same solution space."""
     byte_values = get_byte_variables(e)
     return z3_is_negation_equivalent(e.smt, target.smt, byte_values)
+
+
+def exists_lte(e, target: SlcoEvaluableNode) -> bool:
+    """Evaluate whether there exists a solution in which e is less than or equal to the target."""
+    byte_values = get_byte_variables(e)
+    return z3_exists_lte(e.smt, target.smt, byte_values)
 
 
 def get_byte_variables(e):

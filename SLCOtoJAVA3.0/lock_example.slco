@@ -1,0 +1,15 @@
+model LockExample {
+	classes
+	P {
+        variables Integer i Boolean[3] x Integer[3] y
+        state machines
+        SM1 {
+            initial SMC0
+            transitions
+            from SMC0 to SMC0 { i >= 0 and i < 3 and x[i] }
+            from SMC0 to SMC0 { x[0] or x[1] or x[2] }
+            from SMC0 to SMC0 { y[y[i]] > 0 }
+        }
+	}
+	objects p: P()
+}
