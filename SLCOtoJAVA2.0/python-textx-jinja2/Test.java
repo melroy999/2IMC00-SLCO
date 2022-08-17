@@ -5,17 +5,16 @@ import java.util.Arrays;
 // main class
 public class Test {
   // The threads
-  java_SM1Thread java_T_SM1;
-  java_ComThread java_T_Com;
+  java_SM4Thread java_T_SM4;
 
   // Enum type for state machine states
   public enum java_State {
-  SMC0, Com2, Com1, SMC1, Com0
+  SMC0, SMC1
   }
 
   // Global variables
-  public volatile boolean[] x;
-  public volatile int y;
+  public volatile int[] x;
+  public volatile int i;
 
 	// Lock class to handle locks of global variables
 	class java_Keeper {
@@ -52,9 +51,9 @@ public class Test {
 		}
 	}
 
-	class java_SM1Thread extends Thread {
+	class java_SM4Thread extends Thread {
 		private Thread java_t;
-		private String java_threadName = "SM1Thread";
+		private String java_threadName = "SM4Thread";
 		// Current state
 		private Test.java_State java_currentState;
 		// Random number generator to handle non-determinism
@@ -64,67 +63,32 @@ public class Test {
 		// Array to store IDs of locks to be acquired
 		private int[] java_lockIDs;
 		// Thread local variables
-		private int i;
-		private int j;
 
 		// Constructor
-		java_SM1Thread (Test.java_Keeper java_k) {
+		java_SM4Thread (Test.java_Keeper java_k) {
 			java_randomGenerator = new Random();
 			java_currentState = Test.java_State.SMC0;
             java_kp = java_k;
-            java_lockIDs = new int[3];
-			i = 0;
-			j = 0;
+            java_lockIDs = new int[2];
 		}
 
 		// Transition functions
         
         boolean execute_SMC0_0() {
-          // [ not x[i]; i := i + 1; x[i] := i = 2; i := 3; x[0] := False ]
-          //System.out.println("SM1_SMC0_0");
-          java_lockIDs[0] = 0 + (i + 1);
-          //System.out.println("SM1_SMC0_1");
-          java_lockIDs[1] = 0 + 0;
-          //System.out.println("SM1_SMC0_2");
-          java_lockIDs[2] = 0 + i;
-          //System.out.println("SM1_SMC0__sort");
-          Arrays.sort(java_lockIDs,0,3);
-          //System.out.println("SM1_SMC0__lock");
-          java_kp.lock(java_lockIDs, 3);
-          if (!(!(x[i]))) { java_kp.unlock(java_lockIDs, 3); return false; }
+          // [ i >= 0 && i < 1 && x[i] != 0; i := i + 1; i := i + 1 ]
+          //System.out.println("SM4_SMC0_0");
+          java_lockIDs[0] = 0;
+          //System.out.println("SM4_SMC0_1");
+          java_lockIDs[1] = 1 + i;
+          //System.out.println("SM4_SMC0__sort");
+          Arrays.sort(java_lockIDs,0,2);
+          //System.out.println("SM4_SMC0__lock");
+          java_kp.lock(java_lockIDs, 2);
+          if (!(i >= 0 && i < 1 && x[i] != 0)) { java_kp.unlock(java_lockIDs, 2); return false; }
           i = i + 1;
-          x[i] = i == 2;
-          i = 3;
-          x[0] = false;
-          //System.out.println("SM1_SMC0__unlock");
-          java_kp.unlock(java_lockIDs, 3);
-          return true;
-        }
-        
-        boolean execute_SMC0_1() {
-          // [ not x[j + 0]; x[j + 1] := j = 2; j := 3; x[0] := False ]
-          //System.out.println("SM1_SMC0_0");
-          java_lockIDs[0] = 0 + 0;
-          //System.out.println("SM1_SMC0_1");
-          java_lockIDs[1] = 0 + j + 0;
-          //System.out.println("SM1_SMC0_2");
-          java_lockIDs[2] = 0 + j + 1;
-          //System.out.println("SM1_SMC0__sort");
-          Arrays.sort(java_lockIDs,0,3);
-          //System.out.println("SM1_SMC0__lock");
-          java_kp.lock(java_lockIDs, 3);
-          if (!(!(x[j + 0]))) { java_kp.unlock(java_lockIDs, 3); return false; }
-          x[j + 1] = j == 2;
-          j = 3;
-          x[0] = false;
-          //System.out.println("SM1_SMC0__unlock");
-          java_kp.unlock(java_lockIDs, 3);
-          return true;
-        }
-        
-        boolean execute_SMC0_2() {
-          // i := 0
-          i = 0;
+          i = i + 1;
+          //System.out.println("SM4_SMC0__unlock");
+          java_kp.unlock(java_lockIDs, 2);
           return true;
         }
 
@@ -135,93 +99,9 @@ public class Test {
 			while(true) {
 				switch(java_currentState) {
 					case SMC0:
-						java_choice = java_randomGenerator.nextInt(3);
-						switch(java_choice) {
-							case 0:
-								//System.out.println("SM1_SMC0_0");
-								if (execute_SMC0_0()) {
-								  // Change state
-								  //System.out.println("SM1_SMC0_0_changestate");
-								  java_currentState = Test.java_State.SMC1;
-								}
-								break;
-							case 1:
-								//System.out.println("SM1_SMC0_1");
-								if (execute_SMC0_1()) {
-								  // Change state
-								  //System.out.println("SM1_SMC0_1_changestate");
-								  java_currentState = Test.java_State.SMC1;
-								}
-								break;
-							case 2:
-								//System.out.println("SM1_SMC0_2");
-								if (execute_SMC0_2()) {
-								  // Change state
-								  //System.out.println("SM1_SMC0_2_changestate");
-								  java_currentState = Test.java_State.SMC0;
-								}
-								break;
-						}
-					default:
-						return;
-				}
-			}
-		}
-
-		// Run method
-		public void run() {
-			exec();
-		}
-
-		// Start method
-		public void start() {
-			if (java_t == null) {
-				java_t = new Thread(this);
-				java_t.start();
-			}
-		}
-	}
-	class java_ComThread extends Thread {
-		private Thread java_t;
-		private String java_threadName = "ComThread";
-		// Current state
-		private Test.java_State java_currentState;
-		// Random number generator to handle non-determinism
-		private Random java_randomGenerator;
-		// Keeper of global variables
-		private Test.java_Keeper java_kp;
-		// Array to store IDs of locks to be acquired
-		private int[] java_lockIDs;
-		// Thread local variables
-		private int lx;
-
-		// Constructor
-		java_ComThread (Test.java_Keeper java_k) {
-			java_randomGenerator = new Random();
-			java_currentState = Test.java_State.Com0;
-            java_kp = java_k;
-            java_lockIDs = new int[0];
-			lx = 0;
-		}
-
-		// Transition functions
-        
-        boolean execute_Com0_0() {
-          // lx = 0
-          if (!(lx == 0)) { return false; }
-          return true;
-        }
-
-		// Execute method
-		public void exec() {
-			// variable to store non-deterministic choices
-			int java_choice;
-			while(true) {
-				switch(java_currentState) {
-					case Com0:
-                        if (execute_Com0_0()) {
+                        if (execute_SMC0_0()) {
 						  // Change state
-						  java_currentState = Test.java_State.Com1;
+						  java_currentState = Test.java_State.SMC0;
 						}
 						break;
 					default:
@@ -247,25 +127,22 @@ public class Test {
 	// Constructor for main class
 	Test() {
 		// Instantiate global variables
-		x = new boolean[] {false,true};
-		y = 0;
+		x = new int[] {0,0};
+		i = 0;
 		Test.java_Keeper java_k = new Test.java_Keeper();
-		java_T_SM1 = new Test.java_SM1Thread(java_k);
-		java_T_Com = new Test.java_ComThread(java_k);
+		java_T_SM4 = new Test.java_SM4Thread(java_k);
 	}
 
 	// Start all threads
 	public void startThreads() {
-		java_T_SM1.start();
-		java_T_Com.start();
+		java_T_SM4.start();
 	}
 
 	// Join all threads
 	public void joinThreads() {
 		while (true) {
 			try {
-				java_T_SM1.join();
-				java_T_Com.join();
+				java_T_SM4.join();
 				break;
 			} catch (InterruptedException e) {
 				e.printStackTrace();

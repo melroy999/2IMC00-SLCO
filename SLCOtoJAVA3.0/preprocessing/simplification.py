@@ -25,7 +25,8 @@ def simplify_slco_model(model):
     # Apply the desired transformations.
     model = slco2slco.model
     # slco2slco.check_vars(model)
-    slco2slco.check_repeatedwrites(model)
+    # TODO: Removed due to itmp'0 occurring multiple times when repeating i := i + 1; i := i + 1 in composite.
+    # slco2slco.check_repeatedwrites(model)
     # slco2slco.combine_trans(model) TODO: Causes statements to disappear?
     slco2slco.make_simple(model)
 

@@ -387,9 +387,6 @@ class VercorsLockingRewriteRulesModelRenderer(VercorsModelRenderer):
         original_reference = self.get_plain_text_in_line_statement(model.original_ref.index)
         rendered_statements.append(f"//@ assert _index == {original_reference};")
 
-        # Remove duplicate statements.
-        rendered_statements = list(OrderedDict.fromkeys(rendered_statements))
-
         # Render the statement with the lock rewrite check method template and add it to the control nodes list.
         self.current_control_node_methods.append(
             self.lock_rewrite_check_method_template.render(

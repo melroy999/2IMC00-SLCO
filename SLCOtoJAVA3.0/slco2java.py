@@ -147,13 +147,15 @@ def get_argument_parser():
     parser.add_argument("-compression_level", nargs="?", type=int, const=3, default=3, required=False,
                         help="The buffer size for the logger used in logging driven performance measurements.")
     parser.add_argument("-package_name", nargs="?", type=str, default="", required=False,
-                        help="The name of the root package the model should be part of.")
+                        help="The name of the root package the model should be part of during performance measurements."
+                        )
 
     # Control which models are rendered.
     parser.add_argument("-vercors_verification", action="store_true", help="Render models that uses VerCors to "
                                                                            "formally verify the generated model.")
-    parser.add_argument("-performance_measurements", action="store_true", help="Render models that uses measure the "
-                                                                               "performance of the generated model.")
+    parser.add_argument("-performance_measurements", action="store_true", help="Render models that are used to measure "
+                                                                               "the performance of the generated model."
+                        )
 
     return parser
 
