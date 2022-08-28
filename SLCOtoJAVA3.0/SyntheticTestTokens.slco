@@ -1,0 +1,53 @@
+model SyntheticTestTokens {
+	classes
+	P {
+        variables Boolean[5] tokens
+        state machines
+        SM1 {
+            variables Integer x := 0
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 { [tokens[0]; tokens[0]:=False] }
+            from SMC0 to SMC1 { [not tokens[0] and x = 0; tokens[1] := True] }
+            from SMC0 to SMC1 { not tokens[0] and x != 0 }
+            from SMC1 to SMC0 { x := (7 * x + 3) % 10 }
+        }
+        SM2 {
+            variables Integer x := 0
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 { [tokens[1]; tokens[1]:=False] }
+            from SMC0 to SMC1 { [not tokens[1] and x = 0; tokens[2] := True] }
+            from SMC0 to SMC1 { not tokens[1] and x != 0 }
+            from SMC1 to SMC0 { x := (7 * x + 3) % 10 }
+        }
+        SM3 {
+            variables Integer x := 0
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 { [tokens[2]; tokens[2]:=False] }
+            from SMC0 to SMC1 { [not tokens[2] and x = 0; tokens[3] := True] }
+            from SMC0 to SMC1 { not tokens[2] and x != 0 }
+            from SMC1 to SMC0 { x := (7 * x + 3) % 10 }
+        }
+        SM4 {
+            variables Integer x := 0
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 { [tokens[3]; tokens[3]:=False] }
+            from SMC0 to SMC1 { [not tokens[3] and x = 0; tokens[4] := True] }
+            from SMC0 to SMC1 { not tokens[3] and x != 0 }
+            from SMC1 to SMC0 { x := (7 * x + 3) % 10 }
+        }
+        SM5 {
+            variables Integer x := 0
+            initial SMC0 states SMC1
+            transitions
+            from SMC0 to SMC0 { [tokens[4]; tokens[4]:=False] }
+            from SMC0 to SMC1 { [not tokens[4] and x = 0; tokens[0] := True] }
+            from SMC0 to SMC1 { not tokens[4] and x != 0 }
+            from SMC1 to SMC0 { x := (7 * x + 3) % 10 }
+        }
+	}
+	objects p: P()
+}

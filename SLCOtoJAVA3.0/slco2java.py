@@ -110,7 +110,7 @@ def get_argument_parser():
                                                                                   "the decision structure to choose a "
                                                                                   "transition arbitrarily.")
 
-    parser.add_argument("-decision_structure_solver_id", nargs="?", type=int, choices=range(0, 6), const=1, default=0,
+    parser.add_argument("-decision_structure_solver_id", nargs="?", type=int, choices=range(0, 6), const=1, default=1,
                         required=False, help=
                         "The ID of the decision structure solver to use:\n"
                         "0. Greedy basic solver meeting minimum requirements\n"

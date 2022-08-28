@@ -12,7 +12,7 @@ use_random_pick = False
 no_deterministic_structures = False
 
 # The decision structure solver to use.
-decision_structure_solver_id = 2
+decision_structure_solver_id = 1
 
 # Do not perform locking.
 no_locks = False
@@ -63,8 +63,10 @@ package_name = ""
 def set_settings_abbreviations(parameters):
     """Initialize the settings abbreviations string"""
     global model_folder, model_name, use_random_pick, no_deterministic_structures, decision_structure_solver_id, \
-        atomic_sequential,no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, \
-        iteration_limit, running_time, settings_abbreviations
+        no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, iteration_limit, \
+        running_time, log_file_size, log_buffer_size, compression_level, original_arguments, vercors_verification, \
+        performance_measurements, package_name, settings_abbreviations
+
     included_settings = []
     if use_random_pick != parameters.use_random_pick:
         included_settings.append("URP")
