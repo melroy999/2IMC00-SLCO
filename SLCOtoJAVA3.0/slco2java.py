@@ -145,7 +145,9 @@ def get_argument_parser():
     parser.add_argument("-log_buffer_size", nargs="?", type=int, default=4194304, required=False,
                         help="The buffer size for the logger used in logging driven performance measurements.")
     parser.add_argument("-compression_level", nargs="?", type=int, const=3, default=3, required=False,
-                        help="The buffer size for the logger used in logging driven performance measurements.")
+                        help="The file compression level to be used by the logger "
+                             "that is used in logging driven performance measurements."
+                        )
     parser.add_argument("-package_name", nargs="?", type=str, default="", required=False,
                         help="The name of the root package the model should be part of during performance measurements."
                         )

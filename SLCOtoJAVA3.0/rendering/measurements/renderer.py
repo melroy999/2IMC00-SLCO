@@ -50,10 +50,13 @@ class MeasurementsModelRenderer(JavaModelRenderer):
 
     def get_transition_call_failure_closing_body(self, model: Transition) -> str:
         result = super().get_transition_call_failure_closing_body(model)
-        return self.join_with_strip([
-                result,
-                self.render_measurement_statement(f"{self.get_transition_identifier(model)}.F")
-            ])
+        return result
+        # TODO: Removed, since failure data can be derived from the other two entries. Furthermore, it creates an
+        #  imbalance in the number of log actions each path through the program has to take.
+        # return self.join_with_strip([
+        #         result,
+        #         self.render_measurement_statement(f"{self.get_transition_identifier(model)}.F")
+        #     ])
 
     def get_decision_structure_opening_body(self, model: StateMachine, state: State) -> str:
         result = super().get_decision_structure_opening_body(model, state)
@@ -64,10 +67,13 @@ class MeasurementsModelRenderer(JavaModelRenderer):
 
     def get_decision_structure_closing_body(self, model: StateMachine, state: State) -> str:
         result = super().get_decision_structure_closing_body(model, state)
-        return self.join_with_strip([
-                result,
-                self.render_measurement_statement(f"{self.get_decision_structure_identifier(state)}.F")
-            ])
+        return result
+        # TODO: Removed, since failure data can be derived from the other two entries. Furthermore, it creates an
+        #  imbalance in the number of log actions each path through the program has to take.
+        # return self.join_with_strip([
+        #         result,
+        #         self.render_measurement_statement(f"{self.get_decision_structure_identifier(state)}.F")
+        #     ])
 
     def add_support_data(self, model: SlcoModel) -> None:
         """Add the data needed to render log messages in an uniform and equally impactful manner."""

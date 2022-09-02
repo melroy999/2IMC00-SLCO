@@ -1,0 +1,41 @@
+model Tokens {
+	classes
+	P {
+        variables Boolean[3] tokens Integer a Integer b Integer c
+        state machines
+        A {
+            variables Integer x := 1
+            initial act states update wait
+            transitions
+            from act to act { [tokens[0]; tokens[0] := False] }
+            1: from act to update { not tokens[0] and x % 10 != 0}
+            1: from act to wait { [not tokens[0] and x % 10 = 0; tokens[1] := True] }
+            from update to act { [x := (641 * x + 718) % 1009; a := a + 1] }
+            from wait to wait { [tokens[0]; tokens[0] := False] }
+            1: from wait to update { not tokens[1] }
+        }
+        B {
+            variables Integer x := 42
+            initial act states update wait
+            transitions
+            from act to act { [tokens[1]; tokens[1] := False] }
+            1: from act to update { not tokens[1] and x % 10 != 0 }
+            1: from act to wait { [not tokens[1] and x % 10 = 0; tokens[2] := True] }
+            from update to act { [x := (193 * x + 953) % 1009; b := b + 1] }
+            from wait to wait { [tokens[1]; tokens[1] := False] }
+            1: from wait to update { not tokens[2] }
+        }
+        C {
+            variables Integer x := 308
+            initial act states update wait
+            transitions
+            from act to act { [tokens[2]; tokens[2] := False] }
+            1: from act to wait { [not tokens[2] and x % 10 = 0; tokens[0] := True] }
+            1: from act to update { not tokens[2] and x % 10 != 0 }
+            from update to act { [x := (811 * x + 31) % 1009; c := c + 1] }
+            from wait to wait { [tokens[2]; tokens[2] := False] }
+            1: from wait to update { not tokens[0] }
+        }
+	}
+	objects p: P()
+}

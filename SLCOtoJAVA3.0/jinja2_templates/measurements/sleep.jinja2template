@@ -1,6 +1,6 @@
 // Give the logger time to finish asynchronous tasks.
 try {
-    Thread.sleep(2000);
+    Thread.sleep(5000);
 } catch (InterruptedException e) {
     e.printStackTrace();
 }
