@@ -26,6 +26,9 @@ lock_array = False
 # Visualize the locking graph.
 visualize_locking_graph = False
 
+# Add fairness constraints to the reentrant locks.
+fair_locking = False
+
 # Should the locking system render statements that verify whether target variables have been locked before use?
 verify_locks = False
 
@@ -65,7 +68,7 @@ def set_settings_abbreviations(parameters):
     global model_folder, model_name, use_random_pick, no_deterministic_structures, decision_structure_solver_id, \
         no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, iteration_limit, \
         running_time, log_file_size, log_buffer_size, compression_level, original_arguments, vercors_verification, \
-        performance_measurements, package_name, settings_abbreviations
+        performance_measurements, package_name, settings_abbreviations, fair_locking
 
     included_settings = []
     if use_random_pick != parameters.use_random_pick:
@@ -81,6 +84,8 @@ def set_settings_abbreviations(parameters):
         included_settings.append("SLL")
     if lock_array != parameters.lock_array:
         included_settings.append("LA")
+    if fair_locking != parameters.fair_locking:
+        included_settings.append("FL")
 
     if verify_locks != parameters.verify_locks:
         included_settings.append("VL")
@@ -102,7 +107,7 @@ def init(parameters, _args):
     global model_folder, model_name, use_random_pick, no_deterministic_structures, decision_structure_solver_id, \
         no_locks, statement_level_locking, lock_array, visualize_locking_graph, verify_locks, iteration_limit, \
         running_time, log_file_size, log_buffer_size, compression_level, original_arguments, vercors_verification, \
-        performance_measurements, package_name
+        performance_measurements, package_name, fair_locking
 
     # Add abbreviations such that used settings can be easily tracked.
     set_settings_abbreviations(parameters)
@@ -119,6 +124,7 @@ def init(parameters, _args):
     statement_level_locking = parameters.statement_level_locking
     lock_array = parameters.lock_array
     visualize_locking_graph = parameters.visualize_locking_graph
+    fair_locking = parameters.fair_locking
 
     verify_locks = parameters.verify_locks
     iteration_limit = parameters.iteration_limit

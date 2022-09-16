@@ -128,22 +128,22 @@ class GlobalClass_User_0Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[0]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: chan[0]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_idle_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[0]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[0]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[0]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[0]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         if(c.chan[0] == 255) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
+            //@ assert lock_requests[0] == 0; // Verify lock activity.
             return true;
         }
         return false;
@@ -325,7 +325,7 @@ class GlobalClass_User_0Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | idle -> dialing | [chan[0] = 255; dev := 0; chan[0] := (0 + 0 * 20)].
@@ -339,11 +339,11 @@ class GlobalClass_User_0Thread {
         range_check_assumption_t_0_s_2();
         dev = (0) & 0xff;
         // SLCO assignment | chan[0] := (0 + 0 * 20).
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         range_check_assumption_t_0_s_3();
         c.chan[0] = ((0 + 0 * 20)) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
     }
@@ -401,24 +401,24 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_idle_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         if(c.chan[0] != 255) {
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -553,7 +553,7 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -570,13 +570,13 @@ class GlobalClass_User_0Thread {
             return false;
         }
         // SLCO assignment | partner[0] := (chan[0] % 20).
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
-        //@ assert lock_requests[1] == 1; // Check c.partner[0].
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         range_check_assumption_t_1_s_2();
         c.partner[0] = ((Math.floorMod(c.chan[0], 20))) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
@@ -642,20 +642,20 @@ class GlobalClass_User_0Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[0]], 1: partner[0]]
+    // - [0: partner[0], 1: chan[partner[0]]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_qi_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[0]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[c.partner[0]]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[0]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[0]].
-        //@ assert lock_requests[1] == 1; // Check c.partner[0].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[c.partner[0]]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[0]].
         if((Math.floorMod(c.chan[c.partner[0]], 20)) == 0) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[0]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[0]]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -757,7 +757,7 @@ class GlobalClass_User_0Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[0]], 1: partner[0]]
+    // - [0: partner[0], 1: chan[partner[0]]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | qi -> talert | (chan[partner[0]] % 20) = 0.
@@ -824,27 +824,27 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[0]], 1: partner[0]]
+    // - [0: partner[0], 1: chan[partner[0]]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: partner[0]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_qi_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[0]].
-        //@ assert lock_requests[1] == 1; // Check c.partner[0].
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[0]].
         if((Math.floorMod(c.chan[c.partner[0]], 20)) != 0) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[0]]
-            //@ assert lock_requests[0] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[0]]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[0]]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[0]]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -982,7 +982,7 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[0]], 1: partner[0]]
+    // - [0: partner[0], 1: chan[partner[0]]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -999,11 +999,11 @@ class GlobalClass_User_0Thread {
             return false;
         }
         // SLCO assignment | partner[0] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[0].
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
         range_check_assumption_t_1_s_2();
         c.partner[0] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
 
         return true;
     }
@@ -2000,47 +2000,47 @@ class GlobalClass_User_0Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] + 1; // Acquire c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 1; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] + 1; // Acquire c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 1; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] + 1; // Acquire c.record[0]
+        lock_requests[5] = lock_requests[5] + 1; // Acquire c.callforwardbusy[0]
         //@ assert lock_requests[5] == 1; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] + 1; // Acquire c.record[1]
+        lock_requests[6] = lock_requests[6] + 1; // Acquire c.callforwardbusy[1]
         //@ assert lock_requests[6] == 1; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] + 1; // Acquire c.record[2]
+        lock_requests[7] = lock_requests[7] + 1; // Acquire c.callforwardbusy[2]
         //@ assert lock_requests[7] == 1; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] + 1; // Acquire c.record[3]
+        lock_requests[8] = lock_requests[8] + 1; // Acquire c.callforwardbusy[3]
         //@ assert lock_requests[8] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.record[0]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.record[1]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] + 1; // Acquire c.record[2]
+        //@ assert lock_requests[3] == 1; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] + 1; // Acquire c.record[3]
+        //@ assert lock_requests[4] == 1; // Verify lock activity.
         lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[0]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
         //@ assert lock_requests[0] == 1; // Check c.partner[0].
         if(c.partner[0] == 0) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
+            lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
-            lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
             //@ assert lock_requests[5] == 0; // Verify lock activity.
-            lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
             //@ assert lock_requests[6] == 0; // Verify lock activity.
-            lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
             //@ assert lock_requests[7] == 0; // Verify lock activity.
-            lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
             //@ assert lock_requests[8] == 0; // Verify lock activity.
             return true;
         }
@@ -2139,7 +2139,7 @@ class GlobalClass_User_0Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | calling -> busy | partner[0] = 0.
@@ -2205,14 +2205,14 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_1_s_0_n_0() {
@@ -2220,21 +2220,21 @@ class GlobalClass_User_0Thread {
         if(c.partner[0] == 4) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
+            lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
-            lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
             //@ assert lock_requests[5] == 0; // Verify lock activity.
-            lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
             //@ assert lock_requests[6] == 0; // Verify lock activity.
-            lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
             //@ assert lock_requests[7] == 0; // Verify lock activity.
-            lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
             //@ assert lock_requests[8] == 0; // Verify lock activity.
             return true;
         }
@@ -2327,14 +2327,14 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | calling -> unobtainable | partner[0] = 4.
@@ -2400,14 +2400,14 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_2_s_0_n_0() {
@@ -2415,21 +2415,21 @@ class GlobalClass_User_0Thread {
         if(c.partner[0] == 4) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
+            lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
-            lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
             //@ assert lock_requests[5] == 0; // Verify lock activity.
-            lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
             //@ assert lock_requests[6] == 0; // Verify lock activity.
-            lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
             //@ assert lock_requests[7] == 0; // Verify lock activity.
-            lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
             //@ assert lock_requests[8] == 0; // Verify lock activity.
             return true;
         }
@@ -2522,14 +2522,14 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:2) | calling -> ringback | partner[0] = 4.
@@ -2595,15 +2595,15 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_0() {
@@ -2664,15 +2664,15 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_1() {
@@ -2733,15 +2733,15 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_2() {
@@ -2816,15 +2816,15 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_3() {
@@ -2904,15 +2904,15 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_4() {
@@ -2979,32 +2979,32 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_5() {
         //@ assert lock_requests[0] == 1; // Check c.partner[0].
-        //@ assert lock_requests[1] == 1; // Check c.callforwardbusy[0].
-        //@ assert lock_requests[2] == 1; // Check c.callforwardbusy[1].
-        //@ assert lock_requests[3] == 1; // Check c.callforwardbusy[2].
-        //@ assert lock_requests[4] == 1; // Check c.callforwardbusy[3].
+        //@ assert lock_requests[5] == 1; // Check c.callforwardbusy[0].
+        //@ assert lock_requests[6] == 1; // Check c.callforwardbusy[1].
+        //@ assert lock_requests[7] == 1; // Check c.callforwardbusy[2].
+        //@ assert lock_requests[8] == 1; // Check c.callforwardbusy[3].
         if(c.callforwardbusy[c.partner[0]] == 255) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-            //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-            //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-            //@ assert lock_requests[4] == 0; // Verify lock activity.
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+            //@ assert lock_requests[5] == 0; // Verify lock activity.
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+            //@ assert lock_requests[6] == 0; // Verify lock activity.
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+            //@ assert lock_requests[7] == 0; // Verify lock activity.
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+            //@ assert lock_requests[8] == 0; // Verify lock activity.
             lock_requests[9] = lock_requests[9] - 1; // Release c.chan[0]
             //@ assert lock_requests[9] == 0; // Verify lock activity.
             lock_requests[10] = lock_requests[10] - 1; // Release c.chan[1]
@@ -3072,15 +3072,15 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_6() {
@@ -3228,14 +3228,14 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:3) | calling -> busy | [partner[0] != 0 and partner[0] != 4 and chan[partner[0]] != 255 and callforwardbusy[partner[0]] = 255; record[partner[0]] := 0].
@@ -3247,22 +3247,22 @@ class GlobalClass_User_0Thread {
         }
         // SLCO assignment | record[partner[0]] := 0.
         //@ assert lock_requests[0] == 1; // Check c.partner[0].
-        //@ assert lock_requests[5] == 1; // Check c.record[0].
-        //@ assert lock_requests[6] == 1; // Check c.record[1].
-        //@ assert lock_requests[7] == 1; // Check c.record[2].
-        //@ assert lock_requests[8] == 1; // Check c.record[3].
+        //@ assert lock_requests[1] == 1; // Check c.record[0].
+        //@ assert lock_requests[2] == 1; // Check c.record[1].
+        //@ assert lock_requests[3] == 1; // Check c.record[2].
+        //@ assert lock_requests[4] == 1; // Check c.record[3].
         range_check_assumption_t_3_s_2();
         c.record[c.partner[0]] = (0) & 0xff;
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
 
         return true;
     }
@@ -3320,30 +3320,30 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_0() {
         //@ assert lock_requests[0] == 1; // Check c.partner[0].
         if(c.partner[0] != 0) {
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -3400,30 +3400,30 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_1() {
         //@ assert lock_requests[0] == 1; // Check c.partner[0].
         if(c.partner[0] != 4) {
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -3480,16 +3480,16 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_2() {
         if(t_calling_4_s_0_n_0()) {
@@ -3555,16 +3555,16 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_3() {
         //@ assert lock_requests[0] == 1; // Check c.partner[0].
@@ -3575,14 +3575,14 @@ class GlobalClass_User_0Thread {
         if(c.chan[c.partner[0]] != 255) {
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -3640,16 +3640,16 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_4() {
         if(t_calling_4_s_0_n_2()) {
@@ -3715,23 +3715,23 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_5() {
         //@ assert lock_requests[0] == 1; // Check c.partner[0].
-        //@ assert lock_requests[1] == 1; // Check c.callforwardbusy[0].
-        //@ assert lock_requests[2] == 1; // Check c.callforwardbusy[1].
-        //@ assert lock_requests[3] == 1; // Check c.callforwardbusy[2].
-        //@ assert lock_requests[4] == 1; // Check c.callforwardbusy[3].
+        //@ assert lock_requests[5] == 1; // Check c.callforwardbusy[0].
+        //@ assert lock_requests[6] == 1; // Check c.callforwardbusy[1].
+        //@ assert lock_requests[7] == 1; // Check c.callforwardbusy[2].
+        //@ assert lock_requests[8] == 1; // Check c.callforwardbusy[3].
         if(c.callforwardbusy[c.partner[0]] != 255) {
             lock_requests[9] = lock_requests[9] - 1; // Release c.chan[0]
             //@ assert lock_requests[9] == 0; // Verify lock activity.
@@ -3743,14 +3743,14 @@ class GlobalClass_User_0Thread {
             //@ assert lock_requests[12] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -3808,16 +3808,16 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_6() {
         if(t_calling_4_s_0_n_4()) {
@@ -4010,15 +4010,15 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:4) | calling -> calling | [partner[0] != 0 and partner[0] != 4 and chan[partner[0]] != 255 and callforwardbusy[partner[0]] != 255; record[partner[0]] := 0; partner[0] := callforwardbusy[partner[0]]].
     private boolean execute_transition_calling_4() {
@@ -4029,38 +4029,38 @@ class GlobalClass_User_0Thread {
         }
         // SLCO assignment | record[partner[0]] := 0.
         //@ assert lock_requests[0] == 1; // Check c.partner[0].
-        //@ assert lock_requests[5] == 1; // Check c.record[0].
-        //@ assert lock_requests[6] == 1; // Check c.record[1].
-        //@ assert lock_requests[7] == 1; // Check c.record[2].
-        //@ assert lock_requests[8] == 1; // Check c.record[3].
+        //@ assert lock_requests[1] == 1; // Check c.record[0].
+        //@ assert lock_requests[2] == 1; // Check c.record[1].
+        //@ assert lock_requests[3] == 1; // Check c.record[2].
+        //@ assert lock_requests[4] == 1; // Check c.record[3].
         range_check_assumption_t_4_s_2();
         c.record[c.partner[0]] = (0) & 0xff;
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         // SLCO assignment | partner[0] := callforwardbusy[partner[0]].
         //@ assert lock_requests[0] == 1; // Check c.partner[0].
-        //@ assert lock_requests[1] == 1; // Check c.callforwardbusy[0].
-        //@ assert lock_requests[2] == 1; // Check c.callforwardbusy[1].
-        //@ assert lock_requests[3] == 1; // Check c.callforwardbusy[2].
-        //@ assert lock_requests[4] == 1; // Check c.callforwardbusy[3].
+        //@ assert lock_requests[5] == 1; // Check c.callforwardbusy[0].
+        //@ assert lock_requests[6] == 1; // Check c.callforwardbusy[1].
+        //@ assert lock_requests[7] == 1; // Check c.callforwardbusy[2].
+        //@ assert lock_requests[8] == 1; // Check c.callforwardbusy[3].
         range_check_assumption_t_4_s_3();
         c.partner[0] = (c.callforwardbusy[c.partner[0]]) & 0xff;
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
 
         return true;
     }
@@ -4118,12 +4118,12 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -4135,14 +4135,14 @@ class GlobalClass_User_0Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         lock_requests[9] = lock_requests[9] - 1; // Release c.chan[0]
         //@ assert lock_requests[9] == 0; // Verify lock activity.
         lock_requests[10] = lock_requests[10] - 1; // Release c.chan[1]
@@ -4207,12 +4207,12 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -4224,14 +4224,14 @@ class GlobalClass_User_0Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         lock_requests[9] = lock_requests[9] - 1; // Release c.chan[0]
         //@ assert lock_requests[9] == 0; // Verify lock activity.
         lock_requests[10] = lock_requests[10] - 1; // Release c.chan[1]
@@ -4296,12 +4296,12 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -4370,12 +4370,12 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -4391,14 +4391,14 @@ class GlobalClass_User_0Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         lock_requests[9] = lock_requests[9] - 1; // Release c.chan[0]
         //@ assert lock_requests[9] == 0; // Verify lock activity.
         lock_requests[10] = lock_requests[10] - 1; // Release c.chan[1]
@@ -4464,12 +4464,12 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -4709,8 +4709,8 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[0], 10: chan[1], 11: chan[2], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -4727,20 +4727,20 @@ class GlobalClass_User_0Thread {
         }
         // SLCO assignment | record[partner[0]] := 0.
         //@ assert lock_requests[0] == 1; // Check c.partner[0].
-        //@ assert lock_requests[5] == 1; // Check c.record[0].
-        //@ assert lock_requests[6] == 1; // Check c.record[1].
-        //@ assert lock_requests[7] == 1; // Check c.record[2].
-        //@ assert lock_requests[8] == 1; // Check c.record[3].
+        //@ assert lock_requests[1] == 1; // Check c.record[0].
+        //@ assert lock_requests[2] == 1; // Check c.record[1].
+        //@ assert lock_requests[3] == 1; // Check c.record[2].
+        //@ assert lock_requests[4] == 1; // Check c.record[3].
         range_check_assumption_t_5_s_2();
         c.record[c.partner[0]] = (0) & 0xff;
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         // SLCO assignment | chan[partner[0]] := (0 + 0 * 20).
         //@ assert lock_requests[0] == 1; // Check c.partner[0].
         //@ assert lock_requests[9] == 1; // Check c.chan[0].
@@ -4990,22 +4990,22 @@ class GlobalClass_User_0Thread {
         // SLCO composite | [chan[0] := 255; partner[0] := 255; dev := 1] -> [true; chan[0] := 255; partner[0] := 255; dev := 1].
         // (Superfluous) SLCO expression | true.
         // SLCO assignment | chan[0] := 255.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[0]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[0]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[0]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[0]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         range_check_assumption_t_0_s_3();
         c.chan[0] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | partner[0] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[0].
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
         range_check_assumption_t_0_s_4();
         c.partner[0] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | dev := 1.
         range_check_assumption_t_0_s_5();
         dev = (1) & 0xff;
@@ -5072,20 +5072,20 @@ class GlobalClass_User_0Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[0]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[0]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[0]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
-        //@ assert lock_requests[1] == 1; // Check c.partner[0].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[0]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         if((Math.floorMod(c.chan[0], 20)) != c.partner[0]) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -5184,7 +5184,7 @@ class GlobalClass_User_0Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | oalert -> errorstate | (chan[0] % 20) != partner[0].
@@ -5250,20 +5250,20 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
-        //@ assert lock_requests[1] == 1; // Check c.partner[0].
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         return (Math.floorMod(c.chan[0], 20)) == c.partner[0];
     }
 
@@ -5320,22 +5320,22 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_1_s_0_n_1() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         if((c.chan[0] / 20) == 1) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -5395,14 +5395,14 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_1_s_0_n_2() {
@@ -5501,14 +5501,14 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | oalert -> oconnected | (chan[0] % 20) = partner[0] and (chan[0] / 20) = 1.
@@ -5574,27 +5574,27 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[0]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: chan[0]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_2_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
-        //@ assert lock_requests[1] == 1; // Check c.partner[0].
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         if((Math.floorMod(c.chan[0], 20)) == c.partner[0]) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
+            //@ assert lock_requests[0] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -5652,8 +5652,8 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: chan[0]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -5662,14 +5662,14 @@ class GlobalClass_User_0Thread {
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_2_s_0_n_1() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         if((c.chan[0] / 20) == 0) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
-            //@ assert lock_requests[0] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
 
@@ -5726,7 +5726,7 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -5831,7 +5831,7 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -6077,27 +6077,27 @@ class GlobalClass_User_0Thread {
         range_check_assumption_t_0_s_3();
         dev = (1) & 0xff;
         // SLCO assignment | chan[0] := 255.
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.partner[0]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[0]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[0]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
         lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[c.partner[0]]
         //@ assert lock_requests[1] == 1; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.chan[0]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
+        //@ assert lock_requests[2] == 1; // Check c.chan[0].
         range_check_assumption_t_0_s_4();
         c.chan[0] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[0]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
         // SLCO assignment | chan[partner[0]] := 255.
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
         //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[0]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[0].
         range_check_assumption_t_0_s_5();
         c.chan[c.partner[0]] = (255) & 0xff;
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[0]]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[0]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
 
         return true;
     }
@@ -6327,22 +6327,22 @@ class GlobalClass_User_0Thread {
         range_check_assumption_t_0_s_3();
         dev = (1) & 0xff;
         // SLCO assignment | chan[0] := 255.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[0]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[0]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[0]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[0]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         range_check_assumption_t_0_s_4();
         c.chan[0] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | partner[0] := ((partner[0] % 20) + 0 * 20).
-        //@ assert lock_requests[1] == 1; // Check c.partner[0].
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
         range_check_assumption_t_0_s_5();
         c.partner[0] = (((Math.floorMod(c.partner[0], 20)) + 0 * 20)) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
 
         return true;
     }
@@ -6569,22 +6569,22 @@ class GlobalClass_User_0Thread {
         // SLCO composite | [chan[0] := 255; partner[0] := 255; dev := 1] -> [true; chan[0] := 255; partner[0] := 255; dev := 1].
         // (Superfluous) SLCO expression | true.
         // SLCO assignment | chan[0] := 255.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[0]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[0]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[0]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[0]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         range_check_assumption_t_0_s_3();
         c.chan[0] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | partner[0] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[0].
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
         range_check_assumption_t_0_s_4();
         c.partner[0] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | dev := 1.
         range_check_assumption_t_0_s_5();
         dev = (1) & 0xff;
@@ -7193,28 +7193,28 @@ class GlobalClass_User_0Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[0]], 2: partner[0]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: chan[partner[0]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_talert_0_s_0_n_1() {
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.partner[0]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[c.partner[0]]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[0]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[0]
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[c.partner[0]]
         //@ assert lock_requests[1] == 1; // Verify lock activity.
-        //@ assert lock_requests[1] == 1; // Check c.chan[0].
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.chan[0]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
+        //@ assert lock_requests[2] == 1; // Check c.chan[0].
         if(c.chan[0] == 255) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[0]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[0]]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.partner[0]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.chan[0]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[0]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
         return false;
     }
 
@@ -7277,8 +7277,8 @@ class GlobalClass_User_0Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[0]], 2: partner[0]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: chan[partner[0]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_talert_0_s_0_n_2() {
         if(t_talert_0_s_0_n_0()) {
@@ -7384,8 +7384,8 @@ class GlobalClass_User_0Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[0]], 2: partner[0]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: chan[partner[0]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | talert -> errorstate | dev != 1 or chan[0] = 255.
     private boolean execute_transition_talert_0() {
@@ -7451,24 +7451,24 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[0]], 2: partner[0]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: chan[partner[0]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[0]], 2: partner[0]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: chan[partner[0]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_talert_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[0]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[0].
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[0]].
         if((Math.floorMod(c.chan[c.partner[0]], 20)) == 0) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[0]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.partner[0]
-            //@ assert lock_requests[2] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[0]]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
         return false;
@@ -7563,15 +7563,15 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[0]], 2: partner[0]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: chan[partner[0]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[0]], 2: partner[0]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: chan[partner[0]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | talert -> tpickup | (chan[partner[0]] % 20) = 0.
     private boolean execute_transition_talert_1() {
@@ -7637,8 +7637,8 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[0]], 2: partner[0]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: chan[partner[0]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -7647,19 +7647,19 @@ class GlobalClass_User_0Thread {
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_talert_2_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[0]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[0].
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[0]].
         if((Math.floorMod(c.chan[c.partner[0]], 20)) != 0) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[0]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.partner[0]
-            //@ assert lock_requests[2] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[0]]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[0]]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[0]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[0]]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
 
@@ -7752,8 +7752,8 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[0]], 2: partner[0]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[0], 1: chan[partner[0]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -7828,22 +7828,22 @@ class GlobalClass_User_0Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[partner[0]], 1: chan[0], 2: partner[0]]
+    // - [0: chan[partner[0]], 1: partner[0], 2: chan[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[0]], 1: chan[0], 2: partner[0]]
+    // - [0: chan[partner[0]], 1: partner[0], 2: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_0_s_0_n_0() {
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.partner[0]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[0]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
         lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[c.partner[0]]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[0]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.chan[0]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[0]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.partner[0].
         return (Math.floorMod(c.chan[c.partner[0]], 20)) == 0;
     }
 
@@ -7901,20 +7901,20 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[0]], 1: chan[0], 2: partner[0]]
+    // - [0: chan[partner[0]], 1: partner[0], 2: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[partner[0]], 1: chan[0], 2: partner[0]]
+    // - [0: chan[partner[0]], 1: partner[0], 2: chan[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[0]], 1: chan[0], 2: partner[0]]
+    // - [0: chan[partner[0]], 1: partner[0], 2: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_0_s_0_n_1() {
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[0]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.partner[0].
         return (c.chan[c.partner[0]] / 20) == 0;
     }
 
@@ -7975,11 +7975,11 @@ class GlobalClass_User_0Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[partner[0]], 1: chan[0], 2: partner[0]]
+    // - [0: chan[partner[0]], 1: partner[0], 2: chan[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[0]], 1: chan[0], 2: partner[0]]
+    // - [0: chan[partner[0]], 1: partner[0], 2: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_0_s_0_n_2() {
@@ -8217,7 +8217,7 @@ class GlobalClass_User_0Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[0]], 1: chan[0], 2: partner[0]]
+    // - [0: chan[partner[0]], 1: partner[0], 2: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | tpickup -> tconnected | [(chan[partner[0]] % 20) = 0 and (chan[partner[0]] / 20) = 0; dev := 0; chan[partner[0]] := (0 + 1 * 20); chan[0] := (partner[0] + 1 * 20)].
@@ -8232,19 +8232,19 @@ class GlobalClass_User_0Thread {
         dev = (0) & 0xff;
         // SLCO assignment | chan[partner[0]] := (0 + 1 * 20).
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[0]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.partner[0].
         range_check_assumption_t_0_s_3();
         c.chan[c.partner[0]] = ((0 + 1 * 20)) & 0xff;
         lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[0]]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | chan[0] := (partner[0] + 1 * 20).
-        //@ assert lock_requests[1] == 1; // Check c.chan[0].
-        //@ assert lock_requests[2] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.partner[0].
+        //@ assert lock_requests[2] == 1; // Check c.chan[0].
         range_check_assumption_t_0_s_4();
         c.chan[0] = ((c.partner[0] + 1 * 20)) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[0]
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[0]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
 
         return true;
@@ -8304,20 +8304,20 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[0]], 1: chan[0], 2: partner[0]]
+    // - [0: chan[partner[0]], 1: partner[0], 2: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: chan[0], 2: partner[0]]
+    // - [1: partner[0], 2: chan[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[0]], 1: chan[0], 2: partner[0]]
+    // - [0: chan[partner[0]], 1: partner[0], 2: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_1_s_0_n_0() {
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[0]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.partner[0].
         if(c.chan[c.partner[0]] == 255) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[0]]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
@@ -8380,11 +8380,11 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[0]], 1: chan[0], 2: partner[0]]
+    // - [0: chan[partner[0]], 1: partner[0], 2: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: chan[0], 2: partner[0]]
+    // - [1: partner[0], 2: chan[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
@@ -8392,7 +8392,7 @@ class GlobalClass_User_0Thread {
     @*/
     private boolean t_tpickup_1_s_0_n_1() {
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[0]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.partner[0].
         if((Math.floorMod(c.chan[c.partner[0]], 20)) != 0) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[0]]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
@@ -8400,9 +8400,9 @@ class GlobalClass_User_0Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[0]]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[0]
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[0]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
         return false;
     }
@@ -8461,11 +8461,11 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[0]], 1: chan[0], 2: partner[0]]
+    // - [0: chan[partner[0]], 1: partner[0], 2: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: chan[0], 2: partner[0]]
+    // - [1: partner[0], 2: chan[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
@@ -8700,7 +8700,7 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[0]], 1: chan[0], 2: partner[0]]
+    // - [0: chan[partner[0]], 1: partner[0], 2: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -8720,17 +8720,17 @@ class GlobalClass_User_0Thread {
         range_check_assumption_t_1_s_2();
         dev = (1) & 0xff;
         // SLCO assignment | partner[0] := 255.
-        //@ assert lock_requests[2] == 1; // Check c.partner[0].
+        //@ assert lock_requests[1] == 1; // Check c.partner[0].
         range_check_assumption_t_1_s_3();
         c.partner[0] = (255) & 0xff;
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[0]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | chan[0] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.chan[0].
+        //@ assert lock_requests[2] == 1; // Check c.chan[0].
         range_check_assumption_t_1_s_4();
         c.chan[0] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[0]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
 
         return true;
     }
@@ -8791,19 +8791,19 @@ class GlobalClass_User_0Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[0]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[0]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[0]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[0]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         return (c.chan[0] / 20) == 1;
     }
 
@@ -8857,21 +8857,21 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_0_s_0_n_1() {
         if(dev == 0) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -8937,7 +8937,7 @@ class GlobalClass_User_0Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_0_s_0_n_2() {
@@ -9082,7 +9082,7 @@ class GlobalClass_User_0Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | tconnected -> tconnected | [(chan[0] / 20) = 1 and dev = 0; dev := 1].
@@ -9152,19 +9152,19 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         return (c.chan[0] / 20) == 1;
     }
 
@@ -9218,21 +9218,21 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_1_s_0_n_1() {
         if(dev == 1) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -9292,14 +9292,14 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_1_s_0_n_2() {
@@ -9438,14 +9438,14 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | tconnected -> tconnected | [(chan[0] / 20) = 1 and dev = 1; dev := 0].
@@ -9515,24 +9515,24 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_2_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         if((c.chan[0] / 20) == 0) {
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -9711,7 +9711,7 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[0], 1: partner[0]]
+    // - [0: partner[0], 1: chan[0]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -9728,17 +9728,17 @@ class GlobalClass_User_0Thread {
             return false;
         }
         // SLCO assignment | partner[0] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[0].
+        //@ assert lock_requests[0] == 1; // Check c.partner[0].
         range_check_assumption_t_2_s_2();
         c.partner[0] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[0]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | chan[0] := 255.
-        //@ assert lock_requests[0] == 1; // Check c.chan[0].
+        //@ assert lock_requests[1] == 1; // Check c.chan[0].
         range_check_assumption_t_2_s_3();
         c.chan[0] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[0]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
     }
@@ -9932,15 +9932,15 @@ class GlobalClass_User_0Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[0], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[0], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean d_calling_0_n_0() {
@@ -10746,22 +10746,22 @@ class GlobalClass_User_1Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[1]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: chan[1]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_idle_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[1]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[1]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[1]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[1]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         if(c.chan[1] == 255) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
+            //@ assert lock_requests[0] == 0; // Verify lock activity.
             return true;
         }
         return false;
@@ -10943,7 +10943,7 @@ class GlobalClass_User_1Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | idle -> dialing | [chan[1] = 255; dev := 0; chan[1] := (1 + 0 * 20)].
@@ -10957,11 +10957,11 @@ class GlobalClass_User_1Thread {
         range_check_assumption_t_0_s_2();
         dev = (0) & 0xff;
         // SLCO assignment | chan[1] := (1 + 0 * 20).
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         range_check_assumption_t_0_s_3();
         c.chan[1] = ((1 + 0 * 20)) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
     }
@@ -11019,24 +11019,24 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_idle_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         if(c.chan[1] != 255) {
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -11171,7 +11171,7 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -11188,13 +11188,13 @@ class GlobalClass_User_1Thread {
             return false;
         }
         // SLCO assignment | partner[1] := (chan[1] % 20).
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
-        //@ assert lock_requests[1] == 1; // Check c.partner[1].
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         range_check_assumption_t_1_s_2();
         c.partner[1] = ((Math.floorMod(c.chan[1], 20))) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
@@ -11260,20 +11260,20 @@ class GlobalClass_User_1Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[1]], 1: partner[1]]
+    // - [0: partner[1], 1: chan[partner[1]]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_qi_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[1]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[c.partner[1]]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[1]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[1]].
-        //@ assert lock_requests[1] == 1; // Check c.partner[1].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[c.partner[1]]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[1]].
         if((Math.floorMod(c.chan[c.partner[1]], 20)) == 1) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[1]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[1]]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -11375,7 +11375,7 @@ class GlobalClass_User_1Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[1]], 1: partner[1]]
+    // - [0: partner[1], 1: chan[partner[1]]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | qi -> talert | (chan[partner[1]] % 20) = 1.
@@ -11442,27 +11442,27 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[1]], 1: partner[1]]
+    // - [0: partner[1], 1: chan[partner[1]]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: partner[1]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_qi_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[1]].
-        //@ assert lock_requests[1] == 1; // Check c.partner[1].
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[1]].
         if((Math.floorMod(c.chan[c.partner[1]], 20)) != 1) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[1]]
-            //@ assert lock_requests[0] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[1]]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[1]]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[1]]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -11600,7 +11600,7 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[1]], 1: partner[1]]
+    // - [0: partner[1], 1: chan[partner[1]]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -11617,11 +11617,11 @@ class GlobalClass_User_1Thread {
             return false;
         }
         // SLCO assignment | partner[1] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[1].
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
         range_check_assumption_t_1_s_2();
         c.partner[1] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
 
         return true;
     }
@@ -12618,47 +12618,47 @@ class GlobalClass_User_1Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] + 1; // Acquire c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 1; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] + 1; // Acquire c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 1; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] + 1; // Acquire c.record[0]
+        lock_requests[5] = lock_requests[5] + 1; // Acquire c.callforwardbusy[0]
         //@ assert lock_requests[5] == 1; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] + 1; // Acquire c.record[1]
+        lock_requests[6] = lock_requests[6] + 1; // Acquire c.callforwardbusy[1]
         //@ assert lock_requests[6] == 1; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] + 1; // Acquire c.record[2]
+        lock_requests[7] = lock_requests[7] + 1; // Acquire c.callforwardbusy[2]
         //@ assert lock_requests[7] == 1; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] + 1; // Acquire c.record[3]
+        lock_requests[8] = lock_requests[8] + 1; // Acquire c.callforwardbusy[3]
         //@ assert lock_requests[8] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.record[0]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.record[1]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] + 1; // Acquire c.record[2]
+        //@ assert lock_requests[3] == 1; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] + 1; // Acquire c.record[3]
+        //@ assert lock_requests[4] == 1; // Verify lock activity.
         lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[1]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
         //@ assert lock_requests[0] == 1; // Check c.partner[1].
         if(c.partner[1] == 1) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
+            lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
-            lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
             //@ assert lock_requests[5] == 0; // Verify lock activity.
-            lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
             //@ assert lock_requests[6] == 0; // Verify lock activity.
-            lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
             //@ assert lock_requests[7] == 0; // Verify lock activity.
-            lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
             //@ assert lock_requests[8] == 0; // Verify lock activity.
             return true;
         }
@@ -12757,7 +12757,7 @@ class GlobalClass_User_1Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | calling -> busy | partner[1] = 1.
@@ -12823,14 +12823,14 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_1_s_0_n_0() {
@@ -12838,21 +12838,21 @@ class GlobalClass_User_1Thread {
         if(c.partner[1] == 4) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
+            lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
-            lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
             //@ assert lock_requests[5] == 0; // Verify lock activity.
-            lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
             //@ assert lock_requests[6] == 0; // Verify lock activity.
-            lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
             //@ assert lock_requests[7] == 0; // Verify lock activity.
-            lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
             //@ assert lock_requests[8] == 0; // Verify lock activity.
             return true;
         }
@@ -12945,14 +12945,14 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | calling -> unobtainable | partner[1] = 4.
@@ -13018,14 +13018,14 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_2_s_0_n_0() {
@@ -13033,21 +13033,21 @@ class GlobalClass_User_1Thread {
         if(c.partner[1] == 4) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
+            lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
-            lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
             //@ assert lock_requests[5] == 0; // Verify lock activity.
-            lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
             //@ assert lock_requests[6] == 0; // Verify lock activity.
-            lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
             //@ assert lock_requests[7] == 0; // Verify lock activity.
-            lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
             //@ assert lock_requests[8] == 0; // Verify lock activity.
             return true;
         }
@@ -13140,14 +13140,14 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:2) | calling -> ringback | partner[1] = 4.
@@ -13213,15 +13213,15 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_0() {
@@ -13282,15 +13282,15 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_1() {
@@ -13351,15 +13351,15 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_2() {
@@ -13434,15 +13434,15 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_3() {
@@ -13522,15 +13522,15 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_4() {
@@ -13597,32 +13597,32 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_5() {
         //@ assert lock_requests[0] == 1; // Check c.partner[1].
-        //@ assert lock_requests[1] == 1; // Check c.callforwardbusy[0].
-        //@ assert lock_requests[2] == 1; // Check c.callforwardbusy[1].
-        //@ assert lock_requests[3] == 1; // Check c.callforwardbusy[2].
-        //@ assert lock_requests[4] == 1; // Check c.callforwardbusy[3].
+        //@ assert lock_requests[5] == 1; // Check c.callforwardbusy[0].
+        //@ assert lock_requests[6] == 1; // Check c.callforwardbusy[1].
+        //@ assert lock_requests[7] == 1; // Check c.callforwardbusy[2].
+        //@ assert lock_requests[8] == 1; // Check c.callforwardbusy[3].
         if(c.callforwardbusy[c.partner[1]] == 255) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-            //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-            //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-            //@ assert lock_requests[4] == 0; // Verify lock activity.
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+            //@ assert lock_requests[5] == 0; // Verify lock activity.
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+            //@ assert lock_requests[6] == 0; // Verify lock activity.
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+            //@ assert lock_requests[7] == 0; // Verify lock activity.
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+            //@ assert lock_requests[8] == 0; // Verify lock activity.
             lock_requests[9] = lock_requests[9] - 1; // Release c.chan[1]
             //@ assert lock_requests[9] == 0; // Verify lock activity.
             lock_requests[10] = lock_requests[10] - 1; // Release c.chan[0]
@@ -13690,15 +13690,15 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_6() {
@@ -13846,14 +13846,14 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:3) | calling -> busy | [partner[1] != 1 and partner[1] != 4 and chan[partner[1]] != 255 and callforwardbusy[partner[1]] = 255; record[partner[1]] := 1].
@@ -13865,22 +13865,22 @@ class GlobalClass_User_1Thread {
         }
         // SLCO assignment | record[partner[1]] := 1.
         //@ assert lock_requests[0] == 1; // Check c.partner[1].
-        //@ assert lock_requests[5] == 1; // Check c.record[0].
-        //@ assert lock_requests[6] == 1; // Check c.record[1].
-        //@ assert lock_requests[7] == 1; // Check c.record[2].
-        //@ assert lock_requests[8] == 1; // Check c.record[3].
+        //@ assert lock_requests[1] == 1; // Check c.record[0].
+        //@ assert lock_requests[2] == 1; // Check c.record[1].
+        //@ assert lock_requests[3] == 1; // Check c.record[2].
+        //@ assert lock_requests[4] == 1; // Check c.record[3].
         range_check_assumption_t_3_s_2();
         c.record[c.partner[1]] = (1) & 0xff;
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
 
         return true;
     }
@@ -13938,30 +13938,30 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_0() {
         //@ assert lock_requests[0] == 1; // Check c.partner[1].
         if(c.partner[1] != 1) {
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -14018,30 +14018,30 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_1() {
         //@ assert lock_requests[0] == 1; // Check c.partner[1].
         if(c.partner[1] != 4) {
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -14098,16 +14098,16 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_2() {
         if(t_calling_4_s_0_n_0()) {
@@ -14173,16 +14173,16 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_3() {
         //@ assert lock_requests[0] == 1; // Check c.partner[1].
@@ -14193,14 +14193,14 @@ class GlobalClass_User_1Thread {
         if(c.chan[c.partner[1]] != 255) {
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -14258,16 +14258,16 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_4() {
         if(t_calling_4_s_0_n_2()) {
@@ -14333,23 +14333,23 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_5() {
         //@ assert lock_requests[0] == 1; // Check c.partner[1].
-        //@ assert lock_requests[1] == 1; // Check c.callforwardbusy[0].
-        //@ assert lock_requests[2] == 1; // Check c.callforwardbusy[1].
-        //@ assert lock_requests[3] == 1; // Check c.callforwardbusy[2].
-        //@ assert lock_requests[4] == 1; // Check c.callforwardbusy[3].
+        //@ assert lock_requests[5] == 1; // Check c.callforwardbusy[0].
+        //@ assert lock_requests[6] == 1; // Check c.callforwardbusy[1].
+        //@ assert lock_requests[7] == 1; // Check c.callforwardbusy[2].
+        //@ assert lock_requests[8] == 1; // Check c.callforwardbusy[3].
         if(c.callforwardbusy[c.partner[1]] != 255) {
             lock_requests[9] = lock_requests[9] - 1; // Release c.chan[1]
             //@ assert lock_requests[9] == 0; // Verify lock activity.
@@ -14361,14 +14361,14 @@ class GlobalClass_User_1Thread {
             //@ assert lock_requests[12] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -14426,16 +14426,16 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_6() {
         if(t_calling_4_s_0_n_4()) {
@@ -14628,15 +14628,15 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:4) | calling -> calling | [partner[1] != 1 and partner[1] != 4 and chan[partner[1]] != 255 and callforwardbusy[partner[1]] != 255; record[partner[1]] := 1; partner[1] := callforwardbusy[partner[1]]].
     private boolean execute_transition_calling_4() {
@@ -14647,38 +14647,38 @@ class GlobalClass_User_1Thread {
         }
         // SLCO assignment | record[partner[1]] := 1.
         //@ assert lock_requests[0] == 1; // Check c.partner[1].
-        //@ assert lock_requests[5] == 1; // Check c.record[0].
-        //@ assert lock_requests[6] == 1; // Check c.record[1].
-        //@ assert lock_requests[7] == 1; // Check c.record[2].
-        //@ assert lock_requests[8] == 1; // Check c.record[3].
+        //@ assert lock_requests[1] == 1; // Check c.record[0].
+        //@ assert lock_requests[2] == 1; // Check c.record[1].
+        //@ assert lock_requests[3] == 1; // Check c.record[2].
+        //@ assert lock_requests[4] == 1; // Check c.record[3].
         range_check_assumption_t_4_s_2();
         c.record[c.partner[1]] = (1) & 0xff;
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         // SLCO assignment | partner[1] := callforwardbusy[partner[1]].
         //@ assert lock_requests[0] == 1; // Check c.partner[1].
-        //@ assert lock_requests[1] == 1; // Check c.callforwardbusy[0].
-        //@ assert lock_requests[2] == 1; // Check c.callforwardbusy[1].
-        //@ assert lock_requests[3] == 1; // Check c.callforwardbusy[2].
-        //@ assert lock_requests[4] == 1; // Check c.callforwardbusy[3].
+        //@ assert lock_requests[5] == 1; // Check c.callforwardbusy[0].
+        //@ assert lock_requests[6] == 1; // Check c.callforwardbusy[1].
+        //@ assert lock_requests[7] == 1; // Check c.callforwardbusy[2].
+        //@ assert lock_requests[8] == 1; // Check c.callforwardbusy[3].
         range_check_assumption_t_4_s_3();
         c.partner[1] = (c.callforwardbusy[c.partner[1]]) & 0xff;
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
 
         return true;
     }
@@ -14736,12 +14736,12 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -14753,14 +14753,14 @@ class GlobalClass_User_1Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         lock_requests[9] = lock_requests[9] - 1; // Release c.chan[1]
         //@ assert lock_requests[9] == 0; // Verify lock activity.
         lock_requests[10] = lock_requests[10] - 1; // Release c.chan[0]
@@ -14825,12 +14825,12 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -14842,14 +14842,14 @@ class GlobalClass_User_1Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         lock_requests[9] = lock_requests[9] - 1; // Release c.chan[1]
         //@ assert lock_requests[9] == 0; // Verify lock activity.
         lock_requests[10] = lock_requests[10] - 1; // Release c.chan[0]
@@ -14914,12 +14914,12 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -14988,12 +14988,12 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -15009,14 +15009,14 @@ class GlobalClass_User_1Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         lock_requests[9] = lock_requests[9] - 1; // Release c.chan[1]
         //@ assert lock_requests[9] == 0; // Verify lock activity.
         lock_requests[10] = lock_requests[10] - 1; // Release c.chan[0]
@@ -15082,12 +15082,12 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -15327,8 +15327,8 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[1], 10: chan[0], 11: chan[2], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -15345,20 +15345,20 @@ class GlobalClass_User_1Thread {
         }
         // SLCO assignment | record[partner[1]] := 1.
         //@ assert lock_requests[0] == 1; // Check c.partner[1].
-        //@ assert lock_requests[5] == 1; // Check c.record[0].
-        //@ assert lock_requests[6] == 1; // Check c.record[1].
-        //@ assert lock_requests[7] == 1; // Check c.record[2].
-        //@ assert lock_requests[8] == 1; // Check c.record[3].
+        //@ assert lock_requests[1] == 1; // Check c.record[0].
+        //@ assert lock_requests[2] == 1; // Check c.record[1].
+        //@ assert lock_requests[3] == 1; // Check c.record[2].
+        //@ assert lock_requests[4] == 1; // Check c.record[3].
         range_check_assumption_t_5_s_2();
         c.record[c.partner[1]] = (1) & 0xff;
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         // SLCO assignment | chan[partner[1]] := (1 + 0 * 20).
         //@ assert lock_requests[0] == 1; // Check c.partner[1].
         //@ assert lock_requests[9] == 1; // Check c.chan[1].
@@ -15608,22 +15608,22 @@ class GlobalClass_User_1Thread {
         // SLCO composite | [chan[1] := 255; partner[1] := 255; dev := 1] -> [true; chan[1] := 255; partner[1] := 255; dev := 1].
         // (Superfluous) SLCO expression | true.
         // SLCO assignment | chan[1] := 255.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[1]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[1]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[1]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[1]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         range_check_assumption_t_0_s_3();
         c.chan[1] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | partner[1] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[1].
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
         range_check_assumption_t_0_s_4();
         c.partner[1] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | dev := 1.
         range_check_assumption_t_0_s_5();
         dev = (1) & 0xff;
@@ -15690,20 +15690,20 @@ class GlobalClass_User_1Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[1]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[1]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[1]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
-        //@ assert lock_requests[1] == 1; // Check c.partner[1].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[1]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         if((Math.floorMod(c.chan[1], 20)) != c.partner[1]) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -15802,7 +15802,7 @@ class GlobalClass_User_1Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | oalert -> errorstate | (chan[1] % 20) != partner[1].
@@ -15868,20 +15868,20 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
-        //@ assert lock_requests[1] == 1; // Check c.partner[1].
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         return (Math.floorMod(c.chan[1], 20)) == c.partner[1];
     }
 
@@ -15938,22 +15938,22 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_1_s_0_n_1() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         if((c.chan[1] / 20) == 1) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -16013,14 +16013,14 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_1_s_0_n_2() {
@@ -16119,14 +16119,14 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | oalert -> oconnected | (chan[1] % 20) = partner[1] and (chan[1] / 20) = 1.
@@ -16192,27 +16192,27 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[1]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: chan[1]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_2_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
-        //@ assert lock_requests[1] == 1; // Check c.partner[1].
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         if((Math.floorMod(c.chan[1], 20)) == c.partner[1]) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
+            //@ assert lock_requests[0] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -16270,8 +16270,8 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: chan[1]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -16280,14 +16280,14 @@ class GlobalClass_User_1Thread {
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_2_s_0_n_1() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         if((c.chan[1] / 20) == 0) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
-            //@ assert lock_requests[0] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
 
@@ -16344,7 +16344,7 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -16449,7 +16449,7 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -16695,27 +16695,27 @@ class GlobalClass_User_1Thread {
         range_check_assumption_t_0_s_3();
         dev = (1) & 0xff;
         // SLCO assignment | chan[1] := 255.
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.partner[1]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[1]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[1]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
         lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[c.partner[1]]
         //@ assert lock_requests[1] == 1; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.chan[1]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
+        //@ assert lock_requests[2] == 1; // Check c.chan[1].
         range_check_assumption_t_0_s_4();
         c.chan[1] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
         // SLCO assignment | chan[partner[1]] := 255.
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
         //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[1]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[1].
         range_check_assumption_t_0_s_5();
         c.chan[c.partner[1]] = (255) & 0xff;
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[1]]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
 
         return true;
     }
@@ -16945,22 +16945,22 @@ class GlobalClass_User_1Thread {
         range_check_assumption_t_0_s_3();
         dev = (1) & 0xff;
         // SLCO assignment | chan[1] := 255.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[1]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[1]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[1]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[1]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         range_check_assumption_t_0_s_4();
         c.chan[1] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | partner[1] := ((partner[1] % 20) + 0 * 20).
-        //@ assert lock_requests[1] == 1; // Check c.partner[1].
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
         range_check_assumption_t_0_s_5();
         c.partner[1] = (((Math.floorMod(c.partner[1], 20)) + 0 * 20)) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
 
         return true;
     }
@@ -17187,22 +17187,22 @@ class GlobalClass_User_1Thread {
         // SLCO composite | [chan[1] := 255; partner[1] := 255; dev := 1] -> [true; chan[1] := 255; partner[1] := 255; dev := 1].
         // (Superfluous) SLCO expression | true.
         // SLCO assignment | chan[1] := 255.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[1]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[1]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[1]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[1]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         range_check_assumption_t_0_s_3();
         c.chan[1] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | partner[1] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[1].
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
         range_check_assumption_t_0_s_4();
         c.partner[1] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | dev := 1.
         range_check_assumption_t_0_s_5();
         dev = (1) & 0xff;
@@ -17811,28 +17811,28 @@ class GlobalClass_User_1Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[1]], 2: partner[1]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: chan[partner[1]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_talert_0_s_0_n_1() {
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.partner[1]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[c.partner[1]]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[1]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[1]
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[c.partner[1]]
         //@ assert lock_requests[1] == 1; // Verify lock activity.
-        //@ assert lock_requests[1] == 1; // Check c.chan[1].
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.chan[1]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
+        //@ assert lock_requests[2] == 1; // Check c.chan[1].
         if(c.chan[1] == 255) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[1]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[1]]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.partner[1]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.chan[1]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
         return false;
     }
 
@@ -17895,8 +17895,8 @@ class GlobalClass_User_1Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[1]], 2: partner[1]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: chan[partner[1]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_talert_0_s_0_n_2() {
         if(t_talert_0_s_0_n_0()) {
@@ -18002,8 +18002,8 @@ class GlobalClass_User_1Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[1]], 2: partner[1]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: chan[partner[1]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | talert -> errorstate | dev != 1 or chan[1] = 255.
     private boolean execute_transition_talert_0() {
@@ -18069,24 +18069,24 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[1]], 2: partner[1]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: chan[partner[1]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[1]], 2: partner[1]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: chan[partner[1]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_talert_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[1]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[1].
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[1]].
         if((Math.floorMod(c.chan[c.partner[1]], 20)) == 1) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[1]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.partner[1]
-            //@ assert lock_requests[2] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[1]]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
         return false;
@@ -18181,15 +18181,15 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[1]], 2: partner[1]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: chan[partner[1]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[1]], 2: partner[1]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: chan[partner[1]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | talert -> tpickup | (chan[partner[1]] % 20) = 1.
     private boolean execute_transition_talert_1() {
@@ -18255,8 +18255,8 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[1]], 2: partner[1]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: chan[partner[1]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -18265,19 +18265,19 @@ class GlobalClass_User_1Thread {
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_talert_2_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[1]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[1].
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[1]].
         if((Math.floorMod(c.chan[c.partner[1]], 20)) != 1) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[1]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.partner[1]
-            //@ assert lock_requests[2] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[1]]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[1]]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[1]]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
 
@@ -18370,8 +18370,8 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[1]], 2: partner[1]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[1], 1: chan[partner[1]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -18446,22 +18446,22 @@ class GlobalClass_User_1Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[partner[1]], 1: chan[1], 2: partner[1]]
+    // - [0: chan[partner[1]], 1: partner[1], 2: chan[1]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[1]], 1: chan[1], 2: partner[1]]
+    // - [0: chan[partner[1]], 1: partner[1], 2: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_0_s_0_n_0() {
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.partner[1]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[1]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
         lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[c.partner[1]]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[1]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.chan[1]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[1]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.partner[1].
         return (Math.floorMod(c.chan[c.partner[1]], 20)) == 1;
     }
 
@@ -18519,20 +18519,20 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[1]], 1: chan[1], 2: partner[1]]
+    // - [0: chan[partner[1]], 1: partner[1], 2: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[partner[1]], 1: chan[1], 2: partner[1]]
+    // - [0: chan[partner[1]], 1: partner[1], 2: chan[1]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[1]], 1: chan[1], 2: partner[1]]
+    // - [0: chan[partner[1]], 1: partner[1], 2: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_0_s_0_n_1() {
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[1]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.partner[1].
         return (c.chan[c.partner[1]] / 20) == 0;
     }
 
@@ -18593,11 +18593,11 @@ class GlobalClass_User_1Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[partner[1]], 1: chan[1], 2: partner[1]]
+    // - [0: chan[partner[1]], 1: partner[1], 2: chan[1]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[1]], 1: chan[1], 2: partner[1]]
+    // - [0: chan[partner[1]], 1: partner[1], 2: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_0_s_0_n_2() {
@@ -18835,7 +18835,7 @@ class GlobalClass_User_1Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[1]], 1: chan[1], 2: partner[1]]
+    // - [0: chan[partner[1]], 1: partner[1], 2: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | tpickup -> tconnected | [(chan[partner[1]] % 20) = 1 and (chan[partner[1]] / 20) = 0; dev := 0; chan[partner[1]] := (1 + 1 * 20); chan[1] := (partner[1] + 1 * 20)].
@@ -18850,19 +18850,19 @@ class GlobalClass_User_1Thread {
         dev = (0) & 0xff;
         // SLCO assignment | chan[partner[1]] := (1 + 1 * 20).
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[1]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.partner[1].
         range_check_assumption_t_0_s_3();
         c.chan[c.partner[1]] = ((1 + 1 * 20)) & 0xff;
         lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[1]]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | chan[1] := (partner[1] + 1 * 20).
-        //@ assert lock_requests[1] == 1; // Check c.chan[1].
-        //@ assert lock_requests[2] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.partner[1].
+        //@ assert lock_requests[2] == 1; // Check c.chan[1].
         range_check_assumption_t_0_s_4();
         c.chan[1] = ((c.partner[1] + 1 * 20)) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[1]
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[1]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
 
         return true;
@@ -18922,20 +18922,20 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[1]], 1: chan[1], 2: partner[1]]
+    // - [0: chan[partner[1]], 1: partner[1], 2: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: chan[1], 2: partner[1]]
+    // - [1: partner[1], 2: chan[1]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[1]], 1: chan[1], 2: partner[1]]
+    // - [0: chan[partner[1]], 1: partner[1], 2: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_1_s_0_n_0() {
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[1]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.partner[1].
         if(c.chan[c.partner[1]] == 255) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[1]]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
@@ -18998,11 +18998,11 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[1]], 1: chan[1], 2: partner[1]]
+    // - [0: chan[partner[1]], 1: partner[1], 2: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: chan[1], 2: partner[1]]
+    // - [1: partner[1], 2: chan[1]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
@@ -19010,7 +19010,7 @@ class GlobalClass_User_1Thread {
     @*/
     private boolean t_tpickup_1_s_0_n_1() {
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[1]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.partner[1].
         if((Math.floorMod(c.chan[c.partner[1]], 20)) != 1) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[1]]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
@@ -19018,9 +19018,9 @@ class GlobalClass_User_1Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[1]]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[1]
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[1]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
         return false;
     }
@@ -19079,11 +19079,11 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[1]], 1: chan[1], 2: partner[1]]
+    // - [0: chan[partner[1]], 1: partner[1], 2: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: chan[1], 2: partner[1]]
+    // - [1: partner[1], 2: chan[1]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
@@ -19318,7 +19318,7 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[1]], 1: chan[1], 2: partner[1]]
+    // - [0: chan[partner[1]], 1: partner[1], 2: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -19338,17 +19338,17 @@ class GlobalClass_User_1Thread {
         range_check_assumption_t_1_s_2();
         dev = (1) & 0xff;
         // SLCO assignment | partner[1] := 255.
-        //@ assert lock_requests[2] == 1; // Check c.partner[1].
+        //@ assert lock_requests[1] == 1; // Check c.partner[1].
         range_check_assumption_t_1_s_3();
         c.partner[1] = (255) & 0xff;
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | chan[1] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.chan[1].
+        //@ assert lock_requests[2] == 1; // Check c.chan[1].
         range_check_assumption_t_1_s_4();
         c.chan[1] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
 
         return true;
     }
@@ -19409,19 +19409,19 @@ class GlobalClass_User_1Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[1]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[1]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[1]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[1]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         return (c.chan[1] / 20) == 1;
     }
 
@@ -19475,21 +19475,21 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_0_s_0_n_1() {
         if(dev == 0) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -19555,7 +19555,7 @@ class GlobalClass_User_1Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_0_s_0_n_2() {
@@ -19700,7 +19700,7 @@ class GlobalClass_User_1Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | tconnected -> tconnected | [(chan[1] / 20) = 1 and dev = 0; dev := 1].
@@ -19770,19 +19770,19 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         return (c.chan[1] / 20) == 1;
     }
 
@@ -19836,21 +19836,21 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_1_s_0_n_1() {
         if(dev == 1) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -19910,14 +19910,14 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_1_s_0_n_2() {
@@ -20056,14 +20056,14 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | tconnected -> tconnected | [(chan[1] / 20) = 1 and dev = 1; dev := 0].
@@ -20133,24 +20133,24 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_2_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         if((c.chan[1] / 20) == 0) {
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -20329,7 +20329,7 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[1], 1: partner[1]]
+    // - [0: partner[1], 1: chan[1]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -20346,17 +20346,17 @@ class GlobalClass_User_1Thread {
             return false;
         }
         // SLCO assignment | partner[1] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[1].
+        //@ assert lock_requests[0] == 1; // Check c.partner[1].
         range_check_assumption_t_2_s_2();
         c.partner[1] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[1]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[1]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | chan[1] := 255.
-        //@ assert lock_requests[0] == 1; // Check c.chan[1].
+        //@ assert lock_requests[1] == 1; // Check c.chan[1].
         range_check_assumption_t_2_s_3();
         c.chan[1] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[1]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[1]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
     }
@@ -20550,15 +20550,15 @@ class GlobalClass_User_1Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[1], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[1], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean d_calling_0_n_0() {
@@ -21364,22 +21364,22 @@ class GlobalClass_User_2Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[2]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: chan[2]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_idle_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[2]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[2]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[2]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[2]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         if(c.chan[2] == 255) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
+            //@ assert lock_requests[0] == 0; // Verify lock activity.
             return true;
         }
         return false;
@@ -21561,7 +21561,7 @@ class GlobalClass_User_2Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | idle -> dialing | [chan[2] = 255; dev := 0; chan[2] := (2 + 0 * 20)].
@@ -21575,11 +21575,11 @@ class GlobalClass_User_2Thread {
         range_check_assumption_t_0_s_2();
         dev = (0) & 0xff;
         // SLCO assignment | chan[2] := (2 + 0 * 20).
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         range_check_assumption_t_0_s_3();
         c.chan[2] = ((2 + 0 * 20)) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
     }
@@ -21637,24 +21637,24 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_idle_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         if(c.chan[2] != 255) {
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -21789,7 +21789,7 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -21806,13 +21806,13 @@ class GlobalClass_User_2Thread {
             return false;
         }
         // SLCO assignment | partner[2] := (chan[2] % 20).
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
-        //@ assert lock_requests[1] == 1; // Check c.partner[2].
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         range_check_assumption_t_1_s_2();
         c.partner[2] = ((Math.floorMod(c.chan[2], 20))) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
@@ -21878,20 +21878,20 @@ class GlobalClass_User_2Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[2]], 1: partner[2]]
+    // - [0: partner[2], 1: chan[partner[2]]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_qi_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[2]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[c.partner[2]]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[2]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[2]].
-        //@ assert lock_requests[1] == 1; // Check c.partner[2].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[c.partner[2]]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[2]].
         if((Math.floorMod(c.chan[c.partner[2]], 20)) == 2) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[2]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[2]]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -21993,7 +21993,7 @@ class GlobalClass_User_2Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[2]], 1: partner[2]]
+    // - [0: partner[2], 1: chan[partner[2]]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | qi -> talert | (chan[partner[2]] % 20) = 2.
@@ -22060,27 +22060,27 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[2]], 1: partner[2]]
+    // - [0: partner[2], 1: chan[partner[2]]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: partner[2]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_qi_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[2]].
-        //@ assert lock_requests[1] == 1; // Check c.partner[2].
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[2]].
         if((Math.floorMod(c.chan[c.partner[2]], 20)) != 2) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[2]]
-            //@ assert lock_requests[0] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[2]]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[2]]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[2]]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -22218,7 +22218,7 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[2]], 1: partner[2]]
+    // - [0: partner[2], 1: chan[partner[2]]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -22235,11 +22235,11 @@ class GlobalClass_User_2Thread {
             return false;
         }
         // SLCO assignment | partner[2] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[2].
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
         range_check_assumption_t_1_s_2();
         c.partner[2] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
 
         return true;
     }
@@ -23236,47 +23236,47 @@ class GlobalClass_User_2Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] + 1; // Acquire c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 1; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] + 1; // Acquire c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 1; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] + 1; // Acquire c.record[0]
+        lock_requests[5] = lock_requests[5] + 1; // Acquire c.callforwardbusy[0]
         //@ assert lock_requests[5] == 1; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] + 1; // Acquire c.record[1]
+        lock_requests[6] = lock_requests[6] + 1; // Acquire c.callforwardbusy[1]
         //@ assert lock_requests[6] == 1; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] + 1; // Acquire c.record[2]
+        lock_requests[7] = lock_requests[7] + 1; // Acquire c.callforwardbusy[2]
         //@ assert lock_requests[7] == 1; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] + 1; // Acquire c.record[3]
+        lock_requests[8] = lock_requests[8] + 1; // Acquire c.callforwardbusy[3]
         //@ assert lock_requests[8] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.record[0]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.record[1]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] + 1; // Acquire c.record[2]
+        //@ assert lock_requests[3] == 1; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] + 1; // Acquire c.record[3]
+        //@ assert lock_requests[4] == 1; // Verify lock activity.
         lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[2]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
         //@ assert lock_requests[0] == 1; // Check c.partner[2].
         if(c.partner[2] == 2) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
+            lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
-            lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
             //@ assert lock_requests[5] == 0; // Verify lock activity.
-            lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
             //@ assert lock_requests[6] == 0; // Verify lock activity.
-            lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
             //@ assert lock_requests[7] == 0; // Verify lock activity.
-            lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
             //@ assert lock_requests[8] == 0; // Verify lock activity.
             return true;
         }
@@ -23375,7 +23375,7 @@ class GlobalClass_User_2Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | calling -> busy | partner[2] = 2.
@@ -23441,14 +23441,14 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_1_s_0_n_0() {
@@ -23456,21 +23456,21 @@ class GlobalClass_User_2Thread {
         if(c.partner[2] == 4) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
+            lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
-            lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
             //@ assert lock_requests[5] == 0; // Verify lock activity.
-            lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
             //@ assert lock_requests[6] == 0; // Verify lock activity.
-            lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
             //@ assert lock_requests[7] == 0; // Verify lock activity.
-            lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
             //@ assert lock_requests[8] == 0; // Verify lock activity.
             return true;
         }
@@ -23563,14 +23563,14 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | calling -> unobtainable | partner[2] = 4.
@@ -23636,14 +23636,14 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_2_s_0_n_0() {
@@ -23651,21 +23651,21 @@ class GlobalClass_User_2Thread {
         if(c.partner[2] == 4) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
+            lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
-            lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
             //@ assert lock_requests[5] == 0; // Verify lock activity.
-            lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
             //@ assert lock_requests[6] == 0; // Verify lock activity.
-            lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
             //@ assert lock_requests[7] == 0; // Verify lock activity.
-            lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
             //@ assert lock_requests[8] == 0; // Verify lock activity.
             return true;
         }
@@ -23758,14 +23758,14 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:2) | calling -> ringback | partner[2] = 4.
@@ -23831,15 +23831,15 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_0() {
@@ -23900,15 +23900,15 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_1() {
@@ -23969,15 +23969,15 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_2() {
@@ -24052,15 +24052,15 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_3() {
@@ -24140,15 +24140,15 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_4() {
@@ -24215,32 +24215,32 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_5() {
         //@ assert lock_requests[0] == 1; // Check c.partner[2].
-        //@ assert lock_requests[1] == 1; // Check c.callforwardbusy[0].
-        //@ assert lock_requests[2] == 1; // Check c.callforwardbusy[1].
-        //@ assert lock_requests[3] == 1; // Check c.callforwardbusy[2].
-        //@ assert lock_requests[4] == 1; // Check c.callforwardbusy[3].
+        //@ assert lock_requests[5] == 1; // Check c.callforwardbusy[0].
+        //@ assert lock_requests[6] == 1; // Check c.callforwardbusy[1].
+        //@ assert lock_requests[7] == 1; // Check c.callforwardbusy[2].
+        //@ assert lock_requests[8] == 1; // Check c.callforwardbusy[3].
         if(c.callforwardbusy[c.partner[2]] == 255) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-            //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-            //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-            //@ assert lock_requests[4] == 0; // Verify lock activity.
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+            //@ assert lock_requests[5] == 0; // Verify lock activity.
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+            //@ assert lock_requests[6] == 0; // Verify lock activity.
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+            //@ assert lock_requests[7] == 0; // Verify lock activity.
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+            //@ assert lock_requests[8] == 0; // Verify lock activity.
             lock_requests[9] = lock_requests[9] - 1; // Release c.chan[2]
             //@ assert lock_requests[9] == 0; // Verify lock activity.
             lock_requests[10] = lock_requests[10] - 1; // Release c.chan[0]
@@ -24308,15 +24308,15 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_6() {
@@ -24464,14 +24464,14 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:3) | calling -> busy | [partner[2] != 2 and partner[2] != 4 and chan[partner[2]] != 255 and callforwardbusy[partner[2]] = 255; record[partner[2]] := 2].
@@ -24483,22 +24483,22 @@ class GlobalClass_User_2Thread {
         }
         // SLCO assignment | record[partner[2]] := 2.
         //@ assert lock_requests[0] == 1; // Check c.partner[2].
-        //@ assert lock_requests[5] == 1; // Check c.record[0].
-        //@ assert lock_requests[6] == 1; // Check c.record[1].
-        //@ assert lock_requests[7] == 1; // Check c.record[2].
-        //@ assert lock_requests[8] == 1; // Check c.record[3].
+        //@ assert lock_requests[1] == 1; // Check c.record[0].
+        //@ assert lock_requests[2] == 1; // Check c.record[1].
+        //@ assert lock_requests[3] == 1; // Check c.record[2].
+        //@ assert lock_requests[4] == 1; // Check c.record[3].
         range_check_assumption_t_3_s_2();
         c.record[c.partner[2]] = (2) & 0xff;
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
 
         return true;
     }
@@ -24556,30 +24556,30 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_0() {
         //@ assert lock_requests[0] == 1; // Check c.partner[2].
         if(c.partner[2] != 2) {
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -24636,30 +24636,30 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_1() {
         //@ assert lock_requests[0] == 1; // Check c.partner[2].
         if(c.partner[2] != 4) {
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -24716,16 +24716,16 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_2() {
         if(t_calling_4_s_0_n_0()) {
@@ -24791,16 +24791,16 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_3() {
         //@ assert lock_requests[0] == 1; // Check c.partner[2].
@@ -24811,14 +24811,14 @@ class GlobalClass_User_2Thread {
         if(c.chan[c.partner[2]] != 255) {
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -24876,16 +24876,16 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_4() {
         if(t_calling_4_s_0_n_2()) {
@@ -24951,23 +24951,23 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_5() {
         //@ assert lock_requests[0] == 1; // Check c.partner[2].
-        //@ assert lock_requests[1] == 1; // Check c.callforwardbusy[0].
-        //@ assert lock_requests[2] == 1; // Check c.callforwardbusy[1].
-        //@ assert lock_requests[3] == 1; // Check c.callforwardbusy[2].
-        //@ assert lock_requests[4] == 1; // Check c.callforwardbusy[3].
+        //@ assert lock_requests[5] == 1; // Check c.callforwardbusy[0].
+        //@ assert lock_requests[6] == 1; // Check c.callforwardbusy[1].
+        //@ assert lock_requests[7] == 1; // Check c.callforwardbusy[2].
+        //@ assert lock_requests[8] == 1; // Check c.callforwardbusy[3].
         if(c.callforwardbusy[c.partner[2]] != 255) {
             lock_requests[9] = lock_requests[9] - 1; // Release c.chan[2]
             //@ assert lock_requests[9] == 0; // Verify lock activity.
@@ -24979,14 +24979,14 @@ class GlobalClass_User_2Thread {
             //@ assert lock_requests[12] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -25044,16 +25044,16 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_6() {
         if(t_calling_4_s_0_n_4()) {
@@ -25246,15 +25246,15 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:4) | calling -> calling | [partner[2] != 2 and partner[2] != 4 and chan[partner[2]] != 255 and callforwardbusy[partner[2]] != 255; record[partner[2]] := 2; partner[2] := callforwardbusy[partner[2]]].
     private boolean execute_transition_calling_4() {
@@ -25265,38 +25265,38 @@ class GlobalClass_User_2Thread {
         }
         // SLCO assignment | record[partner[2]] := 2.
         //@ assert lock_requests[0] == 1; // Check c.partner[2].
-        //@ assert lock_requests[5] == 1; // Check c.record[0].
-        //@ assert lock_requests[6] == 1; // Check c.record[1].
-        //@ assert lock_requests[7] == 1; // Check c.record[2].
-        //@ assert lock_requests[8] == 1; // Check c.record[3].
+        //@ assert lock_requests[1] == 1; // Check c.record[0].
+        //@ assert lock_requests[2] == 1; // Check c.record[1].
+        //@ assert lock_requests[3] == 1; // Check c.record[2].
+        //@ assert lock_requests[4] == 1; // Check c.record[3].
         range_check_assumption_t_4_s_2();
         c.record[c.partner[2]] = (2) & 0xff;
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         // SLCO assignment | partner[2] := callforwardbusy[partner[2]].
         //@ assert lock_requests[0] == 1; // Check c.partner[2].
-        //@ assert lock_requests[1] == 1; // Check c.callforwardbusy[0].
-        //@ assert lock_requests[2] == 1; // Check c.callforwardbusy[1].
-        //@ assert lock_requests[3] == 1; // Check c.callforwardbusy[2].
-        //@ assert lock_requests[4] == 1; // Check c.callforwardbusy[3].
+        //@ assert lock_requests[5] == 1; // Check c.callforwardbusy[0].
+        //@ assert lock_requests[6] == 1; // Check c.callforwardbusy[1].
+        //@ assert lock_requests[7] == 1; // Check c.callforwardbusy[2].
+        //@ assert lock_requests[8] == 1; // Check c.callforwardbusy[3].
         range_check_assumption_t_4_s_3();
         c.partner[2] = (c.callforwardbusy[c.partner[2]]) & 0xff;
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
 
         return true;
     }
@@ -25354,12 +25354,12 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -25371,14 +25371,14 @@ class GlobalClass_User_2Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         lock_requests[9] = lock_requests[9] - 1; // Release c.chan[2]
         //@ assert lock_requests[9] == 0; // Verify lock activity.
         lock_requests[10] = lock_requests[10] - 1; // Release c.chan[0]
@@ -25443,12 +25443,12 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -25460,14 +25460,14 @@ class GlobalClass_User_2Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         lock_requests[9] = lock_requests[9] - 1; // Release c.chan[2]
         //@ assert lock_requests[9] == 0; // Verify lock activity.
         lock_requests[10] = lock_requests[10] - 1; // Release c.chan[0]
@@ -25532,12 +25532,12 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -25606,12 +25606,12 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -25627,14 +25627,14 @@ class GlobalClass_User_2Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         lock_requests[9] = lock_requests[9] - 1; // Release c.chan[2]
         //@ assert lock_requests[9] == 0; // Verify lock activity.
         lock_requests[10] = lock_requests[10] - 1; // Release c.chan[0]
@@ -25700,12 +25700,12 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -25945,8 +25945,8 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[2], 10: chan[0], 11: chan[1], 12: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -25963,20 +25963,20 @@ class GlobalClass_User_2Thread {
         }
         // SLCO assignment | record[partner[2]] := 2.
         //@ assert lock_requests[0] == 1; // Check c.partner[2].
-        //@ assert lock_requests[5] == 1; // Check c.record[0].
-        //@ assert lock_requests[6] == 1; // Check c.record[1].
-        //@ assert lock_requests[7] == 1; // Check c.record[2].
-        //@ assert lock_requests[8] == 1; // Check c.record[3].
+        //@ assert lock_requests[1] == 1; // Check c.record[0].
+        //@ assert lock_requests[2] == 1; // Check c.record[1].
+        //@ assert lock_requests[3] == 1; // Check c.record[2].
+        //@ assert lock_requests[4] == 1; // Check c.record[3].
         range_check_assumption_t_5_s_2();
         c.record[c.partner[2]] = (2) & 0xff;
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         // SLCO assignment | chan[partner[2]] := (2 + 0 * 20).
         //@ assert lock_requests[0] == 1; // Check c.partner[2].
         //@ assert lock_requests[9] == 1; // Check c.chan[2].
@@ -26226,22 +26226,22 @@ class GlobalClass_User_2Thread {
         // SLCO composite | [chan[2] := 255; partner[2] := 255; dev := 1] -> [true; chan[2] := 255; partner[2] := 255; dev := 1].
         // (Superfluous) SLCO expression | true.
         // SLCO assignment | chan[2] := 255.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[2]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[2]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[2]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[2]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         range_check_assumption_t_0_s_3();
         c.chan[2] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | partner[2] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[2].
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
         range_check_assumption_t_0_s_4();
         c.partner[2] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | dev := 1.
         range_check_assumption_t_0_s_5();
         dev = (1) & 0xff;
@@ -26308,20 +26308,20 @@ class GlobalClass_User_2Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[2]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[2]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[2]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
-        //@ assert lock_requests[1] == 1; // Check c.partner[2].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[2]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         if((Math.floorMod(c.chan[2], 20)) != c.partner[2]) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -26420,7 +26420,7 @@ class GlobalClass_User_2Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | oalert -> errorstate | (chan[2] % 20) != partner[2].
@@ -26486,20 +26486,20 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
-        //@ assert lock_requests[1] == 1; // Check c.partner[2].
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         return (Math.floorMod(c.chan[2], 20)) == c.partner[2];
     }
 
@@ -26556,22 +26556,22 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_1_s_0_n_1() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         if((c.chan[2] / 20) == 1) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -26631,14 +26631,14 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_1_s_0_n_2() {
@@ -26737,14 +26737,14 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | oalert -> oconnected | (chan[2] % 20) = partner[2] and (chan[2] / 20) = 1.
@@ -26810,27 +26810,27 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[2]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: chan[2]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_2_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
-        //@ assert lock_requests[1] == 1; // Check c.partner[2].
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         if((Math.floorMod(c.chan[2], 20)) == c.partner[2]) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
+            //@ assert lock_requests[0] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -26888,8 +26888,8 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: chan[2]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -26898,14 +26898,14 @@ class GlobalClass_User_2Thread {
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_2_s_0_n_1() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         if((c.chan[2] / 20) == 0) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
-            //@ assert lock_requests[0] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
 
@@ -26962,7 +26962,7 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -27067,7 +27067,7 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -27313,27 +27313,27 @@ class GlobalClass_User_2Thread {
         range_check_assumption_t_0_s_3();
         dev = (1) & 0xff;
         // SLCO assignment | chan[2] := 255.
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.partner[2]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[2]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[2]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
         lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[c.partner[2]]
         //@ assert lock_requests[1] == 1; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.chan[2]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
+        //@ assert lock_requests[2] == 1; // Check c.chan[2].
         range_check_assumption_t_0_s_4();
         c.chan[2] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[2]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
         // SLCO assignment | chan[partner[2]] := 255.
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
         //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[2]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[2].
         range_check_assumption_t_0_s_5();
         c.chan[c.partner[2]] = (255) & 0xff;
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[2]]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[2]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
 
         return true;
     }
@@ -27563,22 +27563,22 @@ class GlobalClass_User_2Thread {
         range_check_assumption_t_0_s_3();
         dev = (1) & 0xff;
         // SLCO assignment | chan[2] := 255.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[2]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[2]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[2]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[2]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         range_check_assumption_t_0_s_4();
         c.chan[2] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | partner[2] := ((partner[2] % 20) + 0 * 20).
-        //@ assert lock_requests[1] == 1; // Check c.partner[2].
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
         range_check_assumption_t_0_s_5();
         c.partner[2] = (((Math.floorMod(c.partner[2], 20)) + 0 * 20)) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
 
         return true;
     }
@@ -27805,22 +27805,22 @@ class GlobalClass_User_2Thread {
         // SLCO composite | [chan[2] := 255; partner[2] := 255; dev := 1] -> [true; chan[2] := 255; partner[2] := 255; dev := 1].
         // (Superfluous) SLCO expression | true.
         // SLCO assignment | chan[2] := 255.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[2]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[2]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[2]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[2]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         range_check_assumption_t_0_s_3();
         c.chan[2] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | partner[2] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[2].
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
         range_check_assumption_t_0_s_4();
         c.partner[2] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | dev := 1.
         range_check_assumption_t_0_s_5();
         dev = (1) & 0xff;
@@ -28429,28 +28429,28 @@ class GlobalClass_User_2Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[2]], 2: partner[2]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: chan[partner[2]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_talert_0_s_0_n_1() {
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.partner[2]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[c.partner[2]]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[2]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[2]
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[c.partner[2]]
         //@ assert lock_requests[1] == 1; // Verify lock activity.
-        //@ assert lock_requests[1] == 1; // Check c.chan[2].
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.chan[2]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
+        //@ assert lock_requests[2] == 1; // Check c.chan[2].
         if(c.chan[2] == 255) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[2]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[2]]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.partner[2]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.chan[2]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[2]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
         return false;
     }
 
@@ -28513,8 +28513,8 @@ class GlobalClass_User_2Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[2]], 2: partner[2]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: chan[partner[2]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_talert_0_s_0_n_2() {
         if(t_talert_0_s_0_n_0()) {
@@ -28620,8 +28620,8 @@ class GlobalClass_User_2Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[2]], 2: partner[2]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: chan[partner[2]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | talert -> errorstate | dev != 1 or chan[2] = 255.
     private boolean execute_transition_talert_0() {
@@ -28687,24 +28687,24 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[2]], 2: partner[2]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: chan[partner[2]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[2]], 2: partner[2]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: chan[partner[2]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_talert_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[2]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[2].
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[2]].
         if((Math.floorMod(c.chan[c.partner[2]], 20)) == 2) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[2]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.partner[2]
-            //@ assert lock_requests[2] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[2]]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
         return false;
@@ -28799,15 +28799,15 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[2]], 2: partner[2]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: chan[partner[2]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[2]], 2: partner[2]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: chan[partner[2]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | talert -> tpickup | (chan[partner[2]] % 20) = 2.
     private boolean execute_transition_talert_1() {
@@ -28873,8 +28873,8 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[2]], 2: partner[2]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: chan[partner[2]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -28883,19 +28883,19 @@ class GlobalClass_User_2Thread {
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_talert_2_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[2]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[2].
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[2]].
         if((Math.floorMod(c.chan[c.partner[2]], 20)) != 2) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[2]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.partner[2]
-            //@ assert lock_requests[2] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[2]]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[2]]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[2]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[2]]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
 
@@ -28988,8 +28988,8 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[2]], 2: partner[2]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[2], 1: chan[partner[2]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -29064,22 +29064,22 @@ class GlobalClass_User_2Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[partner[2]], 1: chan[2], 2: partner[2]]
+    // - [0: chan[partner[2]], 1: partner[2], 2: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[2]], 1: chan[2], 2: partner[2]]
+    // - [0: chan[partner[2]], 1: partner[2], 2: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_0_s_0_n_0() {
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.partner[2]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[2]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
         lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[c.partner[2]]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[2]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.chan[2]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[2]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.partner[2].
         return (Math.floorMod(c.chan[c.partner[2]], 20)) == 2;
     }
 
@@ -29137,20 +29137,20 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[2]], 1: chan[2], 2: partner[2]]
+    // - [0: chan[partner[2]], 1: partner[2], 2: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[partner[2]], 1: chan[2], 2: partner[2]]
+    // - [0: chan[partner[2]], 1: partner[2], 2: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[2]], 1: chan[2], 2: partner[2]]
+    // - [0: chan[partner[2]], 1: partner[2], 2: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_0_s_0_n_1() {
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[2]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.partner[2].
         return (c.chan[c.partner[2]] / 20) == 0;
     }
 
@@ -29211,11 +29211,11 @@ class GlobalClass_User_2Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[partner[2]], 1: chan[2], 2: partner[2]]
+    // - [0: chan[partner[2]], 1: partner[2], 2: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[2]], 1: chan[2], 2: partner[2]]
+    // - [0: chan[partner[2]], 1: partner[2], 2: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_0_s_0_n_2() {
@@ -29453,7 +29453,7 @@ class GlobalClass_User_2Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[2]], 1: chan[2], 2: partner[2]]
+    // - [0: chan[partner[2]], 1: partner[2], 2: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | tpickup -> tconnected | [(chan[partner[2]] % 20) = 2 and (chan[partner[2]] / 20) = 0; dev := 0; chan[partner[2]] := (2 + 1 * 20); chan[2] := (partner[2] + 1 * 20)].
@@ -29468,19 +29468,19 @@ class GlobalClass_User_2Thread {
         dev = (0) & 0xff;
         // SLCO assignment | chan[partner[2]] := (2 + 1 * 20).
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[2]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.partner[2].
         range_check_assumption_t_0_s_3();
         c.chan[c.partner[2]] = ((2 + 1 * 20)) & 0xff;
         lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[2]]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | chan[2] := (partner[2] + 1 * 20).
-        //@ assert lock_requests[1] == 1; // Check c.chan[2].
-        //@ assert lock_requests[2] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.partner[2].
+        //@ assert lock_requests[2] == 1; // Check c.chan[2].
         range_check_assumption_t_0_s_4();
         c.chan[2] = ((c.partner[2] + 1 * 20)) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[2]
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[2]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
 
         return true;
@@ -29540,20 +29540,20 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[2]], 1: chan[2], 2: partner[2]]
+    // - [0: chan[partner[2]], 1: partner[2], 2: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: chan[2], 2: partner[2]]
+    // - [1: partner[2], 2: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[2]], 1: chan[2], 2: partner[2]]
+    // - [0: chan[partner[2]], 1: partner[2], 2: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_1_s_0_n_0() {
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[2]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.partner[2].
         if(c.chan[c.partner[2]] == 255) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[2]]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
@@ -29616,11 +29616,11 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[2]], 1: chan[2], 2: partner[2]]
+    // - [0: chan[partner[2]], 1: partner[2], 2: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: chan[2], 2: partner[2]]
+    // - [1: partner[2], 2: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
@@ -29628,7 +29628,7 @@ class GlobalClass_User_2Thread {
     @*/
     private boolean t_tpickup_1_s_0_n_1() {
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[2]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.partner[2].
         if((Math.floorMod(c.chan[c.partner[2]], 20)) != 2) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[2]]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
@@ -29636,9 +29636,9 @@ class GlobalClass_User_2Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[2]]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[2]
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[2]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
         return false;
     }
@@ -29697,11 +29697,11 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[2]], 1: chan[2], 2: partner[2]]
+    // - [0: chan[partner[2]], 1: partner[2], 2: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: chan[2], 2: partner[2]]
+    // - [1: partner[2], 2: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
@@ -29936,7 +29936,7 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[2]], 1: chan[2], 2: partner[2]]
+    // - [0: chan[partner[2]], 1: partner[2], 2: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -29956,17 +29956,17 @@ class GlobalClass_User_2Thread {
         range_check_assumption_t_1_s_2();
         dev = (1) & 0xff;
         // SLCO assignment | partner[2] := 255.
-        //@ assert lock_requests[2] == 1; // Check c.partner[2].
+        //@ assert lock_requests[1] == 1; // Check c.partner[2].
         range_check_assumption_t_1_s_3();
         c.partner[2] = (255) & 0xff;
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[2]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | chan[2] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.chan[2].
+        //@ assert lock_requests[2] == 1; // Check c.chan[2].
         range_check_assumption_t_1_s_4();
         c.chan[2] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[2]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
 
         return true;
     }
@@ -30027,19 +30027,19 @@ class GlobalClass_User_2Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[2]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[2]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[2]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[2]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         return (c.chan[2] / 20) == 1;
     }
 
@@ -30093,21 +30093,21 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_0_s_0_n_1() {
         if(dev == 0) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -30173,7 +30173,7 @@ class GlobalClass_User_2Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_0_s_0_n_2() {
@@ -30318,7 +30318,7 @@ class GlobalClass_User_2Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | tconnected -> tconnected | [(chan[2] / 20) = 1 and dev = 0; dev := 1].
@@ -30388,19 +30388,19 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         return (c.chan[2] / 20) == 1;
     }
 
@@ -30454,21 +30454,21 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_1_s_0_n_1() {
         if(dev == 1) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -30528,14 +30528,14 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_1_s_0_n_2() {
@@ -30674,14 +30674,14 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | tconnected -> tconnected | [(chan[2] / 20) = 1 and dev = 1; dev := 0].
@@ -30751,24 +30751,24 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_2_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         if((c.chan[2] / 20) == 0) {
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -30947,7 +30947,7 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[2], 1: partner[2]]
+    // - [0: partner[2], 1: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -30964,17 +30964,17 @@ class GlobalClass_User_2Thread {
             return false;
         }
         // SLCO assignment | partner[2] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[2].
+        //@ assert lock_requests[0] == 1; // Check c.partner[2].
         range_check_assumption_t_2_s_2();
         c.partner[2] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[2]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[2]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | chan[2] := 255.
-        //@ assert lock_requests[0] == 1; // Check c.chan[2].
+        //@ assert lock_requests[1] == 1; // Check c.chan[2].
         range_check_assumption_t_2_s_3();
         c.chan[2] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[2]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[2]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
     }
@@ -31168,15 +31168,15 @@ class GlobalClass_User_2Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[2], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[2], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean d_calling_0_n_0() {
@@ -31982,22 +31982,22 @@ class GlobalClass_User_3Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_idle_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[3]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[3]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[3]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[3]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         if(c.chan[3] == 255) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
+            //@ assert lock_requests[0] == 0; // Verify lock activity.
             return true;
         }
         return false;
@@ -32179,7 +32179,7 @@ class GlobalClass_User_3Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | idle -> dialing | [chan[3] = 255; dev := 0; chan[3] := (3 + 0 * 20)].
@@ -32193,11 +32193,11 @@ class GlobalClass_User_3Thread {
         range_check_assumption_t_0_s_2();
         dev = (0) & 0xff;
         // SLCO assignment | chan[3] := (3 + 0 * 20).
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         range_check_assumption_t_0_s_3();
         c.chan[3] = ((3 + 0 * 20)) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
     }
@@ -32255,24 +32255,24 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_idle_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         if(c.chan[3] != 255) {
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -32407,7 +32407,7 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -32424,13 +32424,13 @@ class GlobalClass_User_3Thread {
             return false;
         }
         // SLCO assignment | partner[3] := (chan[3] % 20).
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
-        //@ assert lock_requests[1] == 1; // Check c.partner[3].
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         range_check_assumption_t_1_s_2();
         c.partner[3] = ((Math.floorMod(c.chan[3], 20))) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
@@ -32496,20 +32496,20 @@ class GlobalClass_User_3Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[3]], 1: partner[3]]
+    // - [0: partner[3], 1: chan[partner[3]]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_qi_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[3]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[c.partner[3]]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[3]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[3]].
-        //@ assert lock_requests[1] == 1; // Check c.partner[3].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[c.partner[3]]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[3]].
         if((Math.floorMod(c.chan[c.partner[3]], 20)) == 3) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[3]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[3]]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -32611,7 +32611,7 @@ class GlobalClass_User_3Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[3]], 1: partner[3]]
+    // - [0: partner[3], 1: chan[partner[3]]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | qi -> talert | (chan[partner[3]] % 20) = 3.
@@ -32678,27 +32678,27 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[3]], 1: partner[3]]
+    // - [0: partner[3], 1: chan[partner[3]]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: partner[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_qi_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[3]].
-        //@ assert lock_requests[1] == 1; // Check c.partner[3].
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[3]].
         if((Math.floorMod(c.chan[c.partner[3]], 20)) != 3) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[3]]
-            //@ assert lock_requests[0] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[3]]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[3]]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[3]]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -32836,7 +32836,7 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[3]], 1: partner[3]]
+    // - [0: partner[3], 1: chan[partner[3]]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -32853,11 +32853,11 @@ class GlobalClass_User_3Thread {
             return false;
         }
         // SLCO assignment | partner[3] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[3].
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
         range_check_assumption_t_1_s_2();
         c.partner[3] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
 
         return true;
     }
@@ -33854,47 +33854,47 @@ class GlobalClass_User_3Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] + 1; // Acquire c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 1; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] + 1; // Acquire c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 1; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] + 1; // Acquire c.record[0]
+        lock_requests[5] = lock_requests[5] + 1; // Acquire c.callforwardbusy[0]
         //@ assert lock_requests[5] == 1; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] + 1; // Acquire c.record[1]
+        lock_requests[6] = lock_requests[6] + 1; // Acquire c.callforwardbusy[1]
         //@ assert lock_requests[6] == 1; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] + 1; // Acquire c.record[2]
+        lock_requests[7] = lock_requests[7] + 1; // Acquire c.callforwardbusy[2]
         //@ assert lock_requests[7] == 1; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] + 1; // Acquire c.record[3]
+        lock_requests[8] = lock_requests[8] + 1; // Acquire c.callforwardbusy[3]
         //@ assert lock_requests[8] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.record[0]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.record[1]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] + 1; // Acquire c.record[2]
+        //@ assert lock_requests[3] == 1; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] + 1; // Acquire c.record[3]
+        //@ assert lock_requests[4] == 1; // Verify lock activity.
         lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[3]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
         //@ assert lock_requests[0] == 1; // Check c.partner[3].
         if(c.partner[3] == 3) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
+            lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
-            lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
             //@ assert lock_requests[5] == 0; // Verify lock activity.
-            lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
             //@ assert lock_requests[6] == 0; // Verify lock activity.
-            lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
             //@ assert lock_requests[7] == 0; // Verify lock activity.
-            lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
             //@ assert lock_requests[8] == 0; // Verify lock activity.
             return true;
         }
@@ -33993,7 +33993,7 @@ class GlobalClass_User_3Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | calling -> busy | partner[3] = 3.
@@ -34059,14 +34059,14 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_1_s_0_n_0() {
@@ -34074,21 +34074,21 @@ class GlobalClass_User_3Thread {
         if(c.partner[3] == 4) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
+            lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
-            lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
             //@ assert lock_requests[5] == 0; // Verify lock activity.
-            lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
             //@ assert lock_requests[6] == 0; // Verify lock activity.
-            lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
             //@ assert lock_requests[7] == 0; // Verify lock activity.
-            lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
             //@ assert lock_requests[8] == 0; // Verify lock activity.
             return true;
         }
@@ -34181,14 +34181,14 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | calling -> unobtainable | partner[3] = 4.
@@ -34254,14 +34254,14 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_2_s_0_n_0() {
@@ -34269,21 +34269,21 @@ class GlobalClass_User_3Thread {
         if(c.partner[3] == 4) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
+            lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
             //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
+            lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
             //@ assert lock_requests[4] == 0; // Verify lock activity.
-            lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
             //@ assert lock_requests[5] == 0; // Verify lock activity.
-            lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
             //@ assert lock_requests[6] == 0; // Verify lock activity.
-            lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
             //@ assert lock_requests[7] == 0; // Verify lock activity.
-            lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
             //@ assert lock_requests[8] == 0; // Verify lock activity.
             return true;
         }
@@ -34376,14 +34376,14 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:2) | calling -> ringback | partner[3] = 4.
@@ -34449,15 +34449,15 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_0() {
@@ -34518,15 +34518,15 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_1() {
@@ -34587,15 +34587,15 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_2() {
@@ -34670,15 +34670,15 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_3() {
@@ -34758,15 +34758,15 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_4() {
@@ -34833,32 +34833,32 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_5() {
         //@ assert lock_requests[0] == 1; // Check c.partner[3].
-        //@ assert lock_requests[1] == 1; // Check c.callforwardbusy[0].
-        //@ assert lock_requests[2] == 1; // Check c.callforwardbusy[1].
-        //@ assert lock_requests[3] == 1; // Check c.callforwardbusy[2].
-        //@ assert lock_requests[4] == 1; // Check c.callforwardbusy[3].
+        //@ assert lock_requests[5] == 1; // Check c.callforwardbusy[0].
+        //@ assert lock_requests[6] == 1; // Check c.callforwardbusy[1].
+        //@ assert lock_requests[7] == 1; // Check c.callforwardbusy[2].
+        //@ assert lock_requests[8] == 1; // Check c.callforwardbusy[3].
         if(c.callforwardbusy[c.partner[3]] == 255) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-            //@ assert lock_requests[2] == 0; // Verify lock activity.
-            lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-            //@ assert lock_requests[3] == 0; // Verify lock activity.
-            lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-            //@ assert lock_requests[4] == 0; // Verify lock activity.
+            lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+            //@ assert lock_requests[5] == 0; // Verify lock activity.
+            lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+            //@ assert lock_requests[6] == 0; // Verify lock activity.
+            lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+            //@ assert lock_requests[7] == 0; // Verify lock activity.
+            lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+            //@ assert lock_requests[8] == 0; // Verify lock activity.
             lock_requests[9] = lock_requests[9] - 1; // Release c.chan[3]
             //@ assert lock_requests[9] == 0; // Verify lock activity.
             lock_requests[10] = lock_requests[10] - 1; // Release c.chan[0]
@@ -34926,15 +34926,15 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_3_s_0_n_6() {
@@ -35082,14 +35082,14 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:3) | calling -> busy | [partner[3] != 3 and partner[3] != 4 and chan[partner[3]] != 255 and callforwardbusy[partner[3]] = 255; record[partner[3]] := 3].
@@ -35101,22 +35101,22 @@ class GlobalClass_User_3Thread {
         }
         // SLCO assignment | record[partner[3]] := 3.
         //@ assert lock_requests[0] == 1; // Check c.partner[3].
-        //@ assert lock_requests[5] == 1; // Check c.record[0].
-        //@ assert lock_requests[6] == 1; // Check c.record[1].
-        //@ assert lock_requests[7] == 1; // Check c.record[2].
-        //@ assert lock_requests[8] == 1; // Check c.record[3].
+        //@ assert lock_requests[1] == 1; // Check c.record[0].
+        //@ assert lock_requests[2] == 1; // Check c.record[1].
+        //@ assert lock_requests[3] == 1; // Check c.record[2].
+        //@ assert lock_requests[4] == 1; // Check c.record[3].
         range_check_assumption_t_3_s_2();
         c.record[c.partner[3]] = (3) & 0xff;
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
 
         return true;
     }
@@ -35174,30 +35174,30 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_0() {
         //@ assert lock_requests[0] == 1; // Check c.partner[3].
         if(c.partner[3] != 3) {
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -35254,30 +35254,30 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_1() {
         //@ assert lock_requests[0] == 1; // Check c.partner[3].
         if(c.partner[3] != 4) {
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -35334,16 +35334,16 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_2() {
         if(t_calling_4_s_0_n_0()) {
@@ -35409,16 +35409,16 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_3() {
         //@ assert lock_requests[0] == 1; // Check c.partner[3].
@@ -35429,14 +35429,14 @@ class GlobalClass_User_3Thread {
         if(c.chan[c.partner[3]] != 255) {
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -35494,16 +35494,16 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_4() {
         if(t_calling_4_s_0_n_2()) {
@@ -35569,23 +35569,23 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_5() {
         //@ assert lock_requests[0] == 1; // Check c.partner[3].
-        //@ assert lock_requests[1] == 1; // Check c.callforwardbusy[0].
-        //@ assert lock_requests[2] == 1; // Check c.callforwardbusy[1].
-        //@ assert lock_requests[3] == 1; // Check c.callforwardbusy[2].
-        //@ assert lock_requests[4] == 1; // Check c.callforwardbusy[3].
+        //@ assert lock_requests[5] == 1; // Check c.callforwardbusy[0].
+        //@ assert lock_requests[6] == 1; // Check c.callforwardbusy[1].
+        //@ assert lock_requests[7] == 1; // Check c.callforwardbusy[2].
+        //@ assert lock_requests[8] == 1; // Check c.callforwardbusy[3].
         if(c.callforwardbusy[c.partner[3]] != 255) {
             lock_requests[9] = lock_requests[9] - 1; // Release c.chan[3]
             //@ assert lock_requests[9] == 0; // Verify lock activity.
@@ -35597,14 +35597,14 @@ class GlobalClass_User_3Thread {
             //@ assert lock_requests[12] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
         return false;
     }
 
@@ -35662,16 +35662,16 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_calling_4_s_0_n_6() {
         if(t_calling_4_s_0_n_4()) {
@@ -35864,15 +35864,15 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:4) | calling -> calling | [partner[3] != 3 and partner[3] != 4 and chan[partner[3]] != 255 and callforwardbusy[partner[3]] != 255; record[partner[3]] := 3; partner[3] := callforwardbusy[partner[3]]].
     private boolean execute_transition_calling_4() {
@@ -35883,38 +35883,38 @@ class GlobalClass_User_3Thread {
         }
         // SLCO assignment | record[partner[3]] := 3.
         //@ assert lock_requests[0] == 1; // Check c.partner[3].
-        //@ assert lock_requests[5] == 1; // Check c.record[0].
-        //@ assert lock_requests[6] == 1; // Check c.record[1].
-        //@ assert lock_requests[7] == 1; // Check c.record[2].
-        //@ assert lock_requests[8] == 1; // Check c.record[3].
+        //@ assert lock_requests[1] == 1; // Check c.record[0].
+        //@ assert lock_requests[2] == 1; // Check c.record[1].
+        //@ assert lock_requests[3] == 1; // Check c.record[2].
+        //@ assert lock_requests[4] == 1; // Check c.record[3].
         range_check_assumption_t_4_s_2();
         c.record[c.partner[3]] = (3) & 0xff;
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         // SLCO assignment | partner[3] := callforwardbusy[partner[3]].
         //@ assert lock_requests[0] == 1; // Check c.partner[3].
-        //@ assert lock_requests[1] == 1; // Check c.callforwardbusy[0].
-        //@ assert lock_requests[2] == 1; // Check c.callforwardbusy[1].
-        //@ assert lock_requests[3] == 1; // Check c.callforwardbusy[2].
-        //@ assert lock_requests[4] == 1; // Check c.callforwardbusy[3].
+        //@ assert lock_requests[5] == 1; // Check c.callforwardbusy[0].
+        //@ assert lock_requests[6] == 1; // Check c.callforwardbusy[1].
+        //@ assert lock_requests[7] == 1; // Check c.callforwardbusy[2].
+        //@ assert lock_requests[8] == 1; // Check c.callforwardbusy[3].
         range_check_assumption_t_4_s_3();
         c.partner[3] = (c.callforwardbusy[c.partner[3]]) & 0xff;
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.callforwardbusy[0]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.callforwardbusy[1]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
-        lock_requests[3] = lock_requests[3] - 1; // Release c.callforwardbusy[2]
-        //@ assert lock_requests[3] == 0; // Verify lock activity.
-        lock_requests[4] = lock_requests[4] - 1; // Release c.callforwardbusy[3]
-        //@ assert lock_requests[4] == 0; // Verify lock activity.
+        lock_requests[5] = lock_requests[5] - 1; // Release c.callforwardbusy[0]
+        //@ assert lock_requests[5] == 0; // Verify lock activity.
+        lock_requests[6] = lock_requests[6] - 1; // Release c.callforwardbusy[1]
+        //@ assert lock_requests[6] == 0; // Verify lock activity.
+        lock_requests[7] = lock_requests[7] - 1; // Release c.callforwardbusy[2]
+        //@ assert lock_requests[7] == 0; // Verify lock activity.
+        lock_requests[8] = lock_requests[8] - 1; // Release c.callforwardbusy[3]
+        //@ assert lock_requests[8] == 0; // Verify lock activity.
 
         return true;
     }
@@ -35972,12 +35972,12 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -35989,14 +35989,14 @@ class GlobalClass_User_3Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         lock_requests[9] = lock_requests[9] - 1; // Release c.chan[3]
         //@ assert lock_requests[9] == 0; // Verify lock activity.
         lock_requests[10] = lock_requests[10] - 1; // Release c.chan[0]
@@ -36061,12 +36061,12 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -36078,14 +36078,14 @@ class GlobalClass_User_3Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         lock_requests[9] = lock_requests[9] - 1; // Release c.chan[3]
         //@ assert lock_requests[9] == 0; // Verify lock activity.
         lock_requests[10] = lock_requests[10] - 1; // Release c.chan[0]
@@ -36150,12 +36150,12 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -36224,12 +36224,12 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -36245,14 +36245,14 @@ class GlobalClass_User_3Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         lock_requests[9] = lock_requests[9] - 1; // Release c.chan[3]
         //@ assert lock_requests[9] == 0; // Verify lock activity.
         lock_requests[10] = lock_requests[10] - 1; // Release c.chan[0]
@@ -36318,12 +36318,12 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -36563,8 +36563,8 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 5 || _i == 6 || _i == 7 || _i == 8 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 9: chan[3], 10: chan[0], 11: chan[1], 12: chan[2]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 9 || _i == 10 || _i == 11 || _i == 12) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -36581,20 +36581,20 @@ class GlobalClass_User_3Thread {
         }
         // SLCO assignment | record[partner[3]] := 3.
         //@ assert lock_requests[0] == 1; // Check c.partner[3].
-        //@ assert lock_requests[5] == 1; // Check c.record[0].
-        //@ assert lock_requests[6] == 1; // Check c.record[1].
-        //@ assert lock_requests[7] == 1; // Check c.record[2].
-        //@ assert lock_requests[8] == 1; // Check c.record[3].
+        //@ assert lock_requests[1] == 1; // Check c.record[0].
+        //@ assert lock_requests[2] == 1; // Check c.record[1].
+        //@ assert lock_requests[3] == 1; // Check c.record[2].
+        //@ assert lock_requests[4] == 1; // Check c.record[3].
         range_check_assumption_t_5_s_2();
         c.record[c.partner[3]] = (3) & 0xff;
-        lock_requests[5] = lock_requests[5] - 1; // Release c.record[0]
-        //@ assert lock_requests[5] == 0; // Verify lock activity.
-        lock_requests[6] = lock_requests[6] - 1; // Release c.record[1]
-        //@ assert lock_requests[6] == 0; // Verify lock activity.
-        lock_requests[7] = lock_requests[7] - 1; // Release c.record[2]
-        //@ assert lock_requests[7] == 0; // Verify lock activity.
-        lock_requests[8] = lock_requests[8] - 1; // Release c.record[3]
-        //@ assert lock_requests[8] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.record[0]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.record[1]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[3] = lock_requests[3] - 1; // Release c.record[2]
+        //@ assert lock_requests[3] == 0; // Verify lock activity.
+        lock_requests[4] = lock_requests[4] - 1; // Release c.record[3]
+        //@ assert lock_requests[4] == 0; // Verify lock activity.
         // SLCO assignment | chan[partner[3]] := (3 + 0 * 20).
         //@ assert lock_requests[0] == 1; // Check c.partner[3].
         //@ assert lock_requests[9] == 1; // Check c.chan[3].
@@ -36844,22 +36844,22 @@ class GlobalClass_User_3Thread {
         // SLCO composite | [chan[3] := 255; partner[3] := 255; dev := 1] -> [true; chan[3] := 255; partner[3] := 255; dev := 1].
         // (Superfluous) SLCO expression | true.
         // SLCO assignment | chan[3] := 255.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[3]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[3]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[3]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[3]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         range_check_assumption_t_0_s_3();
         c.chan[3] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | partner[3] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[3].
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
         range_check_assumption_t_0_s_4();
         c.partner[3] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | dev := 1.
         range_check_assumption_t_0_s_5();
         dev = (1) & 0xff;
@@ -36926,20 +36926,20 @@ class GlobalClass_User_3Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[3]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[3]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[3]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
-        //@ assert lock_requests[1] == 1; // Check c.partner[3].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[3]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         if((Math.floorMod(c.chan[3], 20)) != c.partner[3]) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -37038,7 +37038,7 @@ class GlobalClass_User_3Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | oalert -> errorstate | (chan[3] % 20) != partner[3].
@@ -37104,20 +37104,20 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
-        //@ assert lock_requests[1] == 1; // Check c.partner[3].
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         return (Math.floorMod(c.chan[3], 20)) == c.partner[3];
     }
 
@@ -37174,22 +37174,22 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_1_s_0_n_1() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         if((c.chan[3] / 20) == 1) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -37249,14 +37249,14 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_1_s_0_n_2() {
@@ -37355,14 +37355,14 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | oalert -> oconnected | (chan[3] % 20) = partner[3] and (chan[3] / 20) = 1.
@@ -37428,27 +37428,27 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[3]]
-    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: chan[3]]
+    ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_2_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
-        //@ assert lock_requests[1] == 1; // Check c.partner[3].
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         if((Math.floorMod(c.chan[3], 20)) == c.partner[3]) {
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
-            //@ assert lock_requests[1] == 0; // Verify lock activity.
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
+            //@ assert lock_requests[0] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -37506,8 +37506,8 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [1: chan[3]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -37516,14 +37516,14 @@ class GlobalClass_User_3Thread {
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_oalert_2_s_0_n_1() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         if((c.chan[3] / 20) == 0) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
-            //@ assert lock_requests[0] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
 
@@ -37580,7 +37580,7 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -37685,7 +37685,7 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -37931,27 +37931,27 @@ class GlobalClass_User_3Thread {
         range_check_assumption_t_0_s_3();
         dev = (1) & 0xff;
         // SLCO assignment | chan[3] := 255.
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.partner[3]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[3]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[3]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
         lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[c.partner[3]]
         //@ assert lock_requests[1] == 1; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.chan[3]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
+        //@ assert lock_requests[2] == 1; // Check c.chan[3].
         range_check_assumption_t_0_s_4();
         c.chan[3] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[3]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
         // SLCO assignment | chan[partner[3]] := 255.
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
         //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[3]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[3].
         range_check_assumption_t_0_s_5();
         c.chan[c.partner[3]] = (255) & 0xff;
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[3]]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[3]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
 
         return true;
     }
@@ -38181,22 +38181,22 @@ class GlobalClass_User_3Thread {
         range_check_assumption_t_0_s_3();
         dev = (1) & 0xff;
         // SLCO assignment | chan[3] := 255.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[3]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[3]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[3]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[3]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         range_check_assumption_t_0_s_4();
         c.chan[3] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | partner[3] := ((partner[3] % 20) + 0 * 20).
-        //@ assert lock_requests[1] == 1; // Check c.partner[3].
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
         range_check_assumption_t_0_s_5();
         c.partner[3] = (((Math.floorMod(c.partner[3], 20)) + 0 * 20)) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
 
         return true;
     }
@@ -38423,22 +38423,22 @@ class GlobalClass_User_3Thread {
         // SLCO composite | [chan[3] := 255; partner[3] := 255; dev := 1] -> [true; chan[3] := 255; partner[3] := 255; dev := 1].
         // (Superfluous) SLCO expression | true.
         // SLCO assignment | chan[3] := 255.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[3]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[3]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[3]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[3]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
 
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         range_check_assumption_t_0_s_3();
         c.chan[3] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | partner[3] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[3].
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
         range_check_assumption_t_0_s_4();
         c.partner[3] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | dev := 1.
         range_check_assumption_t_0_s_5();
         dev = (1) & 0xff;
@@ -39047,28 +39047,28 @@ class GlobalClass_User_3Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[3]], 2: partner[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: chan[partner[3]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_talert_0_s_0_n_1() {
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.partner[3]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[c.partner[3]]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[3]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[3]
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[c.partner[3]]
         //@ assert lock_requests[1] == 1; // Verify lock activity.
-        //@ assert lock_requests[1] == 1; // Check c.chan[3].
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.chan[3]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
+        //@ assert lock_requests[2] == 1; // Check c.chan[3].
         if(c.chan[3] == 255) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[3]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[3]]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.partner[3]
+            lock_requests[2] = lock_requests[2] - 1; // Release c.chan[3]
             //@ assert lock_requests[2] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[3]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
         return false;
     }
 
@@ -39131,8 +39131,8 @@ class GlobalClass_User_3Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[3]], 2: partner[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: chan[partner[3]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_talert_0_s_0_n_2() {
         if(t_talert_0_s_0_n_0()) {
@@ -39238,8 +39238,8 @@ class GlobalClass_User_3Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[3]], 2: partner[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: chan[partner[3]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | talert -> errorstate | dev != 1 or chan[3] = 255.
     private boolean execute_transition_talert_0() {
@@ -39305,24 +39305,24 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[3]], 2: partner[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: chan[partner[3]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[3]], 2: partner[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: chan[partner[3]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_talert_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[3]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[3].
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[3]].
         if((Math.floorMod(c.chan[c.partner[3]], 20)) == 3) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[3]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.partner[3]
-            //@ assert lock_requests[2] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[3]]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
         return false;
@@ -39417,15 +39417,15 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[3]], 2: partner[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: chan[partner[3]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[3]], 2: partner[3]]
-    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: chan[partner[3]]]
+    ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | talert -> tpickup | (chan[partner[3]] % 20) = 3.
     private boolean execute_transition_talert_1() {
@@ -39491,8 +39491,8 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[3]], 2: partner[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: chan[partner[3]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -39501,19 +39501,19 @@ class GlobalClass_User_3Thread {
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_talert_2_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[3]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[3].
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[c.partner[3]].
         if((Math.floorMod(c.chan[c.partner[3]], 20)) != 3) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[3]]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[2] = lock_requests[2] - 1; // Release c.partner[3]
-            //@ assert lock_requests[2] == 0; // Verify lock activity.
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[3]]
+            //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[3]]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[3]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[c.partner[3]]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
 
@@ -39606,8 +39606,8 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[3]], 2: partner[3]]
-    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
+    // - [0: partner[3], 1: chan[partner[3]]]
+    requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
@@ -39682,22 +39682,22 @@ class GlobalClass_User_3Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[partner[3]], 1: chan[3], 2: partner[3]]
+    // - [0: chan[partner[3]], 1: partner[3], 2: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[3]], 1: chan[3], 2: partner[3]]
+    // - [0: chan[partner[3]], 1: partner[3], 2: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_0_s_0_n_0() {
-        lock_requests[2] = lock_requests[2] + 1; // Acquire c.partner[3]
-        //@ assert lock_requests[2] == 1; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[3]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
         lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[c.partner[3]]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[3]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] + 1; // Acquire c.chan[3]
+        //@ assert lock_requests[2] == 1; // Verify lock activity.
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[3]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.partner[3].
         return (Math.floorMod(c.chan[c.partner[3]], 20)) == 3;
     }
 
@@ -39755,20 +39755,20 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[3]], 1: chan[3], 2: partner[3]]
+    // - [0: chan[partner[3]], 1: partner[3], 2: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[partner[3]], 1: chan[3], 2: partner[3]]
+    // - [0: chan[partner[3]], 1: partner[3], 2: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[3]], 1: chan[3], 2: partner[3]]
+    // - [0: chan[partner[3]], 1: partner[3], 2: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_0_s_0_n_1() {
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[3]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.partner[3].
         return (c.chan[c.partner[3]] / 20) == 0;
     }
 
@@ -39829,11 +39829,11 @@ class GlobalClass_User_3Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[partner[3]], 1: chan[3], 2: partner[3]]
+    // - [0: chan[partner[3]], 1: partner[3], 2: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[3]], 1: chan[3], 2: partner[3]]
+    // - [0: chan[partner[3]], 1: partner[3], 2: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_0_s_0_n_2() {
@@ -40071,7 +40071,7 @@ class GlobalClass_User_3Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[3]], 1: chan[3], 2: partner[3]]
+    // - [0: chan[partner[3]], 1: partner[3], 2: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | tpickup -> tconnected | [(chan[partner[3]] % 20) = 3 and (chan[partner[3]] / 20) = 0; dev := 0; chan[partner[3]] := (3 + 1 * 20); chan[3] := (partner[3] + 1 * 20)].
@@ -40086,19 +40086,19 @@ class GlobalClass_User_3Thread {
         dev = (0) & 0xff;
         // SLCO assignment | chan[partner[3]] := (3 + 1 * 20).
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[3]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.partner[3].
         range_check_assumption_t_0_s_3();
         c.chan[c.partner[3]] = ((3 + 1 * 20)) & 0xff;
         lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[3]]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | chan[3] := (partner[3] + 1 * 20).
-        //@ assert lock_requests[1] == 1; // Check c.chan[3].
-        //@ assert lock_requests[2] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.partner[3].
+        //@ assert lock_requests[2] == 1; // Check c.chan[3].
         range_check_assumption_t_0_s_4();
         c.chan[3] = ((c.partner[3] + 1 * 20)) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[3]
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[3]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
 
         return true;
@@ -40158,20 +40158,20 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[3]], 1: chan[3], 2: partner[3]]
+    // - [0: chan[partner[3]], 1: partner[3], 2: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: chan[3], 2: partner[3]]
+    // - [1: partner[3], 2: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[partner[3]], 1: chan[3], 2: partner[3]]
+    // - [0: chan[partner[3]], 1: partner[3], 2: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tpickup_1_s_0_n_0() {
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[3]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.partner[3].
         if(c.chan[c.partner[3]] == 255) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[3]]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
@@ -40234,11 +40234,11 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[3]], 1: chan[3], 2: partner[3]]
+    // - [0: chan[partner[3]], 1: partner[3], 2: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: chan[3], 2: partner[3]]
+    // - [1: partner[3], 2: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
@@ -40246,7 +40246,7 @@ class GlobalClass_User_3Thread {
     @*/
     private boolean t_tpickup_1_s_0_n_1() {
         //@ assert lock_requests[0] == 1; // Check c.chan[c.partner[3]].
-        //@ assert lock_requests[2] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.partner[3].
         if((Math.floorMod(c.chan[c.partner[3]], 20)) != 3) {
             lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[3]]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
@@ -40254,9 +40254,9 @@ class GlobalClass_User_3Thread {
         }
         lock_requests[0] = lock_requests[0] - 1; // Release c.chan[c.partner[3]]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[3]
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[3]
         //@ assert lock_requests[2] == 0; // Verify lock activity.
         return false;
     }
@@ -40315,11 +40315,11 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[3]], 1: chan[3], 2: partner[3]]
+    // - [0: chan[partner[3]], 1: partner[3], 2: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [1: chan[3], 2: partner[3]]
+    // - [1: partner[3], 2: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
@@ -40554,7 +40554,7 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[partner[3]], 1: chan[3], 2: partner[3]]
+    // - [0: chan[partner[3]], 1: partner[3], 2: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -40574,17 +40574,17 @@ class GlobalClass_User_3Thread {
         range_check_assumption_t_1_s_2();
         dev = (1) & 0xff;
         // SLCO assignment | partner[3] := 255.
-        //@ assert lock_requests[2] == 1; // Check c.partner[3].
+        //@ assert lock_requests[1] == 1; // Check c.partner[3].
         range_check_assumption_t_1_s_3();
         c.partner[3] = (255) & 0xff;
-        lock_requests[2] = lock_requests[2] - 1; // Release c.partner[3]
-        //@ assert lock_requests[2] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
         // SLCO assignment | chan[3] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.chan[3].
+        //@ assert lock_requests[2] == 1; // Check c.chan[3].
         range_check_assumption_t_1_s_4();
         c.chan[3] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[2] = lock_requests[2] - 1; // Release c.chan[3]
+        //@ assert lock_requests[2] == 0; // Verify lock activity.
 
         return true;
     }
@@ -40645,19 +40645,19 @@ class GlobalClass_User_3Thread {
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_0_s_0_n_0() {
-        lock_requests[1] = lock_requests[1] + 1; // Acquire c.partner[3]
-        //@ assert lock_requests[1] == 1; // Verify lock activity.
-        lock_requests[0] = lock_requests[0] + 1; // Acquire c.chan[3]
+        lock_requests[0] = lock_requests[0] + 1; // Acquire c.partner[3]
         //@ assert lock_requests[0] == 1; // Verify lock activity.
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
+        lock_requests[1] = lock_requests[1] + 1; // Acquire c.chan[3]
+        //@ assert lock_requests[1] == 1; // Verify lock activity.
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         return (c.chan[3] / 20) == 1;
     }
 
@@ -40711,21 +40711,21 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_0_s_0_n_1() {
         if(dev == 0) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -40791,7 +40791,7 @@ class GlobalClass_User_3Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_0_s_0_n_2() {
@@ -40936,7 +40936,7 @@ class GlobalClass_User_3Thread {
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:0) | tconnected -> tconnected | [(chan[3] / 20) = 1 and dev = 0; dev := 1].
@@ -41006,19 +41006,19 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_1_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         return (c.chan[3] / 20) == 1;
     }
 
@@ -41072,21 +41072,21 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_1_s_0_n_1() {
         if(dev == 1) {
-            lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
+            lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
             //@ assert lock_requests[0] == 0; // Verify lock activity.
-            lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
+            lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
             //@ assert lock_requests[1] == 0; // Verify lock activity.
             return true;
         }
@@ -41146,14 +41146,14 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_1_s_0_n_2() {
@@ -41292,14 +41292,14 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     // SLCO transition (p:0, id:1) | tconnected -> tconnected | [(chan[3] / 20) = 1 and dev = 1; dev := 0].
@@ -41369,24 +41369,24 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the failure exit of the function.
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; lock_requests[_i] == 0);
     @*/
     private boolean t_tconnected_2_s_0_n_0() {
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         if((c.chan[3] / 20) == 0) {
             return true;
         }
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
         //@ assert lock_requests[0] == 0; // Verify lock activity.
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
         //@ assert lock_requests[1] == 0; // Verify lock activity.
         return false;
     }
@@ -41565,7 +41565,7 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: chan[3], 1: partner[3]]
+    // - [0: partner[3], 1: chan[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that no lock requests are active in the success exit of the function.
@@ -41582,17 +41582,17 @@ class GlobalClass_User_3Thread {
             return false;
         }
         // SLCO assignment | partner[3] := 255.
-        //@ assert lock_requests[1] == 1; // Check c.partner[3].
+        //@ assert lock_requests[0] == 1; // Check c.partner[3].
         range_check_assumption_t_2_s_2();
         c.partner[3] = (255) & 0xff;
-        lock_requests[1] = lock_requests[1] - 1; // Release c.partner[3]
-        //@ assert lock_requests[1] == 0; // Verify lock activity.
+        lock_requests[0] = lock_requests[0] - 1; // Release c.partner[3]
+        //@ assert lock_requests[0] == 0; // Verify lock activity.
         // SLCO assignment | chan[3] := 255.
-        //@ assert lock_requests[0] == 1; // Check c.chan[3].
+        //@ assert lock_requests[1] == 1; // Check c.chan[3].
         range_check_assumption_t_2_s_3();
         c.chan[3] = (255) & 0xff;
-        lock_requests[0] = lock_requests[0] - 1; // Release c.chan[3]
-        //@ assert lock_requests[0] == 0; // Verify lock activity.
+        lock_requests[1] = lock_requests[1] - 1; // Release c.chan[3]
+        //@ assert lock_requests[1] == 0; // Verify lock activity.
 
         return true;
     }
@@ -41786,15 +41786,15 @@ class GlobalClass_User_3Thread {
     context Perm(lock_requests[*], 1);
 
     // Require that that the following locks are active prior to calling the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     requires (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the success exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures \result ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
 
     // Ensure that that the following locks are active in the failure exit of the the function:
-    // - [0: partner[3], 1: callforwardbusy[0], 2: callforwardbusy[1], 3: callforwardbusy[2], 4: callforwardbusy[3], 5: record[0], 6: record[1], 7: record[2], 8: record[3]]
+    // - [0: partner[3], 1: record[0], 2: record[1], 3: record[2], 4: record[3], 5: callforwardbusy[0], 6: callforwardbusy[1], 7: callforwardbusy[2], 8: callforwardbusy[3]]
     ensures !(\result) ==> (\forall* int _i; 0 <= _i && _i < lock_requests.length; (_i == 0 || _i == 1 || _i == 2 || _i == 3 || _i == 4 || _i == 5 || _i == 6 || _i == 7 || _i == 8) ? lock_requests[_i] == 1 : lock_requests[_i] == 0);
     @*/
     private boolean d_calling_0_n_0() {

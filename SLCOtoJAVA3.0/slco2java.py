@@ -128,6 +128,8 @@ def get_argument_parser():
                                                                "hence will not meet the requirement of atomicity.")
     parser.add_argument("-statement_level_locking", action="store_true", help="Perform locking at the statement level.")
     parser.add_argument("-lock_array", action="store_true", help="Lock the array instead of an individual index.")
+    parser.add_argument("-fair_locking", action="store_true", help="Configure the code generator to use reentrant "
+                                                                   "locks with the fairness constraints enabled.")
 
     # Parameters that control which statements are rendered.
     parser.add_argument("-verify_locks", action="store_true", help="Add Java statements that verify whether locks have "

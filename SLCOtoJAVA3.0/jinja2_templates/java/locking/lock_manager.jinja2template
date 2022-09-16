@@ -6,7 +6,7 @@ private static class LockManager {
     LockManager(int noVariables) {
         locks = new ReentrantLock[noVariables];
         for(int i = 0; i < locks.length; i++) {
-            locks[i] = new ReentrantLock(true);
+            locks[i] = new ReentrantLock({{ settings.fair_locking | lower }});
         }
     }
 

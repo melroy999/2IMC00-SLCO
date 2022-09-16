@@ -251,8 +251,8 @@ class GlobalClass_User_0Thread {
     private boolean t_idle_1_s_1() {
         // SLCO assignment | partner[0] := (chan[0] % 20).
         //@ assume 0 <= 0 && 0 < 4;
-        //@ assume Perm(c.chan[0], 1);
         //@ assume Perm(c.partner[0], 1);
+        //@ assume Perm(c.chan[0], 1);
         c.partner[0] = ((Math.floorMod(c.chan[0], 20))) & 0xff;
     }
 
@@ -1316,10 +1316,10 @@ class GlobalClass_User_0Thread {
         //@ assume 0 <= 0 && 0 < 4;
         //@ assume Perm(c.partner[0], 1);
         //@ assume 0 <= c.partner[0] && c.partner[0] < 4;
-        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 1
-        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 2
-        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 3
-        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 4
+        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 8
+        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 5
+        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 6
+        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 7
         return c.callforwardbusy[c.partner[0]] != 255;
     }
 
@@ -1400,10 +1400,10 @@ class GlobalClass_User_0Thread {
         //@ assume 0 <= 0 && 0 < 4;
         //@ assume Perm(c.partner[0], 1);
         //@ assume 0 <= c.partner[0] && c.partner[0] < 4;
-        //@ assume Perm(c.record[3], 1); // Lock ids 8
-        //@ assume Perm(c.record[0], 1); // Lock ids 5
-        //@ assume Perm(c.record[1], 1); // Lock ids 6
-        //@ assume Perm(c.record[2], 1); // Lock ids 7
+        //@ assume Perm(c.record[0], 1); // Lock ids 1
+        //@ assume Perm(c.record[1], 1); // Lock ids 2
+        //@ assume Perm(c.record[2], 1); // Lock ids 3
+        //@ assume Perm(c.record[3], 1); // Lock ids 4
         c.record[c.partner[0]] = (0) & 0xff;
     }
 
@@ -1432,10 +1432,10 @@ class GlobalClass_User_0Thread {
         //@ assume 0 <= 0 && 0 < 4;
         //@ assume Perm(c.partner[0], 1);
         //@ assume 0 <= c.partner[0] && c.partner[0] < 4;
-        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 1
-        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 2
-        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 3
-        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 4
+        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 8
+        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 5
+        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 6
+        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 7
         c.partner[0] = (c.callforwardbusy[c.partner[0]]) & 0xff;
     }
 
@@ -1627,10 +1627,10 @@ class GlobalClass_User_0Thread {
         //@ assume 0 <= 0 && 0 < 4;
         //@ assume Perm(c.partner[0], 1);
         //@ assume 0 <= c.partner[0] && c.partner[0] < 4;
-        //@ assume Perm(c.record[3], 1); // Lock ids 8
-        //@ assume Perm(c.record[0], 1); // Lock ids 5
-        //@ assume Perm(c.record[1], 1); // Lock ids 6
-        //@ assume Perm(c.record[2], 1); // Lock ids 7
+        //@ assume Perm(c.record[0], 1); // Lock ids 1
+        //@ assume Perm(c.record[1], 1); // Lock ids 2
+        //@ assume Perm(c.record[2], 1); // Lock ids 3
+        //@ assume Perm(c.record[3], 1); // Lock ids 4
         c.record[c.partner[0]] = (0) & 0xff;
     }
 
@@ -1689,8 +1689,8 @@ class GlobalClass_User_0Thread {
     private boolean t_calling_5_s_3() {
         // SLCO assignment | chan[0] := (partner[0] + 0 * 20).
         //@ assume 0 <= 0 && 0 < 4;
-        //@ assume Perm(c.chan[0], 1);
         //@ assume Perm(c.partner[0], 1);
+        //@ assume Perm(c.chan[0], 1);
         c.chan[0] = ((c.partner[0] + 0 * 20)) & 0xff;
     }
 
@@ -1844,8 +1844,8 @@ class GlobalClass_User_0Thread {
     @*/
     private boolean t_oalert_0_s_0_n_0() {
         //@ assume 0 <= 0 && 0 < 4;
-        //@ assume Perm(c.chan[0], 1);
         //@ assume Perm(c.partner[0], 1);
+        //@ assume Perm(c.chan[0], 1);
         return (Math.floorMod(c.chan[0], 20)) != c.partner[0];
     }
 
@@ -1899,8 +1899,8 @@ class GlobalClass_User_0Thread {
     @*/
     private boolean t_oalert_1_s_0_n_0() {
         //@ assume 0 <= 0 && 0 < 4;
-        //@ assume Perm(c.chan[0], 1);
         //@ assume Perm(c.partner[0], 1);
+        //@ assume Perm(c.chan[0], 1);
         return (Math.floorMod(c.chan[0], 20)) == c.partner[0];
     }
 
@@ -2006,8 +2006,8 @@ class GlobalClass_User_0Thread {
     @*/
     private boolean t_oalert_2_s_0_n_0() {
         //@ assume 0 <= 0 && 0 < 4;
-        //@ assume Perm(c.chan[0], 1);
         //@ assume Perm(c.partner[0], 1);
+        //@ assume Perm(c.chan[0], 1);
         return (Math.floorMod(c.chan[0], 20)) == c.partner[0];
     }
 
@@ -3085,8 +3085,8 @@ class GlobalClass_User_0Thread {
     private boolean t_tpickup_0_s_3() {
         // SLCO assignment | chan[0] := (partner[0] + 1 * 20).
         //@ assume 0 <= 0 && 0 < 4;
-        //@ assume Perm(c.chan[0], 1);
         //@ assume Perm(c.partner[0], 1);
+        //@ assume Perm(c.chan[0], 1);
         c.chan[0] = ((c.partner[0] + 1 * 20)) & 0xff;
     }
 
@@ -3861,8 +3861,8 @@ class GlobalClass_User_1Thread {
     private boolean t_idle_1_s_1() {
         // SLCO assignment | partner[1] := (chan[1] % 20).
         //@ assume 0 <= 1 && 1 < 4;
-        //@ assume Perm(c.chan[1], 1);
         //@ assume Perm(c.partner[1], 1);
+        //@ assume Perm(c.chan[1], 1);
         c.partner[1] = ((Math.floorMod(c.chan[1], 20))) & 0xff;
     }
 
@@ -4926,10 +4926,10 @@ class GlobalClass_User_1Thread {
         //@ assume 0 <= 1 && 1 < 4;
         //@ assume Perm(c.partner[1], 1);
         //@ assume 0 <= c.partner[1] && c.partner[1] < 4;
-        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 1
-        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 2
-        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 3
-        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 4
+        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 8
+        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 5
+        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 6
+        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 7
         return c.callforwardbusy[c.partner[1]] != 255;
     }
 
@@ -5010,10 +5010,10 @@ class GlobalClass_User_1Thread {
         //@ assume 0 <= 1 && 1 < 4;
         //@ assume Perm(c.partner[1], 1);
         //@ assume 0 <= c.partner[1] && c.partner[1] < 4;
-        //@ assume Perm(c.record[3], 1); // Lock ids 8
-        //@ assume Perm(c.record[0], 1); // Lock ids 5
-        //@ assume Perm(c.record[1], 1); // Lock ids 6
-        //@ assume Perm(c.record[2], 1); // Lock ids 7
+        //@ assume Perm(c.record[0], 1); // Lock ids 1
+        //@ assume Perm(c.record[1], 1); // Lock ids 2
+        //@ assume Perm(c.record[2], 1); // Lock ids 3
+        //@ assume Perm(c.record[3], 1); // Lock ids 4
         c.record[c.partner[1]] = (1) & 0xff;
     }
 
@@ -5042,10 +5042,10 @@ class GlobalClass_User_1Thread {
         //@ assume 0 <= 1 && 1 < 4;
         //@ assume Perm(c.partner[1], 1);
         //@ assume 0 <= c.partner[1] && c.partner[1] < 4;
-        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 1
-        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 2
-        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 3
-        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 4
+        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 8
+        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 5
+        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 6
+        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 7
         c.partner[1] = (c.callforwardbusy[c.partner[1]]) & 0xff;
     }
 
@@ -5237,10 +5237,10 @@ class GlobalClass_User_1Thread {
         //@ assume 0 <= 1 && 1 < 4;
         //@ assume Perm(c.partner[1], 1);
         //@ assume 0 <= c.partner[1] && c.partner[1] < 4;
-        //@ assume Perm(c.record[3], 1); // Lock ids 8
-        //@ assume Perm(c.record[0], 1); // Lock ids 5
-        //@ assume Perm(c.record[1], 1); // Lock ids 6
-        //@ assume Perm(c.record[2], 1); // Lock ids 7
+        //@ assume Perm(c.record[0], 1); // Lock ids 1
+        //@ assume Perm(c.record[1], 1); // Lock ids 2
+        //@ assume Perm(c.record[2], 1); // Lock ids 3
+        //@ assume Perm(c.record[3], 1); // Lock ids 4
         c.record[c.partner[1]] = (1) & 0xff;
     }
 
@@ -5299,8 +5299,8 @@ class GlobalClass_User_1Thread {
     private boolean t_calling_5_s_3() {
         // SLCO assignment | chan[1] := (partner[1] + 0 * 20).
         //@ assume 0 <= 1 && 1 < 4;
-        //@ assume Perm(c.chan[1], 1);
         //@ assume Perm(c.partner[1], 1);
+        //@ assume Perm(c.chan[1], 1);
         c.chan[1] = ((c.partner[1] + 0 * 20)) & 0xff;
     }
 
@@ -5454,8 +5454,8 @@ class GlobalClass_User_1Thread {
     @*/
     private boolean t_oalert_0_s_0_n_0() {
         //@ assume 0 <= 1 && 1 < 4;
-        //@ assume Perm(c.chan[1], 1);
         //@ assume Perm(c.partner[1], 1);
+        //@ assume Perm(c.chan[1], 1);
         return (Math.floorMod(c.chan[1], 20)) != c.partner[1];
     }
 
@@ -5509,8 +5509,8 @@ class GlobalClass_User_1Thread {
     @*/
     private boolean t_oalert_1_s_0_n_0() {
         //@ assume 0 <= 1 && 1 < 4;
-        //@ assume Perm(c.chan[1], 1);
         //@ assume Perm(c.partner[1], 1);
+        //@ assume Perm(c.chan[1], 1);
         return (Math.floorMod(c.chan[1], 20)) == c.partner[1];
     }
 
@@ -5616,8 +5616,8 @@ class GlobalClass_User_1Thread {
     @*/
     private boolean t_oalert_2_s_0_n_0() {
         //@ assume 0 <= 1 && 1 < 4;
-        //@ assume Perm(c.chan[1], 1);
         //@ assume Perm(c.partner[1], 1);
+        //@ assume Perm(c.chan[1], 1);
         return (Math.floorMod(c.chan[1], 20)) == c.partner[1];
     }
 
@@ -6695,8 +6695,8 @@ class GlobalClass_User_1Thread {
     private boolean t_tpickup_0_s_3() {
         // SLCO assignment | chan[1] := (partner[1] + 1 * 20).
         //@ assume 0 <= 1 && 1 < 4;
-        //@ assume Perm(c.chan[1], 1);
         //@ assume Perm(c.partner[1], 1);
+        //@ assume Perm(c.chan[1], 1);
         c.chan[1] = ((c.partner[1] + 1 * 20)) & 0xff;
     }
 
@@ -7471,8 +7471,8 @@ class GlobalClass_User_2Thread {
     private boolean t_idle_1_s_1() {
         // SLCO assignment | partner[2] := (chan[2] % 20).
         //@ assume 0 <= 2 && 2 < 4;
-        //@ assume Perm(c.chan[2], 1);
         //@ assume Perm(c.partner[2], 1);
+        //@ assume Perm(c.chan[2], 1);
         c.partner[2] = ((Math.floorMod(c.chan[2], 20))) & 0xff;
     }
 
@@ -8536,10 +8536,10 @@ class GlobalClass_User_2Thread {
         //@ assume 0 <= 2 && 2 < 4;
         //@ assume Perm(c.partner[2], 1);
         //@ assume 0 <= c.partner[2] && c.partner[2] < 4;
-        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 1
-        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 2
-        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 3
-        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 4
+        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 8
+        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 5
+        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 6
+        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 7
         return c.callforwardbusy[c.partner[2]] != 255;
     }
 
@@ -8620,10 +8620,10 @@ class GlobalClass_User_2Thread {
         //@ assume 0 <= 2 && 2 < 4;
         //@ assume Perm(c.partner[2], 1);
         //@ assume 0 <= c.partner[2] && c.partner[2] < 4;
-        //@ assume Perm(c.record[3], 1); // Lock ids 8
-        //@ assume Perm(c.record[0], 1); // Lock ids 5
-        //@ assume Perm(c.record[1], 1); // Lock ids 6
-        //@ assume Perm(c.record[2], 1); // Lock ids 7
+        //@ assume Perm(c.record[0], 1); // Lock ids 1
+        //@ assume Perm(c.record[1], 1); // Lock ids 2
+        //@ assume Perm(c.record[2], 1); // Lock ids 3
+        //@ assume Perm(c.record[3], 1); // Lock ids 4
         c.record[c.partner[2]] = (2) & 0xff;
     }
 
@@ -8652,10 +8652,10 @@ class GlobalClass_User_2Thread {
         //@ assume 0 <= 2 && 2 < 4;
         //@ assume Perm(c.partner[2], 1);
         //@ assume 0 <= c.partner[2] && c.partner[2] < 4;
-        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 1
-        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 2
-        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 3
-        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 4
+        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 8
+        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 5
+        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 6
+        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 7
         c.partner[2] = (c.callforwardbusy[c.partner[2]]) & 0xff;
     }
 
@@ -8847,10 +8847,10 @@ class GlobalClass_User_2Thread {
         //@ assume 0 <= 2 && 2 < 4;
         //@ assume Perm(c.partner[2], 1);
         //@ assume 0 <= c.partner[2] && c.partner[2] < 4;
-        //@ assume Perm(c.record[3], 1); // Lock ids 8
-        //@ assume Perm(c.record[0], 1); // Lock ids 5
-        //@ assume Perm(c.record[1], 1); // Lock ids 6
-        //@ assume Perm(c.record[2], 1); // Lock ids 7
+        //@ assume Perm(c.record[0], 1); // Lock ids 1
+        //@ assume Perm(c.record[1], 1); // Lock ids 2
+        //@ assume Perm(c.record[2], 1); // Lock ids 3
+        //@ assume Perm(c.record[3], 1); // Lock ids 4
         c.record[c.partner[2]] = (2) & 0xff;
     }
 
@@ -8909,8 +8909,8 @@ class GlobalClass_User_2Thread {
     private boolean t_calling_5_s_3() {
         // SLCO assignment | chan[2] := (partner[2] + 0 * 20).
         //@ assume 0 <= 2 && 2 < 4;
-        //@ assume Perm(c.chan[2], 1);
         //@ assume Perm(c.partner[2], 1);
+        //@ assume Perm(c.chan[2], 1);
         c.chan[2] = ((c.partner[2] + 0 * 20)) & 0xff;
     }
 
@@ -9064,8 +9064,8 @@ class GlobalClass_User_2Thread {
     @*/
     private boolean t_oalert_0_s_0_n_0() {
         //@ assume 0 <= 2 && 2 < 4;
-        //@ assume Perm(c.chan[2], 1);
         //@ assume Perm(c.partner[2], 1);
+        //@ assume Perm(c.chan[2], 1);
         return (Math.floorMod(c.chan[2], 20)) != c.partner[2];
     }
 
@@ -9119,8 +9119,8 @@ class GlobalClass_User_2Thread {
     @*/
     private boolean t_oalert_1_s_0_n_0() {
         //@ assume 0 <= 2 && 2 < 4;
-        //@ assume Perm(c.chan[2], 1);
         //@ assume Perm(c.partner[2], 1);
+        //@ assume Perm(c.chan[2], 1);
         return (Math.floorMod(c.chan[2], 20)) == c.partner[2];
     }
 
@@ -9226,8 +9226,8 @@ class GlobalClass_User_2Thread {
     @*/
     private boolean t_oalert_2_s_0_n_0() {
         //@ assume 0 <= 2 && 2 < 4;
-        //@ assume Perm(c.chan[2], 1);
         //@ assume Perm(c.partner[2], 1);
+        //@ assume Perm(c.chan[2], 1);
         return (Math.floorMod(c.chan[2], 20)) == c.partner[2];
     }
 
@@ -10305,8 +10305,8 @@ class GlobalClass_User_2Thread {
     private boolean t_tpickup_0_s_3() {
         // SLCO assignment | chan[2] := (partner[2] + 1 * 20).
         //@ assume 0 <= 2 && 2 < 4;
-        //@ assume Perm(c.chan[2], 1);
         //@ assume Perm(c.partner[2], 1);
+        //@ assume Perm(c.chan[2], 1);
         c.chan[2] = ((c.partner[2] + 1 * 20)) & 0xff;
     }
 
@@ -11081,8 +11081,8 @@ class GlobalClass_User_3Thread {
     private boolean t_idle_1_s_1() {
         // SLCO assignment | partner[3] := (chan[3] % 20).
         //@ assume 0 <= 3 && 3 < 4;
-        //@ assume Perm(c.chan[3], 1);
         //@ assume Perm(c.partner[3], 1);
+        //@ assume Perm(c.chan[3], 1);
         c.partner[3] = ((Math.floorMod(c.chan[3], 20))) & 0xff;
     }
 
@@ -12146,10 +12146,10 @@ class GlobalClass_User_3Thread {
         //@ assume 0 <= 3 && 3 < 4;
         //@ assume Perm(c.partner[3], 1);
         //@ assume 0 <= c.partner[3] && c.partner[3] < 4;
-        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 1
-        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 2
-        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 3
-        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 4
+        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 8
+        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 5
+        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 6
+        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 7
         return c.callforwardbusy[c.partner[3]] != 255;
     }
 
@@ -12230,10 +12230,10 @@ class GlobalClass_User_3Thread {
         //@ assume 0 <= 3 && 3 < 4;
         //@ assume Perm(c.partner[3], 1);
         //@ assume 0 <= c.partner[3] && c.partner[3] < 4;
-        //@ assume Perm(c.record[3], 1); // Lock ids 8
-        //@ assume Perm(c.record[0], 1); // Lock ids 5
-        //@ assume Perm(c.record[1], 1); // Lock ids 6
-        //@ assume Perm(c.record[2], 1); // Lock ids 7
+        //@ assume Perm(c.record[0], 1); // Lock ids 1
+        //@ assume Perm(c.record[1], 1); // Lock ids 2
+        //@ assume Perm(c.record[2], 1); // Lock ids 3
+        //@ assume Perm(c.record[3], 1); // Lock ids 4
         c.record[c.partner[3]] = (3) & 0xff;
     }
 
@@ -12262,10 +12262,10 @@ class GlobalClass_User_3Thread {
         //@ assume 0 <= 3 && 3 < 4;
         //@ assume Perm(c.partner[3], 1);
         //@ assume 0 <= c.partner[3] && c.partner[3] < 4;
-        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 1
-        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 2
-        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 3
-        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 4
+        //@ assume Perm(c.callforwardbusy[3], 1); // Lock ids 8
+        //@ assume Perm(c.callforwardbusy[0], 1); // Lock ids 5
+        //@ assume Perm(c.callforwardbusy[1], 1); // Lock ids 6
+        //@ assume Perm(c.callforwardbusy[2], 1); // Lock ids 7
         c.partner[3] = (c.callforwardbusy[c.partner[3]]) & 0xff;
     }
 
@@ -12457,10 +12457,10 @@ class GlobalClass_User_3Thread {
         //@ assume 0 <= 3 && 3 < 4;
         //@ assume Perm(c.partner[3], 1);
         //@ assume 0 <= c.partner[3] && c.partner[3] < 4;
-        //@ assume Perm(c.record[3], 1); // Lock ids 8
-        //@ assume Perm(c.record[0], 1); // Lock ids 5
-        //@ assume Perm(c.record[1], 1); // Lock ids 6
-        //@ assume Perm(c.record[2], 1); // Lock ids 7
+        //@ assume Perm(c.record[0], 1); // Lock ids 1
+        //@ assume Perm(c.record[1], 1); // Lock ids 2
+        //@ assume Perm(c.record[2], 1); // Lock ids 3
+        //@ assume Perm(c.record[3], 1); // Lock ids 4
         c.record[c.partner[3]] = (3) & 0xff;
     }
 
@@ -12519,8 +12519,8 @@ class GlobalClass_User_3Thread {
     private boolean t_calling_5_s_3() {
         // SLCO assignment | chan[3] := (partner[3] + 0 * 20).
         //@ assume 0 <= 3 && 3 < 4;
-        //@ assume Perm(c.chan[3], 1);
         //@ assume Perm(c.partner[3], 1);
+        //@ assume Perm(c.chan[3], 1);
         c.chan[3] = ((c.partner[3] + 0 * 20)) & 0xff;
     }
 
@@ -12674,8 +12674,8 @@ class GlobalClass_User_3Thread {
     @*/
     private boolean t_oalert_0_s_0_n_0() {
         //@ assume 0 <= 3 && 3 < 4;
-        //@ assume Perm(c.chan[3], 1);
         //@ assume Perm(c.partner[3], 1);
+        //@ assume Perm(c.chan[3], 1);
         return (Math.floorMod(c.chan[3], 20)) != c.partner[3];
     }
 
@@ -12729,8 +12729,8 @@ class GlobalClass_User_3Thread {
     @*/
     private boolean t_oalert_1_s_0_n_0() {
         //@ assume 0 <= 3 && 3 < 4;
-        //@ assume Perm(c.chan[3], 1);
         //@ assume Perm(c.partner[3], 1);
+        //@ assume Perm(c.chan[3], 1);
         return (Math.floorMod(c.chan[3], 20)) == c.partner[3];
     }
 
@@ -12836,8 +12836,8 @@ class GlobalClass_User_3Thread {
     @*/
     private boolean t_oalert_2_s_0_n_0() {
         //@ assume 0 <= 3 && 3 < 4;
-        //@ assume Perm(c.chan[3], 1);
         //@ assume Perm(c.partner[3], 1);
+        //@ assume Perm(c.chan[3], 1);
         return (Math.floorMod(c.chan[3], 20)) == c.partner[3];
     }
 
@@ -13915,8 +13915,8 @@ class GlobalClass_User_3Thread {
     private boolean t_tpickup_0_s_3() {
         // SLCO assignment | chan[3] := (partner[3] + 1 * 20).
         //@ assume 0 <= 3 && 3 < 4;
-        //@ assume Perm(c.chan[3], 1);
         //@ assume Perm(c.partner[3], 1);
+        //@ assume Perm(c.chan[3], 1);
         c.chan[3] = ((c.partner[3] + 1 * 20)) & 0xff;
     }
 
